@@ -1,0 +1,10 @@
+{{define "index"}}
+{{template "header" .}}
+{{template "topbar" .}}
+{{if .Error.True}}
+    {{template "error" .}}
+{{end}}
+{{template "categories" .}}
+{{template "posts" .}}
+{{template "ending" .}}
+{{end}}
