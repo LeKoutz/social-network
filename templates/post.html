@@ -21,6 +21,7 @@
                 />
             <label for="dislikes">{{.Dislikes}} Dislikes</label>
         </form>
+        {{ template "comment_create" .}}
         {{ template "comments" .}}
     </div>
 </div>
