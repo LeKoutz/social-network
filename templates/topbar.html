@@ -4,6 +4,20 @@
         <a href="/"><h1>{{.WebsiteName}}</h1></a>
     </div>
     <div class="menu">
+        <ul>
+            <li>{{.User.Name}}</li>
+            {{if .User.LoggedIn }}
+            <li><ul>
+                <li><a href="/logout">Log out</a></li>
+            </ul></li>
+            {{else}}
+            <li><ul>
+                <li><a href="/login">Log in</a></li>
+                <li><a href="/register">Register</a></li>
+            </ul></li>
+            {{end}}
+        </ul>
+
     </div>
 </div>
 {{end}}

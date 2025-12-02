@@ -1,5 +1,26 @@
 {{define "comment"}}
 <div id="{{.Id}}">
     <p>{{.Body}}</p>
+    <div>
+        <form method="POST" action="/comment?id={{.Id}}">
+            <input
+                id="likes"
+                type="checkbox"
+                name="like"
+                onchange="submit()"
+                {{if .Liked}} checked{{end}}
+                />
+            <label for="likes">{{.Likes}} Likes</label>
+            <input
+                id="dislikes"
+                type="checkbox"
+                name="dislike"
+                onchange="submit()"
+                {{if .Disliked}} checked{{end}}
+                />
+            <label for="dislikes">{{.Dislikes}} Dislikes</label>
+        </form>
+    </div>
+
 </div>
 {{end}}

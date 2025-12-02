@@ -4,8 +4,22 @@
     <p>{{.Body}}</p>
     <div>
         <form method="POST" action="/post?id={{.Id}}">
-            <input type="checkbox" name="like" onchange="submit()"{{if .Liked}} checked{{end}}>{{.Likes}} Likes</input>
-            <input type="checkbox" name="dislike" onchange="submit()"{{if .Disliked}} checked{{end}}>{{.Dislikes}} Dislikes</input>
+            <input
+                id="likes"
+                type="checkbox"
+                name="like"
+                onchange="submit()"
+                {{if .Liked}} checked{{end}}
+                />
+            <label for="likes">{{.Likes}} Likes</label>
+            <input
+                id="dislikes"
+                type="checkbox"
+                name="dislike"
+                onchange="submit()"
+                {{if .Disliked}} checked{{end}}
+                />
+            <label for="dislikes">{{.Dislikes}} Dislikes</label>
         </form>
         {{ template "comments" .}}
     </div>
