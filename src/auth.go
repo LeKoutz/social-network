@@ -44,7 +44,7 @@ func Auth(email, password string) error {
 	salt := GetUserSalt(email)
 	hashStored := GetUserHash(email)
 	// Salt password
-	saltedPassword := salt+password
+	saltedPassword := salt + password
 	hash, err := bcrypt.GenerateFromPassword([]byte(saltedPassword), bcrypt.DefaultCost)
 	if err != nil {
 		return err

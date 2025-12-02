@@ -25,16 +25,16 @@ func TestSaltGenerator(t *testing.T) {
 
 func TestAuth(t *testing.T) {
 	tests := []struct {
-		name string
-		email string
+		name     string
+		email    string
 		password string
-		want error
+		want     error
 	}{
 		{
-			name: "placeholder",
-			email: "test@test.test",
+			name:     "placeholder",
+			email:    "test@test.test",
 			password: "test",
-			want: nil,
+			want:     nil,
 		},
 	}
 	for _, tt := range tests {

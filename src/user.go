@@ -4,13 +4,13 @@ import "net/http"
 
 var (
 	GuestUser = User{
-		Name: "guest",
-		Role: "guest",
+		Name:     "guest",
+		Role:     "guest",
 		LoggedIn: false,
 	}
 	AdminUser = User{
-		Name: "admin",
-		Role: "admin",
+		Name:     "admin",
+		Role:     "admin",
 		LoggedIn: true,
 	}
 )
@@ -51,9 +51,9 @@ func attemptLogin(res http.ResponseWriter, req *http.Request, _ User) {
 
 	}
 	cookie := &http.Cookie{
-		Name: "access",
+		Name:  "access",
 		Value: "admin",
-		Path: "/",
+		Path:  "/",
 	}
 	http.SetCookie(res, cookie)
 	data := ValuesToClient()
