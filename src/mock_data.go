@@ -8,7 +8,7 @@ var (
 		User: User{
 			Name: "Guest",
 		},
-		Posts: []Post{
+		Posts: Posts{
 			{
 				Id:        1,
 				Title:     "something",
@@ -40,12 +40,12 @@ var (
 		},
 		Categories: ReturnMockCategories(),
 		Error: Error{
-			True:    true,
+			Has:     true,
 			Message: "mpla",
 		},
 	}
 )
 
-func ValuesToClient() ResponseStruct {
+func ReturnMockResponse() ResponseStruct {
 	return ResponseStructMock
 }

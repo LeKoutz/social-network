@@ -1,7 +1,7 @@
 {{define "index"}}
 {{template "header" .}}
 {{template "topbar" .}}
-{{if .Error.True}}
+{{if .Error.Has}}
     {{template "error" .}}
 {{end}}
 {{template "categories" .}}

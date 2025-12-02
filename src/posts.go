@@ -22,35 +22,41 @@ type Post struct {
 
 type Posts []Post
 
-func showPost(id string) ResponseStruct {
-	post_id, err := strconv.Atoi(id)
-	if err != nil {
-		log.Printf("Error: %s", err.Error())
-		return ResponseStruct{
-			Error: Error{
-				True:    true,
-				Message: "id value not numerical",
+func returnMockPost(post_id int) Posts {
+	return Posts{
+		{
+			Id:        post_id,
+			Title:     "something",
+			Body:      "mpla mpla",
+			Timestamp: time.Now().UTC(),
+			Likes:     2,
+			Dislikes:  1,
+			Category: Category{
+				Id:   1,
+				Name: "various",
 			},
-		}
-	}
-	return ResponseStruct{
-		WebsiteName: "Forum",
-		Posts: Posts{
-			{
-				Id:        post_id,
-				Title:     "something",
-				Body:      "mpla mpla",
-				Timestamp: time.Now().UTC(),
-				Likes:     2,
-				Dislikes:  1,
-				Category: Category{
-					Id:   1,
-					Name: "various",
-				},
-				Comments: ReturnMockComments(),
-			},
+			Comments: ReturnMockComments(),
 		},
 	}
+}
+
+func showPost(res http.ResponseWriter, id string, user User) {
+	post_id, err := strconv.Atoi(id)
+	data := &ResponseStruct{}
+	data.Init()
+	data.SetUser(user)
+	if err != nil {
+		e := &Error{}
+		errC := e.Consume(err)
+		errC.LogError()
+		data.SetView("error_view")
+		data.SetError(errC)
+		data.WriteResponse(res)
+		return
+	}
+	data.SetView("post_view")
+	data.SetPosts(returnMockPost(post_id))
+	data.WriteResponse(res)
 }
 
 func showPosts(res http.ResponseWriter, req *http.Request, user User) {
@@ -58,8 +64,11 @@ func showPosts(res http.ResponseWriter, req *http.Request, user User) {
 	_, ok := query["id"]
 	if ok {
 		log.Printf("%v", query["id"])
-		respondView(res, "post_view", showPost(query["id"][0]))
+		showPost(res, query["id"][0], user)
 		return
 	}
-	respondView(res, "posts_view", ValuesToClient())
+	data := ReturnMockResponse()
+	data.SetUser(user)
+	data.SetView("posts_view")
+	data.WriteResponse(res)
 }

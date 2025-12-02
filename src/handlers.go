@@ -27,7 +27,7 @@ func getRoutes(res http.ResponseWriter, req *http.Request, user User) {
 		respondView(res, "error_view", ResponseStruct{
 			WebsiteName: "Forum",
 			Error: Error{
-				True:    true,
+				Has:     true,
 				Message: "Not found",
 			},
 		})
@@ -49,12 +49,10 @@ func postRoutes(res http.ResponseWriter, req *http.Request, user User) {
 	default:
 		log.Printf("%s", req.RequestURI)
 		res.WriteHeader(http.StatusNotFound)
+		e := &Error{}
 		respondView(res, "error_view", ResponseStruct{
 			WebsiteName: "Forum",
-			Error: Error{
-				True:    true,
-				Message: "Not found",
-			},
+			Error:       e.Consume(ErrorNotFound),
 		})
 	}
 }
@@ -63,7 +61,7 @@ func routesHandler(res http.ResponseWriter, req *http.Request) {
 	log.Printf("Info: %s -> %s http://%s%s", req.RemoteAddr, req.Method, req.Host, req.RequestURI)
 	log.Printf("Cookies: %d", len(req.Cookies()))
 	var user User = User{
-		Name: "Guest",
+		Name:  "Guest",
 		Email: "guest@example.com",
 	}
 	for _, cookie := range req.Cookies() {
@@ -82,7 +80,7 @@ func routesHandler(res http.ResponseWriter, req *http.Request) {
 		respondView(res, "error_view", ResponseStruct{
 			WebsiteName: "Forum",
 			Error: Error{
-				True:    true,
+				Has:     true,
 				Message: "Method Not Allowed",
 			},
 		})
@@ -98,7 +96,7 @@ func respondError(statusInt int, res http.ResponseWriter, _ string) {
 		log.Printf("Error: %s", err.Error())
 		return
 	}
-	err = index.ExecuteTemplate(res, "error_view", ValuesToClient())
+	err = index.ExecuteTemplate(res, "error_view", ReturnMockResponse())
 	if err != nil {
 		log.Printf("Error: %s", err.Error())
 		return
