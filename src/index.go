@@ -5,5 +5,5 @@ import "net/http"
 func showIndex(res http.ResponseWriter, _ *http.Request, user User) {
 	data := ResponseStructMock
 	data.User = user
-	respondView(res, "index", data)
+	respondView(res, "index_view", data)
 }
