@@ -48,12 +48,13 @@ func attemptLogin(res http.ResponseWriter, req *http.Request, _ User) {
 	var username string
 	if len(req.Form.Get("email")) != 0 {
 		username = req.Form.Get("email")
-
 	}
 	cookie := &http.Cookie{
-		Name:  "access",
-		Value: "admin",
-		Path:  "/",
+		Name:     "access",
+		Value:    "admin",
+		Path:     "/",
+		Secure:   true,
+		HttpOnly: true,
 	}
 	http.SetCookie(res, cookie)
 	data := ReturnMockResponse()
