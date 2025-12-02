@@ -27,7 +27,7 @@ type User struct {
 }
 
 func showLogin(res http.ResponseWriter, _ *http.Request, user User) {
-	data := ValuesToClient()
+	data := ReturnMockResponse()
 	data.User = user
 	respondView(res, "user_login_view", data)
 }
@@ -56,14 +56,14 @@ func attemptLogin(res http.ResponseWriter, req *http.Request, _ User) {
 		Path:  "/",
 	}
 	http.SetCookie(res, cookie)
-	data := ValuesToClient()
+	data := ReturnMockResponse()
 	data.User = AdminUser
 	data.User.Name = username
 	respondView(res, "index_view", data)
 }
 
 func showRegister(res http.ResponseWriter, _ *http.Request, user User) {
-	data := ValuesToClient()
+	data := ReturnMockResponse()
 	data.User = user
 	respondView(res, "user_register_view", data)
 }
@@ -88,7 +88,7 @@ func showLogout(res http.ResponseWriter, req *http.Request, _ User) {
 		})
 		return
 	}
-	data := ValuesToClient()
+	data := ReturnMockResponse()
 	data.User = GuestUser
 	respondView(res, "user_logout_view", data)
 }

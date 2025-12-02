@@ -36,7 +36,7 @@ func (e *Error) LogError() {
 }
 
 func (e *Error) RespondError(res http.ResponseWriter) {
-	data := ValuesToClient()
+	data := ReturnMockResponse()
 	data.Error = *e
 	respondView(res, "error_view", data)
 }

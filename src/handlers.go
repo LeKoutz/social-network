@@ -96,7 +96,7 @@ func respondError(statusInt int, res http.ResponseWriter, _ string) {
 		log.Printf("Error: %s", err.Error())
 		return
 	}
-	err = index.ExecuteTemplate(res, "error_view", ValuesToClient())
+	err = index.ExecuteTemplate(res, "error_view", ReturnMockResponse())
 	if err != nil {
 		log.Printf("Error: %s", err.Error())
 		return

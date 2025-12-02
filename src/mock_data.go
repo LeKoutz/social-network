@@ -8,7 +8,7 @@ var (
 		User: User{
 			Name: "Guest",
 		},
-		Posts: []Post{
+		Posts: Posts{
 			{
 				Id:        1,
 				Title:     "something",
@@ -46,6 +46,6 @@ var (
 	}
 )
 
-func ValuesToClient() ResponseStruct {
+func ReturnMockResponse() ResponseStruct {
 	return ResponseStructMock
 }

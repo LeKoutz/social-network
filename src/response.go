@@ -15,6 +15,10 @@ func (r *ResponseStruct) WriteResponse(res http.ResponseWriter) {
 	respondView(res, r.View, *r)
 }
 
+func (r *ResponseStruct) Init() {
+	r.WebsiteName = WebsiteName
+}
+
 func (r *ResponseStruct) SetWebsiteName(websiteName string) {
 	r.WebsiteName = websiteName
 }
