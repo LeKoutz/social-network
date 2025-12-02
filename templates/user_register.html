@@ -1,0 +1,19 @@
+{{define "user_register_view"}}
+{{template "header"}}
+{{template "topbar" .}}
+{{if .Error.True}}
+    {{template "error" .}}
+{{end}}
+<form method="POST" action="/user/login">
+    <fieldset>
+        <legend>User Registration</legend>
+        <input placeholder="Email" type="email" name="email" required/>
+        <input placeholder="Name" type="text" name="name" required/>
+        <input placeholder="password" type="password" name="password1" required/>
+        <input placeholder="password again" type="password" name="password2" required/>
+        <input type="submit" name="submit"/>
+    </fieldset>
+</form>
+{{template "ending"}}
+{{end}}
+

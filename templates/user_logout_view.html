@@ -1,0 +1,12 @@
+{{define "user_logout_view"}}
+{{template "header" .}}
+{{template "topbar" .}}
+<div class="container">
+    {{if .Error.True}}
+        {{template "error" .}}
+    {{end}}
+    <h2>Logout successful</h2>
+    <p>See ya later!</p>
+</div>
+{{template "ending" .}}
+{{end}}

@@ -1,0 +1,8 @@
+{{define "posts"}}
+    <div class="posts">
+        <h2>Posts</h2>
+        {{ range .Posts}}
+            {{ template "post" . }}
+        {{end}}
+    </div>
+{{end}}

@@ -1,0 +1,16 @@
+{{define "user_login_view"}}
+{{template "header"}}
+{{template "topbar" .}}
+{{if .Error.True}}
+    {{template "error" .}}
+{{end}}
+<form method="POST" action="/user?action=login">
+    <fieldset>
+        <legend>User Login</legend>
+        <input type="email" name="email"/>
+        <input type="password" name="password"/>
+        <input type="submit" name="submit"/>
+    </fieldset>
+</form>
+{{template "ending"}}
+{{end}}

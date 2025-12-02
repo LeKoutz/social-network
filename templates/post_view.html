@@ -1,0 +1,12 @@
+{{define "post_view"}}
+{{template "header" .}}
+{{template "topbar" .}}
+<div class="container">
+    {{if .Error.True}}
+        {{template "error" .}}
+    {{end}}
+    {{template "post" index .Posts 0}}
+</div>
+{{template "ending" .}}
+{{end}}
+
