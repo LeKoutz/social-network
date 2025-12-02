@@ -6,13 +6,6 @@ import (
 	"net/http"
 )
 
-type ResponseStruct struct {
-	WebsiteName string
-	User        User
-	Posts       Posts
-	Categories  Categories
-	Error       Error
-}
 func respondView(res http.ResponseWriter, view string, data ResponseStruct) {
 	var templatesDir string = "templates"
 	var tmpl *template.Template
