@@ -40,7 +40,7 @@ var (
 		},
 		Categories: ReturnMockCategories(),
 		Error: Error{
-			True:    true,
+			Has:     true,
 			Message: "mpla",
 		},
 	}

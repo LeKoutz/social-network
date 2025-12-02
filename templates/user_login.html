@@ -1,7 +1,7 @@
 {{define "user_login_view"}}
 {{template "header"}}
 {{template "topbar" .}}
-{{if .Error.True}}
+{{if .Error.Has}}
     {{template "error" .}}
 {{end}}
 <form method="POST" action="/user?action=login">

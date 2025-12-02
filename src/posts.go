@@ -28,7 +28,7 @@ func showPost(id string) ResponseStruct {
 		log.Printf("Error: %s", err.Error())
 		return ResponseStruct{
 			Error: Error{
-				True:    true,
+				Has:     true,
 				Message: "id value not numerical",
 			},
 		}

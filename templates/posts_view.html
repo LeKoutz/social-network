@@ -2,7 +2,7 @@
 {{template "header" .}}
 {{template "topbar" .}}
 <div class="container">
-    {{if .Error.True}}
+    {{if .Error.Has}}
         {{template "error" .}}
     {{end}}
     {{template "posts" .}}

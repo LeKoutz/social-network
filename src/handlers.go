@@ -27,7 +27,7 @@ func getRoutes(res http.ResponseWriter, req *http.Request, user User) {
 		respondView(res, "error_view", ResponseStruct{
 			WebsiteName: "Forum",
 			Error: Error{
-				True:    true,
+				Has:     true,
 				Message: "Not found",
 			},
 		})
@@ -49,12 +49,10 @@ func postRoutes(res http.ResponseWriter, req *http.Request, user User) {
 	default:
 		log.Printf("%s", req.RequestURI)
 		res.WriteHeader(http.StatusNotFound)
+		e := &Error{}
 		respondView(res, "error_view", ResponseStruct{
 			WebsiteName: "Forum",
-			Error: Error{
-				True:    true,
-				Message: "Not found",
-			},
+			Error:       e.Consume(ErrorNotFound),
 		})
 	}
 }
@@ -82,7 +80,7 @@ func routesHandler(res http.ResponseWriter, req *http.Request) {
 		respondView(res, "error_view", ResponseStruct{
 			WebsiteName: "Forum",
 			Error: Error{
-				True:    true,
+				Has:     true,
 				Message: "Method Not Allowed",
 			},
 		})

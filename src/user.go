@@ -82,7 +82,7 @@ func showLogout(res http.ResponseWriter, req *http.Request, _ User) {
 	} else {
 		respondView(res, "error_view", ResponseStruct{
 			Error: Error{
-				True: true,
+				Has:     true,
 				Message: "Lol",
 			},
 		})
