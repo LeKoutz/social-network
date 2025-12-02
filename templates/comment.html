@@ -1,5 +1,5 @@
 {{define "comment"}}
-<div id="{{.Id}}">
+<div class="comment" id="{{.Id}}">
     <p>{{.Body}}</p>
     <div>
         <form method="POST" action="/comment?id={{.Id}}">

@@ -1,0 +1,6 @@
+{{define "comment_create"}}
+<form method="POST" action="/comment?action=create&post_id={{.Id}}">
+    <input type="text" name="comment" placeholder="Enter your comment"/>
+    <input type="submit" name="submit" value="Post comment"/>
+</form>
+{{end}}
