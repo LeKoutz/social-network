@@ -32,6 +32,18 @@ func showLogin(res http.ResponseWriter, _ *http.Request, user User) {
 	respondView(res, "user_login_view", data)
 }
 
+func GetUserSalt(email string) string {
+	// select from users where email = email
+	// row->salt
+	return ""
+}
+
+func GetUserHash(email string) string {
+	// select from users where email = email
+	// row->hash
+	return ""
+}
+
 func attemptLogin(res http.ResponseWriter, req *http.Request, _ User) {
 	var username string
 	if len(req.Form.Get("email")) != 0 {
