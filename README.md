@@ -17,6 +17,14 @@ make
 
 Start it with:
 ```
+./forum [ip] [port]
+```
+or
+```
+./forum [port]
+```
+or
+```
 ./forum
 ```
 and navigate to the URL that it returned.
