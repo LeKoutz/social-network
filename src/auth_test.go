@@ -4,21 +4,23 @@ import "testing"
 
 func TestSaltGenerator(t *testing.T) {
 	tests := []struct {
-		name string
-		want string
+		name   string
+		length int
+		want   int
 	}{
 		{
-			name: "general salt",
-			want: "nothing",
+			name:   "general salt",
+			length: 5,
+			want:   5,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			a, err := SaltGenerator(5)
-			if err != nil {
-				t.Error(err.Error())
+			salt := SaltGenerator(tt.length)
+			got := len(salt)
+			if got != tt.want {
+				t.Errorf("Expected: %d, got %d", tt.want, got)
 			}
-			t.Logf("%#v", a)
 		})
 	}
 }
