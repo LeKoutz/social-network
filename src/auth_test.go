@@ -13,6 +13,11 @@ func TestSaltGenerator(t *testing.T) {
 			length: 5,
 			want:   5,
 		},
+		{
+			name:   "limit",
+			length: 26,
+			want:   26,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
