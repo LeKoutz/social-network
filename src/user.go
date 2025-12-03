@@ -203,3 +203,43 @@ func validateStrongPassword(password string) error {
 	}
 	return nil
 }
+
+// Check if user already liked this post
+func hasUserAlreadyLikedPost(userId, postId int) (bool, error) {
+	existingReactionId, err := checkIfUserAlreadyLikedPost(userId, postId)
+	if err != nil {
+		return false, err
+	}
+
+	return existingReactionId != 0, nil
+}
+
+// Check if user already disliked this post
+func hasUserAlreadyDislikedPost(userId, postId int) (bool, error) {
+	existingReactionId, err := checkIfUserAlreadyDislikedPost(userId, postId)
+	if err != nil {
+		return false, err
+	}
+
+	return existingReactionId != 0, nil
+}
+
+// Check if user already liked this comment
+func hasUserAlreadyLikedComment(userId, commentId int) (bool, error) {
+	existingReactionId, err := checkIfUserAlreadyLikedPost(userId, commentId)
+	if err != nil {
+		return false, err
+	}
+
+	return existingReactionId != 0, nil
+}
+
+// Check if user already disliked this comment
+func hasUserAlreadyDislikedComment(userId, commentId int) (bool, error) {
+	existingReactionId, err := checkIfUserAlreadyDislikedComment(userId, commentId)
+	if err != nil {
+		return false, err
+	}
+
+	return existingReactionId != 0, nil
+}
