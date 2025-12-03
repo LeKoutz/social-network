@@ -120,7 +120,7 @@ func registerUser(res http.ResponseWriter, req *http.Request) {
 		respondView(res, "user_register_view", data)
 		return
 	}
-	user.Salt = SaltGenerator(26-len([]byte(password)))
+	user.Salt = SaltGenerator(26 - len([]byte(password)))
 	user.Hash, err = HashPassword(SaltPassword(user.Salt, password))
 	if err != nil {
 		data := ReturnMockResponse()
@@ -184,8 +184,12 @@ func (u *User) validateEmail() error {
 
 func (u *User) validateUser() error {
 	var err error
-	if err = u.validateUsername(); err != nil { return err }
-	if err = u.validateEmail(); err != nil { return err }
+	if err = u.validateUsername(); err != nil {
+		return err
+	}
+	if err = u.validateEmail(); err != nil {
+		return err
+	}
 	return nil
 }
 
