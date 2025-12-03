@@ -190,3 +190,226 @@ func getUserByEmail(email string) (User, error) {
 	}
 	return user, nil
 }
+
+func checkIfUserAlreadyLikedPost(userId, postId int) (int, error) {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return 0, err
+	}
+	defer db.Close()
+
+	var existingReactionId int
+	err = db.QueryRow(`
+		SELECT id FROM reactions
+		WHERE user_id = ? AND post_id = ? AND value = 1
+		`, userId, postId).Scan(&existingReactionId)
+
+	if err != nil && err != sql.ErrNoRows {
+		return 0, err
+	}
+
+	return existingReactionId, nil
+}
+
+func checkIfUserAlreadyDislikedPost(userId, postId int) (int, error) {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return 0, err
+	}
+	defer db.Close()
+
+	var existingDislikeId int
+	err = db.QueryRow(`
+		SELECT id FROM reactions
+		WHERE user_id = ? AND post_id = ? AND value = 2
+		`, userId, postId).Scan(&existingDislikeId)
+
+	if err != nil && err != sql.ErrNoRows {
+		return 0, err
+	}
+
+	return existingDislikeId, nil
+}
+
+func addLikeToPost(userId, postId int) error {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	_, err = db.Exec(`
+		INSERT INTO reactions (user_id, post_id, value)
+		VALUES (?, ?, 1)
+		`, userId, postId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func removeDislikeFromPost(dislikeId int) error {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	_, err = db.Exec(`
+		DELETE FROM reactions
+		WHERE id = ?
+		`, dislikeId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func addDislikeToPost(userId, postId int) error {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	_, err = db.Exec(`
+		INSERT INTO reactions (user_id, post_id, value)
+		VALUES (?, ?, 2)
+		`, userId, postId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func removeLikeFromPost(userId, postId int) error {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	_, err = db.Exec(`
+		DELETE FROM reactions
+		WHERE user_id = ? AND post_id = ? AND value = 1
+		`, userId, postId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func checkIfUserAlreadyLikedComment(userId, commentId int) (int, error) {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return 0, err
+	}
+	defer db.Close()
+
+	var existingReactionId int
+	err = db.QueryRow(`
+		SELECT id FROM reactions
+		WHERE user_id = ? AND comment_id = ? AND value = 1
+		`, userId, commentId).Scan(&existingReactionId)
+
+	if err != nil && err != sql.ErrNoRows {
+		return 0, err
+	}
+
+	return existingReactionId, nil
+}
+
+func checkIfUserAlreadyDislikedComment(userId, commentId int) (int, error) {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return 0, err
+	}
+	defer db.Close()
+
+	var existingDislikeId int
+	err = db.QueryRow(`
+		SELECT id FROM reactions
+		WHERE user_id = ? AND comment_id = ? AND value = 2
+		`, userId, commentId).Scan(&existingDislikeId)
+
+	if err != nil && err != sql.ErrNoRows {
+		return 0, err
+	}
+
+	return existingDislikeId, nil
+}
+
+func addLikeToComment(userId, commentId int) error {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	_, err = db.Exec(`
+		INSERT INTO reactions (user_id, comment_id, value)
+		VALUES (?, ?, 1)
+		`, userId, commentId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func addDislikeToComment(userId, commentId int) error {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	_, err = db.Exec(`
+		INSERT INTO reactions (user_id, comment_id, value)
+		VALUES (?, ?, 2)
+		`, userId, commentId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+func removeDislikeFromComment(dislikeId int) error {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	_, err = db.Exec(`
+		DELETE FROM reactions
+		WHERE id = ?
+		`, dislikeId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func removeLikeFromComment(userId, commentId int) error {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	_, err = db.Exec(`
+		DELETE FROM reactions
+		WHERE user_id = ? AND comment_id = ? AND value = 1
+		`, userId, commentId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
