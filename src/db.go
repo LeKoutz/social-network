@@ -106,3 +106,87 @@ func createReactionsTable() string {
 		FOREIGN KEY("user_id") REFERENCES "users"("id")
 	)`
 }
+
+func registerUserOnDB(user User) error {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	err = user.validateUser()
+	if err != nil {
+		return err
+	}
+	if IsEmailRegistered(user.Email) {
+		return ErrorEmailIsRegistered
+	}
+	stmt, err := db.Prepare("INSERT INTO users (username, email, salt, hash) VALUES (?, ?, ?, ?)")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(user.Username, user.Email, user.Salt, user.Hash)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func getAllUsernames() ([]string, error) {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return []string{}, err
+	}
+	defer db.Close()
+	rows, err := db.Query(`SELECT username FROM users`)
+	if err != nil {
+		return []string{}, err
+	}
+	defer rows.Close()
+	var usernames []string
+	for rows.Next() {
+		var email string
+		err = rows.Scan(&email)
+		if err != nil {
+			return []string{}, err
+		}
+		usernames = append(usernames, email)
+	}
+	return usernames, nil
+}
+
+func getAllUserEmails() ([]string, error) {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return []string{}, err
+	}
+	defer db.Close()
+	rows, err := db.Query(`SELECT email FROM users`)
+	if err != nil {
+		return []string{}, err
+	}
+	defer rows.Close()
+	var emails []string
+	for rows.Next() {
+		var email string
+		err = rows.Scan(&email)
+		if err != nil {
+			return []string{}, err
+		}
+		emails = append(emails, email)
+	}
+	return emails, nil
+}
+
+func getUserByEmail(email string) (User, error) {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return User{}, err
+	}
+	defer db.Close()
+	var user User
+	err = db.QueryRow(`SELECT email FROM users`).Scan(&user.Email)
+	if err != nil {
+		return User{}, err
+	}
+	return user, nil
+}
