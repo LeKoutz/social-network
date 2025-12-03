@@ -2,8 +2,6 @@ package forum
 
 import (
 	"database/sql"
-	"fmt"
-	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -14,11 +12,6 @@ func Init() error {
 		return err
 	}
 	defer db.Close()
-	// var sqliteVersion string
-	// err = db.QueryRow("select sqlite_version()").Scan(&sqliteVersion)
-	// if err != nil {
-	// 	return err
-	// }
 	_, err = db.Exec(createUsersTable())
 	if err != nil {
 		return err
@@ -43,7 +36,6 @@ func Init() error {
 	if err != nil {
 		return err
 	}
-	// fmt.Fprintf(os.Stderr, "%s", sqliteVersion)
 	return nil
 }
 
