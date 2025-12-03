@@ -16,7 +16,6 @@ func CompareRegistrationPasswords(pass1, pass2 string) bool {
 }
 
 func IsUniqueUsername(username string) bool {
-	// Check against all usernames?!
 	usernames, err := getAllUsernames()
 	if err != nil {
 		var e Error
@@ -53,13 +52,32 @@ func Auth(email, password string) error {
 	salt := GetUserSalt(email)
 	hashStored := GetUserHash(email)
 	// Salt password
-	saltedPassword := salt + password
-	hash, err := bcrypt.GenerateFromPassword([]byte(saltedPassword), bcrypt.DefaultCost)
+	saltedPassword := SaltPassword(salt, password)
+	// Delete password from memory
+	password = ""
+	// Hash the salted version
+	hash, err := HashPassword(saltedPassword)
 	if err != nil {
 		return err
 	}
-	if string(hash) != hashStored {
+	// Delete salted password from memory as well
+	saltedPassword = ""
+	if hash != hashStored {
 		return ErrorWrongPassword
 	}
 	return nil
+}
+
+// Returns the given password with prefixed salt string
+func SaltPassword(salt, password string) string {
+	return salt + password
+}
+
+// Returns the hash (string) from password or error
+func HashPassword(password string) (string, error){
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hash), nil
 }
