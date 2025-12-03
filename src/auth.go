@@ -28,13 +28,18 @@ func IsUniqueUsername(username string) bool {
 }
 
 func IsUniqueEmail(email string) bool {
-	// Check against all emails?!
-	return false
+	emails, err := getAllUserEmails()
+	if err != nil {
+		var e Error
+		e.Consume(err)
+		e.LogError()
+		return false
+	}
+	return !slices.Contains(emails, email)
 }
 
 func IsEmailRegistered(email string) bool {
-	// Check against all emails?!
-	return false
+	return !IsUniqueEmail(email)
 }
 
 func Auth(email, password string) error {
