@@ -2,16 +2,12 @@ package forum
 
 import (
 	"crypto/rand"
-	"fmt"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
-func SaltGenerator(length int) ([]byte, error) {
-	bytes := make([]byte, length)
-	rand.Read(bytes)
-	fmt.Printf("%x\n", bytes)
-	return bytes, nil
+func SaltGenerator(length int) string {
+	return rand.Text()[:length]
 }
 
 func CompareRegistrationPasswords(pass1, pass2 string) bool {
