@@ -120,6 +120,7 @@ func registerUser(res http.ResponseWriter, req *http.Request) {
 		respondView(res, "user_register_view", data)
 		return
 	}
+	// magic number 26 is max length of password
 	user.Salt = SaltGenerator(26 - len([]byte(password)))
 	user.Hash, err = HashPassword(SaltPassword(user.Salt, password))
 	if err != nil {
@@ -193,6 +194,8 @@ func (u *User) validateUser() error {
 	return nil
 }
 
+// Strong password validation. Makes sure the password is in between 10-16
+// characters and includes letters, numbers and punctation symbols
 func validateStrongPassword(password string) error {
 	unameMask := regexp.MustCompile(`^[[:punct:][:alnum:]]{10,16}$`)
 	if !unameMask.MatchString(password) {
