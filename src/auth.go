@@ -2,6 +2,7 @@ package forum
 
 import (
 	"crypto/rand"
+	"slices"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -16,7 +17,14 @@ func CompareRegistrationPasswords(pass1, pass2 string) bool {
 
 func IsUniqueUsername(username string) bool {
 	// Check against all usernames?!
-	return false
+	usernames, err := getAllUsernames()
+	if err != nil {
+		var e Error
+		e.Consume(err)
+		e.LogError()
+		return false
+	}
+	return !slices.Contains(usernames, username)
 }
 
 func IsUniqueEmail(email string) bool {
