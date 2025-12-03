@@ -6,7 +6,7 @@ var (
 	ResponseStructMock = ResponseStruct{
 		WebsiteName: "Forum",
 		User: User{
-			Name: "Guest",
+			Username: "Guest",
 		},
 		Posts: Posts{
 			{

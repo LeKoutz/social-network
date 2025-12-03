@@ -4,11 +4,11 @@
 {{if .Error.Has}}
     {{template "error" .}}
 {{end}}
-<form method="POST" action="/user/login">
+<form method="POST" action="/user?action=register">
     <fieldset>
         <legend>User Registration</legend>
         <input placeholder="Email" type="email" name="email" required/>
-        <input placeholder="Name" type="text" name="name" required/>
+        <input placeholder="Username" type="text" name="username" required/>
         <input placeholder="password" type="password" name="password1" required/>
         <input placeholder="password again" type="password" name="password2" required/>
         <input type="submit" name="submit"/>

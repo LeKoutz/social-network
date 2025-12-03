@@ -2,8 +2,6 @@ package forum
 
 import (
 	"database/sql"
-	"fmt"
-	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -14,11 +12,181 @@ func Init() error {
 		return err
 	}
 	defer db.Close()
-	var sqliteVersion string
-	err = db.QueryRow("select sqlite_version()").Scan(&sqliteVersion)
+	_, err = db.Exec(createUsersTable())
 	if err != nil {
 		return err
 	}
-	fmt.Fprintf(os.Stderr, "%s", sqliteVersion)
+	_, err = db.Exec(createPostsTable())
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec(createCategoriesTable())
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec(createCommentsTable())
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec(createReactionsTable())
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec(createPostsCategoriesTable())
+	if err != nil {
+		return err
+	}
 	return nil
+}
+
+func createUsersTable() string {
+	return `CREATE TABLE IF NOT EXISTS "users" (
+		"id"	INTEGER NOT NULL UNIQUE,
+		"email"	TEXT NOT NULL UNIQUE,
+		"username"	TEXT NOT NULL,
+		"salt"	TEXT UNIQUE,
+		"hash"	TEXT,
+		"session_key"	TEXT,
+		PRIMARY KEY("id" AUTOINCREMENT)
+	)`
+}
+
+func createPostsTable() string {
+	return `CREATE TABLE IF NOT EXISTS "posts" (
+		"id"	INTEGER NOT NULL UNIQUE,
+		"title"	TEXT,
+		"body"	TEXT,
+		"user_id"	INTEGER NOT NULL,
+		PRIMARY KEY("id" AUTOINCREMENT),
+		FOREIGN KEY("user_id") REFERENCES "users"("id")
+	)`
+}
+
+func createCategoriesTable() string {
+	return `CREATE TABLE IF NOT EXISTS "categories" (
+		"id"	INTEGER NOT NULL UNIQUE,
+		"name"	TEXT,
+		PRIMARY KEY("id" AUTOINCREMENT)
+	)`
+}
+
+func createCommentsTable() string {
+	return `CREATE TABLE IF NOT EXISTS "comments" (
+		"id"	INTEGER NOT NULL UNIQUE,
+		"post_id"	INTEGER NOT NULL,
+		"user_id"	INTEGER NOT NULL,
+		"body"	TEXT NOT NULL,
+		PRIMARY KEY("id" AUTOINCREMENT),
+		FOREIGN KEY("post_id") REFERENCES "posts"("id"),
+		FOREIGN KEY("user_id") REFERENCES "users"("id")
+	)`
+}
+
+func createPostsCategoriesTable() string {
+	return `CREATE TABLE IF NOT EXISTS "posts_categories" (
+		"id"	INTEGER NOT NULL UNIQUE,
+		"post_id"	INTEGER NOT NULL,
+		"category_id"	INTEGER NOT NULL,
+		PRIMARY KEY("id" AUTOINCREMENT),
+		FOREIGN KEY("category_id") REFERENCES "categories"("id"),
+		FOREIGN KEY("post_id") REFERENCES "posts"("id")
+	)`
+}
+
+func createReactionsTable() string {
+	return `CREATE TABLE IF NOT EXISTS "reactions" (
+		"id"	INTEGER NOT NULL UNIQUE,
+		"post_id"	INTEGER,
+		"user_id"	INTEGER NOT NULL,
+		"comment_id"	INTEGER,
+		"value"	INTEGER NOT NULL,
+		PRIMARY KEY("id" AUTOINCREMENT),
+		FOREIGN KEY("comment_id") REFERENCES "comments"("id"),
+		FOREIGN KEY("post_id") REFERENCES "posts"("id"),
+		FOREIGN KEY("user_id") REFERENCES "users"("id")
+	)`
+}
+
+func registerUserOnDB(user User) error {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	err = user.validateUser()
+	if err != nil {
+		return err
+	}
+	if IsEmailRegistered(user.Email) {
+		return ErrorEmailIsRegistered
+	}
+	stmt, err := db.Prepare("INSERT INTO users (username, email, salt, hash) VALUES (?, ?, ?, ?)")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(user.Username, user.Email, user.Salt, user.Hash)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func getAllUsernames() ([]string, error) {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return []string{}, err
+	}
+	defer db.Close()
+	rows, err := db.Query(`SELECT username FROM users`)
+	if err != nil {
+		return []string{}, err
+	}
+	defer rows.Close()
+	var usernames []string
+	for rows.Next() {
+		var email string
+		err = rows.Scan(&email)
+		if err != nil {
+			return []string{}, err
+		}
+		usernames = append(usernames, email)
+	}
+	return usernames, nil
+}
+
+func getAllUserEmails() ([]string, error) {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return []string{}, err
+	}
+	defer db.Close()
+	rows, err := db.Query(`SELECT email FROM users`)
+	if err != nil {
+		return []string{}, err
+	}
+	defer rows.Close()
+	var emails []string
+	for rows.Next() {
+		var email string
+		err = rows.Scan(&email)
+		if err != nil {
+			return []string{}, err
+		}
+		emails = append(emails, email)
+	}
+	return emails, nil
+}
+
+func getUserByEmail(email string) (User, error) {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return User{}, err
+	}
+	defer db.Close()
+	var user User
+	err = db.QueryRow(`SELECT email FROM users`).Scan(&user.Email)
+	if err != nil {
+		return User{}, err
+	}
+	return user, nil
 }

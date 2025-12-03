@@ -7,9 +7,15 @@ import (
 )
 
 var (
-	ErrorNotRegistered = errors.New("Email is not registered")
-	ErrorWrongPassword = errors.New("Wrong password")
-	ErrorNotFound      = errors.New("Not found")
+	ErrorNotRegistered     = errors.New("Email is not registered")
+	ErrorEmailIsRegistered = errors.New("Email is already registered")
+	ErrorInvalidUsername   = errors.New("Username is invalid")
+	ErrorUsernameTaken     = errors.New("Username is taken")
+	ErrorInvalidUser       = errors.New("Invalid user")
+	ErrorWrongPassword     = errors.New("Wrong password")
+	ErrorWeakPassword      = errors.New("Weak password. Use lower and upper case letters, symbols and number. Length must be between 10-16 characters.")
+	ErrorPasswordMismatch  = errors.New("Password mismatch")
+	ErrorNotFound          = errors.New("Not found")
 )
 
 type Error struct {

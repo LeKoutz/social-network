@@ -20,6 +20,10 @@ func Main(args []string) {
 	// maybe initialize something first if needed...
 	// for example the database?!?!
 	// maybe that could be a flag...
+	if err := Init(); err != nil {
+		fmt.Printf("Error: %s\n", err.Error())
+		os.Exit(1)
+	}
 	// e.g. --init
 	var ip, port string
 	// in case the flag is not passed, the auto intialization could be triggered

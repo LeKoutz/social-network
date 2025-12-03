@@ -2,16 +2,13 @@ package forum
 
 import (
 	"crypto/rand"
-	"fmt"
+	"slices"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
-func SaltGenerator(length int) ([]byte, error) {
-	bytes := make([]byte, length)
-	rand.Read(bytes)
-	fmt.Printf("%x\n", bytes)
-	return bytes, nil
+func SaltGenerator(length int) string {
+	return rand.Text()[:length]
 }
 
 func CompareRegistrationPasswords(pass1, pass2 string) bool {
@@ -19,18 +16,29 @@ func CompareRegistrationPasswords(pass1, pass2 string) bool {
 }
 
 func IsUniqueUsername(username string) bool {
-	// Check against all usernames?!
-	return false
+	usernames, err := getAllUsernames()
+	if err != nil {
+		var e Error
+		e.Consume(err)
+		e.LogError()
+		return false
+	}
+	return !slices.Contains(usernames, username)
 }
 
 func IsUniqueEmail(email string) bool {
-	// Check against all emails?!
-	return false
+	emails, err := getAllUserEmails()
+	if err != nil {
+		var e Error
+		e.Consume(err)
+		e.LogError()
+		return false
+	}
+	return !slices.Contains(emails, email)
 }
 
 func IsEmailRegistered(email string) bool {
-	// Check against all emails?!
-	return false
+	return !IsUniqueEmail(email)
 }
 
 func Auth(email, password string) error {
@@ -44,13 +52,32 @@ func Auth(email, password string) error {
 	salt := GetUserSalt(email)
 	hashStored := GetUserHash(email)
 	// Salt password
-	saltedPassword := salt + password
-	hash, err := bcrypt.GenerateFromPassword([]byte(saltedPassword), bcrypt.DefaultCost)
+	saltedPassword := SaltPassword(salt, password)
+	// Delete password from memory
+	password = ""
+	// Hash the salted version
+	hash, err := HashPassword(saltedPassword)
 	if err != nil {
 		return err
 	}
-	if string(hash) != hashStored {
+	// Delete salted password from memory as well
+	saltedPassword = ""
+	if hash != hashStored {
 		return ErrorWrongPassword
 	}
 	return nil
+}
+
+// Returns the given password with prefixed salt string
+func SaltPassword(salt, password string) string {
+	return salt + password
+}
+
+// Returns the hash (string) from password or error
+func HashPassword(password string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hash), nil
 }
