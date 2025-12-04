@@ -1,15 +1,10 @@
 package forum
 
 import (
-	"crypto/rand"
 	"slices"
 
 	"golang.org/x/crypto/bcrypt"
 )
-
-func SaltGenerator(length int) string {
-	return rand.Text()[:length]
-}
 
 func CompareRegistrationPasswords(pass1, pass2 string) bool {
 	return pass1 == pass2
@@ -42,35 +37,23 @@ func IsEmailRegistered(email string) bool {
 }
 
 func Auth(email, password string) error {
+	var err error
 	// I guess in order to authenticate against an email and a password, we will
 	// need to first check if email is registered
 	if !IsEmailRegistered(email) {
 		// Return an error... this should be sent back to umh... places...?!
 		return ErrorNotRegistered
 	}
-	// Since we passed the initial test, we can fetch the user's salt
-	salt := GetUserSalt(email)
-	hashStored := GetUserHash(email)
-	// Salt password
-	saltedPassword := SaltPassword(salt, password)
-	// Delete password from memory
-	password = ""
-	// Hash the salted version
-	hash, err := HashPassword(saltedPassword)
+	var user User
+	user, err = getUserByEmail(email)
 	if err != nil {
 		return err
 	}
-	// Delete salted password from memory as well
-	saltedPassword = ""
-	if hash != hashStored {
-		return ErrorWrongPassword
+	err = bcrypt.CompareHashAndPassword([]byte(user.Hash), []byte(password))
+	if err != nil {
+		return err
 	}
 	return nil
-}
-
-// Returns the given password with prefixed salt string
-func SaltPassword(salt, password string) string {
-	return salt + password
 }
 
 // Returns the hash (string) from password or error

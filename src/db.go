@@ -44,7 +44,6 @@ func createUsersTable() string {
 		"id"	INTEGER NOT NULL UNIQUE,
 		"email"	TEXT NOT NULL UNIQUE,
 		"username"	TEXT NOT NULL,
-		"salt"	TEXT UNIQUE,
 		"hash"	TEXT,
 		"session_key"	TEXT,
 		PRIMARY KEY("id" AUTOINCREMENT)
@@ -120,11 +119,11 @@ func registerUserOnDB(user User) error {
 	if IsEmailRegistered(user.Email) {
 		return ErrorEmailIsRegistered
 	}
-	stmt, err := db.Prepare("INSERT INTO users (username, email, salt, hash) VALUES (?, ?, ?, ?)")
+	stmt, err := db.Prepare("INSERT INTO users (username, email, hash) VALUES (?, ?, ?)")
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(user.Username, user.Email, user.Salt, user.Hash)
+	_, err = stmt.Exec(user.Username, user.Email, user.Hash)
 	if err != nil {
 		return err
 	}
@@ -184,7 +183,21 @@ func getUserByEmail(email string) (User, error) {
 	}
 	defer db.Close()
 	var user User
-	err = db.QueryRow(`SELECT email FROM users`).Scan(&user.Email)
+	err = db.QueryRow(`SELECT id, email, username, hash FROM users WHERE email = ?`, email).Scan(&user.Id, &user.Email, &user.Username, &user.Hash)
+	if err != nil {
+		return User{}, err
+	}
+	return user, nil
+}
+
+func getUserBySession(sessionValue string) (User, error) {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return User{}, err
+	}
+	defer db.Close()
+	var user User
+	err = db.QueryRow(`SELECT id, email, username, hash FROM users WHERE session_key = ?`, sessionValue).Scan(&user.Id, &user.Email, &user.Username, &user.Hash)
 	if err != nil {
 		return User{}, err
 	}
@@ -410,6 +423,22 @@ func removeLikeFromComment(userId, commentId int) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
 
+func setUserSession(id int, session_key string) error {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	stmt, err := db.Prepare("UPDATE users SET session_key = ? WHERE id = ?")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(session_key, id)
+	if err != nil {
+		return err
+	}
 	return nil
 }

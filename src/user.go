@@ -4,6 +4,9 @@ import (
 	"net/http"
 	"net/mail"
 	"regexp"
+	"time"
+
+	"github.com/gofrs/uuid"
 )
 
 var (
@@ -20,8 +23,8 @@ var (
 )
 
 type User struct {
+	Id            int
 	Username      string
-	Salt          string
 	Hash          string
 	Email         string
 	Role          string
@@ -38,12 +41,6 @@ func showLogin(res http.ResponseWriter, _ *http.Request, user User) {
 	respondView(res, "user_login_view", data)
 }
 
-func GetUserSalt(email string) string {
-	// select from users where email = email
-	// row->salt
-	return ""
-}
-
 func GetUserHash(email string) string {
 	// select from users where email = email
 	// row->hash
@@ -51,21 +48,66 @@ func GetUserHash(email string) string {
 }
 
 func attemptLogin(res http.ResponseWriter, req *http.Request, _ User) {
-	var username string
+	var email string
+	var password string
+	var err error
+	data := ReturnMockResponse()
+	err = req.ParseForm()
+	if err != nil {
+		var e Error
+		data.User = GuestUser
+		data.Error = e.Consume(err)
+		respondView(res, "user_register_view", data)
+		return
+	}
 	if len(req.Form.Get("email")) != 0 {
-		username = req.Form.Get("email")
+		email = req.Form.Get("email")
+	}
+	if len(req.Form.Get("password")) != 0 {
+		password = req.Form.Get("password")
+	}
+	err = Auth(email, password)
+	if err != nil {
+		var e Error
+		data.User = GuestUser
+		data.Error = e.Consume(err)
+		respondView(res, "user_register_view", data)
+		return
+	}
+	sessionValue, err := uuid.NewV4()
+	if err != nil {
+		var e Error
+		data.User = GuestUser
+		data.Error = e.Consume(err)
+		respondView(res, "user_register_view", data)
+		return
+	}
+	data.User, err = getUserByEmail(email)
+	if err != nil {
+		var e Error
+		data.User = GuestUser
+		data.Error = e.Consume(err)
+		respondView(res, "user_register_view", data)
+		return
+	}
+	data.User.LoggedIn = true
+	err = setUserSession(data.User.Id, sessionValue.String())
+	if err != nil {
+		var e Error
+		data.User = GuestUser
+		data.Error = e.Consume(err)
+		respondView(res, "user_register_view", data)
+		return
 	}
 	cookie := &http.Cookie{
-		Name:     "access",
-		Value:    "admin",
+		Name:     "__Host-FRMSessionID",
+		Value:    sessionValue.String(),
 		Path:     "/",
 		Secure:   true,
 		HttpOnly: true,
+		SameSite: http.SameSite(http.SameSiteStrictMode),
 	}
 	http.SetCookie(res, cookie)
-	data := ReturnMockResponse()
-	data.User = AdminUser
-	data.User.Username = username
 	respondView(res, "index_view", data)
 }
 
@@ -120,9 +162,7 @@ func registerUser(res http.ResponseWriter, req *http.Request) {
 		respondView(res, "user_register_view", data)
 		return
 	}
-	// magic number 26 is max length of password
-	user.Salt = SaltGenerator(26 - len([]byte(password)))
-	user.Hash, err = HashPassword(SaltPassword(user.Salt, password))
+	user.Hash, err = HashPassword(password)
 	if err != nil {
 		data := ReturnMockResponse()
 		var e Error
@@ -139,21 +179,32 @@ func registerUser(res http.ResponseWriter, req *http.Request) {
 		respondView(res, "user_register_view", data)
 		return
 	}
+	if err = Auth(user.Email, password); err != nil {
+		data := ReturnMockResponse()
+		var e Error
+		data.User = user
+		data.Error = e.Consume(err)
+		respondView(res, "user_register_view", data)
+		return
+	}
+	user.LoggedIn = true
 	showIndex(res, req, user)
 }
 
-func nullifyCookie(cookie *http.Cookie) {
-	cookie.Value = ""
+func nullifyCookie(cookie *http.Cookie) *http.Cookie {
+	cookie = &http.Cookie{
+		Name:     "__Host-FRMSessionID",
+		Value:    "",
+		Path:     "/",
+		Expires: time.Unix(0, 0),
+		HttpOnly: true,
+	}
+	return cookie
 }
 
 func showLogout(res http.ResponseWriter, req *http.Request, _ User) {
-	cookies := req.Cookies()
-	for i := range cookies {
-		nullifyCookie(cookies[i])
-	}
-	if len(cookies) != 0 {
-		http.SetCookie(res, cookies[0])
-	} else {
+	cookie, err := req.Cookie("__Host-FRMSessionID")
+	if err != nil {
 		respondView(res, "error_view", ResponseStruct{
 			Error: Error{
 				Has:     true,
@@ -162,6 +213,25 @@ func showLogout(res http.ResponseWriter, req *http.Request, _ User) {
 		})
 		return
 	}
+	user, err := getUserBySession(cookie.Value)
+	if err != nil {
+		data := ReturnMockResponse()
+		var e Error
+		data.User = user
+		data.Error = e.Consume(err)
+		respondView(res, "user_register_view", data)
+		return
+	}
+	err = setUserSession(user.Id, "")
+	if err != nil {
+		data := ReturnMockResponse()
+		var e Error
+		data.User = user
+		data.Error = e.Consume(err)
+		respondView(res, "user_register_view", data)
+		return
+	}
+	http.SetCookie(res, nullifyCookie(cookie))
 	data := ReturnMockResponse()
 	data.User = GuestUser
 	respondView(res, "user_logout_view", data)

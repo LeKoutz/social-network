@@ -60,6 +60,7 @@ func postRoutes(res http.ResponseWriter, req *http.Request, user User) {
 func routesHandler(res http.ResponseWriter, req *http.Request) {
 	log.Printf("Info: %s -> %s http://%s%s", req.RemoteAddr, req.Method, req.Host, req.RequestURI)
 	log.Printf("Cookies: %d", len(req.Cookies()))
+	var err error
 	var user User = User{
 		Username: "Guest",
 		Email:    "guest@example.com",
@@ -68,6 +69,16 @@ func routesHandler(res http.ResponseWriter, req *http.Request) {
 		log.Printf("%#v", cookie)
 		if cookie.Name == "access" && cookie.Value == "admin" {
 			user = AdminUser
+		} else if cookie.Name == "__Host-FRMSessionID" {
+			user, err = getUserBySession(cookie.Value)
+			if err != nil {
+				var e Error
+				e = e.Consume(err)
+				e.LogError()
+				// e.RespondError(res)
+				break
+			}
+			user.LoggedIn = true
 		}
 	}
 	switch req.Method {
