@@ -27,7 +27,7 @@ func InitUsers() {
 }
 
 func InitPosts() {
-	err := addPost(Post{
+	_, err := addPost(Post{
 		Title:  "lol",
 		Body:   "mpla",
 		UserId: 1,
@@ -38,7 +38,7 @@ func InitPosts() {
 	if err != nil {
 		log.Print(err.Error())
 	}
-	err = addPost(Post{
+	_, err = addPost(Post{
 		Title:  "kek",
 		Body:   "alpm",
 		UserId: 1,
