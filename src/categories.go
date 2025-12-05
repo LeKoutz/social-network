@@ -24,6 +24,17 @@ func ReturnMockCategories() Categories {
 	}
 }
 
+func InitCategories() {
+	for _, category := range ReturnMockCategories() {
+		err := addCategory(category)
+		if err != nil {
+			var e Error
+			e = e.Consume(err)
+			e.LogError()
+		}
+	}
+}
+
 func (c *Category) validateCategory() error {
 	if len((*c).Name) == 0 {
 		return ErrorCategoryNameEmpty

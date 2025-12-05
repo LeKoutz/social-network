@@ -454,3 +454,28 @@ func getCategoryById(id int) (Category, error) {
 	category.Id = id
 	return category, nil
 }
+
+func addCategory(category Category) error {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	err = category.validateCategory()
+	if err != nil {
+		return err
+	}
+	if (&category).DoesCategoryExist() {
+		return ErrorCategoryAlreadyExists
+	}
+	stmt, err := db.Prepare("INSERT INTO categories (name) VALUES (?)")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(category.Name)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
