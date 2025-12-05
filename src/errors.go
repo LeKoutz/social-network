@@ -24,6 +24,7 @@ var (
 	ErrorCategoryAlreadyExists = errors.New("Category already exists.")
 	ErrorCategoryNameEmpty     = errors.New("Category name can't be empty.")
 	ErrorCategoryNameTooLong   = errors.New("Category name is too long. Use less than 128 characters.")
+	ErrorUnauthorizedAction    = errors.New("You must be logged in to create a post")
 )
 
 type Error struct {
