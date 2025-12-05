@@ -1,6 +1,7 @@
 package forum
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 	"time"
@@ -128,10 +129,59 @@ func createPostView(res http.ResponseWriter, req *http.Request, user User) {
 func createPost(res http.ResponseWriter, req *http.Request, user User) {
 	data := ReturnMockResponse()
 	data.User = user
+
+	// Parse form data
 	err := req.ParseForm()
 	if err != nil {
 		data.Error = (&Error{}).Consume(err)
 		respondView(res, "user_register_view", data)
 		return
 	}
+
+	// Get form values
+	title := req.FormValue("title")
+	body := req.FormValue("body")
+	categoryId, err := strconv.Atoi(req.FormValue("category"))
+	if err != nil {
+		data.Error = (&Error{}).Consume(ErrorPostHasNoCategory)
+		respondView(res, "post_create_view", data)
+		return
+	}
+
+	// Validate user is logged in
+	if !user.LoggedIn {
+		data.Error = (&Error{}).Consume(errors.New("You must be logged in to create a post"))
+		respondView(res, "user_login_view", data)
+		return
+	}
+
+	// Create post object
+	post := Post{
+		Title:     title,
+		Body:      body,
+		UserId:    user.Id,
+		Timestamp: time.Now().UTC(),
+		Category: Category{
+			Id: categoryId,
+		},
+	}
+
+	// Validate post
+	err = post.validatePost()
+	if err != nil {
+		data.Error = (&Error{}).Consume(err)
+		respondView(res, "post_create_view", data)
+		return
+	}
+
+	// Save post to database
+	err = addPost(post)
+	if err != nil {
+		data.Error = (&Error{}).Consume(err)
+		respondView(res, "post_create_view", data)
+		return
+	}
+
+	// Redirect to the posts page
+	http.Redirect(res, req, "/posts", http.StatusSeeOther)
 }
