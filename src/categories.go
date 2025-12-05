@@ -25,10 +25,18 @@ func ReturnMockCategories() Categories {
 }
 
 func showCategories(res http.ResponseWriter, _ *http.Request, user User) {
+	categories, err := getAllCategories()
+	if err != nil {
+		var e Error
+		e = e.Consume(err)
+		e.LogError()
+		e.RespondError(res)
+		return
+	}
 	data := ResponseStruct{
 		WebsiteName: "Forum",
 		User:        user,
-		Categories:  ReturnMockCategories(),
+		Categories:  categories,
 	}
 	respondView(res, "categories_view", data)
 }
