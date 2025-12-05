@@ -175,7 +175,7 @@ func createPost(res http.ResponseWriter, req *http.Request, user User) {
 	}
 
 	// Save post to database
-	err = addPost(post)
+	postId, err := addPost(post)
 	if err != nil {
 		data.Error = (&Error{}).Consume(err)
 		respondView(res, "post_create_view", data)
@@ -183,5 +183,5 @@ func createPost(res http.ResponseWriter, req *http.Request, user User) {
 	}
 
 	// Redirect to the posts page
-	http.Redirect(res, req, "/posts", http.StatusSeeOther)
+	http.Redirect(res, req, "/posts?id="+strconv.Itoa(postId), http.StatusSeeOther) // need to convert postId to string
 }
