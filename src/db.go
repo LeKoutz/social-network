@@ -210,17 +210,14 @@ func checkIfUserAlreadyLikedPost(userId, postId int) (int, error) {
 		return 0, err
 	}
 	defer db.Close()
-
 	var existingReactionId int
 	err = db.QueryRow(`
 		SELECT id FROM reactions
 		WHERE user_id = ? AND post_id = ? AND value = 1
 		`, userId, postId).Scan(&existingReactionId)
-
 	if err != nil && err != sql.ErrNoRows {
 		return 0, err
 	}
-
 	return existingReactionId, nil
 }
 
@@ -230,17 +227,14 @@ func checkIfUserAlreadyDislikedPost(userId, postId int) (int, error) {
 		return 0, err
 	}
 	defer db.Close()
-
 	var existingDislikeId int
 	err = db.QueryRow(`
 		SELECT id FROM reactions
 		WHERE user_id = ? AND post_id = ? AND value = 2
 		`, userId, postId).Scan(&existingDislikeId)
-
 	if err != nil && err != sql.ErrNoRows {
 		return 0, err
 	}
-
 	return existingDislikeId, nil
 }
 
@@ -250,7 +244,6 @@ func addLikeToPost(userId, postId int) error {
 		return err
 	}
 	defer db.Close()
-
 	_, err = db.Exec(`
 		INSERT INTO reactions (user_id, post_id, value)
 		VALUES (?, ?, 1)
@@ -258,7 +251,6 @@ func addLikeToPost(userId, postId int) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -268,7 +260,6 @@ func removeDislikeFromPost(dislikeId int) error {
 		return err
 	}
 	defer db.Close()
-
 	_, err = db.Exec(`
 		DELETE FROM reactions
 		WHERE id = ?
@@ -276,7 +267,6 @@ func removeDislikeFromPost(dislikeId int) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -286,7 +276,6 @@ func addDislikeToPost(userId, postId int) error {
 		return err
 	}
 	defer db.Close()
-
 	_, err = db.Exec(`
 		INSERT INTO reactions (user_id, post_id, value)
 		VALUES (?, ?, 2)
@@ -294,7 +283,6 @@ func addDislikeToPost(userId, postId int) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -304,7 +292,6 @@ func removeLikeFromPost(userId, postId int) error {
 		return err
 	}
 	defer db.Close()
-
 	_, err = db.Exec(`
 		DELETE FROM reactions
 		WHERE user_id = ? AND post_id = ? AND value = 1
@@ -312,7 +299,6 @@ func removeLikeFromPost(userId, postId int) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -322,17 +308,14 @@ func checkIfUserAlreadyLikedComment(userId, commentId int) (int, error) {
 		return 0, err
 	}
 	defer db.Close()
-
 	var existingReactionId int
 	err = db.QueryRow(`
 		SELECT id FROM reactions
 		WHERE user_id = ? AND comment_id = ? AND value = 1
 		`, userId, commentId).Scan(&existingReactionId)
-
 	if err != nil && err != sql.ErrNoRows {
 		return 0, err
 	}
-
 	return existingReactionId, nil
 }
 
@@ -342,17 +325,14 @@ func checkIfUserAlreadyDislikedComment(userId, commentId int) (int, error) {
 		return 0, err
 	}
 	defer db.Close()
-
 	var existingDislikeId int
 	err = db.QueryRow(`
 		SELECT id FROM reactions
 		WHERE user_id = ? AND comment_id = ? AND value = 2
 		`, userId, commentId).Scan(&existingDislikeId)
-
 	if err != nil && err != sql.ErrNoRows {
 		return 0, err
 	}
-
 	return existingDislikeId, nil
 }
 
@@ -362,7 +342,6 @@ func addLikeToComment(userId, commentId int) error {
 		return err
 	}
 	defer db.Close()
-
 	_, err = db.Exec(`
 		INSERT INTO reactions (user_id, comment_id, value)
 		VALUES (?, ?, 1)
@@ -370,7 +349,6 @@ func addLikeToComment(userId, commentId int) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -380,7 +358,6 @@ func addDislikeToComment(userId, commentId int) error {
 		return err
 	}
 	defer db.Close()
-
 	_, err = db.Exec(`
 		INSERT INTO reactions (user_id, comment_id, value)
 		VALUES (?, ?, 2)
@@ -388,16 +365,15 @@ func addDislikeToComment(userId, commentId int) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
+
 func removeDislikeFromComment(dislikeId int) error {
 	db, err := sql.Open("sqlite3", "./db.db")
 	if err != nil {
 		return err
 	}
 	defer db.Close()
-
 	_, err = db.Exec(`
 		DELETE FROM reactions
 		WHERE id = ?
@@ -405,7 +381,6 @@ func removeDislikeFromComment(dislikeId int) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -415,7 +390,6 @@ func removeLikeFromComment(userId, commentId int) error {
 		return err
 	}
 	defer db.Close()
-
 	_, err = db.Exec(`
 		DELETE FROM reactions
 		WHERE user_id = ? AND comment_id = ? AND value = 1
@@ -441,4 +415,92 @@ func setUserSession(id int, session_key string) error {
 		return err
 	}
 	return nil
+}
+
+func getAllCategories() (Categories, error) {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return []Category{}, err
+	}
+	defer db.Close()
+	rows, err := db.Query(`SELECT id, name FROM categories`)
+	if err != nil {
+		return []Category{}, err
+	}
+	defer rows.Close()
+	var categories Categories
+	for rows.Next() {
+		var category Category
+		err = rows.Scan(&category.Id, &category.Name)
+		if err != nil {
+			return []Category{}, err
+		}
+		categories = append(categories, category)
+	}
+	return categories, nil
+}
+
+func getCategoryById(id int) (Category, error) {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return Category{}, err
+	}
+	defer db.Close()
+	var category Category
+	err = db.QueryRow(`SELECT name FROM categories WHERE id = ?`, id).Scan(&category.Name)
+	if err != nil {
+		return Category{}, err
+	}
+	category.Id = id
+	return category, nil
+}
+
+func addCategory(category Category) error {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	err = category.validateCategory()
+	if err != nil {
+		return err
+	}
+	if (&category).DoesCategoryExist() {
+		return ErrorCategoryAlreadyExists
+	}
+	stmt, err := db.Prepare("INSERT INTO categories (name) VALUES (?)")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(category.Name)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func getPostsByCategoryId(id int) (Posts, error) {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return Posts{}, err
+	}
+	defer db.Close()
+	var posts Posts
+	rows, err := db.Query(`
+	SELECT posts.id, posts.title, posts.body
+	FROM posts
+	JOIN posts_categories pc ON posts.id = pc.post_id
+	JOIN categories ON pc.category_id = categories.id
+	WHERE pc.category_id = ?`, id)
+	if err != nil {
+		return Posts{}, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var post Post
+		rows.Scan(&post.Id, &post.Title, &post.Body)
+		posts = append(posts, post)
+	}
+	return posts, nil
 }

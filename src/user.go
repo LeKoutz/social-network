@@ -196,7 +196,7 @@ func nullifyCookie(cookie *http.Cookie) *http.Cookie {
 		Name:     "__Host-FRMSessionID",
 		Value:    "",
 		Path:     "/",
-		Expires: time.Unix(0, 0),
+		Expires:  time.Unix(0, 0),
 		HttpOnly: true,
 	}
 	return cookie

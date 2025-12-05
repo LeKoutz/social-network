@@ -19,6 +19,8 @@ func getRoutes(res http.ResponseWriter, req *http.Request, user User) {
 		showLogout(res, req, user)
 	case strings.HasPrefix(req.RequestURI, "/categories"):
 		showCategories(res, req, user)
+	case strings.HasPrefix(req.RequestURI, "/category?id="):
+		showCategory(res, req, user)
 	case strings.Compare(req.RequestURI, "/") == 0:
 		showIndex(res, req, user)
 	default:
