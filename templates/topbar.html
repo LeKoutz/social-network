@@ -8,6 +8,9 @@
             <li>{{.User.Username}}</li>
             {{if .User.LoggedIn }}
             <li><ul>
+                <li><a href="/post?action=new">Create post</a></li>
+            </ul></li>
+            <li><ul>
                 <li><a href="/logout">Log out</a></li>
             </ul></li>
             {{else}}

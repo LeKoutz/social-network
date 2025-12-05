@@ -11,6 +11,10 @@ func getRoutes(res http.ResponseWriter, req *http.Request, user User) {
 	switch {
 	case strings.HasPrefix(req.RequestURI, "/posts"):
 		showPosts(res, req, user)
+	case strings.HasPrefix(req.RequestURI, "/post?action=new"):
+		createPostView(res, req, user)
+	case strings.HasPrefix(req.RequestURI, "/post"):
+		showPost(res, req, user)
 	case strings.HasPrefix(req.RequestURI, "/login"):
 		showLogin(res, req, user)
 	case strings.HasPrefix(req.RequestURI, "/register"):
@@ -38,8 +42,8 @@ func getRoutes(res http.ResponseWriter, req *http.Request, user User) {
 
 func postRoutes(res http.ResponseWriter, req *http.Request, user User) {
 	switch {
-	case strings.HasPrefix(req.RequestURI, "/posts"):
-		showPosts(res, req, user)
+	case strings.HasPrefix(req.RequestURI, "/post?action=create"):
+		createPost(res, req, user)
 	case strings.HasPrefix(req.RequestURI, "/user?action=login"):
 		attemptLogin(res, req, user)
 	case strings.HasPrefix(req.RequestURI, "/user?action=register"):
