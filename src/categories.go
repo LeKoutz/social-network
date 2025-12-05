@@ -36,6 +36,14 @@ func InitCategories() {
 	}
 }
 
+func (c *Category) IsEmpty() bool {
+	empty := Category{}
+	if c == nil || *c == empty{
+		return true
+	}
+	return true
+}
+
 func (c *Category) validateCategory() error {
 	if len((*c).Name) == 0 {
 		return ErrorCategoryNameEmpty

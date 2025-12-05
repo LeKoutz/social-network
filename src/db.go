@@ -476,7 +476,6 @@ func addCategory(category Category) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
