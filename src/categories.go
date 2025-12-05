@@ -38,7 +38,7 @@ func InitCategories() {
 
 func (c *Category) IsEmpty() bool {
 	empty := Category{}
-	if c == nil || *c == empty{
+	if c == nil || *c == empty {
 		return true
 	}
 	return true

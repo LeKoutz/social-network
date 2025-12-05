@@ -1,7 +1,6 @@
 package forum
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -11,6 +10,7 @@ type Post struct {
 	Id        int
 	Title     string
 	Body      string
+	UserId    int
 	Timestamp time.Time
 	Likes     int
 	Liked     bool
@@ -21,6 +21,19 @@ type Post struct {
 }
 
 type Posts []Post
+
+func (p *Post) validatePost() error {
+	if len(p.Title) == 0 {
+		return ErrorPostTitleEmpty
+	}
+	if len(p.Body) == 0 {
+		return ErrorPostBodyEmpty
+	}
+	if p.Category.IsEmpty() {
+		return ErrorPostHasNoCategory
+	}
+	return nil
+}
 
 func returnMockPost(post_id int) Posts {
 	return Posts{
@@ -40,35 +53,85 @@ func returnMockPost(post_id int) Posts {
 	}
 }
 
-func showPost(res http.ResponseWriter, id string, user User) {
-	post_id, err := strconv.Atoi(id)
-	data := &ResponseStruct{}
-	data.Init()
-	data.SetUser(user)
-	if err != nil {
-		e := &Error{}
-		errC := e.Consume(err)
-		errC.LogError()
-		data.SetView("error_view")
-		data.SetError(errC)
-		data.WriteResponse(res)
+func showPost(res http.ResponseWriter, req *http.Request, user User) {
+	data := ReturnMockResponse()
+	data.User = user
+	id := req.URL.Query().Get("id")
+	if len(id) == 0 {
+		var e Error
+		e = e.Consume(ErrorPostEmptyId)
+		e.LogError()
+		e.RespondError(res)
 		return
 	}
+	id_int, err := strconv.Atoi(id)
+	if err != nil {
+		var e Error
+		e = e.Consume(err)
+		e.LogError()
+		e.RespondError(res)
+		return
+	}
+	post, err := getPostById(id_int)
+	if err != nil {
+		var e Error
+		e = e.Consume(err)
+		e.LogError()
+		e.RespondError(res)
+		return
+	}
+	data.Posts = Posts{post}
+	// data.Init()
+	// data.SetUser(user)
+	// if err != nil {
+	// 	e := &Error{}
+	// 	errC := e.Consume(err)
+	// 	errC.LogError()
+	// 	data.SetView("error_view")
+	// 	data.SetError(errC)
+	// 	data.WriteResponse(res)
+	// 	return
+	// }
 	data.SetView("post_view")
-	data.SetPosts(returnMockPost(post_id))
+	// data.SetPosts(returnMockPost(post_id))
 	data.WriteResponse(res)
 }
 
 func showPosts(res http.ResponseWriter, req *http.Request, user User) {
-	query := req.URL.Query()
-	_, ok := query["id"]
-	if ok {
-		log.Printf("%v", query["id"])
-		showPost(res, query["id"][0], user)
+	// query := req.URL.Query()
+	// _, ok := query["id"]
+	// if ok {
+	// 	log.Printf("%v", query["id"])
+	// 	showPost(res, query["id"][0], user)
+	// 	return
+	// }
+	data := ReturnMockResponse()
+	posts, err := getAllPosts()
+	if err != nil {
+		data.Error = (&Error{}).Consume(err)
+		respondView(res, "error_view", data)
 		return
 	}
-	data := ReturnMockResponse()
+	data.SetPosts(posts)
 	data.SetUser(user)
 	data.SetView("posts_view")
 	data.WriteResponse(res)
+}
+
+func createPostView(res http.ResponseWriter, req *http.Request, user User) {
+	data := ReturnMockResponse()
+	data.SetUser(user)
+	data.SetView("post_create_view")
+	data.WriteResponse(res)
+}
+
+func createPost(res http.ResponseWriter, req *http.Request, user User) {
+	data := ReturnMockResponse()
+	data.User = user
+	err := req.ParseForm()
+	if err != nil {
+		data.Error = (&Error{}).Consume(err)
+		respondView(res, "user_register_view", data)
+		return
+	}
 }
