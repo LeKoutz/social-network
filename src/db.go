@@ -479,3 +479,28 @@ func addCategory(category Category) error {
 
 	return nil
 }
+
+func getPostsByCategoryId(id int) (Posts, error) {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return Posts{}, err
+	}
+	defer db.Close()
+	var posts Posts
+	rows, err := db.Query(`
+	SELECT posts.id, posts.title, posts.body
+	FROM posts
+	JOIN posts_categories pc ON posts.id = pc.post_id
+	JOIN categories ON pc.category_id = categories.id
+	WHERE pc.category_id = ?`, id)
+	if err != nil {
+		return Posts{}, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var post Post
+		rows.Scan(&post.Id, &post.Title, &post.Body)
+		posts = append(posts, post)
+	}
+	return posts, nil
+}

@@ -2,6 +2,7 @@ package forum
 
 import (
 	"net/http"
+	"strconv"
 )
 
 type Category struct {
@@ -76,4 +77,31 @@ func showCategories(res http.ResponseWriter, _ *http.Request, user User) {
 		Categories:  categories,
 	}
 	respondView(res, "categories_view", data)
+}
+
+func showCategory(res http.ResponseWriter, req *http.Request, user User) {
+	data := ReturnMockResponse()
+	data.User = user
+	id := req.URL.Query().Get("id")
+	if len(id) == 0 {
+		var e Error
+		e = e.Consume(ErrorCategoryEmptyId)
+		e.LogError()
+		e.RespondError(res)
+		return
+	}
+	id_int, err := strconv.Atoi(id)
+	if err != nil {
+		var e Error
+		e = e.Consume(err)
+		e.LogError()
+		e.RespondError(res)
+		return
+	}
+	category, err := getCategoryById(id_int)
+	data.Categories = Categories{}
+	data.Categories = append(data.Categories, category)
+	posts, err := getPostsByCategoryId(id_int)
+	data.Posts = posts
+	respondView(res, "category_view", data)
 }
