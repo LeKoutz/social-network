@@ -24,6 +24,22 @@ func ReturnMockCategories() Categories {
 	}
 }
 
+func (c *Category) DoesCategoryExist() bool {
+	categories, err := getAllCategories()
+	if err != nil {
+		var e Error
+		e = e.Consume(err)
+		e.LogError()
+		return false
+	}
+	for _, category := range categories {
+		if category.Name == (*c).Name {
+			return true
+		}
+	}
+	return false
+}
+
 func showCategories(res http.ResponseWriter, _ *http.Request, user User) {
 	categories, err := getAllCategories()
 	if err != nil {
