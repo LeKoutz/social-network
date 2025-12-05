@@ -24,6 +24,16 @@ func ReturnMockCategories() Categories {
 	}
 }
 
+func (c *Category) validateCategory() error {
+	if len((*c).Name) == 0 {
+		return ErrorCategoryNameEmpty
+	}
+	if len((*c).Name) >= 128 {
+		return ErrorCategoryNameTooLong
+	}
+	return nil
+}
+
 func (c *Category) DoesCategoryExist() bool {
 	categories, err := getAllCategories()
 	if err != nil {
