@@ -159,7 +159,7 @@ func createPost(res http.ResponseWriter, req *http.Request, user User) {
 	// Validate post
 	err = post.validatePost()
 	if err != nil {
-		data.Error = (&Error{}).Consume(err)
+		data.Error = *(&Error{}).Consume(err)
 		respondView(res, "post_create_view", data)
 		return
 	}
