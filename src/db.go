@@ -579,3 +579,27 @@ func addPost(post Post) (int, error) {
 
 	return int(postId), nil
 }
+
+func addComment (comment Comment) (int, error) {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return 0, err
+	}
+	defer db.Close()
+
+	if err := comment.validateComment(); err != nil {
+		return 0, err
+	}
+
+	res, err := db.Exec(
+		"INSERT INTO comments (post_id, user_id, body) VALUES (?, ?, ?)",
+		comment.PostId,
+		comment.UserId,
+		comment.Body,
+	)
+	commentId, err := res.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+	return int(commentId), nil
+}
