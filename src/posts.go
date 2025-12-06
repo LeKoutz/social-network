@@ -1,7 +1,6 @@
 package forum
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 	"time"
@@ -150,7 +149,7 @@ func createPost(res http.ResponseWriter, req *http.Request, user User) {
 
 	// Validate user is logged in
 	if !user.LoggedIn {
-		data.Error = (&Error{}).Consume(errors.New("You must be logged in to create a post"))
+		data.Error = (&Error{}).Consume(ErrorPostPermissionDenied)
 		respondView(res, "user_login_view", data)
 		return
 	}

@@ -20,11 +20,12 @@ var (
 	ErrorPostBodyEmpty         = errors.New("Post body can't be empty.")
 	ErrorPostTitleEmpty        = errors.New("Post title can't be empty.")
 	ErrorPostHasNoCategory     = errors.New("Post category can't be empty.")
+	ErrorPostPermissionDenied  = errors.New("You must be logged in to create a post.")
 	ErrorCategoryEmptyId       = errors.New("Category ID can't be empty.")
 	ErrorCategoryAlreadyExists = errors.New("Category already exists.")
 	ErrorCategoryNameEmpty     = errors.New("Category name can't be empty.")
 	ErrorCategoryNameTooLong   = errors.New("Category name is too long. Use less than 128 characters.")
-	ErrorUnauthorizedAction    = errors.New("You must be logged in to create a post")
+	ErrorUnauthorizedAction    = errors.New("Unauthorized action.")
 )
 
 type Error struct {
