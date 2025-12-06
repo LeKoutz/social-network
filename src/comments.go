@@ -17,6 +17,16 @@ type Comment struct {
 
 type Comments []Comment
 
+func (c *Comment) validateComment() error {
+	if len(c.Body) == 0 {
+		return ErrorCommentEmpty
+	}
+	if len(c.Body) > 1000 {
+		return ErrorCommentTooLong
+	}
+	return nil
+}
+
 func ReturnMockComments() Comments {
 	return Comments{
 		{
