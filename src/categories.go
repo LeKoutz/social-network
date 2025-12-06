@@ -29,9 +29,7 @@ func InitCategories() {
 	for _, category := range ReturnMockCategories() {
 		err := addCategory(category)
 		if err != nil {
-			var e Error
-			e = e.Consume(err)
-			e.LogError()
+			(&Error{}).Consume(err).LogError()
 		}
 	}
 }
@@ -41,7 +39,7 @@ func (c *Category) IsEmpty() bool {
 	if c == nil || *c == empty {
 		return true
 	}
-	return true
+	return false
 }
 
 func (c *Category) validateCategory() error {
@@ -57,9 +55,7 @@ func (c *Category) validateCategory() error {
 func (c *Category) DoesCategoryExist() bool {
 	categories, err := getAllCategories()
 	if err != nil {
-		var e Error
-		e = e.Consume(err)
-		e.LogError()
+		(&Error{}).Consume(err).LogError()
 		return false
 	}
 	for _, category := range categories {
@@ -73,10 +69,7 @@ func (c *Category) DoesCategoryExist() bool {
 func showCategories(res http.ResponseWriter, _ *http.Request, user User) {
 	categories, err := getAllCategories()
 	if err != nil {
-		var e Error
-		e = e.Consume(err)
-		e.LogError()
-		e.RespondError(res)
+		(&Error{}).Consume(err).LogError()
 		return
 	}
 	data := ResponseStruct{
@@ -92,18 +85,12 @@ func showCategory(res http.ResponseWriter, req *http.Request, user User) {
 	data.User = user
 	id := req.URL.Query().Get("id")
 	if len(id) == 0 {
-		var e Error
-		e = e.Consume(ErrorCategoryEmptyId)
-		e.LogError()
-		e.RespondError(res)
+		(&Error{}).Consume(ErrorCategoryEmptyId).LogAndRespondError(res, user)
 		return
 	}
 	id_int, err := strconv.Atoi(id)
 	if err != nil {
-		var e Error
-		e = e.Consume(err)
-		e.LogError()
-		e.RespondError(res)
+		(&Error{}).Consume(err).LogAndRespondError(res, user)
 		return
 	}
 	category, err := getCategoryById(id_int)
