@@ -156,14 +156,6 @@ func createPost(res http.ResponseWriter, req *http.Request, user User) {
 		},
 	}
 
-	// Validate post
-	err = post.validatePost()
-	if err != nil {
-		data.Error = *(&Error{}).Consume(err)
-		respondView(res, "post_create_view", data)
-		return
-	}
-
 	// Save post to database
 	postId, err := addPost(post)
 	if err != nil {
@@ -172,6 +164,7 @@ func createPost(res http.ResponseWriter, req *http.Request, user User) {
 		return
 	}
 
+	strconv.Itoa(postId)
 	// Redirect to the post's page
-	http.Redirect(res, req, "/post?id="+strconv.Itoa(postId), http.StatusSeeOther) // need to convert postId to string
+	http.Redirect(res, req, "/posts?id=", http.StatusSeeOther)
 }
