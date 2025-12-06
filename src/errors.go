@@ -21,6 +21,8 @@ var (
 	ErrorPostTitleEmpty        = errors.New("Post title can't be empty.")
 	ErrorPostHasNoCategory     = errors.New("Post category can't be empty.")
 	ErrorPostPermissionDenied  = errors.New("You must be logged in to create a post.")
+	ErrorCommentEmpty          = errors.New("Comment can't be empty.")
+	ErrorCommentTooLong		   = errors.New("Comment is too long.")
 	ErrorCategoryEmptyId       = errors.New("Category ID can't be empty.")
 	ErrorCategoryAlreadyExists = errors.New("Category already exists.")
 	ErrorCategoryNameEmpty     = errors.New("Category name can't be empty.")
