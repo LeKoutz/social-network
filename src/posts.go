@@ -164,7 +164,8 @@ func createPost(res http.ResponseWriter, req *http.Request, user User) {
 		return
 	}
 
-	strconv.Itoa(postId)
+	postIdStr := strconv.Itoa(postId)
+	redirectURL := "/post?id=" + postIdStr
 	// Redirect to the post's page
-	http.Redirect(res, req, "/posts?id=", http.StatusSeeOther)
+	http.Redirect(res, req, redirectURL, http.StatusSeeOther)
 }
