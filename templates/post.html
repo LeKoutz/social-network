@@ -21,8 +21,9 @@
                 />
             <label for="dislikes">{{.Dislikes}} Dislikes</label>
         </form>
-        {{ template "comment_create" .}}
-        {{ template "comments" .}}
+        {{if .User.IsLoggedIn}}
+            {{ template "comment_create" .}}
+        {{end}}
     </div>
 </div>
 {{end}}
