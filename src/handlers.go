@@ -42,7 +42,7 @@ func postRoutes(res http.ResponseWriter, req *http.Request, user User) {
 		attemptLogin(res, req, user)
 	case strings.HasPrefix(req.RequestURI, "/user?action=register"):
 		registerUser(res, req)
-	case strings.HasPrefix(req.RequestURI, "/categories"):
+	case strings.Compare(req.RequestURI, "/categories") == 0:
 		showCategories(res, req, user)
 	case strings.Compare(req.RequestURI, "/") == 0:
 		showIndex(res, req, user)
@@ -57,10 +57,7 @@ func routesHandler(res http.ResponseWriter, req *http.Request) {
 	log.Printf("Info: %s -> %s http://%s%s", req.RemoteAddr, req.Method, req.Host, req.RequestURI)
 	log.Printf("Cookies: %d", len(req.Cookies()))
 	var err error
-	var user User = User{
-		Username: "Guest",
-		Email:    "guest@example.com",
-	}
+	var user User = GuestUser
 	for _, cookie := range req.Cookies() {
 		log.Printf("%#v", cookie)
 		if cookie.Name == "access" && cookie.Value == "admin" {
