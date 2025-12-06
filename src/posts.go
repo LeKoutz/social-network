@@ -58,26 +58,17 @@ func showPost(res http.ResponseWriter, req *http.Request, user User) {
 	data.User = user
 	id := req.URL.Query().Get("id")
 	if len(id) == 0 {
-		var e Error
-		e = e.Consume(ErrorPostEmptyId)
-		e.LogError()
-		e.RespondError(res)
+		(&Error{}).Consume(ErrorPostEmptyId).LogAndRespondError(res, user)
 		return
 	}
 	id_int, err := strconv.Atoi(id)
 	if err != nil {
-		var e Error
-		e = e.Consume(err)
-		e.LogError()
-		e.RespondError(res)
+		(&Error{}).Consume(err).LogAndRespondError(res, user)
 		return
 	}
 	post, err := getPostById(id_int)
 	if err != nil {
-		var e Error
-		e = e.Consume(err)
-		e.LogError()
-		e.RespondError(res)
+		(&Error{}).Consume(err).LogAndRespondError(res, user)
 		return
 	}
 	data.Posts = Posts{post}
@@ -108,7 +99,7 @@ func showPosts(res http.ResponseWriter, req *http.Request, user User) {
 	data := ReturnMockResponse()
 	posts, err := getAllPosts()
 	if err != nil {
-		data.Error = (&Error{}).Consume(err)
+		data.Error = *(&Error{}).Consume(err)
 		respondView(res, "error_view", data)
 		return
 	}
@@ -128,10 +119,53 @@ func createPostView(res http.ResponseWriter, req *http.Request, user User) {
 func createPost(res http.ResponseWriter, req *http.Request, user User) {
 	data := ReturnMockResponse()
 	data.User = user
+
+	// Parse form data
 	err := req.ParseForm()
 	if err != nil {
-		data.Error = (&Error{}).Consume(err)
+		data.Error = *(&Error{}).Consume(err)
 		respondView(res, "user_register_view", data)
 		return
 	}
+
+	// Get form values
+	title := req.FormValue("title")
+	body := req.FormValue("body")
+	categoryId, err := strconv.Atoi(req.FormValue("category"))
+	if err != nil {
+		data.Error = *(&Error{}).Consume(err)
+		respondView(res, "post_create_view", data)
+		return
+	}
+
+	// Validate user is logged in
+	if !user.LoggedIn {
+		data.Error = *(&Error{}).Consume(ErrorPostPermissionDenied)
+		respondView(res, "user_login_view", data)
+		return
+	}
+
+	// Create post object
+	post := Post{
+		Title:     title,
+		Body:      body,
+		UserId:    user.Id,
+		Timestamp: time.Now().UTC(),
+		Category: Category{
+			Id: categoryId,
+		},
+	}
+
+	// Save post to database
+	postId, err := addPost(post)
+	if err != nil {
+		data.Error = *(&Error{}).Consume(err)
+		respondView(res, "post_create_view", data)
+		return
+	}
+
+	postIdStr := strconv.Itoa(postId)
+	redirectURL := "/post?id=" + postIdStr
+	// Redirect to the post's page
+	http.Redirect(res, req, redirectURL, http.StatusSeeOther)
 }

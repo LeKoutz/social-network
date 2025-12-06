@@ -542,32 +542,40 @@ func getPostById(id int) (Post, error) {
 	return post, nil
 }
 
-func addPost(post Post) error {
+func addPost(post Post) (int, error) {
 	db, err := sql.Open("sqlite3", "./db.db")
 	if err != nil {
-		return err
+		return 0, err
 	}
 	defer db.Close()
 	err = post.validatePost()
 	if err != nil {
-		return err
+		return 0, err
 	}
 	stmt, err := db.Prepare("INSERT INTO posts (title, body, user_id) VALUES (?, ?, ?)")
 	if err != nil {
-		return err
+		return 0, err
 	}
-	_, err = stmt.Exec(post.Title, post.Body, post.UserId)
+	res, err := stmt.Exec(post.Title, post.Body, post.UserId)
 	if err != nil {
-		return err
-	}
-	stmt, err = db.Prepare("INSERT INTO posts_categories (user_id, post_id) VALUES (?, ?, ?)")
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(post.Title, post.Body, post.UserId)
-	if err != nil {
-		return err
+		return 0, err
 	}
 
-	return nil
+	// Get the last inserted post ID
+	postId, err := res.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+
+	// Insert into posts_categories table
+	stmt, err = db.Prepare("INSERT INTO posts_categories (post_id, category_id) VALUES (?, ?)")
+	if err != nil {
+		return 0, err
+	}
+	_, err = stmt.Exec(postId, post.Category.Id)
+	if err != nil {
+		return 0, err
+	}
+
+	return int(postId), nil
 }
