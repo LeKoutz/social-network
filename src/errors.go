@@ -40,19 +40,25 @@ type ErrorIface interface {
 	Consume(error) Error
 }
 
-func (e *Error) Consume(err error) Error {
+func (e *Error) Consume(err error) *Error {
 	e.Message = err.Error()
 	e.Error = err
 	e.Has = true
-	return *e
+	return e
 }
 
 func (e *Error) LogError() {
 	log.Printf("Error: %s", e.Message)
 }
 
-func (e *Error) RespondError(res http.ResponseWriter) {
+func (e *Error) RespondError(res http.ResponseWriter, user User) {
 	data := ReturnMockResponse()
 	data.Error = *e
+	data.User = user
 	respondView(res, "error_view", data)
+}
+
+func (e *Error) LogAndRespondError(res http.ResponseWriter, user User) {
+	e.LogError()
+	e.RespondError(res, user)
 }

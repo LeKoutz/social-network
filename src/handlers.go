@@ -30,13 +30,7 @@ func getRoutes(res http.ResponseWriter, req *http.Request, user User) {
 	default:
 		log.Printf("%s", req.RequestURI)
 		res.WriteHeader(http.StatusNotFound)
-		respondView(res, "error_view", ResponseStruct{
-			WebsiteName: "Forum",
-			Error: Error{
-				Has:     true,
-				Message: "Not found",
-			},
-		})
+		(&Error{}).Consume(ErrorNotFound).LogAndRespondError(res, user)
 	}
 }
 
@@ -55,11 +49,7 @@ func postRoutes(res http.ResponseWriter, req *http.Request, user User) {
 	default:
 		log.Printf("%s", req.RequestURI)
 		res.WriteHeader(http.StatusNotFound)
-		e := &Error{}
-		respondView(res, "error_view", ResponseStruct{
-			WebsiteName: "Forum",
-			Error:       e.Consume(ErrorNotFound),
-		})
+		(&Error{}).Consume(ErrorNotFound).LogAndRespondError(res, user)
 	}
 }
 
@@ -78,9 +68,7 @@ func routesHandler(res http.ResponseWriter, req *http.Request) {
 		} else if cookie.Name == "__Host-FRMSessionID" {
 			user, err = getUserBySession(cookie.Value)
 			if err != nil {
-				var e Error
-				e = e.Consume(err)
-				e.LogError()
+				(&Error{}).Consume(err).LogError()
 				// e.RespondError(res)
 				break
 			}
@@ -94,13 +82,7 @@ func routesHandler(res http.ResponseWriter, req *http.Request) {
 		postRoutes(res, req, user)
 	default:
 		res.WriteHeader(http.StatusMethodNotAllowed)
-		respondView(res, "error_view", ResponseStruct{
-			WebsiteName: "Forum",
-			Error: Error{
-				Has:     true,
-				Message: "Method Not Allowed",
-			},
-		})
+		(&Error{}).Consume(ErrorNotFound).LogAndRespondError(res, user)
 	}
 }
 
