@@ -40,6 +40,7 @@ type ErrorIface interface {
 	Consume(error) Error
 }
 
+// Converts error type to *Error
 func (e *Error) Consume(err error) *Error {
 	e.Message = err.Error()
 	e.Error = err
@@ -47,10 +48,12 @@ func (e *Error) Consume(err error) *Error {
 	return e
 }
 
+// Logs *Error to terminal
 func (e *Error) LogError() {
 	log.Printf("Error: %s", e.Message)
 }
 
+// Responds *Error to user with the error_view template
 func (e *Error) RespondError(res http.ResponseWriter, user User) {
 	data := ReturnMockResponse()
 	data.Error = *e
@@ -58,6 +61,7 @@ func (e *Error) RespondError(res http.ResponseWriter, user User) {
 	respondView(res, "error_view", data)
 }
 
+// Logs *Error to terminal and responds to user with error_view template
 func (e *Error) LogAndRespondError(res http.ResponseWriter, user User) {
 	e.LogError()
 	e.RespondError(res, user)
