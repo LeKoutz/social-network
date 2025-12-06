@@ -172,6 +172,6 @@ func createPost(res http.ResponseWriter, req *http.Request, user User) {
 		return
 	}
 
-	// Redirect to the posts page
+	// Redirect to the post's page
 	http.Redirect(res, req, "/post?id="+strconv.Itoa(postId), http.StatusSeeOther) // need to convert postId to string
 }
