@@ -41,7 +41,7 @@ func (c *Category) IsEmpty() bool {
 	if c == nil || *c == empty {
 		return true
 	}
-	return true
+	return false
 }
 
 func (c *Category) validateCategory() error {
