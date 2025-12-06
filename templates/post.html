@@ -1,6 +1,6 @@
 {{define "post"}}
 <div id="{{.Id}}">
-    <a href="/posts?id={{.Id}}"><h3>{{.Title}}</h3></a>
+    <a href="/post?id={{.Id}}"><h3>{{.Title}}</h3></a>
     <p>{{.Body}}</p>
     <div>
         <form method="POST" action="/post?id={{.Id}}">

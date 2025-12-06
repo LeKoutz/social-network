@@ -1,0 +1,24 @@
+{{define "post_create_view"}}
+{{template "header" .}}
+{{template "topbar" .}}
+<div class="container">
+    {{if .Error.Has}}
+        {{template "error" .}}
+    {{end}}
+    <form method="POST" action="/post?action=create">
+        <fieldset>
+            <legend>New post</legend>
+            <input type="text" name="title" placeholder="Your title here" required/>
+            <select name="category">
+                {{ range .Categories }}
+                <option value="{{.Id}}">{{.Name}}</option>
+                {{ end }}
+            </select>
+            <textarea name="body" placeholder="Your post here" required></textarea>
+            <input type="submit"/>
+        </fieldset>
+
+    </form>
+</div>
+{{template "ending" .}}
+{{end}}

@@ -11,6 +11,10 @@ func getRoutes(res http.ResponseWriter, req *http.Request, user User) {
 	switch {
 	case strings.HasPrefix(req.RequestURI, "/posts"):
 		showPosts(res, req, user)
+	case strings.HasPrefix(req.RequestURI, "/post?action=new"):
+		createPostView(res, req, user)
+	case strings.HasPrefix(req.RequestURI, "/post"):
+		showPost(res, req, user)
 	case strings.HasPrefix(req.RequestURI, "/login"):
 		showLogin(res, req, user)
 	case strings.HasPrefix(req.RequestURI, "/register"):
@@ -26,36 +30,26 @@ func getRoutes(res http.ResponseWriter, req *http.Request, user User) {
 	default:
 		log.Printf("%s", req.RequestURI)
 		res.WriteHeader(http.StatusNotFound)
-		respondView(res, "error_view", ResponseStruct{
-			WebsiteName: "Forum",
-			Error: Error{
-				Has:     true,
-				Message: "Not found",
-			},
-		})
+		(&Error{}).Consume(ErrorNotFound).LogAndRespondError(res, user)
 	}
 }
 
 func postRoutes(res http.ResponseWriter, req *http.Request, user User) {
 	switch {
-	case strings.HasPrefix(req.RequestURI, "/posts"):
-		showPosts(res, req, user)
+	case strings.HasPrefix(req.RequestURI, "/post?action=create"):
+		createPost(res, req, user)
 	case strings.HasPrefix(req.RequestURI, "/user?action=login"):
 		attemptLogin(res, req, user)
 	case strings.HasPrefix(req.RequestURI, "/user?action=register"):
 		registerUser(res, req)
-	case strings.HasPrefix(req.RequestURI, "/categories"):
+	case strings.Compare(req.RequestURI, "/categories") == 0:
 		showCategories(res, req, user)
 	case strings.Compare(req.RequestURI, "/") == 0:
 		showIndex(res, req, user)
 	default:
 		log.Printf("%s", req.RequestURI)
 		res.WriteHeader(http.StatusNotFound)
-		e := &Error{}
-		respondView(res, "error_view", ResponseStruct{
-			WebsiteName: "Forum",
-			Error:       e.Consume(ErrorNotFound),
-		})
+		(&Error{}).Consume(ErrorNotFound).LogAndRespondError(res, user)
 	}
 }
 
@@ -63,10 +57,7 @@ func routesHandler(res http.ResponseWriter, req *http.Request) {
 	log.Printf("Info: %s -> %s http://%s%s", req.RemoteAddr, req.Method, req.Host, req.RequestURI)
 	log.Printf("Cookies: %d", len(req.Cookies()))
 	var err error
-	var user User = User{
-		Username: "Guest",
-		Email:    "guest@example.com",
-	}
+	var user User = GuestUser
 	for _, cookie := range req.Cookies() {
 		log.Printf("%#v", cookie)
 		if cookie.Name == "access" && cookie.Value == "admin" {
@@ -74,9 +65,7 @@ func routesHandler(res http.ResponseWriter, req *http.Request) {
 		} else if cookie.Name == "__Host-FRMSessionID" {
 			user, err = getUserBySession(cookie.Value)
 			if err != nil {
-				var e Error
-				e = e.Consume(err)
-				e.LogError()
+				(&Error{}).Consume(err).LogError()
 				// e.RespondError(res)
 				break
 			}
@@ -90,13 +79,7 @@ func routesHandler(res http.ResponseWriter, req *http.Request) {
 		postRoutes(res, req, user)
 	default:
 		res.WriteHeader(http.StatusMethodNotAllowed)
-		respondView(res, "error_view", ResponseStruct{
-			WebsiteName: "Forum",
-			Error: Error{
-				Has:     true,
-				Message: "Method Not Allowed",
-			},
-		})
+		(&Error{}).Consume(ErrorNotFound).LogAndRespondError(res, user)
 	}
 }
 

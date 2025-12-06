@@ -41,12 +41,6 @@ func showLogin(res http.ResponseWriter, _ *http.Request, user User) {
 	respondView(res, "user_login_view", data)
 }
 
-func GetUserHash(email string) string {
-	// select from users where email = email
-	// row->hash
-	return ""
-}
-
 func attemptLogin(res http.ResponseWriter, req *http.Request, _ User) {
 	var email string
 	var password string
@@ -54,9 +48,8 @@ func attemptLogin(res http.ResponseWriter, req *http.Request, _ User) {
 	data := ReturnMockResponse()
 	err = req.ParseForm()
 	if err != nil {
-		var e Error
 		data.User = GuestUser
-		data.Error = e.Consume(err)
+		data.Error = *(&Error{}).Consume(err)
 		respondView(res, "user_register_view", data)
 		return
 	}
@@ -68,34 +61,30 @@ func attemptLogin(res http.ResponseWriter, req *http.Request, _ User) {
 	}
 	err = Auth(email, password)
 	if err != nil {
-		var e Error
 		data.User = GuestUser
-		data.Error = e.Consume(err)
+		data.Error = *(&Error{}).Consume(err)
 		respondView(res, "user_register_view", data)
 		return
 	}
 	sessionValue, err := uuid.NewV4()
 	if err != nil {
-		var e Error
 		data.User = GuestUser
-		data.Error = e.Consume(err)
+		data.Error = *(&Error{}).Consume(err)
 		respondView(res, "user_register_view", data)
 		return
 	}
 	data.User, err = getUserByEmail(email)
 	if err != nil {
-		var e Error
 		data.User = GuestUser
-		data.Error = e.Consume(err)
+		data.Error = *(&Error{}).Consume(err)
 		respondView(res, "user_register_view", data)
 		return
 	}
 	data.User.LoggedIn = true
 	err = setUserSession(data.User.Id, sessionValue.String())
 	if err != nil {
-		var e Error
 		data.User = GuestUser
-		data.Error = e.Consume(err)
+		data.Error = *(&Error{}).Consume(err)
 		respondView(res, "user_register_view", data)
 		return
 	}
@@ -124,66 +113,58 @@ func registerUser(res http.ResponseWriter, req *http.Request) {
 	user.Email = req.FormValue("email")
 	if err = user.validateUser(); err != nil {
 		data := ReturnMockResponse()
-		var e Error
 		data.User = user
-		data.Error = e.Consume(err)
+		data.Error = *(&Error{}).Consume(err)
 		respondView(res, "user_register_view", data)
 	}
 	if IsEmailRegistered(user.Email) {
 		data := ReturnMockResponse()
-		var e Error
 		data.User = user
-		data.Error = e.Consume(ErrorEmailIsRegistered)
+		data.Error = *(&Error{}).Consume(ErrorEmailIsRegistered)
 		respondView(res, "user_register_view", data)
 		return
 	}
 	if !IsUniqueUsername(user.Username) {
 		data := ReturnMockResponse()
-		var e Error
 		data.User = user
-		data.Error = e.Consume(ErrorUsernameTaken)
+		data.Error = *(&Error{}).Consume(ErrorUsernameTaken)
 		respondView(res, "user_register_view", data)
 		return
 	}
 	if !CompareRegistrationPasswords(req.FormValue("password1"), req.FormValue("password2")) {
 		data := ReturnMockResponse()
-		var e Error
 		data.User = user
-		data.Error = e.Consume(ErrorPasswordMismatch)
+		data.Error = *(&Error{}).Consume(ErrorPasswordMismatch)
 		respondView(res, "user_register_view", data)
 		return
 	}
 	password := req.FormValue("password1")
 	if err = validateStrongPassword(password); err != nil {
 		data := ReturnMockResponse()
-		var e Error
 		data.User = user
-		data.Error = e.Consume(err)
+		data.Error = *(&Error{}).Consume(err)
 		respondView(res, "user_register_view", data)
 		return
 	}
 	user.Hash, err = HashPassword(password)
 	if err != nil {
 		data := ReturnMockResponse()
-		var e Error
 		data.User = user
-		data.Error = e.Consume(err)
+		data.Error = *(&Error{}).Consume(err)
 		respondView(res, "user_register_view", data)
 		return
 	}
 	if err = registerUserOnDB(user); err != nil {
 		data := ReturnMockResponse()
-		var e Error
 		data.User = user
-		data.Error = e.Consume(ErrorInvalidUser)
+		data.Error = *(&Error{}).Consume(ErrorInvalidUser)
 		respondView(res, "user_register_view", data)
 		return
 	}
 	if err = Auth(user.Email, password); err != nil {
 		data := ReturnMockResponse()
-		var e Error
 		data.User = user
-		data.Error = e.Consume(err)
+		data.Error = *(&Error{}).Consume(err)
 		respondView(res, "user_register_view", data)
 		return
 	}
@@ -216,18 +197,16 @@ func showLogout(res http.ResponseWriter, req *http.Request, _ User) {
 	user, err := getUserBySession(cookie.Value)
 	if err != nil {
 		data := ReturnMockResponse()
-		var e Error
 		data.User = user
-		data.Error = e.Consume(err)
+		data.Error = *(&Error{}).Consume(err)
 		respondView(res, "user_register_view", data)
 		return
 	}
 	err = setUserSession(user.Id, "")
 	if err != nil {
 		data := ReturnMockResponse()
-		var e Error
 		data.User = user
-		data.Error = e.Consume(err)
+		data.Error = *(&Error{}).Consume(err)
 		respondView(res, "user_register_view", data)
 		return
 	}

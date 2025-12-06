@@ -476,7 +476,6 @@ func addCategory(category Category) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -503,4 +502,80 @@ func getPostsByCategoryId(id int) (Posts, error) {
 		posts = append(posts, post)
 	}
 	return posts, nil
+}
+
+func getAllPosts() (Posts, error) {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return Posts{}, err
+	}
+	defer db.Close()
+	rows, err := db.Query(`SELECT id, title, body FROM posts`)
+	if err != nil {
+		return Posts{}, err
+	}
+	defer rows.Close()
+	var posts Posts
+	for rows.Next() {
+		var post Post
+		err = rows.Scan(&post.Id, &post.Title, &post.Body)
+		if err != nil {
+			return Posts{}, err
+		}
+		posts = append(posts, post)
+	}
+	return posts, nil
+}
+
+func getPostById(id int) (Post, error) {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return Post{}, err
+	}
+	defer db.Close()
+	var post Post
+	err = db.QueryRow(`SELECT title, body FROM posts WHERE id = ?`, id).Scan(&post.Title, &post.Body)
+	if err != nil {
+		return Post{}, err
+	}
+	post.Id = id
+	return post, nil
+}
+
+func addPost(post Post) (int, error) {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return 0, err
+	}
+	defer db.Close()
+	err = post.validatePost()
+	if err != nil {
+		return 0, err
+	}
+	stmt, err := db.Prepare("INSERT INTO posts (title, body, user_id) VALUES (?, ?, ?)")
+	if err != nil {
+		return 0, err
+	}
+	res, err := stmt.Exec(post.Title, post.Body, post.UserId)
+	if err != nil {
+		return 0, err
+	}
+
+	// Get the last inserted post ID
+	postId, err := res.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+
+	// Insert into posts_categories table
+	stmt, err = db.Prepare("INSERT INTO posts_categories (post_id, category_id) VALUES (?, ?)")
+	if err != nil {
+		return 0, err
+	}
+	_, err = stmt.Exec(postId, post.Category.Id)
+	if err != nil {
+		return 0, err
+	}
+
+	return int(postId), nil
 }
