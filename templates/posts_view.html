@@ -5,7 +5,38 @@
     {{if .Error.Has}}
         {{template "error" .}}
     {{end}}
-    {{template "posts" .}}
+    <div class="posts">
+        <h2>Posts</h2>
+        {{ range .Posts}}
+        <div id="{{.Id}}">
+            <a href="/post?id={{.Id}}"><h3>{{.Title}}</h3></a>
+            <p>{{.Body}}</p>
+            <div>
+                <form method="POST" action="/post?id={{.Id}}">
+                    <input
+                        id="likes"
+                        type="checkbox"
+                        name="like"
+                        onchange="submit()"
+                        {{if .Liked}} checked{{end}}
+                        />
+                    <label for="likes">{{.Likes}} Likes</label>
+                    <input
+                        id="dislikes"
+                        type="checkbox"
+                        name="dislike"
+                        onchange="submit()"
+                        {{if .Disliked}} checked{{end}}
+                        />
+                    <label for="dislikes">{{.Dislikes}} Dislikes</label>
+                </form>
+                {{if $.User.LoggedIn}}
+                    {{ template "comment_create" .}}
+                {{end}}
+            </div>
+        </div>
+        {{end}}
+    </div>
 </div>
 {{template "ending" .}}
 {{end}}
