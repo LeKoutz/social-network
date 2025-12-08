@@ -677,3 +677,33 @@ func getReactionsByPostId(postId int) (int, int, error) {
 
 	return likes, dislikes, nil
 }
+
+func getReactionsByCommentId(commentId int) (int, int, error) {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return 0, 0, err
+	}
+	defer db.Close()
+
+	var likes int
+	err = db.QueryRow(`
+        SELECT COUNT(*)
+        FROM reactions
+        WHERE comment_id = ? AND value = 1
+    `, commentId).Scan(&likes)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	var dislikes int
+	err = db.QueryRow(`
+        SELECT COUNT(*)
+        FROM reactions
+        WHERE comment_id = ? AND value = 2
+    `, commentId).Scan(&dislikes)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	return likes, dislikes, nil
+}
