@@ -580,7 +580,7 @@ func addPost(post Post) (int, error) {
 	return int(postId), nil
 }
 
-func addComment (comment Comment) (int, error) {
+func addComment(comment Comment) (int, error) {
 	db, err := sql.Open("sqlite3", "./db.db")
 	if err != nil {
 		return 0, err
@@ -602,4 +602,48 @@ func addComment (comment Comment) (int, error) {
 		return 0, err
 	}
 	return int(commentId), nil
+}
+
+func getCommentsByPostId(postId int) (Comments, error) {
+	db, err := sql.Open("sqlite3", "./db.db:")
+	if err != nil {
+		return Comments{}, err
+	}
+	defer db.Close()
+
+	rows, err := db.Query(`
+	SELECT
+	c.id,
+	c.post_id,
+	c.user_id,
+	c.body,
+	c.timestamp,
+	u.username
+	FROM comments c
+	JOIN users u ON c.user_id = u.id
+	WHERE c.post_id = ?
+	ORDER BY c.timestamp ASC`, postId)
+	if err != nil {
+		return Comments{}, err
+	}
+	defer rows.Close()
+
+	var comments Comments
+	for rows.Next() {
+		var comment Comment
+
+		err = rows.Scan(
+			&comment.Id,
+			&comment.PostId,
+			&comment.UserId,
+			&comment.Body,
+			&comment.Timestamp,
+			&comment.Username,
+		)
+		if err != nil {
+			return Comments{}, err
+		}
+		comments = append(comments, comment)
+	}
+	return comments, nil
 }
