@@ -648,7 +648,7 @@ func getCommentsByPostId(postId int) (Comments, error) {
 	return comments, nil
 }
 
-func getReactionsForPost(postId int) (int, int, error) {
+func getReactionsByPostId(postId int) (int, int, error) {
 	db, err := sql.Open("sqlite3", "./db.db")
 	if err != nil {
 		return 0, 0, err
