@@ -90,24 +90,20 @@ func handlePostReaction(res http.ResponseWriter, req *http.Request, user User) {
 		(&Error{}).Consume(err).LogAndRespondError(res, user)
 		return
 	}
-
 	postIdStr := req.URL.Query().Get("id")
 	if len(postIdStr) == 0 {
 		(&Error{}).Consume(ErrorPostEmptyId).LogAndRespondError(res, user)
 		return
 	}
-
 	postId, err := strconv.Atoi(postIdStr)
 	if err != nil {
 		(&Error{}).Consume(err).LogAndRespondError(res, user)
 		return
 	}
-
 	if !user.LoggedIn {
 		(&Error{}).Consume(ErrorPostPermissionDenied).LogAndRespondError(res, user)
 		return
 	}
-
 	if req.FormValue("like") == "on" {
 		err = DoLike(user.Id, postId)
 		if err != nil {
@@ -115,7 +111,6 @@ func handlePostReaction(res http.ResponseWriter, req *http.Request, user User) {
 			return
 		}
 	}
-
 	if req.FormValue("dislike") == "on" {
 		err = DoDislikePost(user.Id, postId)
 		if err != nil {
@@ -123,7 +118,6 @@ func handlePostReaction(res http.ResponseWriter, req *http.Request, user User) {
 			return
 		}
 	}
-
 	http.Redirect(res, req, "/post?id="+postIdStr, http.StatusSeeOther)
 }
 
@@ -133,24 +127,20 @@ func handleCommentReaction(res http.ResponseWriter, req *http.Request, user User
 		(&Error{}).Consume(err).LogAndRespondError(res, user)
 		return
 	}
-
 	commentIdStr := req.URL.Query().Get("id")
 	if len(commentIdStr) == 0 {
 		(&Error{}).Consume(ErrorCommentEmptyId).LogAndRespondError(res, user)
 		return
 	}
-
 	commentId, err := strconv.Atoi(commentIdStr)
 	if err != nil {
 		(&Error{}).Consume(err).LogAndRespondError(res, user)
 		return
 	}
-
 	if !user.LoggedIn {
 		(&Error{}).Consume(ErrorCommentPermissionDenied).LogAndRespondError(res, user)
 		return
 	}
-
 	if req.FormValue("like") == "on" {
 		err = DoLikeComment(user.Id, commentId)
 		if err != nil {
@@ -158,7 +148,6 @@ func handleCommentReaction(res http.ResponseWriter, req *http.Request, user User
 			return
 		}
 	}
-
 	if req.FormValue("dislike") == "on" {
 		err = DoDislikeComment(user.Id, commentId)
 		if err != nil {
@@ -166,7 +155,6 @@ func handleCommentReaction(res http.ResponseWriter, req *http.Request, user User
 			return
 		}
 	}
-
 	http.Redirect(res, req, "/", http.StatusSeeOther)
 }
 
