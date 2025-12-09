@@ -28,7 +28,6 @@ func getRoutes(res http.ResponseWriter, req *http.Request, user User) {
 	case strings.Compare(req.RequestURI, "/") == 0:
 		showIndex(res, req, user)
 	default:
-		log.Printf("%s", req.RequestURI)
 		res.WriteHeader(http.StatusNotFound)
 		(&Error{}).Consume(ErrorNotFound).LogAndRespondError(res, user)
 	}
@@ -49,7 +48,6 @@ func postRoutes(res http.ResponseWriter, req *http.Request, user User) {
 	case strings.Compare(req.RequestURI, "/") == 0:
 		showIndex(res, req, user)
 	default:
-		log.Printf("%s", req.RequestURI)
 		res.WriteHeader(http.StatusNotFound)
 		(&Error{}).Consume(ErrorNotFound).LogAndRespondError(res, user)
 	}
@@ -61,14 +59,10 @@ func routesHandler(res http.ResponseWriter, req *http.Request) {
 	var err error
 	var user User = GuestUser
 	for _, cookie := range req.Cookies() {
-		log.Printf("%#v", cookie)
-		if cookie.Name == "access" && cookie.Value == "admin" {
-			user = AdminUser
-		} else if cookie.Name == "__Host-FRMSessionID" {
+		if cookie.Name == "__Host-FRMSessionID" {
 			user, err = getUserBySession(cookie.Value)
 			if err != nil {
 				(&Error{}).Consume(err).LogError()
-				// e.RespondError(res)
 				break
 			}
 			user.LoggedIn = true

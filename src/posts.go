@@ -87,31 +87,11 @@ func showPost(res http.ResponseWriter, req *http.Request, user User) {
 	}
 	post.Categories = categories
 	data.Posts = Posts{post}
-
-	// data.Init()
-	// data.SetUser(user)
-	// if err != nil {
-	// 	e := &Error{}
-	// 	errC := e.Consume(err)
-	// 	errC.LogError()
-	// 	data.SetView("error_view")
-	// 	data.SetError(errC)
-	// 	data.WriteResponse(res)
-	// 	return
-	// }
 	data.SetView("post_view")
-	// data.SetPosts(returnMockPost(post_id))
 	data.WriteResponse(res)
 }
 
-func showPosts(res http.ResponseWriter, req *http.Request, user User) {
-	// query := req.URL.Query()
-	// _, ok := query["id"]
-	// if ok {
-	// 	log.Printf("%v", query["id"])
-	// 	showPost(res, query["id"][0], user)
-	// 	return
-	// }
+func showPosts(res http.ResponseWriter, _ *http.Request, user User) {
 	data := ReturnMockResponse()
 	posts, err := getAllPosts()
 	if err != nil {
@@ -125,7 +105,7 @@ func showPosts(res http.ResponseWriter, req *http.Request, user User) {
 	data.WriteResponse(res)
 }
 
-func createPostView(res http.ResponseWriter, req *http.Request, user User) {
+func createPostView(res http.ResponseWriter, _ *http.Request, user User) {
 	data := ReturnMockResponse()
 	data.SetUser(user)
 	data.SetView("post_create_view")
