@@ -19,6 +19,7 @@ type Post struct {
 	Dislikes        int
 	Disliked        bool
 	Category        Category
+	Categories      Categories
 	Comments        Comments
 }
 
@@ -79,7 +80,14 @@ func showPost(res http.ResponseWriter, req *http.Request, user User) {
 		return
 	}
 	post.Comments = comments
+	categories, err := getCategoriesByPostId(post.Id)
+	if err != nil {
+		(&Error{}).Consume(err).LogAndRespondError(res, user)
+		return
+	}
+	post.Categories = categories
 	data.Posts = Posts{post}
+
 	// data.Init()
 	// data.SetUser(user)
 	// if err != nil {
