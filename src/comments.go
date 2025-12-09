@@ -67,7 +67,7 @@ func createComment(res http.ResponseWriter, req *http.Request, user User) {
 
 	// Validate user is logged in
 	if !user.LoggedIn {
-		data.Error = *(&Error{}).Consume(ErrorPostPermissionDenied)
+		data.Error = *(&Error{}).Consume(ErrorCommentPermissionDenied)
 		respondView(res, "user_login_view", data)
 		return
 	}
