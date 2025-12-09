@@ -54,6 +54,7 @@ func createUsersTable() string {
 func createPostsTable() string {
 	return `CREATE TABLE IF NOT EXISTS "posts" (
 		"id"	INTEGER NOT NULL UNIQUE,
+		"timestamp"	TEXT,
 		"title"	TEXT,
 		"body"	TEXT,
 		"user_id"	INTEGER NOT NULL,
@@ -75,6 +76,7 @@ func createCommentsTable() string {
 		"id"	INTEGER NOT NULL UNIQUE,
 		"post_id"	INTEGER NOT NULL,
 		"user_id"	INTEGER NOT NULL,
+		"timestamp"	TEXT,
 		"body"	TEXT NOT NULL,
 		PRIMARY KEY("id" AUTOINCREMENT),
 		FOREIGN KEY("post_id") REFERENCES "posts"("id"),
@@ -553,11 +555,11 @@ func addPost(post Post) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	stmt, err := db.Prepare("INSERT INTO posts (title, body, user_id) VALUES (?, ?, ?)")
+	stmt, err := db.Prepare("INSERT INTO posts (title, body, user_id, timestamp) VALUES (?, ?, ?, ?)")
 	if err != nil {
 		return 0, err
 	}
-	res, err := stmt.Exec(post.Title, post.Body, post.UserId)
+	res, err := stmt.Exec(post.Title, post.Body, post.UserId, getCurrentTimestamp())
 	if err != nil {
 		return 0, err
 	}
@@ -593,10 +595,11 @@ func addComment(comment Comment) (int, error) {
 	}
 
 	res, err := db.Exec(
-		"INSERT INTO comments (post_id, user_id, body) VALUES (?, ?, ?)",
+		"INSERT INTO comments (post_id, user_id, body, timestamp) VALUES (?, ?, ?, ?)",
 		comment.PostId,
 		comment.UserId,
 		comment.Body,
+		getCurrentTimestamp(),
 	)
 	commentId, err := res.LastInsertId()
 	if err != nil {
@@ -632,15 +635,20 @@ func getCommentsByPostId(postId int) (Comments, error) {
 	var comments Comments
 	for rows.Next() {
 		var comment Comment
+		var ts string
 
 		err = rows.Scan(
 			&comment.Id,
 			&comment.PostId,
 			&comment.UserId,
 			&comment.Body,
-			&comment.Timestamp,
+			&ts,
 			&comment.Username,
 		)
+		if err != nil {
+			return Comments{}, err
+		}
+		comment.Timestamp, err = convertStringToTime(ts)
 		if err != nil {
 			return Comments{}, err
 		}

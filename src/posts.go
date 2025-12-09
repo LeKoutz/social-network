@@ -71,6 +71,12 @@ func showPost(res http.ResponseWriter, req *http.Request, user User) {
 		(&Error{}).Consume(err).LogAndRespondError(res, user)
 		return
 	}
+	comments, err := getCommentsByPostId(id_int)
+	if err != nil {
+		(&Error{}).Consume(err).LogAndRespondError(res, user)
+		return
+	}
+	post.Comments = comments
 	data.Posts = Posts{post}
 	// data.Init()
 	// data.SetUser(user)
