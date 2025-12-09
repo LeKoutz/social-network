@@ -606,7 +606,7 @@ func addComment(comment Comment) (int, error) {
 }
 
 func getCommentsByPostId(postId int) (Comments, error) {
-	db, err := sql.Open("sqlite3", "./db.db:")
+	db, err := sql.Open("sqlite3", "./db.db")
 	if err != nil {
 		return Comments{}, err
 	}
