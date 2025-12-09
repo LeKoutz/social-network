@@ -9,32 +9,33 @@ import (
 func Init() error {
 	db, err := sql.Open("sqlite3", "./db.db")
 	if err != nil {
+		(&Error{}).Consume(err).LogError()
 		return err
 	}
 	defer db.Close()
 	_, err = db.Exec(createUsersTable())
 	if err != nil {
-		return err
+		(&Error{}).Consume(err).LogError()
 	}
 	_, err = db.Exec(createPostsTable())
 	if err != nil {
-		return err
+		(&Error{}).Consume(err).LogError()
 	}
 	_, err = db.Exec(createCategoriesTable())
 	if err != nil {
-		return err
+		(&Error{}).Consume(err).LogError()
 	}
 	_, err = db.Exec(createCommentsTable())
 	if err != nil {
-		return err
+		(&Error{}).Consume(err).LogError()
 	}
 	_, err = db.Exec(createReactionsTable())
 	if err != nil {
-		return err
+		(&Error{}).Consume(err).LogError()
 	}
 	_, err = db.Exec(createPostsCategoriesTable())
 	if err != nil {
-		return err
+		(&Error{}).Consume(err).LogError()
 	}
 	return nil
 }
