@@ -8,16 +8,16 @@ import (
 )
 
 type Comment struct {
-	Id       int
-	PostId   int
-	UserId   int
-	Body     string
+	Id        int
+	PostId    int
+	UserId    int
+	Body      string
 	Timestamp time.Time
-	Likes    int
-	Liked    bool
-	Dislikes int
-	Disliked bool
-	Username string
+	Likes     int
+	Liked     bool
+	Dislikes  int
+	Disliked  bool
+	Username  string
 }
 
 type Comments []Comment
@@ -76,7 +76,7 @@ func createComment(res http.ResponseWriter, req *http.Request, user User) {
 	comment := Comment{
 		Body:      body,
 		UserId:    user.Id,
-		PostId: post_id,
+		PostId:    post_id,
 		Timestamp: time.Now().UTC(),
 	}
 

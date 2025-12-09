@@ -7,18 +7,18 @@ import (
 )
 
 type Post struct {
-	Id        int
-	Title     string
-	Body      string
-	UserId    int
-	Timestamp int64
+	Id              int
+	Title           string
+	Body            string
+	UserId          int
+	Timestamp       int64
 	TimestampString string
-	Likes     int
-	Liked     bool
-	Dislikes  int
-	Disliked  bool
-	Category  Category
-	Comments  Comments
+	Likes           int
+	Liked           bool
+	Dislikes        int
+	Disliked        bool
+	Category        Category
+	Comments        Comments
 }
 
 type Posts []Post

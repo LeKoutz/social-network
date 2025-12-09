@@ -57,12 +57,13 @@ func InitComments() {
 	_, err := addComment(Comment{
 		PostId: 1,
 		UserId: 1,
-		Body: "lol",
+		Body:   "lol",
 	})
 	if err != nil {
 		(&Error{}).Consume(err).LogError()
 	}
 }
+
 // func InitPostsCategories() {
 //
 // 	if err != nil {
