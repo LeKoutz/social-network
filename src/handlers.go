@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -81,6 +82,49 @@ func routesHandler(res http.ResponseWriter, req *http.Request) {
 		res.WriteHeader(http.StatusMethodNotAllowed)
 		(&Error{}).Consume(ErrorNotFound).LogAndRespondError(res, user)
 	}
+}
+
+func handlePostReaction(res http.ResponseWriter, req *http.Request, user User) {
+	err := req.ParseForm()
+	if err != nil {
+		(&Error{}).Consume(err).LogAndRespondError(res, user)
+		return
+	}
+
+	postIdStr := req.URL.Query().Get("id")
+	if len(postIdStr) == 0 {
+		(&Error{}).Consume(ErrorPostEmptyId).LogAndRespondError(res, user)
+		return
+	}
+
+	postId, err := strconv.Atoi(postIdStr)
+	if err != nil {
+		(&Error{}).Consume(err).LogAndRespondError(res, user)
+		return
+	}
+
+	if !user.LoggedIn {
+		(&Error{}).Consume(ErrorPostPermissionDenied).LogAndRespondError(res, user)
+		return
+	}
+
+	if req.FormValue("like") == "on" {
+		err = DoLike(user.Id, postId)
+		if err != nil {
+			(&Error{}).Consume(err).LogAndRespondError(res, user)
+			return
+		}
+	}
+
+	if req.FormValue("dislike") == "on" {
+		err = DoDislikePost(user.Id, postId)
+		if err != nil {
+			(&Error{}).Consume(err).LogAndRespondError(res, user)
+			return
+		}
+	}
+
+	http.Redirect(res, req, "/post?id="+postIdStr, http.StatusSeeOther)
 }
 
 func respondError(statusInt int, res http.ResponseWriter, _ string) {
