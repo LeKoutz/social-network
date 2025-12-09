@@ -11,6 +11,7 @@ type Post struct {
 	Title           string
 	Body            string
 	UserId          int
+	User            User
 	Timestamp       int64
 	TimestampString string
 	Likes           int

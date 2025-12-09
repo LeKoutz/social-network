@@ -596,7 +596,7 @@ func getPostById(id int) (Post, error) {
 	defer db.Close()
 	var post Post
 	var ts string
-	err = db.QueryRow(`SELECT title, body, timestamp FROM posts WHERE id = ?`, id).Scan(&post.Title, &post.Body, &ts)
+	err = db.QueryRow(`SELECT title, body, timestamp, user_id FROM posts WHERE id = ?`, id).Scan(&post.Title, &post.Body, &ts, &post.UserId)
 	if err != nil {
 		return Post{}, err
 	}
@@ -606,6 +606,10 @@ func getPostById(id int) (Post, error) {
 	}
 	post.TimestampString = convertTimeToString(t)
 	post.Id = id
+	post.User, err = getUserById(post.UserId)
+	if err != nil {
+		return Post{}, err
+	}
 	return post, nil
 }
 
