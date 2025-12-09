@@ -3,6 +3,48 @@
 body {
     display: flex;
     flex-direction: column;
+    background-color: #2f2f2f;
+    color: lightgreen;
+}
+
+a {
+    color: greenyellow;
+}
+
+form {
+}
+
+fieldset {
+    display: flex;
+    flex-direction: column;
+    border-color: #6a6a6a;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 2px;
+}
+
+legend {
+    padding: 0 1vw;
+    border-color: #6a6a6a;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 2px;
+}
+
+input {
+    background-color: #1c1c1c;
+    color: #fff;
+}
+
+input[type=submit] {
+    background-color: #1c1c1c;
+    color: greenyellow;
+}
+
+input[type=submit]:hover {
+    background-color: #1c1c1c;
+    color: greenyellow;
+    border-color: greenyellow;
 }
 
 .topbar {
@@ -19,5 +61,31 @@ body {
     gap: 1vw;
     list-style: none;
 }
+
+.inline {
+    display: flex;
+    flex-direction: row;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+}
+
+.reactions {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 5px;
+}
+
+.comment {
+    border-color: #6a6a6a;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 2px;
+}
+
+
 </style>
 {{end}}

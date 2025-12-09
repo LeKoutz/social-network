@@ -9,11 +9,12 @@
         <fieldset>
             <legend>New post</legend>
             <input type="text" name="title" placeholder="Your title here" required/>
-            <select name="category">
                 {{ range .Categories }}
-                <option value="{{.Id}}">{{.Name}}</option>
+                <div class="inline">
+                    <input type="checkbox" id="category-{{.Id}}" name="category-{{.Id}}"/>
+                    <label for="category-{{.Id}}">{{.Name}}</label>
+                </div>
                 {{ end }}
-            </select>
             <textarea name="body" placeholder="Your post here" required></textarea>
             <input type="submit"/>
         </fieldset>

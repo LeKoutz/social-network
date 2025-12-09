@@ -9,32 +9,33 @@ import (
 func Init() error {
 	db, err := sql.Open("sqlite3", "./db.db")
 	if err != nil {
+		(&Error{}).Consume(err).LogError()
 		return err
 	}
 	defer db.Close()
 	_, err = db.Exec(createUsersTable())
 	if err != nil {
-		return err
+		(&Error{}).Consume(err).LogError()
 	}
 	_, err = db.Exec(createPostsTable())
 	if err != nil {
-		return err
+		(&Error{}).Consume(err).LogError()
 	}
 	_, err = db.Exec(createCategoriesTable())
 	if err != nil {
-		return err
+		(&Error{}).Consume(err).LogError()
 	}
 	_, err = db.Exec(createCommentsTable())
 	if err != nil {
-		return err
+		(&Error{}).Consume(err).LogError()
 	}
 	_, err = db.Exec(createReactionsTable())
 	if err != nil {
-		return err
+		(&Error{}).Consume(err).LogError()
 	}
 	_, err = db.Exec(createPostsCategoriesTable())
 	if err != nil {
-		return err
+		(&Error{}).Consume(err).LogError()
 	}
 	return nil
 }
@@ -53,6 +54,7 @@ func createUsersTable() string {
 func createPostsTable() string {
 	return `CREATE TABLE IF NOT EXISTS "posts" (
 		"id"	INTEGER NOT NULL UNIQUE,
+		"timestamp"	TEXT,
 		"title"	TEXT,
 		"body"	TEXT,
 		"user_id"	INTEGER NOT NULL,
@@ -74,6 +76,7 @@ func createCommentsTable() string {
 		"id"	INTEGER NOT NULL UNIQUE,
 		"post_id"	INTEGER NOT NULL,
 		"user_id"	INTEGER NOT NULL,
+		"timestamp"	TEXT,
 		"body"	TEXT NOT NULL,
 		PRIMARY KEY("id" AUTOINCREMENT),
 		FOREIGN KEY("post_id") REFERENCES "posts"("id"),
@@ -201,6 +204,21 @@ func getUserBySession(sessionValue string) (User, error) {
 	if err != nil {
 		return User{}, err
 	}
+	return user, nil
+}
+
+func getUserById(id int) (User, error) {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return User{}, err
+	}
+	defer db.Close()
+	var user User
+	err = db.QueryRow(`SELECT username FROM users WHERE id = ?`, id).Scan(&user.Username)
+	if err != nil {
+		return User{}, err
+	}
+	user.Id = id
 	return user, nil
 }
 
@@ -455,6 +473,34 @@ func getCategoryById(id int) (Category, error) {
 	return category, nil
 }
 
+func getCategoriesByPostId(post_id int) (Categories, error) {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return Categories{}, err
+	}
+	defer db.Close()
+	var categories Categories
+	rows, err := db.Query(`
+	SELECT c.id, c.name
+	FROM categories c
+	JOIN posts_categories pc ON c.id = pc.category_id
+	WHERE pc.post_id = ?
+	`, post_id)
+	if err != nil {
+		return Categories{}, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var category Category
+		err = rows.Scan(&category.Id, &category.Name)
+		if err != nil {
+			return []Category{}, err
+		}
+		categories = append(categories, category)
+	}
+	return categories, nil
+}
+
 func addCategory(category Category) error {
 	db, err := sql.Open("sqlite3", "./db.db")
 	if err != nil {
@@ -487,7 +533,7 @@ func getPostsByCategoryId(id int) (Posts, error) {
 	defer db.Close()
 	var posts Posts
 	rows, err := db.Query(`
-	SELECT posts.id, posts.title, posts.body
+	SELECT posts.id, posts.title, posts.body, posts.timestamp
 	FROM posts
 	JOIN posts_categories pc ON posts.id = pc.post_id
 	JOIN categories ON pc.category_id = categories.id
@@ -498,7 +544,16 @@ func getPostsByCategoryId(id int) (Posts, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var post Post
-		rows.Scan(&post.Id, &post.Title, &post.Body)
+		var ts string
+		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts)
+		if err != nil {
+			return Posts{}, err
+		}
+		t, err := convertStringToTime(ts)
+		if err != nil {
+			return Posts{}, err
+		}
+		post.TimestampString = convertTimeToString(t)
 		posts = append(posts, post)
 	}
 	return posts, nil
@@ -510,7 +565,7 @@ func getAllPosts() (Posts, error) {
 		return Posts{}, err
 	}
 	defer db.Close()
-	rows, err := db.Query(`SELECT id, title, body FROM posts`)
+	rows, err := db.Query(`SELECT id, title, body, timestamp FROM posts`)
 	if err != nil {
 		return Posts{}, err
 	}
@@ -518,10 +573,16 @@ func getAllPosts() (Posts, error) {
 	var posts Posts
 	for rows.Next() {
 		var post Post
-		err = rows.Scan(&post.Id, &post.Title, &post.Body)
+		var ts string
+		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts)
 		if err != nil {
 			return Posts{}, err
 		}
+		t, err := convertStringToTime(ts)
+		if err != nil {
+			return Posts{}, err
+		}
+		post.TimestampString = convertTimeToString(t)
 		posts = append(posts, post)
 	}
 	return posts, nil
@@ -534,11 +595,21 @@ func getPostById(id int) (Post, error) {
 	}
 	defer db.Close()
 	var post Post
-	err = db.QueryRow(`SELECT title, body FROM posts WHERE id = ?`, id).Scan(&post.Title, &post.Body)
+	var ts string
+	err = db.QueryRow(`SELECT title, body, timestamp, user_id FROM posts WHERE id = ?`, id).Scan(&post.Title, &post.Body, &ts, &post.UserId)
 	if err != nil {
 		return Post{}, err
 	}
+	t, err := convertStringToTime(ts)
+	if err != nil {
+		return Post{}, err
+	}
+	post.TimestampString = convertTimeToString(t)
 	post.Id = id
+	post.User, err = getUserById(post.UserId)
+	if err != nil {
+		return Post{}, err
+	}
 	return post, nil
 }
 
@@ -552,11 +623,11 @@ func addPost(post Post) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	stmt, err := db.Prepare("INSERT INTO posts (title, body, user_id) VALUES (?, ?, ?)")
+	stmt, err := db.Prepare("INSERT INTO posts (title, body, user_id, timestamp) VALUES (?, ?, ?, ?)")
 	if err != nil {
 		return 0, err
 	}
-	res, err := stmt.Exec(post.Title, post.Body, post.UserId)
+	res, err := stmt.Exec(post.Title, post.Body, post.UserId, getCurrentTimestamp())
 	if err != nil {
 		return 0, err
 	}
@@ -592,10 +663,11 @@ func addComment(comment Comment) (int, error) {
 	}
 
 	res, err := db.Exec(
-		"INSERT INTO comments (post_id, user_id, body) VALUES (?, ?, ?)",
+		"INSERT INTO comments (post_id, user_id, body, timestamp) VALUES (?, ?, ?, ?)",
 		comment.PostId,
 		comment.UserId,
 		comment.Body,
+		getCurrentTimestamp(),
 	)
 	commentId, err := res.LastInsertId()
 	if err != nil {
@@ -605,7 +677,7 @@ func addComment(comment Comment) (int, error) {
 }
 
 func getCommentsByPostId(postId int) (Comments, error) {
-	db, err := sql.Open("sqlite3", "./db.db:")
+	db, err := sql.Open("sqlite3", "./db.db")
 	if err != nil {
 		return Comments{}, err
 	}
@@ -631,18 +703,24 @@ func getCommentsByPostId(postId int) (Comments, error) {
 	var comments Comments
 	for rows.Next() {
 		var comment Comment
+		var ts string
 
 		err = rows.Scan(
 			&comment.Id,
 			&comment.PostId,
 			&comment.UserId,
 			&comment.Body,
-			&comment.Timestamp,
+			&ts,
 			&comment.Username,
 		)
 		if err != nil {
 			return Comments{}, err
 		}
+		t, err := convertStringToTime(ts)
+		if err != nil {
+			return Comments{}, err
+		}
+		comment.TimestampString = convertTimeToString(t)
 		comments = append(comments, comment)
 	}
 	return comments, nil

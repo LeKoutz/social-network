@@ -43,6 +43,5 @@ func Main(args []string) {
 		os.Exit(1)
 	}
 	log.Printf("http://%s:%s/", ip, port)
-	// TODO Initialization of needed stuff
-	startServer(ip, port) // Unused values...
+	startServer(ip, port)
 }

@@ -7,17 +7,20 @@ import (
 )
 
 type Post struct {
-	Id        int
-	Title     string
-	Body      string
-	UserId    int
-	Timestamp time.Time
-	Likes     int
-	Liked     bool
-	Dislikes  int
-	Disliked  bool
-	Category  Category
-	Comments  Comments
+	Id              int
+	Title           string
+	Body            string
+	UserId          int
+	User            User
+	Timestamp       int64
+	TimestampString string
+	Likes           int
+	Liked           bool
+	Dislikes        int
+	Disliked        bool
+	Category        Category
+	Categories      Categories
+	Comments        Comments
 }
 
 type Posts []Post
@@ -41,7 +44,7 @@ func returnMockPost(post_id int) Posts {
 			Id:        post_id,
 			Title:     "something",
 			Body:      "mpla mpla",
-			Timestamp: time.Now().UTC(),
+			Timestamp: time.Now().Unix(),
 			Likes:     2,
 			Dislikes:  1,
 			Category: Category{
@@ -71,31 +74,24 @@ func showPost(res http.ResponseWriter, req *http.Request, user User) {
 		(&Error{}).Consume(err).LogAndRespondError(res, user)
 		return
 	}
+	comments, err := getCommentsByPostId(id_int)
+	if err != nil {
+		(&Error{}).Consume(err).LogAndRespondError(res, user)
+		return
+	}
+	post.Comments = comments
+	categories, err := getCategoriesByPostId(post.Id)
+	if err != nil {
+		(&Error{}).Consume(err).LogAndRespondError(res, user)
+		return
+	}
+	post.Categories = categories
 	data.Posts = Posts{post}
-	// data.Init()
-	// data.SetUser(user)
-	// if err != nil {
-	// 	e := &Error{}
-	// 	errC := e.Consume(err)
-	// 	errC.LogError()
-	// 	data.SetView("error_view")
-	// 	data.SetError(errC)
-	// 	data.WriteResponse(res)
-	// 	return
-	// }
 	data.SetView("post_view")
-	// data.SetPosts(returnMockPost(post_id))
 	data.WriteResponse(res)
 }
 
-func showPosts(res http.ResponseWriter, req *http.Request, user User) {
-	// query := req.URL.Query()
-	// _, ok := query["id"]
-	// if ok {
-	// 	log.Printf("%v", query["id"])
-	// 	showPost(res, query["id"][0], user)
-	// 	return
-	// }
+func showPosts(res http.ResponseWriter, _ *http.Request, user User) {
 	data := ReturnMockResponse()
 	posts, err := getAllPosts()
 	if err != nil {
@@ -109,7 +105,7 @@ func showPosts(res http.ResponseWriter, req *http.Request, user User) {
 	data.WriteResponse(res)
 }
 
-func createPostView(res http.ResponseWriter, req *http.Request, user User) {
+func createPostView(res http.ResponseWriter, _ *http.Request, user User) {
 	data := ReturnMockResponse()
 	data.SetUser(user)
 	data.SetView("post_create_view")
@@ -147,10 +143,9 @@ func createPost(res http.ResponseWriter, req *http.Request, user User) {
 
 	// Create post object
 	post := Post{
-		Title:     title,
-		Body:      body,
-		UserId:    user.Id,
-		Timestamp: time.Now().UTC(),
+		Title:  title,
+		Body:   body,
+		UserId: user.Id,
 		Category: Category{
 			Id: categoryId,
 		},
