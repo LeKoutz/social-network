@@ -207,6 +207,21 @@ func getUserBySession(sessionValue string) (User, error) {
 	return user, nil
 }
 
+func getUserById(id int) (User, error) {
+	db, err := sql.Open("sqlite3", "./db.db")
+	if err != nil {
+		return User{}, err
+	}
+	defer db.Close()
+	var user User
+	err = db.QueryRow(`SELECT username FROM users WHERE id = ?`, id).Scan(&user.Username)
+	if err != nil {
+		return User{}, err
+	}
+	user.Id = id
+	return user, nil
+}
+
 func checkIfUserAlreadyLikedPost(userId, postId int) (int, error) {
 	db, err := sql.Open("sqlite3", "./db.db")
 	if err != nil {
