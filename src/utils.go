@@ -11,8 +11,15 @@ func convertStringToTime(timeString string) (time.Time, error) {
 	if err != nil {
 		return time.Time{}, err
 	}
-	t := time.Unix(timestamp, 0)
-	return t, nil
+	return convertInt64ToTime(timestamp), nil
+}
+
+func convertTimeToString(t time.Time) string {
+	return t.String()
+}
+
+func convertInt64ToTime(i int64) time.Time {
+	return time.Unix(i, 0)
 }
 
 func getCurrentTimestamp() string {

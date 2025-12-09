@@ -11,7 +11,8 @@ type Post struct {
 	Title     string
 	Body      string
 	UserId    int
-	Timestamp time.Time
+	Timestamp int64
+	TimestampString string
 	Likes     int
 	Liked     bool
 	Dislikes  int
@@ -41,7 +42,7 @@ func returnMockPost(post_id int) Posts {
 			Id:        post_id,
 			Title:     "something",
 			Body:      "mpla mpla",
-			Timestamp: time.Now().UTC(),
+			Timestamp: time.Now().Unix(),
 			Likes:     2,
 			Dislikes:  1,
 			Category: Category{
@@ -156,7 +157,7 @@ func createPost(res http.ResponseWriter, req *http.Request, user User) {
 		Title:     title,
 		Body:      body,
 		UserId:    user.Id,
-		Timestamp: time.Now().UTC(),
+		Timestamp: time.Now().Unix(),
 		Category: Category{
 			Id: categoryId,
 		},

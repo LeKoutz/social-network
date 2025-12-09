@@ -490,7 +490,7 @@ func getPostsByCategoryId(id int) (Posts, error) {
 	defer db.Close()
 	var posts Posts
 	rows, err := db.Query(`
-	SELECT posts.id, posts.title, posts.body
+	SELECT posts.id, posts.title, posts.body, posts.timestamp
 	FROM posts
 	JOIN posts_categories pc ON posts.id = pc.post_id
 	JOIN categories ON pc.category_id = categories.id
@@ -501,7 +501,16 @@ func getPostsByCategoryId(id int) (Posts, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var post Post
-		rows.Scan(&post.Id, &post.Title, &post.Body)
+		var ts string
+		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts)
+		if err != nil {
+			return Posts{}, err
+		}
+		t, err := convertStringToTime(ts)
+		if err != nil {
+			return Posts{}, err
+		}
+		post.TimestampString = convertTimeToString(t)
 		posts = append(posts, post)
 	}
 	return posts, nil
@@ -513,7 +522,7 @@ func getAllPosts() (Posts, error) {
 		return Posts{}, err
 	}
 	defer db.Close()
-	rows, err := db.Query(`SELECT id, title, body FROM posts`)
+	rows, err := db.Query(`SELECT id, title, body, timestamp FROM posts`)
 	if err != nil {
 		return Posts{}, err
 	}
@@ -521,10 +530,16 @@ func getAllPosts() (Posts, error) {
 	var posts Posts
 	for rows.Next() {
 		var post Post
-		err = rows.Scan(&post.Id, &post.Title, &post.Body)
+		var ts string
+		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts)
 		if err != nil {
 			return Posts{}, err
 		}
+		t, err := convertStringToTime(ts)
+		if err != nil {
+			return Posts{}, err
+		}
+		post.TimestampString = convertTimeToString(t)
 		posts = append(posts, post)
 	}
 	return posts, nil
@@ -537,10 +552,16 @@ func getPostById(id int) (Post, error) {
 	}
 	defer db.Close()
 	var post Post
-	err = db.QueryRow(`SELECT title, body FROM posts WHERE id = ?`, id).Scan(&post.Title, &post.Body)
+	var ts string
+	err = db.QueryRow(`SELECT title, body, timestamp FROM posts WHERE id = ?`, id).Scan(&post.Title, &post.Body, &ts)
 	if err != nil {
 		return Post{}, err
 	}
+	t, err := convertStringToTime(ts)
+	if err != nil {
+		return Post{}, err
+	}
+	post.TimestampString = convertTimeToString(t)
 	post.Id = id
 	return post, nil
 }
