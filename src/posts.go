@@ -163,10 +163,9 @@ func createPost(res http.ResponseWriter, req *http.Request, user User) {
 
 	// Create post object
 	post := Post{
-		Title:     title,
-		Body:      body,
-		UserId:    user.Id,
-		Timestamp: time.Now().Unix(),
+		Title:  title,
+		Body:   body,
+		UserId: user.Id,
 		Category: Category{
 			Id: categoryId,
 		},
