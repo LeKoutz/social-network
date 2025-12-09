@@ -2,12 +2,39 @@
 {{ template "header" .}}
 {{template "topbar" .}}
 {{if .Error.Has}}
-    {{template "error" .}}
+{{template "error" .}}
 {{end}}
 <div class="container">
     {{template "category" index .Categories 0}}
-    {{ range .Posts }}
-        {{ template "post" . }}
+    {{ range .Posts}}
+    <div class="post" id="{{.Id}}">
+        <a href="/post?id={{.Id}}"><h3>{{.Title}}</h3></a>
+        <em>{{.TimestampString}}</em>
+        <p>{{.Body}}</p>
+        <div>
+            <form method="POST" action="/post?id={{.Id}}">
+                <input
+                        id="likes"
+                        type="checkbox"
+                        name="like"
+                        onchange="submit()"
+                        {{if .Liked}} checked{{end}}
+                        />
+                <label for="likes">{{.Likes}} Likes</label>
+                <input
+                        id="dislikes"
+                        type="checkbox"
+                        name="dislike"
+                        onchange="submit()"
+                        {{if .Disliked}} checked{{end}}
+                        />
+                <label for="dislikes">{{.Dislikes}} Dislikes</label>
+            </form>
+            {{if $.User.LoggedIn}}
+            {{ template "comment_create" .}}
+            {{end}}
+        </div>
+    </div>
     {{ end }}
 </div>
 {{template "ending" .}}

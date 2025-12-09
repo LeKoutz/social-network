@@ -13,7 +13,7 @@ var (
 				Id:        1,
 				Title:     "something",
 				Body:      "mpla mpla",
-				Timestamp: time.Now().UTC(),
+				Timestamp: time.Now().Unix(),
 				Likes:     2,
 				Dislikes:  1,
 				Category: Category{
@@ -26,7 +26,7 @@ var (
 				Id:        2,
 				Title:     "something else",
 				Body:      "even more mpla mpla",
-				Timestamp: time.Now().UTC(),
+				Timestamp: time.Now().Unix(),
 				Likes:     1,
 				Liked:     true,
 				Dislikes:  0,
