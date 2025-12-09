@@ -716,10 +716,11 @@ func getCommentsByPostId(postId int) (Comments, error) {
 		if err != nil {
 			return Comments{}, err
 		}
-		comment.Timestamp, err = convertStringToTime(ts)
+		t, err := convertStringToTime(ts)
 		if err != nil {
 			return Comments{}, err
 		}
+		comment.TimestampString = convertTimeToString(t)
 		comments = append(comments, comment)
 	}
 	return comments, nil
