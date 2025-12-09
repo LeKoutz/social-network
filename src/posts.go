@@ -117,7 +117,6 @@ func createPost(res http.ResponseWriter, req *http.Request, user User) {
 	data := ReturnMockResponse()
 	data.User = user
 
-	// Parse form data
 	err := req.ParseForm()
 	if err != nil {
 		data.Error = *(&Error{}).Consume(err)
@@ -148,9 +147,9 @@ func createPost(res http.ResponseWriter, req *http.Request, user User) {
 	}
 	// Create post object
 	post := Post{
-		Title:  title,
-		Body:   body,
-		UserId: user.Id,
+		Title:      title,
+		Body:       body,
+		UserId:     user.Id,
 		Categories: PostCategories,
 	}
 	// Save post to database
@@ -163,4 +162,42 @@ func createPost(res http.ResponseWriter, req *http.Request, user User) {
 	postIdStr := strconv.Itoa(postId)
 	redirectURL := "/post?id=" + postIdStr
 	http.Redirect(res, req, redirectURL, http.StatusSeeOther)
+}
+
+func handlePostReaction(res http.ResponseWriter, req *http.Request, user User) {
+	err := req.ParseForm()
+	if err != nil {
+		(&Error{}).Consume(err).LogAndRespondError(res, user)
+		return
+	}
+
+	postIdStr := req.URL.Query().Get("id")
+	if len(postIdStr) == 0 {
+		(&Error{}).Consume(ErrorPostEmptyId).LogAndRespondError(res, user)
+		return
+	}
+	postId, err := strconv.Atoi(postIdStr)
+	if err != nil {
+		(&Error{}).Consume(err).LogAndRespondError(res, user)
+		return
+	}
+	if !user.LoggedIn {
+		(&Error{}).Consume(ErrorPostPermissionDenied).LogAndRespondError(res, user)
+		return
+	}
+	if req.FormValue("like") == "on" {
+		err = DoLike(user.Id, postId)
+		if err != nil {
+			(&Error{}).Consume(err).LogAndRespondError(res, user)
+			return
+		}
+	}
+	if req.FormValue("dislike") == "on" {
+		err = DoDislikePost(user.Id, postId)
+		if err != nil {
+			(&Error{}).Consume(err).LogAndRespondError(res, user)
+			return
+		}
+	}
+	http.Redirect(res, req, "/post?id="+postIdStr, http.StatusSeeOther)
 }
