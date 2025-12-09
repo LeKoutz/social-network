@@ -4,20 +4,20 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 )
 
 type Comment struct {
-	Id        int
-	PostId    int
-	UserId    int
-	Body      string
-	Timestamp time.Time
-	Likes     int
-	Liked     bool
-	Dislikes  int
-	Disliked  bool
-	Username  string
+	Id              int
+	PostId          int
+	UserId          int
+	Body            string
+	Timestamp       int64
+	TimestampString string
+	Likes           int
+	Liked           bool
+	Dislikes        int
+	Disliked        bool
+	Username        string
 }
 
 type Comments []Comment
@@ -74,10 +74,9 @@ func createComment(res http.ResponseWriter, req *http.Request, user User) {
 
 	// Create post object
 	comment := Comment{
-		Body:      body,
-		UserId:    user.Id,
-		PostId:    post_id,
-		Timestamp: time.Now().UTC(),
+		Body:   body,
+		UserId: user.Id,
+		PostId: post_id,
 	}
 
 	// Save post to database
