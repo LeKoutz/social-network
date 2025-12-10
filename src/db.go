@@ -14,7 +14,8 @@ func Init() error {
 		(&Error{}).Consume(err).LogError()
 		return err
 	}
-	// defer db.Close()
+	db.Exec("PRAGMA journal_mode=WAL;")
+	db.SetMaxOpenConns(1)
 	_, err = db.Exec(createUsersTable())
 	if err != nil {
 		(&Error{}).Consume(err).LogError()
