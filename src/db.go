@@ -506,16 +506,24 @@ func addPost(post Post) (int, error) {
 		return 0, err
 	}
 	for _, category := range post.Categories {
-		stmt, err = DB.Prepare("INSERT INTO posts_categories (post_id, category_id) VALUES (?, ?)")
-		if err != nil {
-			return 0, err
-		}
-		_, err = stmt.Exec(postId, category.Id)
+		err = addCategoryToPost(postId, category.Id)
 		if err != nil {
 			return 0, err
 		}
 	}
 	return int(postId), nil
+}
+
+func addCategoryToPost(post_id int64, category_id int) error {
+	stmt, err := DB.Prepare("INSERT INTO posts_categories (post_id, category_id) VALUES (?, ?)")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(post_id, category_id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func addComment(comment Comment) (int, error) {
