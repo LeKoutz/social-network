@@ -443,6 +443,33 @@ func getPostsByCategoryId(id int) (Posts, error) {
 	return posts, nil
 }
 
+func getPostsByUserId(id int) (Posts, error) {
+	var posts Posts
+	rows, err := DB.Query(`
+	SELECT posts.id, posts.title, posts.body, posts.timestamp
+	FROM posts
+	WHERE user_id = ?`, id)
+	if err != nil {
+		return Posts{}, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var post Post
+		var ts string
+		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts)
+		if err != nil {
+			return Posts{}, err
+		}
+		t, err := convertStringToTime(ts)
+		if err != nil {
+			return Posts{}, err
+		}
+		post.TimestampString = convertTimeToString(t)
+		posts = append(posts, post)
+	}
+	return posts, nil
+}
+
 func getAllPosts() (Posts, error) {
 	rows, err := DB.Query(`SELECT id, title, body, timestamp FROM posts`)
 	if err != nil {

@@ -292,3 +292,17 @@ func hasUserAlreadyDislikedComment(userId, commentId int) (bool, error) {
 
 	return existingReactionId != 0, nil
 }
+
+func showUserPosts(res http.ResponseWriter, user User) {
+	data := ResponseStruct{}
+	data.Init()
+	data.User = user
+	data.View = "posts_view"
+	var err error
+	data.Posts, err = getPostsByUserId(user.Id)
+	if err != nil {
+		(&Error{}).Consume(err).LogAndRespondError(res, user)
+		return
+	}
+	data.WriteResponse(res)
+}
