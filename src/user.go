@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"net/mail"
 	"regexp"
-	"strings"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -306,13 +305,4 @@ func showUserPosts(res http.ResponseWriter, user User) {
 		return
 	}
 	data.WriteResponse(res)
-}
-
-func showUserStuff(res http.ResponseWriter, req *http.Request, user User) {
-	switch {
-	case strings.Compare(req.RequestURI, "/my/posts") == 0:
-		showUserPosts(res, user)
-	default:
-		(&Error{}).Consume(ErrorNotFound).LogAndRespondError(res, user)
-	}
 }
