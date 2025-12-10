@@ -631,23 +631,21 @@ func addPost(post Post) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-
 	// Get the last inserted post ID
 	postId, err := res.LastInsertId()
 	if err != nil {
 		return 0, err
 	}
-
-	// Insert into posts_categories table
-	stmt, err = db.Prepare("INSERT INTO posts_categories (post_id, category_id) VALUES (?, ?)")
-	if err != nil {
-		return 0, err
+	for _, category := range post.Categories {
+		stmt, err = db.Prepare("INSERT INTO posts_categories (post_id, category_id) VALUES (?, ?)")
+		if err != nil {
+			return 0, err
+		}
+		_, err = stmt.Exec(postId, category.Id)
+		if err != nil {
+			return 0, err
+		}
 	}
-	_, err = stmt.Exec(postId, post.Category.Id)
-	if err != nil {
-		return 0, err
-	}
-
 	return int(postId), nil
 }
 

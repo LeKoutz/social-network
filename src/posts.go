@@ -1,6 +1,7 @@
 package forum
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -32,7 +33,7 @@ func (p *Post) validatePost() error {
 	if len(p.Body) == 0 {
 		return ErrorPostBodyEmpty
 	}
-	if p.Category.IsEmpty() {
+	if p.Categories.IsEmpty() {
 		return ErrorPostHasNoCategory
 	}
 	return nil
@@ -123,34 +124,35 @@ func createPost(res http.ResponseWriter, req *http.Request, user User) {
 		respondView(res, "user_register_view", data)
 		return
 	}
-
 	// Get form values
 	title := req.FormValue("title")
 	body := req.FormValue("body")
-	categoryId, err := strconv.Atoi(req.FormValue("category"))
+	categories, err := getAllCategories()
 	if err != nil {
 		data.Error = *(&Error{}).Consume(err)
 		respondView(res, "post_create_view", data)
 		return
 	}
-
+	var PostCategories Categories
+	for _, category := range categories {
+		cc := fmt.Sprintf("category-%d", category.Id)
+		if req.Form.Has(cc) && req.Form.Get(cc) == "on" {
+			PostCategories = append(PostCategories, category)
+		}
+	}
 	// Validate user is logged in
 	if !user.LoggedIn {
 		data.Error = *(&Error{}).Consume(ErrorPostPermissionDenied)
 		respondView(res, "user_login_view", data)
 		return
 	}
-
 	// Create post object
 	post := Post{
 		Title:  title,
 		Body:   body,
 		UserId: user.Id,
-		Category: Category{
-			Id: categoryId,
-		},
+		Categories: PostCategories,
 	}
-
 	// Save post to database
 	postId, err := addPost(post)
 	if err != nil {
@@ -158,9 +160,7 @@ func createPost(res http.ResponseWriter, req *http.Request, user User) {
 		respondView(res, "post_create_view", data)
 		return
 	}
-
 	postIdStr := strconv.Itoa(postId)
 	redirectURL := "/post?id=" + postIdStr
-	// Redirect to the post's page
 	http.Redirect(res, req, redirectURL, http.StatusSeeOther)
 }
