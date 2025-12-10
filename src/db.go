@@ -443,6 +443,35 @@ func getPostsByCategoryId(id int) (Posts, error) {
 	return posts, nil
 }
 
+func getLikedPostsByUserId(user_id int) (Posts, error) {
+	var posts Posts
+	rows, err := DB.Query(`
+	SELECT posts.id, posts.title, posts.body, posts.timestamp
+	FROM posts
+	JOIN reactions r ON posts.user_id = r.user_id
+	WHERE posts.user_id = ? AND r.value = 1
+	`, user_id)
+	if err != nil {
+		return Posts{}, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var post Post
+		var ts string
+		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts)
+		if err != nil {
+			return Posts{}, err
+		}
+		t, err := convertStringToTime(ts)
+		if err != nil {
+			return Posts{}, err
+		}
+		post.TimestampString = convertTimeToString(t)
+		posts = append(posts, post)
+	}
+	return posts, nil
+}
+
 func getPostsByUserId(id int) (Posts, error) {
 	var posts Posts
 	rows, err := DB.Query(`
