@@ -655,7 +655,7 @@ func getLikesCountByPostId(postId int) (int, error) {
 	return likes, nil
 }
 
-func getDisikesCountByPostId(postId int) (int, error) {
+func getDislikesCountByPostId(postId int) (int, error) {
 	var dislikes int
 	err := DB.QueryRow(`
         SELECT COUNT(*)
