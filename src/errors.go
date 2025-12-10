@@ -24,6 +24,7 @@ var (
 	ErrorCommentEmpty            = errors.New("Comment can't be empty.")
 	ErrorCommentTooLong          = errors.New("Comment is too long.")
 	ErrorCommentPermissionDenied = errors.New("You must be logged in to create a comment.")
+	ErrorCommentEmptyId          = errors.New("Comment ID can't be empty.")
 	ErrorCategoryEmptyId         = errors.New("Category ID can't be empty.")
 	ErrorCategoryAlreadyExists   = errors.New("Category already exists.")
 	ErrorCategoryNameEmpty       = errors.New("Category name can't be empty.")

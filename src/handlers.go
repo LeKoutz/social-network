@@ -43,6 +43,10 @@ func postRoutes(res http.ResponseWriter, req *http.Request, user User) {
 		registerUser(res, req)
 	case strings.HasPrefix(req.RequestURI, "/comment?action=create&post_id="):
 		createComment(res, req, user)
+	case strings.HasPrefix(req.RequestURI, "/post"):
+		handlePostReaction(res, req, user)
+	case strings.HasPrefix(req.RequestURI, "/comment"):
+		handleCommentReaction(res, req, user)
 	case strings.Compare(req.RequestURI, "/categories") == 0:
 		showCategories(res, req, user)
 	case strings.Compare(req.RequestURI, "/") == 0:
