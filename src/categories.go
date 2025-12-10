@@ -104,6 +104,28 @@ func showCategory(res http.ResponseWriter, req *http.Request, user User) {
 	data.Categories = Categories{}
 	data.Categories = append(data.Categories, category)
 	posts, err := getPostsByCategoryId(id_int)
+	for i := range posts {
+		posts[i].Likes, err = getLikesCountByPostId(posts[i].Id)
+		if err != nil {
+			(&Error{}).Consume(err).LogAndRespondError(res, user)
+			return
+		}
+		posts[i].Liked, err = hasUserAlreadyLikedPost(user.Id, posts[i].Id)
+		if err != nil {
+			(&Error{}).Consume(err).LogAndRespondError(res, user)
+			return
+		}
+		posts[i].Dislikes, err = getDislikesCountByPostId(posts[i].Id)
+		if err != nil {
+			(&Error{}).Consume(err).LogAndRespondError(res, user)
+			return
+		}
+		posts[i].Disliked, err = hasUserAlreadyDislikedPost(user.Id, posts[i].Id)
+		if err != nil {
+			(&Error{}).Consume(err).LogAndRespondError(res, user)
+			return
+		}
+	}
 	data.Posts = posts
 	respondView(res, "category_view", data)
 }
