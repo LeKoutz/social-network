@@ -116,6 +116,7 @@ func registerUser(res http.ResponseWriter, req *http.Request) {
 		data.User = user
 		data.Error = *(&Error{}).Consume(err)
 		respondView(res, "user_register_view", data)
+		return
 	}
 	if IsEmailRegistered(user.Email) {
 		data := ReturnMockResponse()
@@ -300,6 +301,20 @@ func showUserPosts(res http.ResponseWriter, user User) {
 	data.View = "posts_view"
 	var err error
 	data.Posts, err = getPostsByUserId(user.Id)
+	if err != nil {
+		(&Error{}).Consume(err).LogAndRespondError(res, user)
+		return
+	}
+	data.WriteResponse(res)
+}
+
+func showUserLikedPosts(res http.ResponseWriter, user User) {
+	data := ResponseStruct{}
+	data.Init()
+	data.User = user
+	data.View = "posts_view"
+	var err error
+	data.Posts, err = getLikedPostsByUserId(user.Id)
 	if err != nil {
 		(&Error{}).Consume(err).LogAndRespondError(res, user)
 		return
