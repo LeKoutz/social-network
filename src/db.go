@@ -6,13 +6,15 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+var DB *sql.DB
+
 func Init() error {
 	db, err := sql.Open("sqlite3", "./db.db")
 	if err != nil {
 		(&Error{}).Consume(err).LogError()
 		return err
 	}
-	defer db.Close()
+	// defer db.Close()
 	_, err = db.Exec(createUsersTable())
 	if err != nil {
 		(&Error{}).Consume(err).LogError()
@@ -37,6 +39,7 @@ func Init() error {
 	if err != nil {
 		(&Error{}).Consume(err).LogError()
 	}
+	DB = db
 	return nil
 }
 
@@ -110,19 +113,14 @@ func createReactionsTable() string {
 }
 
 func registerUserOnDB(user User) error {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-	err = user.validateUser()
+	err := user.validateUser()
 	if err != nil {
 		return err
 	}
 	if IsEmailRegistered(user.Email) {
 		return ErrorEmailIsRegistered
 	}
-	stmt, err := db.Prepare("INSERT INTO users (username, email, hash) VALUES (?, ?, ?)")
+	stmt, err := DB.Prepare("INSERT INTO users (username, email, hash) VALUES (?, ?, ?)")
 	if err != nil {
 		return err
 	}
@@ -134,12 +132,7 @@ func registerUserOnDB(user User) error {
 }
 
 func getAllUsernames() ([]string, error) {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return []string{}, err
-	}
-	defer db.Close()
-	rows, err := db.Query(`SELECT username FROM users`)
+	rows, err := DB.Query(`SELECT username FROM users`)
 	if err != nil {
 		return []string{}, err
 	}
@@ -157,12 +150,7 @@ func getAllUsernames() ([]string, error) {
 }
 
 func getAllUserEmails() ([]string, error) {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return []string{}, err
-	}
-	defer db.Close()
-	rows, err := db.Query(`SELECT email FROM users`)
+	rows, err := DB.Query(`SELECT email FROM users`)
 	if err != nil {
 		return []string{}, err
 	}
@@ -180,13 +168,8 @@ func getAllUserEmails() ([]string, error) {
 }
 
 func getUserByEmail(email string) (User, error) {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return User{}, err
-	}
-	defer db.Close()
 	var user User
-	err = db.QueryRow(`SELECT id, email, username, hash FROM users WHERE email = ?`, email).Scan(&user.Id, &user.Email, &user.Username, &user.Hash)
+	err := DB.QueryRow(`SELECT id, email, username, hash FROM users WHERE email = ?`, email).Scan(&user.Id, &user.Email, &user.Username, &user.Hash)
 	if err != nil {
 		return User{}, err
 	}
@@ -194,13 +177,8 @@ func getUserByEmail(email string) (User, error) {
 }
 
 func getUserBySession(sessionValue string) (User, error) {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return User{}, err
-	}
-	defer db.Close()
 	var user User
-	err = db.QueryRow(`SELECT id, email, username, hash FROM users WHERE session_key = ?`, sessionValue).Scan(&user.Id, &user.Email, &user.Username, &user.Hash)
+	err := DB.QueryRow(`SELECT id, email, username, hash FROM users WHERE session_key = ?`, sessionValue).Scan(&user.Id, &user.Email, &user.Username, &user.Hash)
 	if err != nil {
 		return User{}, err
 	}
@@ -208,13 +186,8 @@ func getUserBySession(sessionValue string) (User, error) {
 }
 
 func getUserById(id int) (User, error) {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return User{}, err
-	}
-	defer db.Close()
 	var user User
-	err = db.QueryRow(`SELECT username FROM users WHERE id = ?`, id).Scan(&user.Username)
+	err := DB.QueryRow(`SELECT username FROM users WHERE id = ?`, id).Scan(&user.Username)
 	if err != nil {
 		return User{}, err
 	}
@@ -223,13 +196,8 @@ func getUserById(id int) (User, error) {
 }
 
 func checkIfUserAlreadyLikedPost(userId, postId int) (int, error) {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return 0, err
-	}
-	defer db.Close()
 	var existingReactionId int
-	err = db.QueryRow(`
+	err := DB.QueryRow(`
 		SELECT id FROM reactions
 		WHERE user_id = ? AND post_id = ? AND value = 1
 		`, userId, postId).Scan(&existingReactionId)
@@ -240,13 +208,8 @@ func checkIfUserAlreadyLikedPost(userId, postId int) (int, error) {
 }
 
 func checkIfUserAlreadyDislikedPost(userId, postId int) (int, error) {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return 0, err
-	}
-	defer db.Close()
 	var existingDislikeId int
-	err = db.QueryRow(`
+	err := DB.QueryRow(`
 		SELECT id FROM reactions
 		WHERE user_id = ? AND post_id = ? AND value = 2
 		`, userId, postId).Scan(&existingDislikeId)
@@ -257,12 +220,7 @@ func checkIfUserAlreadyDislikedPost(userId, postId int) (int, error) {
 }
 
 func addLikeToPost(userId, postId int) error {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-	_, err = db.Exec(`
+	_, err := DB.Exec(`
 		INSERT INTO reactions (user_id, post_id, value)
 		VALUES (?, ?, 1)
 		`, userId, postId)
@@ -273,12 +231,7 @@ func addLikeToPost(userId, postId int) error {
 }
 
 func removeDislikeFromPost(dislikeId int) error {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-	_, err = db.Exec(`
+	_, err := DB.Exec(`
 		DELETE FROM reactions
 		WHERE id = ?
 		`, dislikeId)
@@ -289,12 +242,7 @@ func removeDislikeFromPost(dislikeId int) error {
 }
 
 func addDislikeToPost(userId, postId int) error {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-	_, err = db.Exec(`
+	_, err := DB.Exec(`
 		INSERT INTO reactions (user_id, post_id, value)
 		VALUES (?, ?, 2)
 		`, userId, postId)
@@ -305,12 +253,7 @@ func addDislikeToPost(userId, postId int) error {
 }
 
 func removeLikeFromPost(userId, postId int) error {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-	_, err = db.Exec(`
+	_, err := DB.Exec(`
 		DELETE FROM reactions
 		WHERE user_id = ? AND post_id = ? AND value = 1
 		`, userId, postId)
@@ -321,13 +264,8 @@ func removeLikeFromPost(userId, postId int) error {
 }
 
 func checkIfUserAlreadyLikedComment(userId, commentId int) (int, error) {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return 0, err
-	}
-	defer db.Close()
 	var existingReactionId int
-	err = db.QueryRow(`
+	err := DB.QueryRow(`
 		SELECT id FROM reactions
 		WHERE user_id = ? AND comment_id = ? AND value = 1
 		`, userId, commentId).Scan(&existingReactionId)
@@ -338,13 +276,8 @@ func checkIfUserAlreadyLikedComment(userId, commentId int) (int, error) {
 }
 
 func checkIfUserAlreadyDislikedComment(userId, commentId int) (int, error) {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return 0, err
-	}
-	defer db.Close()
 	var existingDislikeId int
-	err = db.QueryRow(`
+	err := DB.QueryRow(`
 		SELECT id FROM reactions
 		WHERE user_id = ? AND comment_id = ? AND value = 2
 		`, userId, commentId).Scan(&existingDislikeId)
@@ -355,12 +288,7 @@ func checkIfUserAlreadyDislikedComment(userId, commentId int) (int, error) {
 }
 
 func addLikeToComment(userId, commentId int) error {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-	_, err = db.Exec(`
+	_, err := DB.Exec(`
 		INSERT INTO reactions (user_id, comment_id, value)
 		VALUES (?, ?, 1)
 		`, userId, commentId)
@@ -371,12 +299,7 @@ func addLikeToComment(userId, commentId int) error {
 }
 
 func addDislikeToComment(userId, commentId int) error {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-	_, err = db.Exec(`
+	_, err := DB.Exec(`
 		INSERT INTO reactions (user_id, comment_id, value)
 		VALUES (?, ?, 2)
 		`, userId, commentId)
@@ -387,12 +310,7 @@ func addDislikeToComment(userId, commentId int) error {
 }
 
 func removeDislikeFromComment(dislikeId int) error {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-	_, err = db.Exec(`
+	_, err := DB.Exec(`
 		DELETE FROM reactions
 		WHERE id = ?
 		`, dislikeId)
@@ -403,12 +321,7 @@ func removeDislikeFromComment(dislikeId int) error {
 }
 
 func removeLikeFromComment(userId, commentId int) error {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-	_, err = db.Exec(`
+	_, err := DB.Exec(`
 		DELETE FROM reactions
 		WHERE user_id = ? AND comment_id = ? AND value = 1
 		`, userId, commentId)
@@ -419,12 +332,7 @@ func removeLikeFromComment(userId, commentId int) error {
 }
 
 func setUserSession(id int, session_key string) error {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-	stmt, err := db.Prepare("UPDATE users SET session_key = ? WHERE id = ?")
+	stmt, err := DB.Prepare("UPDATE users SET session_key = ? WHERE id = ?")
 	if err != nil {
 		return err
 	}
@@ -436,12 +344,7 @@ func setUserSession(id int, session_key string) error {
 }
 
 func getAllCategories() (Categories, error) {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return []Category{}, err
-	}
-	defer db.Close()
-	rows, err := db.Query(`SELECT id, name FROM categories`)
+	rows, err := DB.Query(`SELECT id, name FROM categories`)
 	if err != nil {
 		return []Category{}, err
 	}
@@ -459,13 +362,8 @@ func getAllCategories() (Categories, error) {
 }
 
 func getCategoryById(id int) (Category, error) {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return Category{}, err
-	}
-	defer db.Close()
 	var category Category
-	err = db.QueryRow(`SELECT name FROM categories WHERE id = ?`, id).Scan(&category.Name)
+	err := DB.QueryRow(`SELECT name FROM categories WHERE id = ?`, id).Scan(&category.Name)
 	if err != nil {
 		return Category{}, err
 	}
@@ -474,13 +372,8 @@ func getCategoryById(id int) (Category, error) {
 }
 
 func getCategoriesByPostId(post_id int) (Categories, error) {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return Categories{}, err
-	}
-	defer db.Close()
 	var categories Categories
-	rows, err := db.Query(`
+	rows, err := DB.Query(`
 	SELECT c.id, c.name
 	FROM categories c
 	JOIN posts_categories pc ON c.id = pc.category_id
@@ -502,19 +395,14 @@ func getCategoriesByPostId(post_id int) (Categories, error) {
 }
 
 func addCategory(category Category) error {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-	err = category.validateCategory()
+	err := category.validateCategory()
 	if err != nil {
 		return err
 	}
 	if (&category).DoesCategoryExist() {
 		return ErrorCategoryAlreadyExists
 	}
-	stmt, err := db.Prepare("INSERT INTO categories (name) VALUES (?)")
+	stmt, err := DB.Prepare("INSERT INTO categories (name) VALUES (?)")
 	if err != nil {
 		return err
 	}
@@ -526,13 +414,8 @@ func addCategory(category Category) error {
 }
 
 func getPostsByCategoryId(id int) (Posts, error) {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return Posts{}, err
-	}
-	defer db.Close()
 	var posts Posts
-	rows, err := db.Query(`
+	rows, err := DB.Query(`
 	SELECT posts.id, posts.title, posts.body, posts.timestamp
 	FROM posts
 	JOIN posts_categories pc ON posts.id = pc.post_id
@@ -560,12 +443,7 @@ func getPostsByCategoryId(id int) (Posts, error) {
 }
 
 func getAllPosts() (Posts, error) {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return Posts{}, err
-	}
-	defer db.Close()
-	rows, err := db.Query(`SELECT id, title, body, timestamp FROM posts`)
+	rows, err := DB.Query(`SELECT id, title, body, timestamp FROM posts`)
 	if err != nil {
 		return Posts{}, err
 	}
@@ -589,14 +467,9 @@ func getAllPosts() (Posts, error) {
 }
 
 func getPostById(id int) (Post, error) {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return Post{}, err
-	}
-	defer db.Close()
 	var post Post
 	var ts string
-	err = db.QueryRow(`SELECT title, body, timestamp, user_id FROM posts WHERE id = ?`, id).Scan(&post.Title, &post.Body, &ts, &post.UserId)
+	err := DB.QueryRow(`SELECT title, body, timestamp, user_id FROM posts WHERE id = ?`, id).Scan(&post.Title, &post.Body, &ts, &post.UserId)
 	if err != nil {
 		return Post{}, err
 	}
@@ -614,16 +487,11 @@ func getPostById(id int) (Post, error) {
 }
 
 func addPost(post Post) (int, error) {
-	db, err := sql.Open("sqlite3", "./db.db")
+	err := post.validatePost()
 	if err != nil {
 		return 0, err
 	}
-	defer db.Close()
-	err = post.validatePost()
-	if err != nil {
-		return 0, err
-	}
-	stmt, err := db.Prepare("INSERT INTO posts (title, body, user_id, timestamp) VALUES (?, ?, ?, ?)")
+	stmt, err := DB.Prepare("INSERT INTO posts (title, body, user_id, timestamp) VALUES (?, ?, ?, ?)")
 	if err != nil {
 		return 0, err
 	}
@@ -637,7 +505,7 @@ func addPost(post Post) (int, error) {
 		return 0, err
 	}
 	for _, category := range post.Categories {
-		stmt, err = db.Prepare("INSERT INTO posts_categories (post_id, category_id) VALUES (?, ?)")
+		stmt, err = DB.Prepare("INSERT INTO posts_categories (post_id, category_id) VALUES (?, ?)")
 		if err != nil {
 			return 0, err
 		}
@@ -650,17 +518,10 @@ func addPost(post Post) (int, error) {
 }
 
 func addComment(comment Comment) (int, error) {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return 0, err
-	}
-	defer db.Close()
-
 	if err := comment.validateComment(); err != nil {
 		return 0, err
 	}
-
-	res, err := db.Exec(
+	res, err := DB.Exec(
 		"INSERT INTO comments (post_id, user_id, body, timestamp) VALUES (?, ?, ?, ?)",
 		comment.PostId,
 		comment.UserId,
@@ -675,13 +536,7 @@ func addComment(comment Comment) (int, error) {
 }
 
 func getCommentsByPostId(postId int) (Comments, error) {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return Comments{}, err
-	}
-	defer db.Close()
-
-	rows, err := db.Query(`
+	rows, err := DB.Query(`
 	SELECT
 	c.id,
 	c.post_id,
@@ -697,12 +552,10 @@ func getCommentsByPostId(postId int) (Comments, error) {
 		return Comments{}, err
 	}
 	defer rows.Close()
-
 	var comments Comments
 	for rows.Next() {
 		var comment Comment
 		var ts string
-
 		err = rows.Scan(
 			&comment.Id,
 			&comment.PostId,
@@ -725,14 +578,8 @@ func getCommentsByPostId(postId int) (Comments, error) {
 }
 
 func getReactionsByPostId(postId int) (int, int, error) {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return 0, 0, err
-	}
-	defer db.Close()
-
 	var likes int
-	err = db.QueryRow(`
+	err := DB.QueryRow(`
         SELECT COUNT(*)
         FROM reactions
         WHERE post_id = ? AND value = 1
@@ -742,7 +589,7 @@ func getReactionsByPostId(postId int) (int, int, error) {
 	}
 
 	var dislikes int
-	err = db.QueryRow(`
+	err = DB.QueryRow(`
         SELECT COUNT(*)
         FROM reactions
         WHERE post_id = ? AND value = 2
@@ -755,14 +602,8 @@ func getReactionsByPostId(postId int) (int, int, error) {
 }
 
 func getReactionsByCommentId(commentId int) (int, int, error) {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return 0, 0, err
-	}
-	defer db.Close()
-
 	var likes int
-	err = db.QueryRow(`
+	err := DB.QueryRow(`
         SELECT COUNT(*)
         FROM reactions
         WHERE comment_id = ? AND value = 1
@@ -770,9 +611,8 @@ func getReactionsByCommentId(commentId int) (int, int, error) {
 	if err != nil {
 		return 0, 0, err
 	}
-
 	var dislikes int
-	err = db.QueryRow(`
+	err = DB.QueryRow(`
         SELECT COUNT(*)
         FROM reactions
         WHERE comment_id = ? AND value = 2
@@ -780,6 +620,5 @@ func getReactionsByCommentId(commentId int) (int, int, error) {
 	if err != nil {
 		return 0, 0, err
 	}
-
 	return likes, dislikes, nil
 }
