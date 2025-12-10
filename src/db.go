@@ -444,13 +444,8 @@ func getPostsByCategoryId(id int) (Posts, error) {
 }
 
 func getPostsByUserId(id int) (Posts, error) {
-	db, err := sql.Open("sqlite3", "./db.db")
-	if err != nil {
-		return Posts{}, err
-	}
-	defer db.Close()
 	var posts Posts
-	rows, err := db.Query(`
+	rows, err := DB.Query(`
 	SELECT posts.id, posts.title, posts.body, posts.timestamp
 	FROM posts
 	WHERE user_id = ?`, id)
