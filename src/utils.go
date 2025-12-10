@@ -2,9 +2,14 @@ package forum
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"time"
 )
+
+func LogDebug(v any) {
+	log.Printf("Debug: %#v", v)
+}
 
 func convertStringToTime(timeString string) (time.Time, error) {
 	timestamp, err := strconv.ParseInt(timeString, 10, 64)
