@@ -506,16 +506,24 @@ func addPost(post Post) (int, error) {
 		return 0, err
 	}
 	for _, category := range post.Categories {
-		stmt, err = DB.Prepare("INSERT INTO posts_categories (post_id, category_id) VALUES (?, ?)")
-		if err != nil {
-			return 0, err
-		}
-		_, err = stmt.Exec(postId, category.Id)
+		err = addCategoryToPost(postId, category.Id)
 		if err != nil {
 			return 0, err
 		}
 	}
 	return int(postId), nil
+}
+
+func addCategoryToPost(post_id int64, category_id int) error {
+	stmt, err := DB.Prepare("INSERT INTO posts_categories (post_id, category_id) VALUES (?, ?)")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(post_id, category_id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func addComment(comment Comment) (int, error) {
@@ -578,7 +586,7 @@ func getCommentsByPostId(postId int) (Comments, error) {
 	return comments, nil
 }
 
-func getReactionsByPostId(postId int) (int, int, error) {
+func getLikesCountByPostId(postId int) (int, error) {
 	var likes int
 	err := DB.QueryRow(`
         SELECT COUNT(*)
@@ -586,23 +594,25 @@ func getReactionsByPostId(postId int) (int, int, error) {
         WHERE post_id = ? AND value = 1
     `, postId).Scan(&likes)
 	if err != nil {
-		return 0, 0, err
+		return 0, err
 	}
+	return likes, nil
+}
 
+func getDisikesCountByPostId(postId int) (int, error) {
 	var dislikes int
-	err = DB.QueryRow(`
+	err := DB.QueryRow(`
         SELECT COUNT(*)
         FROM reactions
         WHERE post_id = ? AND value = 2
     `, postId).Scan(&dislikes)
 	if err != nil {
-		return 0, 0, err
+		return 0, err
 	}
-
-	return likes, dislikes, nil
+	return dislikes, nil
 }
 
-func getReactionsByCommentId(commentId int) (int, int, error) {
+func getLikesCountByCommentId(commentId int) (int, error) {
 	var likes int
 	err := DB.QueryRow(`
         SELECT COUNT(*)
@@ -610,16 +620,20 @@ func getReactionsByCommentId(commentId int) (int, int, error) {
         WHERE comment_id = ? AND value = 1
     `, commentId).Scan(&likes)
 	if err != nil {
-		return 0, 0, err
+		return 0, err
 	}
+	return likes, nil
+}
+
+func getDisikesCountByCommentId(commentId int) (int, error) {
 	var dislikes int
-	err = DB.QueryRow(`
+	err := DB.QueryRow(`
         SELECT COUNT(*)
         FROM reactions
         WHERE comment_id = ? AND value = 2
     `, commentId).Scan(&dislikes)
 	if err != nil {
-		return 0, 0, err
+		return 0, err
 	}
-	return likes, dislikes, nil
+	return dislikes, nil
 }
