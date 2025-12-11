@@ -260,7 +260,6 @@ func hasUserAlreadyLikedPost(userId, postId int) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-
 	return existingReactionId != 0, nil
 }
 
@@ -270,7 +269,6 @@ func hasUserAlreadyDislikedPost(userId, postId int) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-
 	return existingReactionId != 0, nil
 }
 
@@ -280,7 +278,6 @@ func hasUserAlreadyLikedComment(userId, commentId int) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-
 	return existingReactionId != 0, nil
 }
 
@@ -290,7 +287,6 @@ func hasUserAlreadyDislikedComment(userId, commentId int) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-
 	return existingReactionId != 0, nil
 }
 
@@ -299,12 +295,24 @@ func showUserPosts(res http.ResponseWriter, user User) {
 	data.Init()
 	data.User = user
 	data.View = "posts_view"
-	var err error
-	data.Posts, err = getPostsByUserId(user.Id)
+	posts, err := getPostsByUserId(user.Id)
 	if err != nil {
 		(&Error{}).Consume(err).LogAndRespondError(res, user)
 		return
 	}
+	for i := range posts {
+		err = posts[i].getReactions()
+		if err != nil {
+			(&Error{}).Consume(err).LogAndRespondError(res, user)
+			return
+		}
+		err = posts[i].getReactionsByUserId(user.Id)
+		if err != nil {
+			(&Error{}).Consume(err).LogAndRespondError(res, user)
+			return
+		}
+	}
+	data.Posts = posts
 	data.WriteResponse(res)
 }
 
