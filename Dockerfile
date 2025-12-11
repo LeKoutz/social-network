@@ -6,4 +6,4 @@ RUN go mod download
 COPY . .
 RUN CGO_ENABLED=1; go build -o bin/forum cmd/forum/main.go
 EXPOSE 8080
-CMD ["./bin/forum"]
+CMD ["./bin/forum", "0.0.0.0", "8080"]
