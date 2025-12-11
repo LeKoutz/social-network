@@ -25,6 +25,13 @@ make
 
 ## Usage
 
+### `docker`
+Start it with:
+```
+docker build -t forum-app .
+docker run -p 8080:8080 forum-app
+```
+
 ### `forum`
 Start it with:
 ```
@@ -38,7 +45,7 @@ or
 ```
 ./bin/forum
 ```
-and navigate to the URL that it returned.
+and navigate to `http://localhost:8080`
 
 ### `mockgen`
 
