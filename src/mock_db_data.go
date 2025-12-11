@@ -43,7 +43,7 @@ func InitPosts() {
 		UserId: 1,
 		Categories: Categories{
 			{
-				Id: 1,
+				Id:   1,
 				Name: "various",
 			},
 		},
@@ -57,7 +57,7 @@ func InitPosts() {
 		UserId: 1,
 		Categories: Categories{
 			{
-				Id: 1,
+				Id:   1,
 				Name: "various",
 			},
 		},

@@ -5,7 +5,7 @@ import "time"
 var (
 	ResponseStructMock = ResponseStruct{
 		WebsiteName: "Forum",
-		User: GuestUser,
+		User:        GuestUser,
 		Posts: Posts{
 			{
 				Id:        1,
