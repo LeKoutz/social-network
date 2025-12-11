@@ -59,10 +59,8 @@ func (e *Error) LogError() {
 
 // Responds *Error to user with the error_view template
 func (e *Error) RespondError(res http.ResponseWriter, user User) {
-	data := ReturnMockResponse()
-	data.Error = *e
-	data.User = user
-	respondView(res, "error_view", data)
+	data := ResponseStruct{}
+	data.Init().SetError(*e).SetUser(user).SetView("error_view").WriteResponse(res)
 }
 
 // Logs *Error to terminal and responds to user with error_view template

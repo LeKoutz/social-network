@@ -52,22 +52,20 @@ func (c *Category) DoesCategoryExist() bool {
 }
 
 func showCategories(res http.ResponseWriter, _ *http.Request, user User) {
+	data := ResponseStruct{}
+	data.Init().SetUser(user)
 	categories, err := getAllCategories()
 	if err != nil {
-		(&Error{}).Consume(err).LogError()
+		(&Error{}).Consume(err).LogAndRespondError(res, user)
 		return
 	}
-	data := ResponseStruct{
-		WebsiteName: "Forum",
-		User:        user,
-		Categories:  categories,
-	}
-	respondView(res, "categories_view", data)
+	data.SetCategories(categories)
+	data.SetView("categories_view").WriteResponse(res)
 }
 
 func showCategory(res http.ResponseWriter, req *http.Request, user User) {
-	data := ReturnMockResponse()
-	data.User = user
+	data := ResponseStruct{}
+	data.Init().SetUser(user)
 	id := req.URL.Query().Get("id")
 	if len(id) == 0 {
 		(&Error{}).Consume(ErrorCategoryEmptyId).LogAndRespondError(res, user)
@@ -79,9 +77,17 @@ func showCategory(res http.ResponseWriter, req *http.Request, user User) {
 		return
 	}
 	category, err := getCategoryById(id_int)
+	if err != nil {
+		(&Error{}).Consume(err).LogAndRespondError(res, user)
+		return
+	}
 	data.Categories = Categories{}
 	data.Categories = append(data.Categories, category)
 	posts, err := getPostsByCategoryId(id_int)
+	if err != nil {
+		(&Error{}).Consume(err).LogAndRespondError(res, user)
+		return
+	}
 	for i := range posts {
 		err = posts[i].getReactions()
 		if err != nil {
@@ -95,7 +101,7 @@ func showCategory(res http.ResponseWriter, req *http.Request, user User) {
 		}
 	}
 	data.Posts = posts
-	respondView(res, "category_view", data)
+	data.SetPosts(posts).SetView("category_view").WriteResponse(res)
 }
 
 func (p *Post) getReactions() error {

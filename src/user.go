@@ -36,21 +36,21 @@ type User struct {
 }
 
 func showLogin(res http.ResponseWriter, _ *http.Request, user User) {
-	data := ReturnMockResponse()
-	data.User = user
-	respondView(res, "user_login_view", data)
+	data := ResponseStruct{}
+	data.Init().SetUser(user).SetView("user_login_view").WriteResponse(res)
 }
 
 func attemptLogin(res http.ResponseWriter, req *http.Request, _ User) {
 	var email string
 	var password string
 	var err error
-	data := ReturnMockResponse()
+	data := ResponseStruct{}
+	data.Init()
 	err = req.ParseForm()
 	if err != nil {
 		data.User = GuestUser
 		data.Error = *(&Error{}).Consume(err)
-		respondView(res, "user_register_view", data)
+		data.SetView("user_register_view").WriteResponse(res)
 		return
 	}
 	if len(req.Form.Get("email")) != 0 {
@@ -63,21 +63,21 @@ func attemptLogin(res http.ResponseWriter, req *http.Request, _ User) {
 	if err != nil {
 		data.User = GuestUser
 		data.Error = *(&Error{}).Consume(err)
-		respondView(res, "user_register_view", data)
+		data.SetView("user_register_view").WriteResponse(res)
 		return
 	}
 	sessionValue, err := uuid.NewV4()
 	if err != nil {
 		data.User = GuestUser
 		data.Error = *(&Error{}).Consume(err)
-		respondView(res, "user_register_view", data)
+		data.SetView("user_register_view").WriteResponse(res)
 		return
 	}
 	data.User, err = getUserByEmail(email)
 	if err != nil {
 		data.User = GuestUser
 		data.Error = *(&Error{}).Consume(err)
-		respondView(res, "user_register_view", data)
+		data.SetView("user_register_view").WriteResponse(res)
 		return
 	}
 	data.User.LoggedIn = true
@@ -85,7 +85,7 @@ func attemptLogin(res http.ResponseWriter, req *http.Request, _ User) {
 	if err != nil {
 		data.User = GuestUser
 		data.Error = *(&Error{}).Consume(err)
-		respondView(res, "user_register_view", data)
+		data.SetView("user_register_view").WriteResponse(res)
 		return
 	}
 	cookie := &http.Cookie{
@@ -97,76 +97,62 @@ func attemptLogin(res http.ResponseWriter, req *http.Request, _ User) {
 		SameSite: http.SameSite(http.SameSiteStrictMode),
 	}
 	http.SetCookie(res, cookie)
-	respondView(res, "index_view", data)
+	data.SetView("index_view").WriteResponse(res)
 }
 
 func showRegister(res http.ResponseWriter, _ *http.Request, user User) {
-	data := ReturnMockResponse()
-	data.User = user
-	respondView(res, "user_register_view", data)
+	data := ResponseStruct{}
+	data.Init().SetUser(user)
+	data.SetView("user_register_view").WriteResponse(res)
 }
 
 func registerUser(res http.ResponseWriter, req *http.Request) {
 	var err error
 	var user User
+	data := ResponseStruct{}
+	data.Init()
 	user.Username = req.FormValue("username")
 	user.Email = req.FormValue("email")
 	if err = user.validateUser(); err != nil {
-		data := ReturnMockResponse()
-		data.User = user
-		data.Error = *(&Error{}).Consume(err)
-		respondView(res, "user_register_view", data)
+		data.SetUser(user).SetError(*(&Error{}).Consume(err))
+		data.SetView("user_register_view").WriteResponse(res)
 		return
 	}
 	if IsEmailRegistered(user.Email) {
-		data := ReturnMockResponse()
-		data.User = user
-		data.Error = *(&Error{}).Consume(ErrorEmailIsRegistered)
-		respondView(res, "user_register_view", data)
+		data.SetUser(user).SetError(*(&Error{}).Consume(ErrorEmailIsRegistered))
+		data.SetView("user_register_view").WriteResponse(res)
 		return
 	}
 	if !IsUniqueUsername(user.Username) {
-		data := ReturnMockResponse()
-		data.User = user
-		data.Error = *(&Error{}).Consume(ErrorUsernameTaken)
-		respondView(res, "user_register_view", data)
+		data.SetUser(user).SetError(*(&Error{}).Consume(ErrorUsernameTaken))
+		data.SetView("user_register_view").WriteResponse(res)
 		return
 	}
 	if !CompareRegistrationPasswords(req.FormValue("password1"), req.FormValue("password2")) {
-		data := ReturnMockResponse()
-		data.User = user
-		data.Error = *(&Error{}).Consume(ErrorPasswordMismatch)
-		respondView(res, "user_register_view", data)
+		data.SetUser(user).SetError(*(&Error{}).Consume(ErrorPasswordMismatch))
+		data.SetView("user_register_view").WriteResponse(res)
 		return
 	}
 	password := req.FormValue("password1")
 	if err = validateStrongPassword(password); err != nil {
-		data := ReturnMockResponse()
-		data.User = user
-		data.Error = *(&Error{}).Consume(err)
-		respondView(res, "user_register_view", data)
+		data.SetUser(user).SetError(*(&Error{}).Consume(err))
+		data.SetView("user_register_view").WriteResponse(res)
 		return
 	}
 	user.Hash, err = HashPassword(password)
 	if err != nil {
-		data := ReturnMockResponse()
-		data.User = user
-		data.Error = *(&Error{}).Consume(err)
-		respondView(res, "user_register_view", data)
+		data.SetUser(user).SetError(*(&Error{}).Consume(err))
+		data.SetView("user_register_view").WriteResponse(res)
 		return
 	}
 	if err = registerUserOnDB(user); err != nil {
-		data := ReturnMockResponse()
-		data.User = user
-		data.Error = *(&Error{}).Consume(ErrorInvalidUser)
-		respondView(res, "user_register_view", data)
+		data.SetUser(user).SetError(*(&Error{}).Consume(ErrorInvalidUser))
+		data.SetView("user_register_view").WriteResponse(res)
 		return
 	}
 	if err = Auth(user.Email, password); err != nil {
-		data := ReturnMockResponse()
-		data.User = user
-		data.Error = *(&Error{}).Consume(err)
-		respondView(res, "user_register_view", data)
+		data.SetUser(user).SetError(*(&Error{}).Consume(err))
+		data.SetView("user_register_view").WriteResponse(res)
 		return
 	}
 	user.LoggedIn = true
@@ -185,36 +171,31 @@ func nullifyCookie(cookie *http.Cookie) *http.Cookie {
 }
 
 func showLogout(res http.ResponseWriter, req *http.Request, _ User) {
+	data := ResponseStruct{}
+	data.Init()
 	cookie, err := req.Cookie("__Host-FRMSessionID")
 	if err != nil {
-		respondView(res, "error_view", ResponseStruct{
-			Error: Error{
-				Has:     true,
-				Message: "Lol",
-			},
-		})
+		data.SetUser(GuestUser).SetError(*(&Error{}).Consume(err))
+		data.SetView("error_view").WriteResponse(res)
 		return
 	}
 	user, err := getUserBySession(cookie.Value)
 	if err != nil {
-		data := ReturnMockResponse()
-		data.User = user
-		data.Error = *(&Error{}).Consume(err)
-		respondView(res, "user_register_view", data)
+		data.SetUser(user)
+		data.SetError(*(&Error{}).Consume(err))
+		data.SetView("user_register_view").WriteResponse(res)
 		return
 	}
 	err = setUserSession(user.Id, "")
 	if err != nil {
-		data := ReturnMockResponse()
-		data.User = user
-		data.Error = *(&Error{}).Consume(err)
-		respondView(res, "user_register_view", data)
+		data.SetUser(user)
+		data.SetError(*(&Error{}).Consume(err))
+		data.SetView("user_register_view").WriteResponse(res)
 		return
 	}
 	http.SetCookie(res, nullifyCookie(cookie))
-	data := ReturnMockResponse()
-	data.User = GuestUser
-	respondView(res, "user_logout_view", data)
+	data.SetUser(GuestUser)
+	data.SetView("user_logout_view").WriteResponse(res)
 }
 
 func (u *User) validateUsername() error {

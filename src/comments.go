@@ -45,14 +45,14 @@ func ReturnMockComments() Comments {
 }
 
 func createComment(res http.ResponseWriter, req *http.Request, user User) {
-	data := ReturnMockResponse()
-	data.User = user
+	data := ResponseStruct{}
+	data.Init().SetUser(user)
 
 	// Parse form data
 	err := req.ParseForm()
 	if err != nil {
 		data.Error = *(&Error{}).Consume(err)
-		respondView(res, "user_register_view", data)
+		data.SetView("user_register_view").WriteResponse(res)
 		return
 	}
 
@@ -61,14 +61,14 @@ func createComment(res http.ResponseWriter, req *http.Request, user User) {
 	post_id, err := strconv.Atoi(req.FormValue("post_id"))
 	if err != nil {
 		data.Error = *(&Error{}).Consume(err)
-		respondView(res, "post_view", data)
+		data.SetView("post_view").WriteResponse(res)
 		return
 	}
 
 	// Validate user is logged in
 	if !user.LoggedIn {
 		data.Error = *(&Error{}).Consume(ErrorCommentPermissionDenied)
-		respondView(res, "user_login_view", data)
+		data.SetView("user_login_view").WriteResponse(res)
 		return
 	}
 
@@ -83,7 +83,7 @@ func createComment(res http.ResponseWriter, req *http.Request, user User) {
 	commentId, err := addComment(comment)
 	if err != nil {
 		data.Error = *(&Error{}).Consume(err)
-		respondView(res, "post_view", data)
+		data.SetView("post_view").WriteResponse(res)
 		return
 	}
 
