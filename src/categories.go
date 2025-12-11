@@ -20,6 +20,9 @@ func (c *Categories) IsEmpty() bool {
 	if c == nil {
 		return true
 	}
+	if c == (&Categories{}) {
+		return true
+	}
 	return false
 }
 
