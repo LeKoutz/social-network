@@ -4,10 +4,9 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=1; go build -o bin/forum cmd/forum/main.go
+RUN CGO_ENABLED=1 go build -o bin/forum cmd/forum/main.go
 
 FROM alpine:latest
-RUN apk add
 WORKDIR /app
 COPY --from=builder /app/bin/forum ./app/forum
 COPY --from=builder /app/templates ./templates
