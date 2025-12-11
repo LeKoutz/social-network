@@ -134,7 +134,7 @@ func registerUser(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	password := req.FormValue("password1")
-	if err = validateStrongPassword(password); err != nil {
+	if err = validatePasswordStrength(password); err != nil {
 		data.SetUser(user).SetError(*(&Error{}).Consume(err))
 		data.SetView("user_register_view").WriteResponse(res)
 		return
@@ -227,7 +227,7 @@ func (u *User) validateUser() error {
 
 // Strong password validation. Makes sure the password is in between 10-16
 // characters and includes letters, numbers and punctation symbols
-func validateStrongPassword(password string) error {
+func validatePasswordStrength(password string) error {
 	unameMask := regexp.MustCompile(`^[[:punct:][:alnum:]]{10,16}$`)
 	if !unameMask.MatchString(password) {
 		return ErrorWeakPassword
