@@ -13,11 +13,7 @@ type Category struct {
 type Categories []Category
 
 func (c *Category) IsEmpty() bool {
-	empty := Category{}
-	if c == nil || *c == empty {
-		return true
-	}
-	return false
+	return c == nil || *c == Category{}
 }
 
 func (c *Categories) IsEmpty() bool {
