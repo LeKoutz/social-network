@@ -87,6 +87,16 @@ func showPost(res http.ResponseWriter, req *http.Request, user User) {
 		return
 	}
 	post.Categories = categories
+	err = post.getReactions()
+	if err != nil {
+		(&Error{}).Consume(err).LogAndRespondError(res, user)
+		return
+	}
+	err = post.getReactionsByUserId(user.Id)
+	if err != nil {
+		(&Error{}).Consume(err).LogAndRespondError(res, user)
+		return
+	}
 	data.Posts = Posts{post}
 	data.SetView("post_view")
 	data.WriteResponse(res)
@@ -99,6 +109,18 @@ func showPosts(res http.ResponseWriter, _ *http.Request, user User) {
 		data.Error = *(&Error{}).Consume(err)
 		respondView(res, "error_view", data)
 		return
+	}
+	for i := range posts {
+		err = posts[i].getReactions()
+		if err != nil {
+			(&Error{}).Consume(err).LogAndRespondError(res, user)
+			return
+		}
+		err = posts[i].getReactionsByUserId(user.Id)
+		if err != nil {
+			(&Error{}).Consume(err).LogAndRespondError(res, user)
+			return
+		}
 	}
 	data.SetPosts(posts)
 	data.SetUser(user)
@@ -192,8 +214,22 @@ func handlePostReaction(res http.ResponseWriter, req *http.Request, user User) {
 			return
 		}
 	}
+	if req.FormValue("like") == "" {
+		err = UndoLike(user.Id, postId)
+		if err != nil {
+			(&Error{}).Consume(err).LogAndRespondError(res, user)
+			return
+		}
+	}
 	if req.FormValue("dislike") == "on" {
 		err = DoDislikePost(user.Id, postId)
+		if err != nil {
+			(&Error{}).Consume(err).LogAndRespondError(res, user)
+			return
+		}
+	}
+	if req.FormValue("dislike") == "" {
+		err = UndoDislike(user.Id, postId)
 		if err != nil {
 			(&Error{}).Consume(err).LogAndRespondError(res, user)
 			return

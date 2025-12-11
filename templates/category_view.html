@@ -11,29 +11,33 @@
         <a href="/post?id={{.Id}}"><h3>{{.Title}}</h3></a>
         <em>{{.TimestampString}}</em>
         <p>{{.Body}}</p>
-        <div>
+        <div class="reactions">
             <form method="POST" action="/post?id={{.Id}}">
                 <input
                         id="likes"
                         type="checkbox"
                         name="like"
                         onchange="submit()"
-                        {{if .Liked}} checked{{end}}
+                        {{if .Liked}}checked{{end}}
+                        {{if not $.User.LoggedIn }}disabled{{end}}
                         />
                 <label for="likes">{{.Likes}} Likes</label>
+            </form>
+            <form method="POST" action="/post?id={{.Id}}">
                 <input
                         id="dislikes"
                         type="checkbox"
                         name="dislike"
                         onchange="submit()"
-                        {{if .Disliked}} checked{{end}}
+                        {{if .Disliked}}checked{{end}}
+                        {{if not $.User.LoggedIn }}disabled{{end}}
                         />
                 <label for="dislikes">{{.Dislikes}} Dislikes</label>
             </form>
-            {{if $.User.LoggedIn}}
-            {{ template "comment_create" .}}
-            {{end}}
         </div>
+        {{if $.User.LoggedIn}}
+        {{ template "comment_create" .}}
+        {{end}}
     </div>
     {{ end }}
 </div>

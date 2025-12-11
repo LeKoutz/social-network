@@ -448,8 +448,8 @@ func getLikedPostsByUserId(user_id int) (Posts, error) {
 	rows, err := DB.Query(`
 	SELECT posts.id, posts.title, posts.body, posts.timestamp
 	FROM posts
-	JOIN reactions r ON posts.user_id = r.user_id
-	WHERE posts.user_id = ? AND r.value = 1
+	JOIN reactions r ON posts.id = r.post_id
+	WHERE r.user_id = ? AND r.value = 1
 	`, user_id)
 	if err != nil {
 		return Posts{}, err
@@ -655,7 +655,7 @@ func getLikesCountByPostId(postId int) (int, error) {
 	return likes, nil
 }
 
-func getDisikesCountByPostId(postId int) (int, error) {
+func getDislikesCountByPostId(postId int) (int, error) {
 	var dislikes int
 	err := DB.QueryRow(`
         SELECT COUNT(*)
