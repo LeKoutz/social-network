@@ -30,12 +30,14 @@ var (
 	ErrorCategoryNameEmpty       = errors.New("Category name can't be empty.")
 	ErrorCategoryNameTooLong     = errors.New("Category name is too long. Use less than 128 characters.")
 	ErrorUnauthorizedAction      = errors.New("Unauthorized action.")
+	ErrorMethodNotAllowed        = errors.New("Method not allowed.")
 )
 
 type Error struct {
-	Has     bool
-	Message string
-	Error   error
+	Has        bool
+	StatusCode int
+	Message    string
+	Error      error
 }
 
 type ErrorIface interface {
@@ -49,6 +51,17 @@ func (e *Error) Consume(err error) *Error {
 	e.Message = err.Error()
 	e.Error = err
 	e.Has = true
+	switch err {
+	case ErrorNotFound:
+		e.StatusCode = http.StatusNotFound
+	case
+		ErrorUnauthorizedAction,
+		ErrorCommentPermissionDenied,
+		ErrorPostPermissionDenied:
+		e.StatusCode = http.StatusForbidden
+	case ErrorMethodNotAllowed:
+		e.StatusCode = http.StatusMethodNotAllowed
+	}
 	return e
 }
 

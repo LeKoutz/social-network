@@ -12,6 +12,9 @@ type ResponseStruct struct {
 }
 
 func (r *ResponseStruct) WriteResponse(res http.ResponseWriter) {
+	if r.Error.StatusCode != 0 {
+		res.WriteHeader(r.Error.StatusCode)
+	}
 	respondView(res, r.View, *r)
 }
 

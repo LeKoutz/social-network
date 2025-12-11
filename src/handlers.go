@@ -32,7 +32,6 @@ func getRoutes(res http.ResponseWriter, req *http.Request, user User) {
 	case strings.Compare(req.RequestURI, "/") == 0:
 		showIndex(res, req, user)
 	default:
-		res.WriteHeader(http.StatusNotFound)
 		(&Error{}).Consume(ErrorNotFound).LogAndRespondError(res, user)
 	}
 }
@@ -56,7 +55,6 @@ func postRoutes(res http.ResponseWriter, req *http.Request, user User) {
 	case strings.Compare(req.RequestURI, "/") == 0:
 		showIndex(res, req, user)
 	default:
-		res.WriteHeader(http.StatusNotFound)
 		(&Error{}).Consume(ErrorNotFound).LogAndRespondError(res, user)
 	}
 }
@@ -82,13 +80,11 @@ func routesHandler(res http.ResponseWriter, req *http.Request) {
 	case http.MethodPost:
 		postRoutes(res, req, user)
 	default:
-		res.WriteHeader(http.StatusMethodNotAllowed)
-		(&Error{}).Consume(ErrorNotFound).LogAndRespondError(res, user)
+		(&Error{}).Consume(ErrorMethodNotAllowed).LogAndRespondError(res, user)
 	}
 }
 
 func respondError(statusInt int, res http.ResponseWriter, _ string) {
-	res.WriteHeader(statusInt)
 	var templatesDir string = "templates"
 	var index *template.Template
 	index, err := template.ParseGlob(templatesDir + "/*.html")

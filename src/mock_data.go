@@ -60,4 +60,3 @@ func ReturnMockCategories() Categories {
 		},
 	}
 }
-
