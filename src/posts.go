@@ -121,26 +121,6 @@ func showPosts(res http.ResponseWriter, _ *http.Request, user User) {
 			(&Error{}).Consume(err).LogAndRespondError(res, user)
 			return
 		}
-		posts[i].Likes, err = getLikesCountByPostId(posts[i].Id)
-		if err != nil {
-			(&Error{}).Consume(err).LogAndRespondError(res, user)
-			return
-		}
-		posts[i].Liked, err = hasUserAlreadyLikedPost(user.Id, posts[i].Id)
-		if err != nil {
-			(&Error{}).Consume(err).LogAndRespondError(res, user)
-			return
-		}
-		posts[i].Dislikes, err = getDislikesCountByPostId(posts[i].Id)
-		if err != nil {
-			(&Error{}).Consume(err).LogAndRespondError(res, user)
-			return
-		}
-		posts[i].Disliked, err = hasUserAlreadyDislikedPost(user.Id, posts[i].Id)
-		if err != nil {
-			(&Error{}).Consume(err).LogAndRespondError(res, user)
-			return
-		}
 	}
 	data.SetPosts(posts)
 	data.SetUser(user)
