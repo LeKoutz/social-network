@@ -12,28 +12,6 @@ type Category struct {
 
 type Categories []Category
 
-func ReturnMockCategories() Categories {
-	return Categories{
-		{
-			Id:   1,
-			Name: "various",
-		},
-		{
-			Id:   2,
-			Name: "general",
-		},
-	}
-}
-
-func InitCategories() {
-	for _, category := range ReturnMockCategories() {
-		err := addCategory(category)
-		if err != nil {
-			(&Error{}).Consume(err).LogError()
-		}
-	}
-}
-
 func (c *Category) IsEmpty() bool {
 	empty := Category{}
 	if c == nil || *c == empty {

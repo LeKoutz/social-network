@@ -24,7 +24,6 @@ func Main(args []string) {
 		fmt.Printf("Error: %s\n", err.Error())
 		os.Exit(1)
 	}
-	InitCategories()
 	// e.g. --init
 	var ip, port string
 	// in case the flag is not passed, the auto intialization could be triggered
