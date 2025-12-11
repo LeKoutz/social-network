@@ -87,22 +87,12 @@ func showPost(res http.ResponseWriter, req *http.Request, user User) {
 		return
 	}
 	post.Categories = categories
-	post.Likes, err = getLikesCountByPostId(id_int)
+	err = post.getReactions()
 	if err != nil {
 		(&Error{}).Consume(err).LogAndRespondError(res, user)
 		return
 	}
-	post.Liked, err = hasUserAlreadyLikedPost(user.Id, id_int)
-	if err != nil {
-		(&Error{}).Consume(err).LogAndRespondError(res, user)
-		return
-	}
-	post.Dislikes, err = getDislikesCountByPostId(id_int)
-	if err != nil {
-		(&Error{}).Consume(err).LogAndRespondError(res, user)
-		return
-	}
-	post.Disliked, err = hasUserAlreadyDislikedPost(user.Id, id_int)
+	err = post.getReactionsByUserId(user.Id)
 	if err != nil {
 		(&Error{}).Consume(err).LogAndRespondError(res, user)
 		return
@@ -121,6 +111,16 @@ func showPosts(res http.ResponseWriter, _ *http.Request, user User) {
 		return
 	}
 	for i := range posts {
+		err = posts[i].getReactions()
+		if err != nil {
+			(&Error{}).Consume(err).LogAndRespondError(res, user)
+			return
+		}
+		err = posts[i].getReactionsByUserId(user.Id)
+		if err != nil {
+			(&Error{}).Consume(err).LogAndRespondError(res, user)
+			return
+		}
 		posts[i].Likes, err = getLikesCountByPostId(posts[i].Id)
 		if err != nil {
 			(&Error{}).Consume(err).LogAndRespondError(res, user)

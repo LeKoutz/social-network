@@ -105,22 +105,12 @@ func showCategory(res http.ResponseWriter, req *http.Request, user User) {
 	data.Categories = append(data.Categories, category)
 	posts, err := getPostsByCategoryId(id_int)
 	for i := range posts {
-		posts[i].Likes, err = getLikesCountByPostId(posts[i].Id)
+		err = posts[i].getReactions()
 		if err != nil {
 			(&Error{}).Consume(err).LogAndRespondError(res, user)
 			return
 		}
-		posts[i].Liked, err = hasUserAlreadyLikedPost(user.Id, posts[i].Id)
-		if err != nil {
-			(&Error{}).Consume(err).LogAndRespondError(res, user)
-			return
-		}
-		posts[i].Dislikes, err = getDislikesCountByPostId(posts[i].Id)
-		if err != nil {
-			(&Error{}).Consume(err).LogAndRespondError(res, user)
-			return
-		}
-		posts[i].Disliked, err = hasUserAlreadyDislikedPost(user.Id, posts[i].Id)
+		err = posts[i].getReactionsByUserId(user.Id)
 		if err != nil {
 			(&Error{}).Consume(err).LogAndRespondError(res, user)
 			return
@@ -128,4 +118,30 @@ func showCategory(res http.ResponseWriter, req *http.Request, user User) {
 	}
 	data.Posts = posts
 	respondView(res, "category_view", data)
+}
+
+func (p *Post) getReactions() error {
+	var err error
+	(*p).Likes, err = getLikesCountByPostId((*p).Id)
+	if err != nil {
+		return err
+	}
+	(*p).Dislikes, err = getDislikesCountByPostId((*p).Id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *Post) getReactionsByUserId(user_id int) error {
+	var err error
+	(*p).Liked, err = hasUserAlreadyLikedPost(user_id, (*p).Id)
+	if err != nil {
+		return err
+	}
+	(*p).Disliked, err = hasUserAlreadyDislikedPost(user_id, (*p).Id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
