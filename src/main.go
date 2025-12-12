@@ -42,5 +42,8 @@ func Main(args []string) {
 		os.Exit(1)
 	}
 	log.Printf("http://%s:%s/", ip, port)
-	startServer(ip, port)
+	if err := startServer(ip, port); err != nil {
+		fmt.Printf("Error: %s\n", err.Error())
+		os.Exit(1)
+	}
 }

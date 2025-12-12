@@ -1,11 +1,10 @@
 package forum
 
 import (
-	"log"
 	"net/http"
 )
 
-func startServer(ip, port string) {
+func startServer(ip, port string) error {
 	http.HandleFunc("/", routesHandler)
-	log.Fatal(http.ListenAndServe(ip+":"+port, nil))
-	}
+	return http.ListenAndServe(ip+":"+port, nil)
+}
