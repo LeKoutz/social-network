@@ -6,7 +6,7 @@ import (
 )
 
 type Category struct {
-	Id   int
+	Id   int64
 	Name string
 }
 
@@ -70,7 +70,7 @@ func showCategory(res http.ResponseWriter, req *http.Request, user User) {
 		(&Error{}).Consume(ErrorCategoryEmptyId).LogAndRespondError(res, user)
 		return
 	}
-	id_int, err := strconv.Atoi(id)
+	id_int, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		(&Error{}).Consume(err).LogAndRespondError(res, user)
 		return
@@ -116,7 +116,7 @@ func (p *Post) getReactions() error {
 	return nil
 }
 
-func (p *Post) getReactionsByUserId(user_id int) error {
+func (p *Post) getReactionsByUserId(user_id int64) error {
 	var err error
 	(*p).Liked, err = hasUserAlreadyLikedPost(user_id, (*p).Id)
 	if err != nil {

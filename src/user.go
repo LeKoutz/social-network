@@ -23,7 +23,7 @@ var (
 )
 
 type User struct {
-	Id            int
+	Id            int64
 	Username      string
 	Hash          string
 	Email         string
@@ -236,7 +236,7 @@ func validatePasswordStrength(password string) error {
 }
 
 // Check if user already liked this post
-func hasUserAlreadyLikedPost(userId, postId int) (bool, error) {
+func hasUserAlreadyLikedPost(userId, postId int64) (bool, error) {
 	existingReactionId, err := checkIfUserAlreadyLikedPost(userId, postId)
 	if err != nil {
 		return false, err
@@ -245,7 +245,7 @@ func hasUserAlreadyLikedPost(userId, postId int) (bool, error) {
 }
 
 // Check if user already disliked this post
-func hasUserAlreadyDislikedPost(userId, postId int) (bool, error) {
+func hasUserAlreadyDislikedPost(userId, postId int64) (bool, error) {
 	existingReactionId, err := checkIfUserAlreadyDislikedPost(userId, postId)
 	if err != nil {
 		return false, err
@@ -254,7 +254,7 @@ func hasUserAlreadyDislikedPost(userId, postId int) (bool, error) {
 }
 
 // Check if user already liked this comment
-func hasUserAlreadyLikedComment(userId, commentId int) (bool, error) {
+func hasUserAlreadyLikedComment(userId, commentId int64) (bool, error) {
 	existingReactionId, err := checkIfUserAlreadyLikedPost(userId, commentId)
 	if err != nil {
 		return false, err
@@ -263,7 +263,7 @@ func hasUserAlreadyLikedComment(userId, commentId int) (bool, error) {
 }
 
 // Check if user already disliked this comment
-func hasUserAlreadyDislikedComment(userId, commentId int) (bool, error) {
+func hasUserAlreadyDislikedComment(userId, commentId int64) (bool, error) {
 	existingReactionId, err := checkIfUserAlreadyDislikedComment(userId, commentId)
 	if err != nil {
 		return false, err

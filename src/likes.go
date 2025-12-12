@@ -3,13 +3,13 @@ package forum
 type Likes []Like
 
 type Like struct {
-	PostId    int
-	UserId    int
-	CommentId int
+	PostId    int64
+	UserId    int64
+	CommentId int64
 }
 
 // Handle the business logic for liking a post
-func DoLike(userId, postId int) error {
+func DoLike(userId, postId int64) error {
 	// Check if user already liked this post
 	alreadyLiked, err := hasUserAlreadyLikedPost(userId, postId)
 	if err != nil {
@@ -45,12 +45,12 @@ func DoLike(userId, postId int) error {
 }
 
 // Handle the business logic for unliking a post
-func UndoLike(userId, postId int) error {
+func UndoLike(userId, postId int64) error {
 	return removeLikeFromPost(userId, postId)
 }
 
 // Handle the business logic for liking a comment
-func DoLikeComment(userId, commentId int) error {
+func DoLikeComment(userId, commentId int64) error {
 	// Check if user already liked this comment
 	alreadyLiked, err := hasUserAlreadyLikedComment(userId, commentId)
 	if err != nil {
@@ -86,6 +86,6 @@ func DoLikeComment(userId, commentId int) error {
 }
 
 // Handle the business logic for unliking a comment
-func UndoLikeComment(userId, commentId int) error {
+func UndoLikeComment(userId, commentId int64) error {
 	return removeLikeFromComment(userId, commentId)
 }

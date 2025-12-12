@@ -8,10 +8,10 @@ import (
 )
 
 type Post struct {
-	Id              int
+	Id              int64
 	Title           string
 	Body            string
-	UserId          int
+	UserId          int64
 	User            User
 	Timestamp       int64
 	TimestampString string
@@ -39,7 +39,7 @@ func (p *Post) validatePost() error {
 	return nil
 }
 
-func returnMockPost(post_id int) Posts {
+func returnMockPost(post_id int64) Posts {
 	return Posts{
 		{
 			Id:        post_id,
@@ -65,7 +65,7 @@ func showPost(res http.ResponseWriter, req *http.Request, user User) {
 		(&Error{}).Consume(ErrorPostEmptyId).LogAndRespondError(res, user)
 		return
 	}
-	id_int, err := strconv.Atoi(id)
+	id_int, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		(&Error{}).Consume(err).LogAndRespondError(res, user)
 		return
@@ -176,8 +176,7 @@ func createPost(res http.ResponseWriter, req *http.Request, user User) {
 		data.SetView("post_create_view").WriteResponse(res)
 		return
 	}
-	postIdStr := strconv.Itoa(postId)
-	redirectURL := "/post?id=" + postIdStr
+	redirectURL := fmt.Sprintf("/post?id=%d", postId)
 	http.Redirect(res, req, redirectURL, http.StatusSeeOther)
 }
 
@@ -193,7 +192,7 @@ func handlePostReaction(res http.ResponseWriter, req *http.Request, user User) {
 		(&Error{}).Consume(ErrorPostEmptyId).LogAndRespondError(res, user)
 		return
 	}
-	postId, err := strconv.Atoi(postIdStr)
+	postId, err := strconv.ParseInt(postIdStr, 10, 64)
 	if err != nil {
 		(&Error{}).Consume(err).LogAndRespondError(res, user)
 		return

@@ -7,9 +7,9 @@ import (
 )
 
 type Comment struct {
-	Id              int
-	PostId          int
-	UserId          int
+	Id              int64
+	PostId          int64
+	UserId          int64
 	Body            string
 	Timestamp       int64
 	TimestampString string
@@ -58,7 +58,7 @@ func createComment(res http.ResponseWriter, req *http.Request, user User) {
 
 	// Get form values
 	body := req.FormValue("comment")
-	post_id, err := strconv.Atoi(req.FormValue("post_id"))
+	post_id, err := strconv.ParseInt(req.FormValue("post_id"), 10, 64)
 	if err != nil {
 		data.Error = *(&Error{}).Consume(err)
 		data.SetView("post_view").WriteResponse(res)
@@ -87,8 +87,7 @@ func createComment(res http.ResponseWriter, req *http.Request, user User) {
 		return
 	}
 
-	commentIdStr := strconv.Itoa(commentId)
-	redirectURL := fmt.Sprintf("/post?id=%d#%s", post_id, commentIdStr)
+	redirectURL := fmt.Sprintf("/post?id=%d#%d", post_id, commentId)
 	// Redirect to the post's page
 	http.Redirect(res, req, redirectURL, http.StatusSeeOther)
 }
@@ -104,7 +103,7 @@ func handleCommentReaction(res http.ResponseWriter, req *http.Request, user User
 		(&Error{}).Consume(ErrorCommentEmptyId).LogAndRespondError(res, user)
 		return
 	}
-	commentId, err := strconv.Atoi(commentIdStr)
+	commentId, err := strconv.ParseInt(commentIdStr, 10, 64)
 	if err != nil {
 		(&Error{}).Consume(err).LogAndRespondError(res, user)
 		return
