@@ -22,15 +22,14 @@ or
 ```
 make
 ```
-
-## Usage
-
-### `docker`
+## `docker`
 Start it with:
 ```
 docker build -t forum-app .
-docker run -p 8080:8080 forum-app
+docker run -p [port]:[port] forum-app
 ```
+
+## Usage
 
 ### `forum`
 Start it with:
@@ -45,7 +44,7 @@ or
 ```
 ./bin/forum
 ```
-and navigate to `http://localhost:8080`
+and navigate to `http://[ip]:[port]`
 
 ### `mockgen`
 
