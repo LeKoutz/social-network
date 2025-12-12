@@ -10,5 +10,6 @@ FROM alpine:latest
 WORKDIR /app
 COPY --from=builder /app/bin/forum ./app/forum
 COPY --from=builder /app/templates ./templates
+RUN mkdir -p /app/data
 EXPOSE 8080
 CMD ["./app/forum", "0.0.0.0", "8080"]
