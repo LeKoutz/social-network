@@ -3,6 +3,7 @@ package forum
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 	"strconv"
 )
 
@@ -58,7 +59,13 @@ func createComment(res http.ResponseWriter, req *http.Request, user User) {
 
 	// Get form values
 	body := req.FormValue("comment")
-	post_id, err := strconv.ParseInt(req.FormValue("post_id"), 10, 64)
+	postIdStr := req.FormValue("post_id")
+	ok, err := regexp.MatchString(`^\d+$`, postIdStr)
+	if !ok {
+		(&Error{}).Consume(ErrorInvalidPostId).LogAndRespondError(res, user)
+		return
+	}
+	post_id, err := strconv.ParseInt(postIdStr, 10, 64)
 	if err != nil {
 		data.Error = *(&Error{}).Consume(err)
 		data.SetView("post_view").WriteResponse(res)
@@ -101,6 +108,11 @@ func handleCommentReaction(res http.ResponseWriter, req *http.Request, user User
 	commentIdStr := req.URL.Query().Get("id")
 	if len(commentIdStr) == 0 {
 		(&Error{}).Consume(ErrorCommentEmptyId).LogAndRespondError(res, user)
+		return
+	}
+	ok, err := regexp.MatchString(`^\d+$`, commentIdStr)
+	if !ok {
+		(&Error{}).Consume(ErrorInvalidCommentId).LogAndRespondError(res, user)
 		return
 	}
 	commentId, err := strconv.ParseInt(commentIdStr, 10, 64)

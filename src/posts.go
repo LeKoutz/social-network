@@ -3,6 +3,7 @@ package forum
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 	"strconv"
 	"time"
 )
@@ -63,6 +64,11 @@ func showPost(res http.ResponseWriter, req *http.Request, user User) {
 	id := req.URL.Query().Get("id")
 	if len(id) == 0 {
 		(&Error{}).Consume(ErrorPostEmptyId).LogAndRespondError(res, user)
+		return
+	}
+	ok, err := regexp.MatchString(`^\d+$`, id)
+	if !ok {
+		(&Error{}).Consume(ErrorInvalidPostId).LogAndRespondError(res, user)
 		return
 	}
 	id_int, err := strconv.ParseInt(id, 10, 64)
@@ -190,6 +196,11 @@ func handlePostReaction(res http.ResponseWriter, req *http.Request, user User) {
 	postIdStr := req.URL.Query().Get("id")
 	if len(postIdStr) == 0 {
 		(&Error{}).Consume(ErrorPostEmptyId).LogAndRespondError(res, user)
+		return
+	}
+	ok, err := regexp.MatchString(`^\d+$`, postIdStr)
+	if !ok {
+		(&Error{}).Consume(ErrorInvalidPostId).LogAndRespondError(res, user)
 		return
 	}
 	postId, err := strconv.ParseInt(postIdStr, 10, 64)
