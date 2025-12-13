@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"strings"
 )
 
 var (
@@ -48,7 +49,7 @@ type ErrorIface interface {
 
 // Converts error type to *Error
 func (e *Error) Consume(err error) *Error {
-	e.Message = err.Error()
+	e.Message = strings.ReplaceAll(err.Error(), "\n", ": ")
 	e.Error = err
 	e.Has = true
 	switch err {
