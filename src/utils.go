@@ -1,8 +1,10 @@
 package forum
 
 import (
+	"errors"
 	"fmt"
 	"log"
+	"runtime"
 	"strconv"
 	"time"
 )
@@ -29,4 +31,16 @@ func convertInt64ToTime(i int64) time.Time {
 
 func getCurrentTimestamp() string {
 	return fmt.Sprintf("%d", time.Now().Unix())
+}
+
+func getFunctionName() error {
+	pc, _, _, ok := runtime.Caller(1)
+	if !ok {
+		return errors.New("")
+	}
+	f := runtime.FuncForPC(pc)
+	if f == nil {
+		return errors.New("")
+	}
+	return errors.New(f.Name())
 }
