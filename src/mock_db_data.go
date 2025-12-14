@@ -2,8 +2,8 @@ package forum
 
 import "os"
 
-func MockGen() {
-	if err := Init(); err != nil {
+func MockGen(db_path string) {
+	if err := InitDB(db_path); err != nil {
 		(&Error{}).Consume(err).LogError()
 		os.Exit(1)
 	}
@@ -77,6 +77,14 @@ func InitComments() {
 		(&Error{}).Consume(err).LogError()
 	}
 }
+
+// func InitPostsCategories() {
+//
+//
+//	if err != nil {
+//		(&Error{}).Consume(err).LogError()
+//	}
+// }
 
 func InitLikes() {
 	err := addLikeToPost(1, 1)

@@ -12,4 +12,4 @@ COPY --from=builder /app/bin/forum ./app/forum
 COPY --from=builder /app/templates ./templates
 RUN mkdir -p /app/data
 EXPOSE 8080
-CMD ["./app/forum", "0.0.0.0", "8080"]
+CMD ["./app/forum", "--db-path", "/app/data/db.db", "0.0.0.0", "8080"]
