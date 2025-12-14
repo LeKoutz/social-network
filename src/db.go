@@ -77,6 +77,7 @@ func createCategoriesTable() string {
 	return `CREATE TABLE IF NOT EXISTS "categories" (
 		"id"	INTEGER NOT NULL UNIQUE,
 		"name"	TEXT,
+		"description"	TEXT,
 		PRIMARY KEY("id" AUTOINCREMENT)
 	)`
 }
@@ -364,7 +365,7 @@ func setUserSession(id int64, session_key string) error {
 }
 
 func getAllCategories() (Categories, error) {
-	rows, err := DB.Query(`SELECT id, name FROM categories`)
+	rows, err := DB.Query(`SELECT id, name, description FROM categories`)
 	if err != nil {
 		err = errors.Join(getFunctionName(), err)
 		return []Category{}, err
@@ -373,7 +374,7 @@ func getAllCategories() (Categories, error) {
 	var categories Categories
 	for rows.Next() {
 		var category Category
-		err = rows.Scan(&category.Id, &category.Name)
+		err = rows.Scan(&category.Id, &category.Name, &category.Description)
 		if err != nil {
 			err = errors.Join(getFunctionName(), err)
 			return []Category{}, err
@@ -385,7 +386,7 @@ func getAllCategories() (Categories, error) {
 
 func getCategoryById(id int64) (Category, error) {
 	var category Category
-	err := DB.QueryRow(`SELECT name FROM categories WHERE id = ?`, id).Scan(&category.Name)
+	err := DB.QueryRow(`SELECT name, description FROM categories WHERE id = ?`, id).Scan(&category.Name, &category.Description)
 	if err != nil {
 		err = errors.Join(getFunctionName(), err)
 		return Category{}, err
@@ -397,7 +398,7 @@ func getCategoryById(id int64) (Category, error) {
 func getCategoriesByPostId(post_id int64) (Categories, error) {
 	var categories Categories
 	rows, err := DB.Query(`
-	SELECT c.id, c.name
+	SELECT c.id, c.name, c.description
 	FROM categories c
 	JOIN posts_categories pc ON c.id = pc.category_id
 	WHERE pc.post_id = ?
@@ -409,7 +410,7 @@ func getCategoriesByPostId(post_id int64) (Categories, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var category Category
-		err = rows.Scan(&category.Id, &category.Name)
+		err = rows.Scan(&category.Id, &category.Name, &category.Description)
 		if err != nil {
 			err = errors.Join(getFunctionName(), err)
 			return []Category{}, err
@@ -427,11 +428,11 @@ func addCategory(category Category) error {
 	if (&category).DoesCategoryExist() {
 		return ErrorCategoryAlreadyExists
 	}
-	stmt, err := DB.Prepare("INSERT INTO categories (name) VALUES (?)")
+	stmt, err := DB.Prepare("INSERT INTO categories (name, description) VALUES (?, ?)")
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(category.Name)
+	_, err = stmt.Exec(category.Name, category.Description)
 	if err != nil {
 		return err
 	}
