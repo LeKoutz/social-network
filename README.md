@@ -26,7 +26,7 @@ make
 Start it with:
 ```
 docker build -t forum-app .
-docker run -p [port]:[port] forum-app
+docker run -p [port]:8080 forum-app
 ```
 
 ## Usage
