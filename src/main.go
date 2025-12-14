@@ -29,20 +29,28 @@ func Main(args []string) {
 			i++
 		}
 	}
-
 	if err := InitDB(dbPath); err != nil {
 		fmt.Printf("Error: %s\n", err.Error())
 		os.Exit(1)
 	}
 	// e.g. --init
 	// in case the flag is not passed, the auto intialization could be triggered
-	if len(args) == 3 {
-		ip = args[1]
-		port = args[2]
-	} else if len(args) == 2 {
+
+	var positionalArgs []string
+	for i := 1; i < len(args); i++ {
+		if args[i] == "--db-path" {
+			i++ // skip the flag value too
+		} else {
+			positionalArgs = append(positionalArgs, args[i])
+		}
+	}
+	if len(positionalArgs) == 2 {
+		ip = positionalArgs[0]
+		port = positionalArgs[1]
+	} else if len(positionalArgs) == 1 {
 		ip = "127.0.0.1"
-		port = args[1]
-	} else if len(args) == 1 {
+		port = positionalArgs[0]
+	} else if len(positionalArgs) == 0 {
 		ip = "127.0.0.1"
 		port = "8080"
 	} else {
