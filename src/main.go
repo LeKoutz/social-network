@@ -9,9 +9,9 @@ import (
 
 func usage(programName string) {
 	fmt.Fprintf(os.Stderr, "Usage:\n\n")
-	fmt.Fprintf(os.Stderr, "./%s [ip] [port]\n", programName)
-	fmt.Fprintf(os.Stderr, "./%s [port]\n", programName)
-	fmt.Fprintf(os.Stderr, "./%s\n", programName)
+	fmt.Fprintf(os.Stderr, "./%s [--db-path <path>] [ip] [port]\n", programName)
+	fmt.Fprintf(os.Stderr, "./%s [--db-path <path>] [port]\n", programName)
+	fmt.Fprintf(os.Stderr, "./%s [--db-path <path>]\n", programName)
 }
 
 // Entry point for the program
@@ -20,20 +20,37 @@ func Main(args []string) {
 	// maybe initialize something first if needed...
 	// for example the database?!?!
 	// maybe that could be a flag...
-	if err := Init(); err != nil {
+	var dbPath string = "./data/db.db"
+	var ip, port string
+
+	for i := 1; i < len(args); i++ {
+		if args[i] == "--db-path" && i+1 < len(args) {
+			dbPath = args[i+1]
+			i++
+		}
+	}
+	if err := InitDB(dbPath); err != nil {
 		fmt.Printf("Error: %s\n", err.Error())
 		os.Exit(1)
 	}
 	// e.g. --init
-	var ip, port string
 	// in case the flag is not passed, the auto intialization could be triggered
-	if len(args) == 3 {
-		ip = args[1]
-		port = args[2]
-	} else if len(args) == 2 {
+
+	var positionalArgs []string
+	for i := 1; i < len(args); i++ {
+		if args[i] == "--db-path" {
+			i++ // skip the flag value too
+		} else {
+			positionalArgs = append(positionalArgs, args[i])
+		}
+	}
+	if len(positionalArgs) == 2 {
+		ip = positionalArgs[0]
+		port = positionalArgs[1]
+	} else if len(positionalArgs) == 1 {
 		ip = "127.0.0.1"
-		port = args[1]
-	} else if len(args) == 1 {
+		port = positionalArgs[0]
+	} else if len(positionalArgs) == 0 {
 		ip = "127.0.0.1"
 		port = "8080"
 	} else {
@@ -42,5 +59,8 @@ func Main(args []string) {
 		os.Exit(1)
 	}
 	log.Printf("http://%s:%s/", ip, port)
-	startServer(ip, port)
+	if err := startServer(ip, port); err != nil {
+		fmt.Printf("Error: %s\n", err.Error())
+		os.Exit(1)
+	}
 }

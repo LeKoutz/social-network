@@ -22,6 +22,12 @@ or
 ```
 make
 ```
+## `docker`
+Start it with:
+```
+docker build -t forum-app .
+docker run -p [port]:8080 forum-app
+```
 
 ## Usage
 
@@ -38,7 +44,7 @@ or
 ```
 ./bin/forum
 ```
-and navigate to the URL that it returned.
+and navigate to `http://[ip]:[port]`
 
 ### `mockgen`
 
