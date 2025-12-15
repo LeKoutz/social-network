@@ -53,10 +53,12 @@ func ReturnMockCategories() Categories {
 		{
 			Id:   1,
 			Name: "various",
+			Description: "Variety shieet",
 		},
 		{
 			Id:   2,
 			Name: "general",
+			Description: "Mr General for anything & everything",
 		},
 	}
 }
