@@ -3,13 +3,14 @@ package forum
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 	"strconv"
 )
 
 type Comment struct {
-	Id              int
-	PostId          int
-	UserId          int
+	Id              int64
+	PostId          int64
+	UserId          int64
 	Body            string
 	Timestamp       int64
 	TimestampString string
@@ -45,30 +46,36 @@ func ReturnMockComments() Comments {
 }
 
 func createComment(res http.ResponseWriter, req *http.Request, user User) {
-	data := ReturnMockResponse()
-	data.User = user
+	data := ResponseStruct{}
+	data.Init().SetUser(user)
 
 	// Parse form data
 	err := req.ParseForm()
 	if err != nil {
 		data.Error = *(&Error{}).Consume(err)
-		respondView(res, "user_register_view", data)
+		data.SetView("user_register_view").WriteResponse(res)
 		return
 	}
 
 	// Get form values
 	body := req.FormValue("comment")
-	post_id, err := strconv.Atoi(req.FormValue("post_id"))
+	postIdStr := req.FormValue("post_id")
+	ok, err := regexp.MatchString(`^\d+$`, postIdStr)
+	if !ok {
+		(&Error{}).Consume(ErrorInvalidPostId).LogAndRespondError(res, user)
+		return
+	}
+	post_id, err := strconv.ParseInt(postIdStr, 10, 64)
 	if err != nil {
 		data.Error = *(&Error{}).Consume(err)
-		respondView(res, "post_view", data)
+		data.SetView("post_view").WriteResponse(res)
 		return
 	}
 
 	// Validate user is logged in
 	if !user.LoggedIn {
 		data.Error = *(&Error{}).Consume(ErrorCommentPermissionDenied)
-		respondView(res, "user_login_view", data)
+		data.SetView("user_login_view").WriteResponse(res)
 		return
 	}
 
@@ -83,12 +90,11 @@ func createComment(res http.ResponseWriter, req *http.Request, user User) {
 	commentId, err := addComment(comment)
 	if err != nil {
 		data.Error = *(&Error{}).Consume(err)
-		respondView(res, "post_view", data)
+		data.SetView("post_view").WriteResponse(res)
 		return
 	}
 
-	commentIdStr := strconv.Itoa(commentId)
-	redirectURL := fmt.Sprintf("/post?id=%d#%s", post_id, commentIdStr)
+	redirectURL := fmt.Sprintf("/post?id=%d#%d", post_id, commentId)
 	// Redirect to the post's page
 	http.Redirect(res, req, redirectURL, http.StatusSeeOther)
 }
@@ -104,7 +110,12 @@ func handleCommentReaction(res http.ResponseWriter, req *http.Request, user User
 		(&Error{}).Consume(ErrorCommentEmptyId).LogAndRespondError(res, user)
 		return
 	}
-	commentId, err := strconv.Atoi(commentIdStr)
+	ok, err := regexp.MatchString(`^\d+$`, commentIdStr)
+	if !ok {
+		(&Error{}).Consume(ErrorInvalidCommentId).LogAndRespondError(res, user)
+		return
+	}
+	commentId, err := strconv.ParseInt(commentIdStr, 10, 64)
 	if err != nil {
 		(&Error{}).Consume(err).LogAndRespondError(res, user)
 		return

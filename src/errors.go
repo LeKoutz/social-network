@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"strings"
 )
 
 var (
@@ -17,6 +18,9 @@ var (
 	ErrorPasswordMismatch        = errors.New("Password mismatch")
 	ErrorNotFound                = errors.New("Not found")
 	ErrorPostEmptyId             = errors.New("Post ID can't be empty.")
+	ErrorInvalidPostId           = errors.New("Invalid post ID")
+	ErrorInvalidCommentId        = errors.New("Invalid comment ID")
+	ErrorInvalidCategoryId       = errors.New("Invalid category ID")
 	ErrorPostBodyEmpty           = errors.New("Post body can't be empty.")
 	ErrorPostTitleEmpty          = errors.New("Post title can't be empty.")
 	ErrorPostHasNoCategory       = errors.New("Post category can't be empty.")
@@ -30,12 +34,14 @@ var (
 	ErrorCategoryNameEmpty       = errors.New("Category name can't be empty.")
 	ErrorCategoryNameTooLong     = errors.New("Category name is too long. Use less than 128 characters.")
 	ErrorUnauthorizedAction      = errors.New("Unauthorized action.")
+	ErrorMethodNotAllowed        = errors.New("Method not allowed.")
 )
 
 type Error struct {
-	Has     bool
-	Message string
-	Error   error
+	Has        bool
+	StatusCode int
+	Message    string
+	Error      error
 }
 
 type ErrorIface interface {
@@ -46,9 +52,20 @@ type ErrorIface interface {
 
 // Converts error type to *Error
 func (e *Error) Consume(err error) *Error {
-	e.Message = err.Error()
+	e.Message = strings.ReplaceAll(err.Error(), "\n", ": ")
 	e.Error = err
 	e.Has = true
+	switch err {
+	case ErrorNotFound:
+		e.StatusCode = http.StatusNotFound
+	case
+		ErrorUnauthorizedAction,
+		ErrorCommentPermissionDenied,
+		ErrorPostPermissionDenied:
+		e.StatusCode = http.StatusForbidden
+	case ErrorMethodNotAllowed:
+		e.StatusCode = http.StatusMethodNotAllowed
+	}
 	return e
 }
 
@@ -59,10 +76,8 @@ func (e *Error) LogError() {
 
 // Responds *Error to user with the error_view template
 func (e *Error) RespondError(res http.ResponseWriter, user User) {
-	data := ReturnMockResponse()
-	data.Error = *e
-	data.User = user
-	respondView(res, "error_view", data)
+	data := ResponseStruct{}
+	data.Init().SetError(*e).SetUser(user).SetView("error_view").WriteResponse(res)
 }
 
 // Logs *Error to terminal and responds to user with error_view template

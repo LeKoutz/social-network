@@ -2,7 +2,7 @@ package forum
 
 import "os"
 
-func MockDbData() {
+func MockGen() {
 	if err := Init(); err != nil {
 		(&Error{}).Consume(err).LogError()
 		os.Exit(1)
@@ -11,9 +11,17 @@ func MockDbData() {
 	InitUsers()
 	InitPosts()
 	InitComments()
-	// InitPostsCategories()
 	InitLikes()
 	InitDislikes()
+}
+
+func InitCategories() {
+	for _, category := range ReturnMockCategories() {
+		err := addCategory(category)
+		if err != nil {
+			(&Error{}).Consume(err).LogError()
+		}
+	}
 }
 
 func InitUsers() {
@@ -33,8 +41,11 @@ func InitPosts() {
 		Title:  "lol",
 		Body:   "mpla",
 		UserId: 1,
-		Category: Category{
-			Id: 1,
+		Categories: Categories{
+			{
+				Id:   1,
+				Name: "various",
+			},
 		},
 	})
 	if err != nil {
@@ -44,8 +55,11 @@ func InitPosts() {
 		Title:  "kek",
 		Body:   "alpm",
 		UserId: 1,
-		Category: Category{
-			Id: 2,
+		Categories: Categories{
+			{
+				Id:   1,
+				Name: "various",
+			},
 		},
 	})
 	if err != nil {
@@ -63,13 +77,6 @@ func InitComments() {
 		(&Error{}).Consume(err).LogError()
 	}
 }
-
-// func InitPostsCategories() {
-//
-// 	if err != nil {
-// 		(&Error{}).Consume(err).LogError()
-// 	}
-// }
 
 func InitLikes() {
 	err := addLikeToPost(1, 1)

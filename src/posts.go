@@ -3,15 +3,16 @@ package forum
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 	"strconv"
 	"time"
 )
 
 type Post struct {
-	Id              int
+	Id              int64
 	Title           string
 	Body            string
-	UserId          int
+	UserId          int64
 	User            User
 	Timestamp       int64
 	TimestampString string
@@ -39,7 +40,7 @@ func (p *Post) validatePost() error {
 	return nil
 }
 
-func returnMockPost(post_id int) Posts {
+func returnMockPost(post_id int64) Posts {
 	return Posts{
 		{
 			Id:        post_id,
@@ -58,14 +59,19 @@ func returnMockPost(post_id int) Posts {
 }
 
 func showPost(res http.ResponseWriter, req *http.Request, user User) {
-	data := ReturnMockResponse()
-	data.User = user
+	data := ResponseStruct{}
+	data.Init().SetUser(user)
 	id := req.URL.Query().Get("id")
 	if len(id) == 0 {
 		(&Error{}).Consume(ErrorPostEmptyId).LogAndRespondError(res, user)
 		return
 	}
-	id_int, err := strconv.Atoi(id)
+	ok, err := regexp.MatchString(`^\d+$`, id)
+	if !ok {
+		(&Error{}).Consume(ErrorInvalidPostId).LogAndRespondError(res, user)
+		return
+	}
+	id_int, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		(&Error{}).Consume(err).LogAndRespondError(res, user)
 		return
@@ -98,16 +104,16 @@ func showPost(res http.ResponseWriter, req *http.Request, user User) {
 		return
 	}
 	data.Posts = Posts{post}
-	data.SetView("post_view")
-	data.WriteResponse(res)
+	data.SetView("post_view").WriteResponse(res)
 }
 
 func showPosts(res http.ResponseWriter, _ *http.Request, user User) {
-	data := ReturnMockResponse()
+	data := ResponseStruct{}
+	data.Init()
 	posts, err := getAllPosts()
 	if err != nil {
 		data.Error = *(&Error{}).Consume(err)
-		respondView(res, "error_view", data)
+		(&Error{}).Consume(err).RespondError(res, user)
 		return
 	}
 	for i := range posts {
@@ -122,27 +128,22 @@ func showPosts(res http.ResponseWriter, _ *http.Request, user User) {
 			return
 		}
 	}
-	data.SetPosts(posts)
-	data.SetUser(user)
-	data.SetView("posts_view")
-	data.WriteResponse(res)
+	data.SetPosts(posts).SetUser(user).SetView("posts_view").WriteResponse(res)
 }
 
 func createPostView(res http.ResponseWriter, _ *http.Request, user User) {
-	data := ReturnMockResponse()
-	data.SetUser(user)
-	data.SetView("post_create_view")
-	data.WriteResponse(res)
+	data := ResponseStruct{}
+	data.Init().SetUser(user).SetView("post_create_view").WriteResponse(res)
 }
 
 func createPost(res http.ResponseWriter, req *http.Request, user User) {
-	data := ReturnMockResponse()
-	data.User = user
+	data := ResponseStruct{}
+	data.Init().SetUser(user)
 
 	err := req.ParseForm()
 	if err != nil {
 		data.Error = *(&Error{}).Consume(err)
-		respondView(res, "user_register_view", data)
+		data.SetView("user_register_view").WriteResponse(res)
 		return
 	}
 	// Get form values
@@ -151,7 +152,7 @@ func createPost(res http.ResponseWriter, req *http.Request, user User) {
 	categories, err := getAllCategories()
 	if err != nil {
 		data.Error = *(&Error{}).Consume(err)
-		respondView(res, "post_create_view", data)
+		data.SetView("post_create_view").WriteResponse(res)
 		return
 	}
 	var PostCategories Categories
@@ -164,7 +165,7 @@ func createPost(res http.ResponseWriter, req *http.Request, user User) {
 	// Validate user is logged in
 	if !user.LoggedIn {
 		data.Error = *(&Error{}).Consume(ErrorPostPermissionDenied)
-		respondView(res, "user_login_view", data)
+		data.SetView("user_login_view").WriteResponse(res)
 		return
 	}
 	// Create post object
@@ -178,11 +179,10 @@ func createPost(res http.ResponseWriter, req *http.Request, user User) {
 	postId, err := addPost(post)
 	if err != nil {
 		data.Error = *(&Error{}).Consume(err)
-		respondView(res, "post_create_view", data)
+		data.SetView("post_create_view").WriteResponse(res)
 		return
 	}
-	postIdStr := strconv.Itoa(postId)
-	redirectURL := "/post?id=" + postIdStr
+	redirectURL := fmt.Sprintf("/post?id=%d", postId)
 	http.Redirect(res, req, redirectURL, http.StatusSeeOther)
 }
 
@@ -198,7 +198,12 @@ func handlePostReaction(res http.ResponseWriter, req *http.Request, user User) {
 		(&Error{}).Consume(ErrorPostEmptyId).LogAndRespondError(res, user)
 		return
 	}
-	postId, err := strconv.Atoi(postIdStr)
+	ok, err := regexp.MatchString(`^\d+$`, postIdStr)
+	if !ok {
+		(&Error{}).Consume(ErrorInvalidPostId).LogAndRespondError(res, user)
+		return
+	}
+	postId, err := strconv.ParseInt(postIdStr, 10, 64)
 	if err != nil {
 		(&Error{}).Consume(err).LogAndRespondError(res, user)
 		return

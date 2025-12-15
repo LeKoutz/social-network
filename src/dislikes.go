@@ -3,13 +3,13 @@ package forum
 type Dislikes []Dislike
 
 type Dislike struct {
-	PostId    int
-	UserId    int
-	CommentId int
+	PostId    int64
+	UserId    int64
+	CommentId int64
 }
 
 // Handle the business logic for disliking a post
-func DoDislikePost(userId, postId int) error {
+func DoDislikePost(userId, postId int64) error {
 	// Check if user already disliked this post
 	alreadyDisliked, err := hasUserAlreadyDislikedPost(userId, postId)
 	if err != nil {
@@ -45,7 +45,7 @@ func DoDislikePost(userId, postId int) error {
 }
 
 // Handle the business logic for undisliking a post
-func UndoDislike(userId, postId int) error {
+func UndoDislike(userId, postId int64) error {
 	// First get the dislike ID
 	dislikeId, err := checkIfUserAlreadyDislikedPost(userId, postId)
 	if err != nil {
@@ -58,7 +58,7 @@ func UndoDislike(userId, postId int) error {
 }
 
 // Handle the business logic for disliking a comment
-func DoDislikeComment(userId, commentId int) error {
+func DoDislikeComment(userId, commentId int64) error {
 	// Check if user already disliked this comment
 	alreadyDisliked, err := hasUserAlreadyDislikedComment(userId, commentId)
 	if err != nil {
@@ -94,7 +94,7 @@ func DoDislikeComment(userId, commentId int) error {
 }
 
 // Handle the business logic for undisliking a comment
-func UndoDislikeComment(userId, commentId int) error {
+func UndoDislikeComment(userId, commentId int64) error {
 	// First get the dislike ID
 	dislikeId, err := checkIfUserAlreadyDislikedComment(userId, commentId)
 	if err != nil {

@@ -11,7 +11,7 @@
         <div id="{{.Id}}">
             <a href="/post?id={{.Id}}"><h3>{{.Title}}</h3></a>
             <em>{{.TimestampString}}</em>
-            <p>{{.Body}}</p>
+            <pre>{{.Body}}</pre>
             <div>
                 <form method="POST" action="/post?id={{.Id}}">
                     <input

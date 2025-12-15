@@ -15,7 +15,7 @@
                 {{end}}
             </div>
             <span>{{.User.Username}} ({{.TimestampString}})</span>
-            <p>{{.Body}}</p>
+            <pre>{{.Body}}</pre>
         </div>
         <div class="reactions">
             <form method="POST" action="/post?id={{.Id}}">
@@ -48,7 +48,7 @@
             {{range .Comments}}
             <div class="comment" id="{{.Id}}">
                 <span>{{.Username}} ({{.TimestampString}})</span>
-                <p>{{.Body}}</p>
+                <pre>{{.Body}}</pre>
                 <div class="reactions">
                     <form method="POST" action="/comment?id={{.Id}}">
                         <input

@@ -2,6 +2,7 @@ package forum
 
 import (
 	"database/sql"
+	"errors"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -135,6 +136,7 @@ func registerUserOnDB(user User) error {
 func getAllUsernames() ([]string, error) {
 	rows, err := DB.Query(`SELECT username FROM users`)
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return []string{}, err
 	}
 	defer rows.Close()
@@ -143,6 +145,7 @@ func getAllUsernames() ([]string, error) {
 		var email string
 		err = rows.Scan(&email)
 		if err != nil {
+			err = errors.Join(getFunctionName(), err)
 			return []string{}, err
 		}
 		usernames = append(usernames, email)
@@ -153,6 +156,7 @@ func getAllUsernames() ([]string, error) {
 func getAllUserEmails() ([]string, error) {
 	rows, err := DB.Query(`SELECT email FROM users`)
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return []string{}, err
 	}
 	defer rows.Close()
@@ -161,6 +165,7 @@ func getAllUserEmails() ([]string, error) {
 		var email string
 		err = rows.Scan(&email)
 		if err != nil {
+			err = errors.Join(getFunctionName(), err)
 			return []string{}, err
 		}
 		emails = append(emails, email)
@@ -172,6 +177,7 @@ func getUserByEmail(email string) (User, error) {
 	var user User
 	err := DB.QueryRow(`SELECT id, email, username, hash FROM users WHERE email = ?`, email).Scan(&user.Id, &user.Email, &user.Username, &user.Hash)
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return User{}, err
 	}
 	return user, nil
@@ -181,46 +187,50 @@ func getUserBySession(sessionValue string) (User, error) {
 	var user User
 	err := DB.QueryRow(`SELECT id, email, username, hash FROM users WHERE session_key = ?`, sessionValue).Scan(&user.Id, &user.Email, &user.Username, &user.Hash)
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return User{}, err
 	}
 	return user, nil
 }
 
-func getUserById(id int) (User, error) {
+func getUserById(id int64) (User, error) {
 	var user User
 	err := DB.QueryRow(`SELECT username FROM users WHERE id = ?`, id).Scan(&user.Username)
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return User{}, err
 	}
 	user.Id = id
 	return user, nil
 }
 
-func checkIfUserAlreadyLikedPost(userId, postId int) (int, error) {
-	var existingReactionId int
+func checkIfUserAlreadyLikedPost(userId, postId int64) (int64, error) {
+	var existingReactionId int64
 	err := DB.QueryRow(`
 		SELECT id FROM reactions
 		WHERE user_id = ? AND post_id = ? AND value = 1
 		`, userId, postId).Scan(&existingReactionId)
 	if err != nil && err != sql.ErrNoRows {
+		err = errors.Join(getFunctionName(), err)
 		return 0, err
 	}
 	return existingReactionId, nil
 }
 
-func checkIfUserAlreadyDislikedPost(userId, postId int) (int, error) {
-	var existingDislikeId int
+func checkIfUserAlreadyDislikedPost(userId, postId int64) (int64, error) {
+	var existingDislikeId int64
 	err := DB.QueryRow(`
 		SELECT id FROM reactions
 		WHERE user_id = ? AND post_id = ? AND value = 2
 		`, userId, postId).Scan(&existingDislikeId)
 	if err != nil && err != sql.ErrNoRows {
+		err = errors.Join(getFunctionName(), err)
 		return 0, err
 	}
 	return existingDislikeId, nil
 }
 
-func addLikeToPost(userId, postId int) error {
+func addLikeToPost(userId, postId int64) error {
 	_, err := DB.Exec(`
 		INSERT INTO reactions (user_id, post_id, value)
 		VALUES (?, ?, 1)
@@ -231,7 +241,7 @@ func addLikeToPost(userId, postId int) error {
 	return nil
 }
 
-func removeDislikeFromPost(dislikeId int) error {
+func removeDislikeFromPost(dislikeId int64) error {
 	_, err := DB.Exec(`
 		DELETE FROM reactions
 		WHERE id = ?
@@ -242,7 +252,7 @@ func removeDislikeFromPost(dislikeId int) error {
 	return nil
 }
 
-func addDislikeToPost(userId, postId int) error {
+func addDislikeToPost(userId, postId int64) error {
 	_, err := DB.Exec(`
 		INSERT INTO reactions (user_id, post_id, value)
 		VALUES (?, ?, 2)
@@ -253,7 +263,7 @@ func addDislikeToPost(userId, postId int) error {
 	return nil
 }
 
-func removeLikeFromPost(userId, postId int) error {
+func removeLikeFromPost(userId, postId int64) error {
 	_, err := DB.Exec(`
 		DELETE FROM reactions
 		WHERE user_id = ? AND post_id = ? AND value = 1
@@ -264,31 +274,33 @@ func removeLikeFromPost(userId, postId int) error {
 	return nil
 }
 
-func checkIfUserAlreadyLikedComment(userId, commentId int) (int, error) {
-	var existingReactionId int
+func checkIfUserAlreadyLikedComment(userId, commentId int64) (int64, error) {
+	var existingReactionId int64
 	err := DB.QueryRow(`
 		SELECT id FROM reactions
 		WHERE user_id = ? AND comment_id = ? AND value = 1
 		`, userId, commentId).Scan(&existingReactionId)
 	if err != nil && err != sql.ErrNoRows {
+		err = errors.Join(getFunctionName(), err)
 		return 0, err
 	}
 	return existingReactionId, nil
 }
 
-func checkIfUserAlreadyDislikedComment(userId, commentId int) (int, error) {
-	var existingDislikeId int
+func checkIfUserAlreadyDislikedComment(userId, commentId int64) (int64, error) {
+	var existingDislikeId int64
 	err := DB.QueryRow(`
 		SELECT id FROM reactions
 		WHERE user_id = ? AND comment_id = ? AND value = 2
 		`, userId, commentId).Scan(&existingDislikeId)
 	if err != nil && err != sql.ErrNoRows {
+		err = errors.Join(getFunctionName(), err)
 		return 0, err
 	}
 	return existingDislikeId, nil
 }
 
-func addLikeToComment(userId, commentId int) error {
+func addLikeToComment(userId, commentId int64) error {
 	_, err := DB.Exec(`
 		INSERT INTO reactions (user_id, comment_id, value)
 		VALUES (?, ?, 1)
@@ -299,7 +311,7 @@ func addLikeToComment(userId, commentId int) error {
 	return nil
 }
 
-func addDislikeToComment(userId, commentId int) error {
+func addDislikeToComment(userId, commentId int64) error {
 	_, err := DB.Exec(`
 		INSERT INTO reactions (user_id, comment_id, value)
 		VALUES (?, ?, 2)
@@ -310,7 +322,7 @@ func addDislikeToComment(userId, commentId int) error {
 	return nil
 }
 
-func removeDislikeFromComment(dislikeId int) error {
+func removeDislikeFromComment(dislikeId int64) error {
 	_, err := DB.Exec(`
 		DELETE FROM reactions
 		WHERE id = ?
@@ -321,7 +333,7 @@ func removeDislikeFromComment(dislikeId int) error {
 	return nil
 }
 
-func removeLikeFromComment(userId, commentId int) error {
+func removeLikeFromComment(userId, commentId int64) error {
 	_, err := DB.Exec(`
 		DELETE FROM reactions
 		WHERE user_id = ? AND comment_id = ? AND value = 1
@@ -332,13 +344,15 @@ func removeLikeFromComment(userId, commentId int) error {
 	return nil
 }
 
-func setUserSession(id int, session_key string) error {
+func setUserSession(id int64, session_key string) error {
 	stmt, err := DB.Prepare("UPDATE users SET session_key = ? WHERE id = ?")
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return err
 	}
 	_, err = stmt.Exec(session_key, id)
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return err
 	}
 	return nil
@@ -347,6 +361,7 @@ func setUserSession(id int, session_key string) error {
 func getAllCategories() (Categories, error) {
 	rows, err := DB.Query(`SELECT id, name FROM categories`)
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return []Category{}, err
 	}
 	defer rows.Close()
@@ -355,6 +370,7 @@ func getAllCategories() (Categories, error) {
 		var category Category
 		err = rows.Scan(&category.Id, &category.Name)
 		if err != nil {
+			err = errors.Join(getFunctionName(), err)
 			return []Category{}, err
 		}
 		categories = append(categories, category)
@@ -362,17 +378,18 @@ func getAllCategories() (Categories, error) {
 	return categories, nil
 }
 
-func getCategoryById(id int) (Category, error) {
+func getCategoryById(id int64) (Category, error) {
 	var category Category
 	err := DB.QueryRow(`SELECT name FROM categories WHERE id = ?`, id).Scan(&category.Name)
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return Category{}, err
 	}
 	category.Id = id
 	return category, nil
 }
 
-func getCategoriesByPostId(post_id int) (Categories, error) {
+func getCategoriesByPostId(post_id int64) (Categories, error) {
 	var categories Categories
 	rows, err := DB.Query(`
 	SELECT c.id, c.name
@@ -381,6 +398,7 @@ func getCategoriesByPostId(post_id int) (Categories, error) {
 	WHERE pc.post_id = ?
 	`, post_id)
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return Categories{}, err
 	}
 	defer rows.Close()
@@ -388,6 +406,7 @@ func getCategoriesByPostId(post_id int) (Categories, error) {
 		var category Category
 		err = rows.Scan(&category.Id, &category.Name)
 		if err != nil {
+			err = errors.Join(getFunctionName(), err)
 			return []Category{}, err
 		}
 		categories = append(categories, category)
@@ -414,7 +433,7 @@ func addCategory(category Category) error {
 	return nil
 }
 
-func getPostsByCategoryId(id int) (Posts, error) {
+func getPostsByCategoryId(id int64) (Posts, error) {
 	var posts Posts
 	rows, err := DB.Query(`
 	SELECT posts.id, posts.title, posts.body, posts.timestamp
@@ -423,6 +442,7 @@ func getPostsByCategoryId(id int) (Posts, error) {
 	JOIN categories ON pc.category_id = categories.id
 	WHERE pc.category_id = ?`, id)
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return Posts{}, err
 	}
 	defer rows.Close()
@@ -431,10 +451,12 @@ func getPostsByCategoryId(id int) (Posts, error) {
 		var ts string
 		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts)
 		if err != nil {
+			err = errors.Join(getFunctionName(), err)
 			return Posts{}, err
 		}
 		t, err := convertStringToTime(ts)
 		if err != nil {
+			err = errors.Join(getFunctionName(), err)
 			return Posts{}, err
 		}
 		post.TimestampString = convertTimeToString(t)
@@ -443,7 +465,7 @@ func getPostsByCategoryId(id int) (Posts, error) {
 	return posts, nil
 }
 
-func getLikedPostsByUserId(user_id int) (Posts, error) {
+func getLikedPostsByUserId(user_id int64) (Posts, error) {
 	var posts Posts
 	rows, err := DB.Query(`
 	SELECT posts.id, posts.title, posts.body, posts.timestamp
@@ -452,6 +474,7 @@ func getLikedPostsByUserId(user_id int) (Posts, error) {
 	WHERE r.user_id = ? AND r.value = 1
 	`, user_id)
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return Posts{}, err
 	}
 	defer rows.Close()
@@ -460,10 +483,12 @@ func getLikedPostsByUserId(user_id int) (Posts, error) {
 		var ts string
 		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts)
 		if err != nil {
+			err = errors.Join(getFunctionName(), err)
 			return Posts{}, err
 		}
 		t, err := convertStringToTime(ts)
 		if err != nil {
+			err = errors.Join(getFunctionName(), err)
 			return Posts{}, err
 		}
 		post.TimestampString = convertTimeToString(t)
@@ -472,13 +497,14 @@ func getLikedPostsByUserId(user_id int) (Posts, error) {
 	return posts, nil
 }
 
-func getPostsByUserId(id int) (Posts, error) {
+func getPostsByUserId(id int64) (Posts, error) {
 	var posts Posts
 	rows, err := DB.Query(`
 	SELECT posts.id, posts.title, posts.body, posts.timestamp
 	FROM posts
 	WHERE user_id = ?`, id)
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return Posts{}, err
 	}
 	defer rows.Close()
@@ -487,10 +513,12 @@ func getPostsByUserId(id int) (Posts, error) {
 		var ts string
 		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts)
 		if err != nil {
+			err = errors.Join(getFunctionName(), err)
 			return Posts{}, err
 		}
 		t, err := convertStringToTime(ts)
 		if err != nil {
+			err = errors.Join(getFunctionName(), err)
 			return Posts{}, err
 		}
 		post.TimestampString = convertTimeToString(t)
@@ -502,6 +530,7 @@ func getPostsByUserId(id int) (Posts, error) {
 func getAllPosts() (Posts, error) {
 	rows, err := DB.Query(`SELECT id, title, body, timestamp FROM posts`)
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return Posts{}, err
 	}
 	defer rows.Close()
@@ -511,10 +540,12 @@ func getAllPosts() (Posts, error) {
 		var ts string
 		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts)
 		if err != nil {
+			err = errors.Join(getFunctionName(), err)
 			return Posts{}, err
 		}
 		t, err := convertStringToTime(ts)
 		if err != nil {
+			err = errors.Join(getFunctionName(), err)
 			return Posts{}, err
 		}
 		post.TimestampString = convertTimeToString(t)
@@ -523,67 +554,78 @@ func getAllPosts() (Posts, error) {
 	return posts, nil
 }
 
-func getPostById(id int) (Post, error) {
+func getPostById(id int64) (Post, error) {
 	var post Post
 	var ts string
 	err := DB.QueryRow(`SELECT title, body, timestamp, user_id FROM posts WHERE id = ?`, id).Scan(&post.Title, &post.Body, &ts, &post.UserId)
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return Post{}, err
 	}
 	t, err := convertStringToTime(ts)
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return Post{}, err
 	}
 	post.TimestampString = convertTimeToString(t)
 	post.Id = id
 	post.User, err = getUserById(post.UserId)
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return Post{}, err
 	}
 	return post, nil
 }
 
-func addPost(post Post) (int, error) {
+func addPost(post Post) (int64, error) {
 	err := post.validatePost()
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return 0, err
 	}
 	stmt, err := DB.Prepare("INSERT INTO posts (title, body, user_id, timestamp) VALUES (?, ?, ?, ?)")
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return 0, err
 	}
 	res, err := stmt.Exec(post.Title, post.Body, post.UserId, getCurrentTimestamp())
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return 0, err
 	}
 	// Get the last inserted post ID
 	postId, err := res.LastInsertId()
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return 0, err
 	}
 	for _, category := range post.Categories {
 		err = addCategoryToPost(postId, category.Id)
 		if err != nil {
+			err = errors.Join(getFunctionName(), err)
 			return 0, err
 		}
 	}
-	return int(postId), nil
+	return postId, nil
 }
 
-func addCategoryToPost(post_id int64, category_id int) error {
+func addCategoryToPost(post_id, category_id int64) error {
 	stmt, err := DB.Prepare("INSERT INTO posts_categories (post_id, category_id) VALUES (?, ?)")
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return err
 	}
 	_, err = stmt.Exec(post_id, category_id)
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return err
 	}
 	return nil
 }
 
-func addComment(comment Comment) (int, error) {
+func addComment(comment Comment) (int64, error) {
 	if err := comment.validateComment(); err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return 0, err
 	}
 	res, err := DB.Exec(
@@ -595,12 +637,13 @@ func addComment(comment Comment) (int, error) {
 	)
 	commentId, err := res.LastInsertId()
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return 0, err
 	}
-	return int(commentId), nil
+	return commentId, nil
 }
 
-func getCommentsByPostId(postId int) (Comments, error) {
+func getCommentsByPostId(postId int64) (Comments, error) {
 	rows, err := DB.Query(`
 	SELECT
 	c.id,
@@ -614,6 +657,7 @@ func getCommentsByPostId(postId int) (Comments, error) {
 	WHERE c.post_id = ?
 	ORDER BY c.timestamp ASC`, postId)
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return Comments{}, err
 	}
 	defer rows.Close()
@@ -630,10 +674,12 @@ func getCommentsByPostId(postId int) (Comments, error) {
 			&comment.Username,
 		)
 		if err != nil {
+			err = errors.Join(getFunctionName(), err)
 			return Comments{}, err
 		}
 		t, err := convertStringToTime(ts)
 		if err != nil {
+			err = errors.Join(getFunctionName(), err)
 			return Comments{}, err
 		}
 		comment.TimestampString = convertTimeToString(t)
@@ -642,7 +688,7 @@ func getCommentsByPostId(postId int) (Comments, error) {
 	return comments, nil
 }
 
-func getLikesCountByPostId(postId int) (int, error) {
+func getLikesCountByPostId(postId int64) (int, error) {
 	var likes int
 	err := DB.QueryRow(`
         SELECT COUNT(*)
@@ -650,12 +696,13 @@ func getLikesCountByPostId(postId int) (int, error) {
         WHERE post_id = ? AND value = 1
     `, postId).Scan(&likes)
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return 0, err
 	}
 	return likes, nil
 }
 
-func getDislikesCountByPostId(postId int) (int, error) {
+func getDislikesCountByPostId(postId int64) (int, error) {
 	var dislikes int
 	err := DB.QueryRow(`
         SELECT COUNT(*)
@@ -663,6 +710,7 @@ func getDislikesCountByPostId(postId int) (int, error) {
         WHERE post_id = ? AND value = 2
     `, postId).Scan(&dislikes)
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return 0, err
 	}
 	return dislikes, nil
@@ -676,6 +724,7 @@ func getLikesCountByCommentId(commentId int) (int, error) {
         WHERE comment_id = ? AND value = 1
     `, commentId).Scan(&likes)
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return 0, err
 	}
 	return likes, nil
@@ -689,6 +738,7 @@ func getDisikesCountByCommentId(commentId int) (int, error) {
         WHERE comment_id = ? AND value = 2
     `, commentId).Scan(&dislikes)
 	if err != nil {
+		err = errors.Join(getFunctionName(), err)
 		return 0, err
 	}
 	return dislikes, nil

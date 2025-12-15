@@ -5,9 +5,7 @@ import "time"
 var (
 	ResponseStructMock = ResponseStruct{
 		WebsiteName: "Forum",
-		User: User{
-			Username: "Guest",
-		},
+		User:        GuestUser,
 		Posts: Posts{
 			{
 				Id:        1,
@@ -40,7 +38,7 @@ var (
 		},
 		Categories: ReturnMockCategories(),
 		Error: Error{
-			Has:     true,
+			Has:     false,
 			Message: "mpla",
 		},
 	}
@@ -48,4 +46,17 @@ var (
 
 func ReturnMockResponse() ResponseStruct {
 	return ResponseStructMock
+}
+
+func ReturnMockCategories() Categories {
+	return Categories{
+		{
+			Id:   1,
+			Name: "various",
+		},
+		{
+			Id:   2,
+			Name: "general",
+		},
+	}
 }
