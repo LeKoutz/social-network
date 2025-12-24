@@ -86,6 +86,10 @@ func showPost(res http.ResponseWriter, req *http.Request, user User) {
 		(&Error{}).Consume(err).LogAndRespondError(res, user)
 		return
 	}
+	for i := range comments {
+		comments[i].getReactions()
+		comments[i].getReactionsByUserId(user.Id)
+	}
 	post.Comments = comments
 	categories, err := getCategoriesByPostId(post.Id)
 	if err != nil {
@@ -133,7 +137,14 @@ func showPosts(res http.ResponseWriter, _ *http.Request, user User) {
 
 func createPostView(res http.ResponseWriter, _ *http.Request, user User) {
 	data := ResponseStruct{}
-	data.Init().SetUser(user).SetView("post_create_view").WriteResponse(res)
+	data.Init().SetUser(user)
+	categories, err := getAllCategories()
+	if err != nil {
+		(&Error{}).Consume(err).LogAndRespondError(res, user)
+		return
+	}
+	data.SetCategories(categories)
+	data.SetView("post_create_view").WriteResponse(res)
 }
 
 func createPost(res http.ResponseWriter, req *http.Request, user User) {
@@ -192,7 +203,6 @@ func handlePostReaction(res http.ResponseWriter, req *http.Request, user User) {
 		(&Error{}).Consume(err).LogAndRespondError(res, user)
 		return
 	}
-
 	postIdStr := req.URL.Query().Get("id")
 	if len(postIdStr) == 0 {
 		(&Error{}).Consume(ErrorPostEmptyId).LogAndRespondError(res, user)
@@ -212,29 +222,15 @@ func handlePostReaction(res http.ResponseWriter, req *http.Request, user User) {
 		(&Error{}).Consume(ErrorPostPermissionDenied).LogAndRespondError(res, user)
 		return
 	}
-	if req.FormValue("like") == "on" {
+	if req.FormValue("action") == "like" {
 		err = DoLike(user.Id, postId)
 		if err != nil {
 			(&Error{}).Consume(err).LogAndRespondError(res, user)
 			return
 		}
 	}
-	if req.FormValue("like") == "" {
-		err = UndoLike(user.Id, postId)
-		if err != nil {
-			(&Error{}).Consume(err).LogAndRespondError(res, user)
-			return
-		}
-	}
-	if req.FormValue("dislike") == "on" {
+	if req.FormValue("action") == "dislike" {
 		err = DoDislikePost(user.Id, postId)
-		if err != nil {
-			(&Error{}).Consume(err).LogAndRespondError(res, user)
-			return
-		}
-	}
-	if req.FormValue("dislike") == "" {
-		err = UndoDislike(user.Id, postId)
 		if err != nil {
 			(&Error{}).Consume(err).LogAndRespondError(res, user)
 			return

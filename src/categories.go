@@ -109,29 +109,3 @@ func showCategory(res http.ResponseWriter, req *http.Request, user User) {
 	data.Posts = posts
 	data.SetPosts(posts).SetView("category_view").WriteResponse(res)
 }
-
-func (p *Post) getReactions() error {
-	var err error
-	(*p).Likes, err = getLikesCountByPostId((*p).Id)
-	if err != nil {
-		return err
-	}
-	(*p).Dislikes, err = getDislikesCountByPostId((*p).Id)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (p *Post) getReactionsByUserId(user_id int64) error {
-	var err error
-	(*p).Liked, err = hasUserAlreadyLikedPost(user_id, (*p).Id)
-	if err != nil {
-		return err
-	}
-	(*p).Disliked, err = hasUserAlreadyDislikedPost(user_id, (*p).Id)
-	if err != nil {
-		return err
-	}
-	return nil
-}

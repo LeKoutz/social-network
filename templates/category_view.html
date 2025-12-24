@@ -13,26 +13,19 @@
         <pre>{{.Body}}</pre>
         <div class="reactions">
             <form method="POST" action="/post?id={{.Id}}">
-                <input
+                <button type="sumbit"
                         id="likes"
-                        type="checkbox"
-                        name="like"
-                        onchange="submit()"
-                        {{if .Liked}}checked{{end}}
+                        name="action"
+                        value="like"
                         {{if not $.User.LoggedIn }}disabled{{end}}
-                        />
-                <label for="likes">{{.Likes}} Likes</label>
+                        >{{.Likes}} {{if .Liked}}👍{{else}}👍🏻{{end}}</button>
             </form>
             <form method="POST" action="/post?id={{.Id}}">
-                <input
-                        id="dislikes"
-                        type="checkbox"
-                        name="dislike"
-                        onchange="submit()"
-                        {{if .Disliked}}checked{{end}}
+                <button type="sumbit"
+                        name="action"
+                        value="dislike"
                         {{if not $.User.LoggedIn }}disabled{{end}}
-                        />
-                <label for="dislikes">{{.Dislikes}} Dislikes</label>
+                        >{{.Dislikes}} {{if .Disliked}}👎{{else}}👎🏻{{end}}</button>
             </form>
         </div>
         {{if $.User.LoggedIn}}

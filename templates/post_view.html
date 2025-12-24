@@ -5,72 +5,59 @@
 {{template "error" .}}
 {{end}}
 <div class="container">
-    {{with index .Posts 0}}
-    <div class="post" id="{{.Id}}">
+    {{$post := index .Posts 0}}
+    <div class="post" id="{{$post.Id}}">
         <div class="post-content">
-            <a href="/post?id={{.Id}}"><h3>{{.Title}}</h3></a>
+            <a href="/post?id={{$post.Id}}"><h3>{{$post.Title}}</h3></a>
             <div class="categories">
-                {{range .Categories}}
+                {{range $post.Categories}}
                 <a href="/category?id={{.Id}}">{{.Name}}</a>
                 {{end}}
             </div>
-            <span>{{.User.Username}} ({{.TimestampString}})</span>
-            <pre>{{.Body}}</pre>
+            <span>{{$post.User.Username}} ({{$post.TimestampString}})</span>
+            <pre>{{$post.Body}}</pre>
         </div>
         <div class="reactions">
-            <form method="POST" action="/post?id={{.Id}}">
-                <input
-                        id="likes"
-                        type="checkbox"
-                        name="like"
-                        onchange="submit()"
-                        {{if .Liked}}checked{{end}}
+            <form method="POST" action="/post?id={{$post.Id}}">
+                <button type="sumbit"
+                        name="action"
+                        value="like"
                         {{if not $.User.LoggedIn }}disabled{{end}}
-                        />
-                <label for="likes">{{.Likes}} Likes</label>
+                        >{{$post.Likes}} {{if $post.Liked}}👍{{else}}👍🏻{{end}}</button>
             </form>
-            <form method="POST" action="/post?id={{.Id}}">
-                <input
-                        id="dislikes"
-                        type="checkbox"
-                        name="dislike"
-                        onchange="submit()"
-                        {{if .Disliked}}checked{{end}}
+            <form method="POST" action="/post?id={{$post.Id}}">
+                <button type="sumbit"
+                        name="action"
+                        value="dislike"
                         {{if not $.User.LoggedIn }}disabled{{end}}
-                        />
-                <label for="dislikes">{{.Dislikes}} Dislikes</label>
+                        >{{$post.Dislikes}} {{if $post.Disliked}}👎{{else}}👎🏻{{end}}</button>
+
             </form>
         </div>
         {{if $.User.LoggedIn}}
-        {{ template "comment_create" .}}
+        {{ template "comment_create" $post}}
         {{end}}
         <div class="comments">
-            {{range .Comments}}
+            {{range $post.Comments}}
             <div class="comment" id="{{.Id}}">
                 <span>{{.Username}} ({{.TimestampString}})</span>
                 <pre>{{.Body}}</pre>
                 <div class="reactions">
                     <form method="POST" action="/comment?id={{.Id}}">
-                        <input
-                                id="likes"
-                                type="checkbox"
-                                name="like"
-                                onchange="submit()"
-                                {{if .Liked}}checked{{end}}
+                        <input type="hidden" name="post-id" value="{{$post.Id}}"/>
+                        <button type="sumbit"
+                                name="action"
+                                value="like"
                                 {{if not $.User.LoggedIn }}disabled{{end}}
-                                />
-                        <label for="likes">{{.Likes}} Likes</label>
+                                >{{.Likes}} {{if .Liked}}👍{{else}}👍🏻{{end}}</button>
                     </form>
                     <form method="POST" action="/comment?id={{.Id}}">
-                        <input
-                                id="dislikes"
-                                type="checkbox"
-                                name="dislike"
-                                onchange="submit()"
-                                {{if .Disliked}}checked{{end}}
+                        <input type="hidden" name="post-id" value="{{$post.Id}}"/>
+                        <button type="sumbit"
+                                name="action"
+                                value="dislike"
                                 {{if not $.User.LoggedIn }}disabled{{end}}
-                                />
-                        <label for="dislikes">{{.Dislikes}} Dislikes</label>
+                                >{{.Dislikes}} {{if .Disliked}}👎{{else}}👎🏻{{end}}</button>
                     </form>
                 </div>
             </div>
@@ -78,7 +65,6 @@
         </div>
     </div>
 </div>
-{{end}}
 </div>
 {{template "ending" .}}
 {{end}}

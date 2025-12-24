@@ -14,9 +14,9 @@ type Comment struct {
 	Body            string
 	Timestamp       int64
 	TimestampString string
-	Likes           int
+	Likes           int64
 	Liked           bool
-	Dislikes        int
+	Dislikes        int64
 	Disliked        bool
 	Username        string
 }
@@ -48,7 +48,6 @@ func ReturnMockComments() Comments {
 func createComment(res http.ResponseWriter, req *http.Request, user User) {
 	data := ResponseStruct{}
 	data.Init().SetUser(user)
-
 	// Parse form data
 	err := req.ParseForm()
 	if err != nil {
@@ -56,7 +55,6 @@ func createComment(res http.ResponseWriter, req *http.Request, user User) {
 		data.SetView("user_register_view").WriteResponse(res)
 		return
 	}
-
 	// Get form values
 	body := req.FormValue("comment")
 	postIdStr := req.FormValue("post_id")
@@ -71,21 +69,18 @@ func createComment(res http.ResponseWriter, req *http.Request, user User) {
 		data.SetView("post_view").WriteResponse(res)
 		return
 	}
-
 	// Validate user is logged in
 	if !user.LoggedIn {
 		data.Error = *(&Error{}).Consume(ErrorCommentPermissionDenied)
 		data.SetView("user_login_view").WriteResponse(res)
 		return
 	}
-
 	// Create post object
 	comment := Comment{
 		Body:   body,
 		UserId: user.Id,
 		PostId: post_id,
 	}
-
 	// Save post to database
 	commentId, err := addComment(comment)
 	if err != nil {
@@ -93,7 +88,6 @@ func createComment(res http.ResponseWriter, req *http.Request, user User) {
 		data.SetView("post_view").WriteResponse(res)
 		return
 	}
-
 	redirectURL := fmt.Sprintf("/post?id=%d#%d", post_id, commentId)
 	// Redirect to the post's page
 	http.Redirect(res, req, redirectURL, http.StatusSeeOther)
@@ -124,19 +118,20 @@ func handleCommentReaction(res http.ResponseWriter, req *http.Request, user User
 		(&Error{}).Consume(ErrorCommentPermissionDenied).LogAndRespondError(res, user)
 		return
 	}
-	if req.FormValue("like") == "on" {
+	if req.FormValue("action") == "like" {
 		err = DoLikeComment(user.Id, commentId)
 		if err != nil {
 			(&Error{}).Consume(err).LogAndRespondError(res, user)
 			return
 		}
 	}
-	if req.FormValue("dislike") == "on" {
+	if req.FormValue("action") == "dislike" {
 		err = DoDislikeComment(user.Id, commentId)
 		if err != nil {
 			(&Error{}).Consume(err).LogAndRespondError(res, user)
 			return
 		}
 	}
-	http.Redirect(res, req, "/", http.StatusSeeOther)
+	postId := req.FormValue("post-id")
+	http.Redirect(res, req, "/post?id="+postId+"#"+commentIdStr, http.StatusSeeOther)
 }

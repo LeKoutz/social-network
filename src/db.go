@@ -76,8 +76,8 @@ func createPostsTable() string {
 func createCategoriesTable() string {
 	return `CREATE TABLE IF NOT EXISTS "categories" (
 		"id"	INTEGER NOT NULL UNIQUE,
-		"name"	TEXT,
-		"description"	TEXT,
+		"name"	TEXT NOT NULL UNIQUE,
+		"description"	TEXT NOT NULL UNIQUE,
 		PRIMARY KEY("id" AUTOINCREMENT)
 	)`
 }
@@ -210,7 +210,7 @@ func getUserById(id int64) (User, error) {
 	return user, nil
 }
 
-func checkIfUserAlreadyLikedPost(userId, postId int64) (int64, error) {
+func checkIfUserLikedPost(userId, postId int64) (int64, error) {
 	var existingReactionId int64
 	err := DB.QueryRow(`
 		SELECT id FROM reactions
@@ -223,7 +223,7 @@ func checkIfUserAlreadyLikedPost(userId, postId int64) (int64, error) {
 	return existingReactionId, nil
 }
 
-func checkIfUserAlreadyDislikedPost(userId, postId int64) (int64, error) {
+func checkIfUserDislikedPost(userId, postId int64) (int64, error) {
 	var existingDislikeId int64
 	err := DB.QueryRow(`
 		SELECT id FROM reactions
@@ -280,7 +280,7 @@ func removeLikeFromPost(userId, postId int64) error {
 	return nil
 }
 
-func checkIfUserAlreadyLikedComment(userId, commentId int64) (int64, error) {
+func checkIfUserLikedComment(userId, commentId int64) (int64, error) {
 	var existingReactionId int64
 	err := DB.QueryRow(`
 		SELECT id FROM reactions
@@ -293,7 +293,7 @@ func checkIfUserAlreadyLikedComment(userId, commentId int64) (int64, error) {
 	return existingReactionId, nil
 }
 
-func checkIfUserAlreadyDislikedComment(userId, commentId int64) (int64, error) {
+func checkIfUserDislikedComment(userId, commentId int64) (int64, error) {
 	var existingDislikeId int64
 	err := DB.QueryRow(`
 		SELECT id FROM reactions
@@ -311,10 +311,7 @@ func addLikeToComment(userId, commentId int64) error {
 		INSERT INTO reactions (user_id, comment_id, value)
 		VALUES (?, ?, 1)
 		`, userId, commentId)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func addDislikeToComment(userId, commentId int64) error {
@@ -322,21 +319,7 @@ func addDislikeToComment(userId, commentId int64) error {
 		INSERT INTO reactions (user_id, comment_id, value)
 		VALUES (?, ?, 2)
 		`, userId, commentId)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func removeDislikeFromComment(dislikeId int64) error {
-	_, err := DB.Exec(`
-		DELETE FROM reactions
-		WHERE id = ?
-		`, dislikeId)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func removeLikeFromComment(userId, commentId int64) error {
@@ -344,10 +327,16 @@ func removeLikeFromComment(userId, commentId int64) error {
 		DELETE FROM reactions
 		WHERE user_id = ? AND comment_id = ? AND value = 1
 		`, userId, commentId)
-	if err != nil {
 		return err
-	}
-	return nil
+}
+
+
+func removeReaction(reactionId int64) error {
+	_, err := DB.Exec(`
+		DELETE FROM reactions
+		WHERE id = ?
+		`, reactionId)
+	return err
 }
 
 func setUserSession(id int64, session_key string) error {
@@ -433,10 +422,7 @@ func addCategory(category Category) error {
 		return err
 	}
 	_, err = stmt.Exec(category.Name, category.Description)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func getPostsByCategoryId(id int64) (Posts, error) {
@@ -722,8 +708,8 @@ func getDislikesCountByPostId(postId int64) (int, error) {
 	return dislikes, nil
 }
 
-func getLikesCountByCommentId(commentId int) (int, error) {
-	var likes int
+func getLikesCountByCommentId(commentId int64) (int64, error) {
+	var likes int64
 	err := DB.QueryRow(`
         SELECT COUNT(*)
         FROM reactions
@@ -736,8 +722,8 @@ func getLikesCountByCommentId(commentId int) (int, error) {
 	return likes, nil
 }
 
-func getDisikesCountByCommentId(commentId int) (int, error) {
-	var dislikes int
+func getDislikesCountByCommentId(commentId int64) (int64, error) {
+	var dislikes int64
 	err := DB.QueryRow(`
         SELECT COUNT(*)
         FROM reactions

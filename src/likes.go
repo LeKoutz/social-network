@@ -8,84 +8,38 @@ type Like struct {
 	CommentId int64
 }
 
-// Handle the business logic for liking a post
 func DoLike(userId, postId int64) error {
-	// Check if user already liked this post
-	alreadyLiked, err := hasUserAlreadyLikedPost(userId, postId)
+	alreadyLiked, err := hasUserLikedPost(userId, postId)
 	if err != nil {
 		return err
 	}
-
 	if alreadyLiked {
-		// User already liked the post, no action needed
-		return nil
+		return removeLikeFromPost(userId, postId)
 	}
-
-	// Check if user previously disliked this post
-	existingDislikeId, err := checkIfUserAlreadyDislikedPost(userId, postId)
+	existingDislikeId, err := checkIfUserDislikedPost(userId, postId)
 	if err != nil {
 		return err
 	}
-
 	if existingDislikeId != 0 {
-		// User previously disliked, remove the dislike first
-		err = removeDislikeFromPost(existingDislikeId)
-		if err != nil {
-			return err
-		}
+		return removeReaction(existingDislikeId)
 	}
-
-	// Add the like
-	err = addLikeToPost(userId, postId)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return addLikeToPost(userId, postId)
 }
 
-// Handle the business logic for unliking a post
-func UndoLike(userId, postId int64) error {
-	return removeLikeFromPost(userId, postId)
-}
-
-// Handle the business logic for liking a comment
 func DoLikeComment(userId, commentId int64) error {
-	// Check if user already liked this comment
-	alreadyLiked, err := hasUserAlreadyLikedComment(userId, commentId)
+	alreadyLiked, err := hasUserLikedComment(userId, commentId)
 	if err != nil {
 		return err
 	}
-
 	if alreadyLiked {
-		// User already liked the comment, no action needed
-		return nil
+		return removeLikeFromComment(userId, commentId)
 	}
-
-	// Check if user previously disliked this comment
-	existingDislikeId, err := checkIfUserAlreadyDislikedComment(userId, commentId)
+	existingDislikeId, err := checkIfUserDislikedComment(userId, commentId)
 	if err != nil {
 		return err
 	}
-
 	if existingDislikeId != 0 {
-		// User previously disliked, remove the dislike first
-		err = removeDislikeFromComment(existingDislikeId)
-		if err != nil {
-			return err
-		}
+		return removeReaction(existingDislikeId)
 	}
-
-	// Add the like
-	err = addLikeToComment(userId, commentId)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// Handle the business logic for unliking a comment
-func UndoLikeComment(userId, commentId int64) error {
-	return removeLikeFromComment(userId, commentId)
+	return addLikeToComment(userId, commentId)
 }

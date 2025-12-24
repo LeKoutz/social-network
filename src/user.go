@@ -236,8 +236,8 @@ func validatePasswordStrength(password string) error {
 }
 
 // Check if user already liked this post
-func hasUserAlreadyLikedPost(userId, postId int64) (bool, error) {
-	existingReactionId, err := checkIfUserAlreadyLikedPost(userId, postId)
+func hasUserLikedPost(userId, postId int64) (bool, error) {
+	existingReactionId, err := checkIfUserLikedPost(userId, postId)
 	if err != nil {
 		return false, err
 	}
@@ -245,8 +245,8 @@ func hasUserAlreadyLikedPost(userId, postId int64) (bool, error) {
 }
 
 // Check if user already disliked this post
-func hasUserAlreadyDislikedPost(userId, postId int64) (bool, error) {
-	existingReactionId, err := checkIfUserAlreadyDislikedPost(userId, postId)
+func hasUserDislikedPost(userId, postId int64) (bool, error) {
+	existingReactionId, err := checkIfUserDislikedPost(userId, postId)
 	if err != nil {
 		return false, err
 	}
@@ -254,8 +254,8 @@ func hasUserAlreadyDislikedPost(userId, postId int64) (bool, error) {
 }
 
 // Check if user already liked this comment
-func hasUserAlreadyLikedComment(userId, commentId int64) (bool, error) {
-	existingReactionId, err := checkIfUserAlreadyLikedPost(userId, commentId)
+func hasUserLikedComment(userId, commentId int64) (bool, error) {
+	existingReactionId, err := checkIfUserLikedComment(userId, commentId)
 	if err != nil {
 		return false, err
 	}
@@ -263,8 +263,8 @@ func hasUserAlreadyLikedComment(userId, commentId int64) (bool, error) {
 }
 
 // Check if user already disliked this comment
-func hasUserAlreadyDislikedComment(userId, commentId int64) (bool, error) {
-	existingReactionId, err := checkIfUserAlreadyDislikedComment(userId, commentId)
+func hasUserDislikedComment(userId, commentId int64) (bool, error) {
+	existingReactionId, err := checkIfUserDislikedComment(userId, commentId)
 	if err != nil {
 		return false, err
 	}
