@@ -255,7 +255,7 @@ func hasUserDislikedPost(userId, postId int64) (bool, error) {
 
 // Check if user already liked this comment
 func hasUserLikedComment(userId, commentId int64) (bool, error) {
-	existingReactionId, err := checkIfUserLikedPost(userId, commentId)
+	existingReactionId, err := checkIfUserLikedComment(userId, commentId)
 	if err != nil {
 		return false, err
 	}
