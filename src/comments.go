@@ -56,7 +56,6 @@ func createComment(res http.ResponseWriter, req *http.Request, user User) {
 		data.SetView("user_register_view").WriteResponse(res)
 		return
 	}
-
 	// Get form values
 	body := req.FormValue("comment")
 	postIdStr := req.FormValue("post_id")
@@ -71,21 +70,18 @@ func createComment(res http.ResponseWriter, req *http.Request, user User) {
 		data.SetView("post_view").WriteResponse(res)
 		return
 	}
-
 	// Validate user is logged in
 	if !user.LoggedIn {
 		data.Error = *(&Error{}).Consume(ErrorCommentPermissionDenied)
 		data.SetView("user_login_view").WriteResponse(res)
 		return
 	}
-
 	// Create post object
 	comment := Comment{
 		Body:   body,
 		UserId: user.Id,
 		PostId: post_id,
 	}
-
 	// Save post to database
 	commentId, err := addComment(comment)
 	if err != nil {
@@ -93,7 +89,6 @@ func createComment(res http.ResponseWriter, req *http.Request, user User) {
 		data.SetView("post_view").WriteResponse(res)
 		return
 	}
-
 	redirectURL := fmt.Sprintf("/post?id=%d#%d", post_id, commentId)
 	// Redirect to the post's page
 	http.Redirect(res, req, redirectURL, http.StatusSeeOther)

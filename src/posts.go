@@ -86,6 +86,10 @@ func showPost(res http.ResponseWriter, req *http.Request, user User) {
 		(&Error{}).Consume(err).LogAndRespondError(res, user)
 		return
 	}
+	for i := range comments {
+		comments[i].getReactions()
+		comments[i].getReactionsByUserId(user.Id)
+	}
 	post.Comments = comments
 	categories, err := getCategoriesByPostId(post.Id)
 	if err != nil {
@@ -199,7 +203,6 @@ func handlePostReaction(res http.ResponseWriter, req *http.Request, user User) {
 		(&Error{}).Consume(err).LogAndRespondError(res, user)
 		return
 	}
-
 	postIdStr := req.URL.Query().Get("id")
 	if len(postIdStr) == 0 {
 		(&Error{}).Consume(ErrorPostEmptyId).LogAndRespondError(res, user)
