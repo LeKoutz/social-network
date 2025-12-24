@@ -14,9 +14,9 @@ type Comment struct {
 	Body            string
 	Timestamp       int64
 	TimestampString string
-	Likes           int
+	Likes           int64
 	Liked           bool
-	Dislikes        int
+	Dislikes        int64
 	Disliked        bool
 	Username        string
 }
@@ -48,7 +48,6 @@ func ReturnMockComments() Comments {
 func createComment(res http.ResponseWriter, req *http.Request, user User) {
 	data := ResponseStruct{}
 	data.Init().SetUser(user)
-
 	// Parse form data
 	err := req.ParseForm()
 	if err != nil {

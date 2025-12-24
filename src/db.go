@@ -210,7 +210,7 @@ func getUserById(id int64) (User, error) {
 	return user, nil
 }
 
-func checkIfUserAlreadyLikedPost(userId, postId int64) (int64, error) {
+func checkIfUserLikedPost(userId, postId int64) (int64, error) {
 	var existingReactionId int64
 	err := DB.QueryRow(`
 		SELECT id FROM reactions
@@ -223,7 +223,7 @@ func checkIfUserAlreadyLikedPost(userId, postId int64) (int64, error) {
 	return existingReactionId, nil
 }
 
-func checkIfUserAlreadyDislikedPost(userId, postId int64) (int64, error) {
+func checkIfUserDislikedPost(userId, postId int64) (int64, error) {
 	var existingDislikeId int64
 	err := DB.QueryRow(`
 		SELECT id FROM reactions
@@ -280,7 +280,7 @@ func removeLikeFromPost(userId, postId int64) error {
 	return nil
 }
 
-func checkIfUserAlreadyLikedComment(userId, commentId int64) (int64, error) {
+func checkIfUserLikedComment(userId, commentId int64) (int64, error) {
 	var existingReactionId int64
 	err := DB.QueryRow(`
 		SELECT id FROM reactions
@@ -293,7 +293,7 @@ func checkIfUserAlreadyLikedComment(userId, commentId int64) (int64, error) {
 	return existingReactionId, nil
 }
 
-func checkIfUserAlreadyDislikedComment(userId, commentId int64) (int64, error) {
+func checkIfUserDislikedComment(userId, commentId int64) (int64, error) {
 	var existingDislikeId int64
 	err := DB.QueryRow(`
 		SELECT id FROM reactions
@@ -722,8 +722,8 @@ func getDislikesCountByPostId(postId int64) (int, error) {
 	return dislikes, nil
 }
 
-func getLikesCountByCommentId(commentId int) (int, error) {
-	var likes int
+func getLikesCountByCommentId(commentId int64) (int64, error) {
+	var likes int64
 	err := DB.QueryRow(`
         SELECT COUNT(*)
         FROM reactions
@@ -736,8 +736,8 @@ func getLikesCountByCommentId(commentId int) (int, error) {
 	return likes, nil
 }
 
-func getDisikesCountByCommentId(commentId int) (int, error) {
-	var dislikes int
+func getDislikesCountByCommentId(commentId int64) (int64, error) {
+	var dislikes int64
 	err := DB.QueryRow(`
         SELECT COUNT(*)
         FROM reactions
