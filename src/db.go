@@ -76,8 +76,8 @@ func createPostsTable() string {
 func createCategoriesTable() string {
 	return `CREATE TABLE IF NOT EXISTS "categories" (
 		"id"	INTEGER NOT NULL UNIQUE,
-		"name"	TEXT,
-		"description"	TEXT,
+		"name"	TEXT NOT NULL UNIQUE,
+		"description"	TEXT NOT NULL UNIQUE,
 		PRIMARY KEY("id" AUTOINCREMENT)
 	)`
 }
