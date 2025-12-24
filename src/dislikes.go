@@ -9,12 +9,12 @@ type Dislike struct {
 }
 
 func DoDislikePost(userId, postId int64) error {
-	alreadyDisliked, err := hasUserDislikedPost(userId, postId)
+	dislikeId, err := checkIfUserDislikedPost(userId, postId)
 	if err != nil {
 		return err
 	}
-	if alreadyDisliked {
-		return UndoDislike(userId, postId)
+	if dislikeId != 0 {
+		return removeDislikeFromPost(dislikeId)
 	}
 	existingLikeId, err := checkIfUserLikedPost(userId, postId)
 	if err != nil {
@@ -26,56 +26,26 @@ func DoDislikePost(userId, postId int64) error {
 			return err
 		}
 	}
-	err = addDislikeToPost(userId, postId)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func UndoDislike(userId, postId int64) error {
-	dislikeId, err := checkIfUserDislikedPost(userId, postId)
-	if err != nil {
-		return err
-	}
-	if dislikeId == 0 {
-		return nil
-	}
-	return removeDislikeFromPost(dislikeId)
+	return addDislikeToPost(userId, postId)
 }
 
 func DoDislikeComment(userId, commentId int64) error {
-	alreadyDisliked, err := hasUserDislikedComment(userId, commentId)
+	dislikeId, err := checkIfUserDislikedComment(userId, commentId)
 	if err != nil {
 		return err
 	}
-	if alreadyDisliked {
-		return UndoDislikeComment(userId, commentId)
+	if dislikeId != 0 {
+		return removeReaction(dislikeId)
 	}
 	existingLikeId, err := checkIfUserLikedComment(userId, commentId)
 	if err != nil {
 		return err
 	}
 	if existingLikeId != 0 {
-		err = removeLikeFromComment(userId, commentId)
+		err = removeReaction(existingLikeId)
 		if err != nil {
 			return err
 		}
 	}
-	err = addDislikeToComment(userId, commentId)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func UndoDislikeComment(userId, commentId int64) error {
-	dislikeId, err := checkIfUserDislikedComment(userId, commentId)
-	if err != nil {
-		return err
-	}
-	if dislikeId == 0 {
-		return nil
-	}
-	return removeDislikeFromComment(dislikeId)
+	return addDislikeToComment(userId, commentId)
 }

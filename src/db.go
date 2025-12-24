@@ -311,10 +311,7 @@ func addLikeToComment(userId, commentId int64) error {
 		INSERT INTO reactions (user_id, comment_id, value)
 		VALUES (?, ?, 1)
 		`, userId, commentId)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func addDislikeToComment(userId, commentId int64) error {
@@ -322,21 +319,7 @@ func addDislikeToComment(userId, commentId int64) error {
 		INSERT INTO reactions (user_id, comment_id, value)
 		VALUES (?, ?, 2)
 		`, userId, commentId)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func removeDislikeFromComment(dislikeId int64) error {
-	_, err := DB.Exec(`
-		DELETE FROM reactions
-		WHERE id = ?
-		`, dislikeId)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func removeLikeFromComment(userId, commentId int64) error {
@@ -344,10 +327,16 @@ func removeLikeFromComment(userId, commentId int64) error {
 		DELETE FROM reactions
 		WHERE user_id = ? AND comment_id = ? AND value = 1
 		`, userId, commentId)
-	if err != nil {
 		return err
-	}
-	return nil
+}
+
+
+func removeReaction(reactionId int64) error {
+	_, err := DB.Exec(`
+		DELETE FROM reactions
+		WHERE id = ?
+		`, reactionId)
+	return err
 }
 
 func setUserSession(id int64, session_key string) error {
@@ -433,10 +422,7 @@ func addCategory(category Category) error {
 		return err
 	}
 	_, err = stmt.Exec(category.Name, category.Description)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func getPostsByCategoryId(id int64) (Posts, error) {
