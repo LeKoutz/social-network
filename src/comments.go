@@ -118,19 +118,20 @@ func handleCommentReaction(res http.ResponseWriter, req *http.Request, user User
 		(&Error{}).Consume(ErrorCommentPermissionDenied).LogAndRespondError(res, user)
 		return
 	}
-	if req.FormValue("like") == "on" {
+	if req.FormValue("action") == "like" {
 		err = DoLikeComment(user.Id, commentId)
 		if err != nil {
 			(&Error{}).Consume(err).LogAndRespondError(res, user)
 			return
 		}
 	}
-	if req.FormValue("dislike") == "on" {
+	if req.FormValue("action") == "dislike" {
 		err = DoDislikeComment(user.Id, commentId)
 		if err != nil {
 			(&Error{}).Consume(err).LogAndRespondError(res, user)
 			return
 		}
 	}
-	http.Redirect(res, req, "/", http.StatusSeeOther)
+	postId := req.FormValue("post-id")
+	http.Redirect(res, req, "/post?id="+postId+"#"+commentIdStr, http.StatusSeeOther)
 }

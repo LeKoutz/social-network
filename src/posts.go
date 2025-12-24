@@ -222,29 +222,15 @@ func handlePostReaction(res http.ResponseWriter, req *http.Request, user User) {
 		(&Error{}).Consume(ErrorPostPermissionDenied).LogAndRespondError(res, user)
 		return
 	}
-	if req.FormValue("like") == "on" {
+	if req.FormValue("action") == "like" {
 		err = DoLike(user.Id, postId)
 		if err != nil {
 			(&Error{}).Consume(err).LogAndRespondError(res, user)
 			return
 		}
 	}
-	if req.FormValue("like") == "" {
-		err = UndoLike(user.Id, postId)
-		if err != nil {
-			(&Error{}).Consume(err).LogAndRespondError(res, user)
-			return
-		}
-	}
-	if req.FormValue("dislike") == "on" {
+	if req.FormValue("action") == "dislike" {
 		err = DoDislikePost(user.Id, postId)
-		if err != nil {
-			(&Error{}).Consume(err).LogAndRespondError(res, user)
-			return
-		}
-	}
-	if req.FormValue("dislike") == "" {
-		err = UndoDislike(user.Id, postId)
 		if err != nil {
 			(&Error{}).Consume(err).LogAndRespondError(res, user)
 			return
