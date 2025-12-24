@@ -133,7 +133,14 @@ func showPosts(res http.ResponseWriter, _ *http.Request, user User) {
 
 func createPostView(res http.ResponseWriter, _ *http.Request, user User) {
 	data := ResponseStruct{}
-	data.Init().SetUser(user).SetView("post_create_view").WriteResponse(res)
+	data.Init().SetUser(user)
+	categories, err := getAllCategories()
+	if err != nil {
+		(&Error{}).Consume(err).LogAndRespondError(res, user)
+		return
+	}
+	data.SetCategories(categories)
+	data.SetView("post_create_view").WriteResponse(res)
 }
 
 func createPost(res http.ResponseWriter, req *http.Request, user User) {
