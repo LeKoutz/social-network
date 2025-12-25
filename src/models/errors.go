@@ -1,4 +1,4 @@
-package forum
+package models
 
 import (
 	"errors"

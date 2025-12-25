@@ -1,7 +1,7 @@
-package forum
+package controllers
 
 import (
-	"slices"
+	"forum/src/models"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -10,42 +10,16 @@ func CompareRegistrationPasswords(pass1, pass2 string) bool {
 	return pass1 == pass2
 }
 
-func IsUniqueUsername(username string) bool {
-	usernames, err := getAllUsernames()
-	if err != nil {
-		var e Error
-		e.Consume(err)
-		e.LogError()
-		return false
-	}
-	return !slices.Contains(usernames, username)
-}
-
-func IsUniqueEmail(email string) bool {
-	emails, err := getAllUserEmails()
-	if err != nil {
-		var e Error
-		e.Consume(err)
-		e.LogError()
-		return false
-	}
-	return !slices.Contains(emails, email)
-}
-
-func IsEmailRegistered(email string) bool {
-	return !IsUniqueEmail(email)
-}
-
 func Auth(email, password string) error {
 	var err error
 	// I guess in order to authenticate against an email and a password, we will
 	// need to first check if email is registered
-	if !IsEmailRegistered(email) {
+	if !models.IsEmailRegistered(email) {
 		// Return an error... this should be sent back to umh... places...?!
-		return ErrorNotRegistered
+		return models.ErrorNotRegistered
 	}
-	var user User
-	user, err = getUserByEmail(email)
+	var user models.User
+	user, err = models.GetUserByEmail(email)
 	if err != nil {
 		return err
 	}

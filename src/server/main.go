@@ -1,7 +1,8 @@
-package forum
+package server
 
 import (
 	"fmt"
+	"forum/src/models"
 	"log"
 	"os"
 	"path/filepath"
@@ -29,7 +30,7 @@ func Main(args []string) {
 			i++
 		}
 	}
-	if err := InitDB(dbPath); err != nil {
+	if err := models.InitDB(dbPath); err != nil {
 		fmt.Printf("Error: %s\n", err.Error())
 		os.Exit(1)
 	}

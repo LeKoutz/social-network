@@ -1,6 +1,10 @@
-package forum
+package models
 
-import "net/http"
+import (
+	"forum/src"
+	"html/template"
+	"net/http"
+)
 
 type ResponseStruct struct {
 	WebsiteName string
@@ -15,11 +19,11 @@ func (r *ResponseStruct) WriteResponse(res http.ResponseWriter) {
 	if r.Error.StatusCode != 0 {
 		res.WriteHeader(r.Error.StatusCode)
 	}
-	respondView(res, r.View, *r)
+	respondView(res, *r)
 }
 
 func (r *ResponseStruct) Init() *ResponseStruct {
-	r.WebsiteName = WebsiteName
+	r.WebsiteName = forum.WebsiteName
 	return r
 }
 
@@ -51,4 +55,19 @@ func (r *ResponseStruct) SetCategories(categories Categories) *ResponseStruct {
 func (r *ResponseStruct) SetError(err Error) *ResponseStruct {
 	r.Error = err
 	return r
+}
+
+func respondView(res http.ResponseWriter, data ResponseStruct) {
+	var templatesDir string = "templates"
+	var tmpl *template.Template
+	tmpl, err := template.ParseGlob(templatesDir + "/*.html")
+	if err != nil {
+		(&Error{}).Consume(err).LogAndRespondError(res, data.User)
+		return
+	}
+	err = tmpl.ExecuteTemplate(res, data.View, data)
+	if err != nil {
+		(&Error{}).Consume(err).LogAndRespondError(res, data.User)
+		return
+	}
 }

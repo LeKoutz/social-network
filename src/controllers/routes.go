@@ -1,13 +1,15 @@
-package forum
+package controllers
 
 import (
+	"forum/src/models"
+	"forum/src/views"
 	"html/template"
 	"log"
 	"net/http"
 	"strings"
 )
 
-func getRoutes(res http.ResponseWriter, req *http.Request, user User) {
+func getRoutes(res http.ResponseWriter, req *http.Request, user models.User) {
 	switch {
 	case strings.HasPrefix(req.RequestURI, "/posts"):
 		showPosts(res, req, user)
@@ -16,11 +18,11 @@ func getRoutes(res http.ResponseWriter, req *http.Request, user User) {
 	case strings.HasPrefix(req.RequestURI, "/post"):
 		showPost(res, req, user)
 	case strings.HasPrefix(req.RequestURI, "/login"):
-		showLogin(res, req, user)
+		views.UserLogin(res, req, user)
 	case strings.HasPrefix(req.RequestURI, "/register"):
-		showRegister(res, req, user)
+		views.UserRegister(res, req, user)
 	case strings.HasPrefix(req.RequestURI, "/logout"):
-		showLogout(res, req, user)
+		views.UserLogout(res, req, user)
 	case strings.HasPrefix(req.RequestURI, "/categories"):
 		showCategories(res, req, user)
 	case strings.HasPrefix(req.RequestURI, "/category?id="):
@@ -30,13 +32,13 @@ func getRoutes(res http.ResponseWriter, req *http.Request, user User) {
 	case strings.HasPrefix(req.RequestURI, "/my/liked"):
 		showUserLikedPosts(res, user)
 	case strings.Compare(req.RequestURI, "/") == 0:
-		showIndex(res, req, user)
+		views.Index(res, req, user)
 	default:
-		(&Error{}).Consume(ErrorNotFound).LogAndRespondError(res, user)
+		(&models.Error{}).Consume(models.ErrorNotFound).LogAndRespondError(res, user)
 	}
 }
 
-func postRoutes(res http.ResponseWriter, req *http.Request, user User) {
+func postRoutes(res http.ResponseWriter, req *http.Request, user models.User) {
 	switch {
 	case strings.HasPrefix(req.RequestURI, "/post?action=create"):
 		createPost(res, req, user)
@@ -53,22 +55,22 @@ func postRoutes(res http.ResponseWriter, req *http.Request, user User) {
 	case strings.Compare(req.RequestURI, "/categories") == 0:
 		showCategories(res, req, user)
 	case strings.Compare(req.RequestURI, "/") == 0:
-		showIndex(res, req, user)
+		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(res, user)
 	default:
-		(&Error{}).Consume(ErrorNotFound).LogAndRespondError(res, user)
+		(&models.Error{}).Consume(models.ErrorNotFound).LogAndRespondError(res, user)
 	}
 }
 
-func routesHandler(res http.ResponseWriter, req *http.Request) {
+func RoutesHandler(res http.ResponseWriter, req *http.Request) {
 	log.Printf("Info: %s -> %s http://%s%s", req.RemoteAddr, req.Method, req.Host, req.RequestURI)
 	log.Printf("Cookies: %d", len(req.Cookies()))
 	var err error
-	var user User = GuestUser
+	var user models.User = models.GetGuestUser()
 	for _, cookie := range req.Cookies() {
 		if cookie.Name == "__Host-FRMSessionID" {
-			user, err = getUserBySession(cookie.Value)
+			user, err = models.GetUserBySession(cookie.Value)
 			if err != nil {
-				(&Error{}).Consume(err).LogError()
+				(&models.Error{}).Consume(err).LogError()
 				break
 			}
 			user.LoggedIn = true
@@ -80,7 +82,7 @@ func routesHandler(res http.ResponseWriter, req *http.Request) {
 	case http.MethodPost:
 		postRoutes(res, req, user)
 	default:
-		(&Error{}).Consume(ErrorMethodNotAllowed).LogAndRespondError(res, user)
+		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(res, user)
 	}
 }
 
@@ -92,7 +94,7 @@ func respondError(statusInt int, res http.ResponseWriter, _ string) {
 		log.Printf("Error: %s", err.Error())
 		return
 	}
-	err = index.ExecuteTemplate(res, "error_view", ReturnMockResponse())
+	err = index.ExecuteTemplate(res, "error_view", (&models.ResponseStruct{}).Init())
 	if err != nil {
 		log.Printf("Error: %s", err.Error())
 		return

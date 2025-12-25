@@ -1,57 +1,20 @@
-package forum
+package controllers
 
 import (
 	"fmt"
+	"forum/src/models"
 	"net/http"
 	"regexp"
 	"strconv"
 )
 
-type Comment struct {
-	Id              int64
-	PostId          int64
-	UserId          int64
-	Body            string
-	Timestamp       int64
-	TimestampString string
-	Likes           int64
-	Liked           bool
-	Dislikes        int64
-	Disliked        bool
-	Username        string
-}
-
-type Comments []Comment
-
-func (c *Comment) validateComment() error {
-	if len(c.Body) == 0 {
-		return ErrorCommentEmpty
-	}
-	if len(c.Body) > 1000 {
-		return ErrorCommentTooLong
-	}
-	return nil
-}
-
-func ReturnMockComments() Comments {
-	return Comments{
-		{
-			Id:       1,
-			Body:     "mpla mpla",
-			Likes:    2,
-			Disliked: true,
-			Dislikes: 1,
-		},
-	}
-}
-
-func createComment(res http.ResponseWriter, req *http.Request, user User) {
-	data := ResponseStruct{}
+func createComment(res http.ResponseWriter, req *http.Request, user models.User) {
+	data := models.ResponseStruct{}
 	data.Init().SetUser(user)
 	// Parse form data
 	err := req.ParseForm()
 	if err != nil {
-		data.Error = *(&Error{}).Consume(err)
+		data.Error = *(&models.Error{}).Consume(err)
 		data.SetView("user_register_view").WriteResponse(res)
 		return
 	}
@@ -60,31 +23,31 @@ func createComment(res http.ResponseWriter, req *http.Request, user User) {
 	postIdStr := req.FormValue("post_id")
 	ok, err := regexp.MatchString(`^\d+$`, postIdStr)
 	if !ok {
-		(&Error{}).Consume(ErrorInvalidPostId).LogAndRespondError(res, user)
+		(&models.Error{}).Consume(models.ErrorInvalidPostId).LogAndRespondError(res, user)
 		return
 	}
 	post_id, err := strconv.ParseInt(postIdStr, 10, 64)
 	if err != nil {
-		data.Error = *(&Error{}).Consume(err)
+		data.Error = *(&models.Error{}).Consume(err)
 		data.SetView("post_view").WriteResponse(res)
 		return
 	}
 	// Validate user is logged in
 	if !user.LoggedIn {
-		data.Error = *(&Error{}).Consume(ErrorCommentPermissionDenied)
+		data.Error = *(&models.Error{}).Consume(models.ErrorCommentPermissionDenied)
 		data.SetView("user_login_view").WriteResponse(res)
 		return
 	}
 	// Create post object
-	comment := Comment{
+	comment := models.Comment{
 		Body:   body,
 		UserId: user.Id,
 		PostId: post_id,
 	}
 	// Save post to database
-	commentId, err := addComment(comment)
+	commentId, err := models.AddComment(comment)
 	if err != nil {
-		data.Error = *(&Error{}).Consume(err)
+		data.Error = *(&models.Error{}).Consume(err)
 		data.SetView("post_view").WriteResponse(res)
 		return
 	}
@@ -93,42 +56,42 @@ func createComment(res http.ResponseWriter, req *http.Request, user User) {
 	http.Redirect(res, req, redirectURL, http.StatusSeeOther)
 }
 
-func handleCommentReaction(res http.ResponseWriter, req *http.Request, user User) {
+func handleCommentReaction(res http.ResponseWriter, req *http.Request, user models.User) {
 	err := req.ParseForm()
 	if err != nil {
-		(&Error{}).Consume(err).LogAndRespondError(res, user)
+		(&models.Error{}).Consume(err).LogAndRespondError(res, user)
 		return
 	}
 	commentIdStr := req.URL.Query().Get("id")
 	if len(commentIdStr) == 0 {
-		(&Error{}).Consume(ErrorCommentEmptyId).LogAndRespondError(res, user)
+		(&models.Error{}).Consume(models.ErrorCommentEmptyId).LogAndRespondError(res, user)
 		return
 	}
 	ok, err := regexp.MatchString(`^\d+$`, commentIdStr)
 	if !ok {
-		(&Error{}).Consume(ErrorInvalidCommentId).LogAndRespondError(res, user)
+		(&models.Error{}).Consume(models.ErrorInvalidCommentId).LogAndRespondError(res, user)
 		return
 	}
 	commentId, err := strconv.ParseInt(commentIdStr, 10, 64)
 	if err != nil {
-		(&Error{}).Consume(err).LogAndRespondError(res, user)
+		(&models.Error{}).Consume(err).LogAndRespondError(res, user)
 		return
 	}
 	if !user.LoggedIn {
-		(&Error{}).Consume(ErrorCommentPermissionDenied).LogAndRespondError(res, user)
+		(&models.Error{}).Consume(models.ErrorCommentPermissionDenied).LogAndRespondError(res, user)
 		return
 	}
 	if req.FormValue("action") == "like" {
 		err = DoLikeComment(user.Id, commentId)
 		if err != nil {
-			(&Error{}).Consume(err).LogAndRespondError(res, user)
+			(&models.Error{}).Consume(err).LogAndRespondError(res, user)
 			return
 		}
 	}
 	if req.FormValue("action") == "dislike" {
 		err = DoDislikeComment(user.Id, commentId)
 		if err != nil {
-			(&Error{}).Consume(err).LogAndRespondError(res, user)
+			(&models.Error{}).Consume(err).LogAndRespondError(res, user)
 			return
 		}
 	}
