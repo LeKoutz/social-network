@@ -14,7 +14,7 @@ func getRoutes(res http.ResponseWriter, req *http.Request, user models.User) {
 	case strings.HasPrefix(req.RequestURI, "/posts"):
 		showPosts(res, req, user)
 	case strings.HasPrefix(req.RequestURI, "/post?action=new"):
-		createPostView(res, req, user)
+		views.PostCreate(res, req, user)
 	case strings.HasPrefix(req.RequestURI, "/post"):
 		showPost(res, req, user)
 	case strings.HasPrefix(req.RequestURI, "/login"):
@@ -45,7 +45,7 @@ func postRoutes(res http.ResponseWriter, req *http.Request, user models.User) {
 	case strings.HasPrefix(req.RequestURI, "/user?action=login"):
 		attemptLogin(res, req, user)
 	case strings.HasPrefix(req.RequestURI, "/user?action=register"):
-		registerUser(res, req)
+		registerUser(res, req, user)
 	case strings.HasPrefix(req.RequestURI, "/comment?action=create&post_id="):
 		createComment(res, req, user)
 	case strings.HasPrefix(req.RequestURI, "/post"):

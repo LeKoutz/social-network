@@ -43,10 +43,7 @@ func AddLikeToPost(userId, postId int64) error {
 		INSERT INTO reactions (user_id, post_id, value)
 		VALUES (?, ?, 1)
 		`, userId, postId)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func RemoveDislikeFromPost(dislikeId int64) error {
@@ -54,10 +51,7 @@ func RemoveDislikeFromPost(dislikeId int64) error {
 		DELETE FROM reactions
 		WHERE id = ?
 		`, dislikeId)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func AddDislikeToPost(userId, postId int64) error {
@@ -65,10 +59,7 @@ func AddDislikeToPost(userId, postId int64) error {
 		INSERT INTO reactions (user_id, post_id, value)
 		VALUES (?, ?, 2)
 		`, userId, postId)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func RemoveLikeFromPost(userId, postId int64) error {
@@ -76,10 +67,7 @@ func RemoveLikeFromPost(userId, postId int64) error {
 		DELETE FROM reactions
 		WHERE user_id = ? AND post_id = ? AND value = 1
 		`, userId, postId)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func CheckIfUserLikedComment(userId, commentId int64) (int64, error) {

@@ -2,14 +2,6 @@ package controllers
 
 import "forum/src/models"
 
-type Likes []Like
-
-type Like struct {
-	PostId    int64
-	UserId    int64
-	CommentId int64
-}
-
 func DoLikePost(userId, postId int64) error {
 	alreadyLiked, err := models.HasUserLikedPost(userId, postId)
 	if err != nil {

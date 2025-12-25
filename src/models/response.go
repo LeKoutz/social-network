@@ -13,13 +13,15 @@ type ResponseStruct struct {
 	Posts       Posts
 	Categories  Categories
 	Error       Error
+	Request     *http.Request
+	Response    http.ResponseWriter
 }
 
-func (r *ResponseStruct) WriteResponse(res http.ResponseWriter) {
+func (r *ResponseStruct) WriteResponse() {
 	if r.Error.StatusCode != 0 {
-		res.WriteHeader(r.Error.StatusCode)
+		r.Response.WriteHeader(r.Error.StatusCode)
 	}
-	respondView(res, *r)
+	respondView(*r)
 }
 
 func (r *ResponseStruct) Init() *ResponseStruct {
@@ -57,17 +59,27 @@ func (r *ResponseStruct) SetError(err Error) *ResponseStruct {
 	return r
 }
 
-func respondView(res http.ResponseWriter, data ResponseStruct) {
+func (r *ResponseStruct) SetRequest(req *http.Request) *ResponseStruct {
+	r.Request = req
+	return r
+}
+
+func (r *ResponseStruct) SetResponse(res http.ResponseWriter) *ResponseStruct {
+	r.Response = res
+	return r
+}
+
+func respondView(data ResponseStruct) {
 	var templatesDir string = "templates"
 	var tmpl *template.Template
 	tmpl, err := template.ParseGlob(templatesDir + "/*.html")
 	if err != nil {
-		(&Error{}).Consume(err).LogAndRespondError(res, data.User)
+		(&Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	err = tmpl.ExecuteTemplate(res, data.View, data)
+	err = tmpl.ExecuteTemplate(data.Response, data.View, data)
 	if err != nil {
-		(&Error{}).Consume(err).LogAndRespondError(res, data.User)
+		(&Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
 }

@@ -1,11 +1,11 @@
 package views
 
 import (
-	"forum/src/models"
 	"net/http"
+	"forum/src/models"
 )
 
-func Index(res http.ResponseWriter, _ *http.Request, user models.User) {
+func PostCreate(res http.ResponseWriter, _ *http.Request, user models.User) {
 	data := models.ResponseStruct{}
 	data.Init().SetUser(user)
 	categories, err := models.GetAllCategories()
@@ -14,5 +14,5 @@ func Index(res http.ResponseWriter, _ *http.Request, user models.User) {
 		return
 	}
 	data.SetCategories(categories)
-	data.SetView("index_view").WriteResponse()
+	data.SetView("post_create_view").WriteResponse()
 }

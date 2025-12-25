@@ -2,14 +2,6 @@ package controllers
 
 import "forum/src/models"
 
-type Dislikes []Dislike
-
-type Dislike struct {
-	PostId    int64
-	UserId    int64
-	CommentId int64
-}
-
 func DoDislikePost(userId, postId int64) error {
 	dislikeId, err := models.CheckIfUserDislikedPost(userId, postId)
 	if err != nil {

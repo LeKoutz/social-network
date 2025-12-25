@@ -9,19 +9,19 @@ import (
 
 func showCategories(res http.ResponseWriter, _ *http.Request, user models.User) {
 	data := models.ResponseStruct{}
-	data.Init().SetUser(user)
+	data.Init().SetUser(user).SetResponse(res)
 	categories, err := models.GetAllCategories()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(res, user)
 		return
 	}
 	data.SetCategories(categories)
-	data.SetView("categories_view").WriteResponse(res)
+	data.SetView("categories_view").WriteResponse()
 }
 
 func showCategory(res http.ResponseWriter, req *http.Request, user models.User) {
 	data := models.ResponseStruct{}
-	data.Init().SetUser(user)
+	data.Init().SetUser(user).SetResponse(res)
 	id := req.URL.Query().Get("id")
 	if len(id) == 0 {
 		(&models.Error{}).Consume(models.ErrorCategoryEmptyId).LogAndRespondError(res, user)
@@ -62,5 +62,5 @@ func showCategory(res http.ResponseWriter, req *http.Request, user models.User) 
 		}
 	}
 	data.Posts = posts
-	data.SetPosts(posts).SetView("category_view").WriteResponse(res)
+	data.SetPosts(posts).SetView("category_view").WriteResponse()
 }

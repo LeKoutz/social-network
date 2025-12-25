@@ -134,36 +134,36 @@ func IsEmailRegistered(email string) bool {
 
 // Check if user already liked this post
 func HasUserLikedPost(userId, postId int64) (bool, error) {
-	existingReactionId, err := CheckIfUserLikedPost(userId, postId)
+	reactionId, err := CheckIfUserLikedPost(userId, postId)
 	if err != nil {
 		return false, err
 	}
-	return existingReactionId != 0, nil
+	return reactionId != 0, nil
 }
 
 // Check if user already disliked this post
 func HasUserDislikedPost(userId, postId int64) (bool, error) {
-	existingReactionId, err := CheckIfUserDislikedPost(userId, postId)
+	reactionId, err := CheckIfUserDislikedPost(userId, postId)
 	if err != nil {
 		return false, err
 	}
-	return existingReactionId != 0, nil
+	return reactionId != 0, nil
 }
 
 // Check if user already liked this comment
 func HasUserLikedComment(userId, commentId int64) (bool, error) {
-	existingReactionId, err := CheckIfUserLikedComment(userId, commentId)
+	reactionId, err := CheckIfUserLikedComment(userId, commentId)
 	if err != nil {
 		return false, err
 	}
-	return existingReactionId != 0, nil
+	return reactionId != 0, nil
 }
 
 // Check if user already disliked this comment
 func HasUserDislikedComment(userId, commentId int64) (bool, error) {
-	existingReactionId, err := CheckIfUserDislikedComment(userId, commentId)
+	reactionId, err := CheckIfUserDislikedComment(userId, commentId)
 	if err != nil {
 		return false, err
 	}
-	return existingReactionId != 0, nil
+	return reactionId != 0, nil
 }

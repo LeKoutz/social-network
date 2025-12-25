@@ -10,29 +10,30 @@ func UserLogout(res http.ResponseWriter, req *http.Request, _ models.User) {
 	GuestUser := models.GetGuestUser()
 	data := models.ResponseStruct{}
 	data.Init()
+	data.SetRequest(req).SetResponse(res)
 	cookie, err := req.Cookie("__Host-FRMSessionID")
 	if err != nil {
 		data.SetUser(GuestUser).SetError(*(&models.Error{}).Consume(err))
-		data.SetView("error_view").WriteResponse(res)
+		data.SetView("error_view").WriteResponse()
 		return
 	}
 	user, err := models.GetUserBySession(cookie.Value)
 	if err != nil {
 		data.SetUser(user)
 		data.SetError(*(&models.Error{}).Consume(err))
-		data.SetView("user_register_view").WriteResponse(res)
+		data.SetView("user_register_view").WriteResponse()
 		return
 	}
 	err = models.SetUserSession(user.Id, "")
 	if err != nil {
 		data.SetUser(user)
 		data.SetError(*(&models.Error{}).Consume(err))
-		data.SetView("user_register_view").WriteResponse(res)
+		data.SetView("user_register_view").WriteResponse()
 		return
 	}
 	http.SetCookie(res, nullifyCookie(cookie))
 	data.SetUser(GuestUser)
-	data.SetView("user_logout_view").WriteResponse(res)
+	data.SetView("user_logout_view").WriteResponse()
 }
 
 func nullifyCookie(cookie *http.Cookie) *http.Cookie {
@@ -45,4 +46,3 @@ func nullifyCookie(cookie *http.Cookie) *http.Cookie {
 	}
 	return cookie
 }
-

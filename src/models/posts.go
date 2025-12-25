@@ -65,4 +65,3 @@ func GetPostsByCategoryId(id int64) (Posts, error) {
 	}
 	return posts, nil
 }
-

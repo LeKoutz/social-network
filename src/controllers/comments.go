@@ -10,12 +10,12 @@ import (
 
 func createComment(res http.ResponseWriter, req *http.Request, user models.User) {
 	data := models.ResponseStruct{}
-	data.Init().SetUser(user)
+	data.Init().SetUser(user).SetResponse(res)
 	// Parse form data
 	err := req.ParseForm()
 	if err != nil {
 		data.Error = *(&models.Error{}).Consume(err)
-		data.SetView("user_register_view").WriteResponse(res)
+		data.SetView("user_register_view").WriteResponse()
 		return
 	}
 	// Get form values
@@ -29,13 +29,13 @@ func createComment(res http.ResponseWriter, req *http.Request, user models.User)
 	post_id, err := strconv.ParseInt(postIdStr, 10, 64)
 	if err != nil {
 		data.Error = *(&models.Error{}).Consume(err)
-		data.SetView("post_view").WriteResponse(res)
+		data.SetView("post_view").WriteResponse()
 		return
 	}
 	// Validate user is logged in
 	if !user.LoggedIn {
 		data.Error = *(&models.Error{}).Consume(models.ErrorCommentPermissionDenied)
-		data.SetView("user_login_view").WriteResponse(res)
+		data.SetView("user_login_view").WriteResponse()
 		return
 	}
 	// Create post object
@@ -48,7 +48,7 @@ func createComment(res http.ResponseWriter, req *http.Request, user models.User)
 	commentId, err := models.AddComment(comment)
 	if err != nil {
 		data.Error = *(&models.Error{}).Consume(err)
-		data.SetView("post_view").WriteResponse(res)
+		data.SetView("post_view").WriteResponse()
 		return
 	}
 	redirectURL := fmt.Sprintf("/post?id=%d#%d", post_id, commentId)

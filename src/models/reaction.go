@@ -7,4 +7,3 @@ func RemoveReaction(reactionId int64) error {
 		`, reactionId)
 	return err
 }
-

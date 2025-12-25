@@ -8,27 +8,9 @@ import (
 	"strconv"
 )
 
-// func returnMockPost(post_id int64) Posts {
-//	return Posts{
-//		{
-//			Id:        post_id,
-//			Title:     "something",
-//			Body:      "mpla mpla",
-//			Timestamp: time.Now().Unix(),
-//			Likes:     2,
-//			Dislikes:  1,
-//			Category: Category{
-//				Id:   1,
-//				Name: "various",
-//			},
-//			Comments: ReturnMockComments(),
-//		},
-//	}
-//}
-
 func showPost(res http.ResponseWriter, req *http.Request, user models.User) {
 	data := models.ResponseStruct{}
-	data.Init().SetUser(user)
+	data.Init().SetUser(user).SetResponse(res)
 	id := req.URL.Query().Get("id")
 	if len(id) == 0 {
 		(&models.Error{}).Consume(models.ErrorPostEmptyId).LogAndRespondError(res, user)
@@ -76,12 +58,12 @@ func showPost(res http.ResponseWriter, req *http.Request, user models.User) {
 		return
 	}
 	data.Posts = models.Posts{post}
-	data.SetView("post_view").WriteResponse(res)
+	data.SetView("post_view").WriteResponse()
 }
 
 func showPosts(res http.ResponseWriter, _ *http.Request, user models.User) {
 	data := models.ResponseStruct{}
-	data.Init()
+	data.Init().SetResponse(res)
 	posts, err := models.GetAllPosts()
 	if err != nil {
 		data.Error = *(&models.Error{}).Consume(err)
@@ -100,33 +82,21 @@ func showPosts(res http.ResponseWriter, _ *http.Request, user models.User) {
 			return
 		}
 	}
-	data.SetPosts(posts).SetUser(user).SetView("posts_view").WriteResponse(res)
-}
-
-func createPostView(res http.ResponseWriter, _ *http.Request, user models.User) {
-	data := models.ResponseStruct{}
-	data.Init().SetUser(user)
-	categories, err := models.GetAllCategories()
-	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(res, user)
-		return
-	}
-	data.SetCategories(categories)
-	data.SetView("post_create_view").WriteResponse(res)
+	data.SetPosts(posts).SetUser(user).SetView("posts_view").WriteResponse()
 }
 
 func createPost(res http.ResponseWriter, req *http.Request, user models.User) {
 	data := models.ResponseStruct{}
-	data.Init().SetUser(user)
+	data.Init().SetUser(user).SetResponse(res)
 	if !user.LoggedIn {
 		data.Error = *(&models.Error{}).Consume(models.ErrorPostPermissionDenied)
-		data.SetView("user_login_view").WriteResponse(res)
+		data.SetView("user_login_view").WriteResponse()
 		return
 	}
 	err := req.ParseForm()
 	if err != nil {
 		data.Error = *(&models.Error{}).Consume(err)
-		data.SetView("post_create_view").WriteResponse(res)
+		data.SetView("post_create_view").WriteResponse()
 		return
 	}
 	// Get form values
@@ -135,7 +105,7 @@ func createPost(res http.ResponseWriter, req *http.Request, user models.User) {
 	categories, err := models.GetAllCategories()
 	if err != nil {
 		data.Error = *(&models.Error{}).Consume(err)
-		data.SetView("post_create_view").WriteResponse(res)
+		data.SetView("post_create_view").WriteResponse()
 		return
 	}
 	var PostCategories models.Categories
@@ -154,7 +124,7 @@ func createPost(res http.ResponseWriter, req *http.Request, user models.User) {
 	postId, err := models.AddPost(post)
 	if err != nil {
 		data.Error = *(&models.Error{}).Consume(err)
-		data.SetView("post_create_view").WriteResponse(res)
+		data.SetView("post_create_view").WriteResponse()
 		return
 	}
 	redirectURL := fmt.Sprintf("/post?id=%d", postId)
