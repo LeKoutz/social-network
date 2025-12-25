@@ -9,55 +9,55 @@ import (
 	"strings"
 )
 
-func getRoutes(res http.ResponseWriter, req *http.Request, user models.User) {
+func getRoutes(data models.ResponseStruct) {
 	switch {
-	case strings.HasPrefix(req.RequestURI, "/posts"):
-		showPosts(res, req, user)
-	case strings.HasPrefix(req.RequestURI, "/post?action=new"):
-		views.PostCreate(res, req, user)
-	case strings.HasPrefix(req.RequestURI, "/post"):
-		showPost(res, req, user)
-	case strings.HasPrefix(req.RequestURI, "/login"):
-		views.UserLogin(res, req, user)
-	case strings.HasPrefix(req.RequestURI, "/register"):
-		views.UserRegister(res, req, user)
-	case strings.HasPrefix(req.RequestURI, "/logout"):
-		views.UserLogout(res, req, user)
-	case strings.HasPrefix(req.RequestURI, "/categories"):
-		showCategories(res, req, user)
-	case strings.HasPrefix(req.RequestURI, "/category?id="):
-		showCategory(res, req, user)
-	case strings.HasPrefix(req.RequestURI, "/my/posts"):
-		showUserPosts(res, user)
-	case strings.HasPrefix(req.RequestURI, "/my/liked"):
-		showUserLikedPosts(res, user)
-	case strings.Compare(req.RequestURI, "/") == 0:
-		Index(res, req, user)
+	case strings.HasPrefix(data.Request.RequestURI, "/posts"):
+		showPosts(data)
+	case strings.HasPrefix(data.Request.RequestURI, "/post?action=new"):
+		views.PostCreate(data)
+	case strings.HasPrefix(data.Request.RequestURI, "/post"):
+		showPost(data)
+	case strings.HasPrefix(data.Request.RequestURI, "/login"):
+		userLogin(data)
+	case strings.HasPrefix(data.Request.RequestURI, "/register"):
+		views.UserRegister(data)
+	case strings.HasPrefix(data.Request.RequestURI, "/logout"):
+		views.UserLogout(data)
+	case strings.HasPrefix(data.Request.RequestURI, "/categories"):
+		showCategories(data)
+	case strings.HasPrefix(data.Request.RequestURI, "/category?id="):
+		showCategory(data)
+	case strings.HasPrefix(data.Request.RequestURI, "/my/posts"):
+		showUserPosts(data)
+	case strings.HasPrefix(data.Request.RequestURI, "/my/liked"):
+		showUserLikedPosts(data)
+	case strings.Compare(data.Request.RequestURI, "/") == 0:
+		Index(data)
 	default:
-		(&models.Error{}).Consume(models.ErrorNotFound).LogAndRespondError(res, user)
+		(&models.Error{}).Consume(models.ErrorNotFound).LogAndRespondError(data.Response, data.User)
 	}
 }
 
-func postRoutes(res http.ResponseWriter, req *http.Request, user models.User) {
+func postRoutes(data models.ResponseStruct) {
 	switch {
-	case strings.HasPrefix(req.RequestURI, "/post?action=create"):
-		createPost(res, req, user)
-	case strings.HasPrefix(req.RequestURI, "/user?action=login"):
-		attemptLogin(res, req, user)
-	case strings.HasPrefix(req.RequestURI, "/user?action=register"):
-		registerUser(res, req, user)
-	case strings.HasPrefix(req.RequestURI, "/comment?action=create&post_id="):
-		createComment(res, req, user)
-	case strings.HasPrefix(req.RequestURI, "/post"):
-		handlePostReaction(res, req, user)
-	case strings.HasPrefix(req.RequestURI, "/comment"):
-		handleCommentReaction(res, req, user)
-	case strings.Compare(req.RequestURI, "/categories") == 0:
-		showCategories(res, req, user)
-	case strings.Compare(req.RequestURI, "/") == 0:
-		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(res, user)
+	case strings.HasPrefix(data.Request.RequestURI, "/post?action=create"):
+		createPost(data)
+	case strings.HasPrefix(data.Request.RequestURI, "/user?action=login"):
+		attemptLogin(data)
+	case strings.HasPrefix(data.Request.RequestURI, "/user?action=register"):
+		registerUser(data)
+	case strings.HasPrefix(data.Request.RequestURI, "/comment?action=create&post_id="):
+		createComment(data)
+	case strings.HasPrefix(data.Request.RequestURI, "/post"):
+		handlePostReaction(data)
+	case strings.HasPrefix(data.Request.RequestURI, "/comment"):
+		handleCommentReaction(data)
+	case strings.Compare(data.Request.RequestURI, "/categories") == 0:
+		showCategories(data)
+	case strings.Compare(data.Request.RequestURI, "/") == 0:
+		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
 	default:
-		(&models.Error{}).Consume(models.ErrorNotFound).LogAndRespondError(res, user)
+		(&models.Error{}).Consume(models.ErrorNotFound).LogAndRespondError(data.Response, data.User)
 	}
 }
 
@@ -76,13 +76,15 @@ func RoutesHandler(res http.ResponseWriter, req *http.Request) {
 			user.LoggedIn = true
 		}
 	}
+	data := models.ResponseStruct{}
+	data.Init().SetResponse(res).SetRequest(req).SetUser(user)
 	switch req.Method {
 	case http.MethodGet:
-		getRoutes(res, req, user)
+		getRoutes(data)
 	case http.MethodPost:
-		postRoutes(res, req, user)
+		postRoutes(data)
 	default:
-		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(res, user)
+		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
 	}
 }
 

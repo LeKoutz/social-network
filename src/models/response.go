@@ -59,6 +59,11 @@ func (r *ResponseStruct) SetError(err Error) *ResponseStruct {
 	return r
 }
 
+func (r *ResponseStruct) SetErrorConsume(err error) *ResponseStruct {
+	r.Error = *(&Error{}).Consume(err)
+	return r
+}
+
 func (r *ResponseStruct) SetRequest(req *http.Request) *ResponseStruct {
 	r.Request = req
 	return r

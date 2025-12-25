@@ -6,12 +6,9 @@ import (
 	"time"
 )
 
-func UserLogout(res http.ResponseWriter, req *http.Request, _ models.User) {
+func UserLogout(data models.ResponseStruct) {
 	GuestUser := models.GetGuestUser()
-	data := models.ResponseStruct{}
-	data.Init()
-	data.SetRequest(req).SetResponse(res)
-	cookie, err := req.Cookie("__Host-FRMSessionID")
+	cookie, err := data.Request.Cookie("__Host-FRMSessionID")
 	if err != nil {
 		data.SetUser(GuestUser).SetError(*(&models.Error{}).Consume(err))
 		data.SetView("error_view").WriteResponse()
@@ -31,7 +28,7 @@ func UserLogout(res http.ResponseWriter, req *http.Request, _ models.User) {
 		data.SetView("user_register_view").WriteResponse()
 		return
 	}
-	http.SetCookie(res, nullifyCookie(cookie))
+	http.SetCookie(data.Response, nullifyCookie(cookie))
 	data.SetUser(GuestUser)
 	data.SetView("user_logout_view").WriteResponse()
 }

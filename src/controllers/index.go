@@ -3,15 +3,12 @@ package controllers
 import (
 	"forum/src/models"
 	"forum/src/views"
-	"net/http"
 )
 
-func Index(res http.ResponseWriter, req *http.Request, user models.User) {
-	data := models.ResponseStruct{}
-	data.Init().SetUser(user).SetResponse(res).SetRequest(req)
+func Index(data models.ResponseStruct) {
 	categories, err := models.GetAllCategories()
 	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(res, user)
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
 	data.SetCategories(categories)

@@ -1,16 +1,13 @@
 package views
 
 import (
-	"net/http"
 	"forum/src/models"
 )
 
-func PostCreate(res http.ResponseWriter, _ *http.Request, user models.User) {
-	data := models.ResponseStruct{}
-	data.Init().SetUser(user)
+func PostCreate(data models.ResponseStruct) {
 	categories, err := models.GetAllCategories()
 	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(res, user)
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
 	data.SetCategories(categories)

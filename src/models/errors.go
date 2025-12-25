@@ -16,6 +16,7 @@ var (
 	ErrorWrongPassword           = errors.New("Wrong password")
 	ErrorWeakPassword            = errors.New("Weak password. Use lower and upper case letters, symbols and number. Length must be between 10-16 characters.")
 	ErrorPasswordMismatch        = errors.New("Password mismatch")
+	ErrorAlreadyLoggedIn         = errors.New("Already logged in.")
 	ErrorNotFound                = errors.New("Not found")
 	ErrorPostEmptyId             = errors.New("Post ID can't be empty.")
 	ErrorInvalidPostId           = errors.New("Invalid post ID")

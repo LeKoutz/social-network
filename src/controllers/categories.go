@@ -2,62 +2,58 @@ package controllers
 
 import (
 	"forum/src/models"
-	"net/http"
+	"forum/src/views"
 	"regexp"
 	"strconv"
 )
 
-func showCategories(res http.ResponseWriter, _ *http.Request, user models.User) {
-	data := models.ResponseStruct{}
-	data.Init().SetUser(user).SetResponse(res)
+func showCategories(data models.ResponseStruct) {
 	categories, err := models.GetAllCategories()
 	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(res, user)
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
 	data.SetCategories(categories)
-	data.SetView("categories_view").WriteResponse()
+	views.Categories(data)
 }
 
-func showCategory(res http.ResponseWriter, req *http.Request, user models.User) {
-	data := models.ResponseStruct{}
-	data.Init().SetUser(user).SetResponse(res)
-	id := req.URL.Query().Get("id")
+func showCategory(data models.ResponseStruct) {
+	id := data.Request.URL.Query().Get("id")
 	if len(id) == 0 {
-		(&models.Error{}).Consume(models.ErrorCategoryEmptyId).LogAndRespondError(res, user)
+		(&models.Error{}).Consume(models.ErrorCategoryEmptyId).LogAndRespondError(data.Response, data.User)
 		return
 	}
 	ok, err := regexp.MatchString(`^\d+$`, id)
 	if !ok {
-		(&models.Error{}).Consume(models.ErrorInvalidCategoryId).LogAndRespondError(res, user)
+		(&models.Error{}).Consume(models.ErrorInvalidCategoryId).LogAndRespondError(data.Response, data.User)
 		return
 	}
 	id_int, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(res, user)
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
 	category, err := models.GetCategoryById(id_int)
 	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(res, user)
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
 	data.Categories = models.Categories{}
 	data.Categories = append(data.Categories, category)
 	posts, err := models.GetPostsByCategoryId(id_int)
 	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(res, user)
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
 	for i := range posts {
 		err = posts[i].GetReactions()
 		if err != nil {
-			(&models.Error{}).Consume(err).LogAndRespondError(res, user)
+			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
 		}
-		err = posts[i].GetReactionsByUserId(user.Id)
+		err = posts[i].GetReactionsByUserId(data.User.Id)
 		if err != nil {
-			(&models.Error{}).Consume(err).LogAndRespondError(res, user)
+			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
 		}
 	}
