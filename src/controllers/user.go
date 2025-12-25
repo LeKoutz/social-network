@@ -124,13 +124,13 @@ func registerUser(res http.ResponseWriter, req *http.Request, user models.User) 
 		data.SetView("user_register_view").WriteResponse()
 		return
 	}
-	if err = Auth(user.Email, password); err != nil {
-		data.SetUser(user).SetError(*(&models.Error{}).Consume(err))
-		data.SetView("user_register_view").WriteResponse()
-		return
-	}
+	// if err = Auth(user.Email, password); err != nil {
+	// 	data.SetUser(user).SetError(*(&models.Error{}).Consume(err))
+	// 	data.SetView("user_register_view").WriteResponse()
+	// 	return
+	// }
 	// user.LoggedIn = true
-	views.Index(res, req, user)
+	views.Index(data)
 }
 
 // Strong password validation. Makes sure the password is in between 10-16

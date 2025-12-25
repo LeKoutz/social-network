@@ -35,8 +35,9 @@ func (p *Post) ValidatePost() error {
 	return nil
 }
 
-func AddPost(post Post) (int64, error) {
-	err := post.ValidatePost()
+// Adds a Post in the database. Returns its id or error
+func (p *Post) Add() (int64, error) {
+	err := p.ValidatePost()
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return 0, err
@@ -46,7 +47,7 @@ func AddPost(post Post) (int64, error) {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return 0, err
 	}
-	res, err := stmt.Exec(post.Title, post.Body, post.UserId, utils.GetCurrentTimestamp())
+	res, err := stmt.Exec(p.Title, p.Body, p.UserId, utils.GetCurrentTimestamp())
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return 0, err
@@ -56,8 +57,8 @@ func AddPost(post Post) (int64, error) {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return 0, err
 	}
-	for _, category := range post.Categories {
-		err = AddCategoryToPost(postId, category.Id)
+	for _, category := range p.Categories {
+		err = p.AddCategory(category)
 		if err != nil {
 			err = errors.Join(utils.GetFunctionName(), err)
 			return 0, err
@@ -66,27 +67,29 @@ func AddPost(post Post) (int64, error) {
 	return postId, nil
 }
 
-func GetPostById(id int64) (Post, error) {
-	var post Post
+func (p *Post) AddCategory(category Category) error {
+	return AddCategoryToPost(p.Id, category.Id)
+}
+
+func (p *Post) GetById() error {
 	var ts string
-	err := DB.QueryRow(`SELECT title, body, timestamp, user_id FROM posts WHERE id = ?`, id).Scan(&post.Title, &post.Body, &ts, &post.UserId)
+	err := DB.QueryRow(`SELECT title, body, timestamp, user_id FROM posts WHERE id = ?`, p.Id).Scan(&p.Title, &p.Body, &ts, &p.UserId)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
-		return Post{}, err
+		return err
 	}
 	t, err := utils.ConvertStringToTime(ts)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
-		return Post{}, err
+		return err
 	}
-	post.TimestampString = utils.ConvertTimeToString(t)
-	post.Id = id
-	post.User, err = getUserById(post.UserId)
+	p.TimestampString = utils.ConvertTimeToString(t)
+	p.User, err = getUserById(p.UserId)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
-		return Post{}, err
+		return err
 	}
-	return post, nil
+	return nil
 }
 
 func (p *Post) GetReactions() error {

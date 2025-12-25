@@ -26,7 +26,9 @@ func showPost(res http.ResponseWriter, req *http.Request, user models.User) {
 		(&models.Error{}).Consume(err).LogAndRespondError(res, user)
 		return
 	}
-	post, err := models.GetPostById(id_int)
+	var post models.Post
+	post.Id = id_int
+	err = post.GetById()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(res, user)
 		return
@@ -121,7 +123,7 @@ func createPost(res http.ResponseWriter, req *http.Request, user models.User) {
 		UserId:     user.Id,
 		Categories: PostCategories,
 	}
-	postId, err := models.AddPost(post)
+	postId, err := post.Add()
 	if err != nil {
 		data.Error = *(&models.Error{}).Consume(err)
 		data.SetView("post_create_view").WriteResponse()

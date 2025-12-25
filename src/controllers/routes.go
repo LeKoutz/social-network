@@ -32,7 +32,7 @@ func getRoutes(res http.ResponseWriter, req *http.Request, user models.User) {
 	case strings.HasPrefix(req.RequestURI, "/my/liked"):
 		showUserLikedPosts(res, user)
 	case strings.Compare(req.RequestURI, "/") == 0:
-		views.Index(res, req, user)
+		Index(res, req, user)
 	default:
 		(&models.Error{}).Consume(models.ErrorNotFound).LogAndRespondError(res, user)
 	}
