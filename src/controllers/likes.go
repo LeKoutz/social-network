@@ -15,7 +15,9 @@ func DoLikePost(userId, postId int64) error {
 		return err
 	}
 	if existingDislikeId != 0 {
-		return models.RemoveReaction(existingDislikeId)
+		if err = models.RemoveReaction(existingDislikeId); err != nil {
+			return err
+		}
 	}
 	return models.AddLikeToPost(userId, postId)
 }
@@ -33,7 +35,9 @@ func DoLikeComment(userId, commentId int64) error {
 		return err
 	}
 	if existingDislikeId != 0 {
-		return models.RemoveReaction(existingDislikeId)
+		if err = models.RemoveReaction(existingDislikeId); err != nil {
+			return err
+		}
 	}
 	return models.AddLikeToComment(userId, commentId)
 }
