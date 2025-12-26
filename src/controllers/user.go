@@ -85,7 +85,8 @@ func attemptLogin(data models.ResponseStruct) {
 
 func registerUser(data models.ResponseStruct) {
 	if data.User.LoggedIn {
-		(&models.Error{}).Consume(models.ErrorBadRequest).LogAndRespondError(data.Response, data.User)
+		Index(*data.SetErrorConsume(models.ErrorAlreadyLoggedIn))
+		return
 	}
 	var err error
 	// var user models.User
