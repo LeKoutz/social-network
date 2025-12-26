@@ -29,16 +29,16 @@ func (c *Comment) ValidateComment() error {
 	return nil
 }
 
-func AddComment(comment Comment) (int64, error) {
-	if err := comment.ValidateComment(); err != nil {
+func (c *Comment) Add() (int64, error) {
+	if err := c.ValidateComment(); err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return 0, err
 	}
 	res, err := DB.Exec(
 		"INSERT INTO comments (post_id, user_id, body, timestamp) VALUES (?, ?, ?, ?)",
-		comment.PostId,
-		comment.UserId,
-		comment.Body,
+		c.PostId,
+		c.UserId,
+		c.Body,
 		utils.GetCurrentTimestamp(),
 	)
 	commentId, err := res.LastInsertId()

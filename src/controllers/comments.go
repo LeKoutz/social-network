@@ -43,7 +43,7 @@ func createComment(data models.ResponseStruct) {
 		PostId: post_id,
 	}
 	// Save post to database
-	commentId, err := models.AddComment(comment)
+	commentId, err := comment.Add()
 	if err != nil {
 		data.Error = *(&models.Error{}).Consume(err)
 		data.SetView("post_view").WriteResponse()
