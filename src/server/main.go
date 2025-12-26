@@ -21,9 +21,8 @@ func Main(args []string) {
 	// maybe initialize something first if needed...
 	// for example the database?!?!
 	// maybe that could be a flag...
-	var dbPath string = "./data/db.db"
+	var dbPath string = "./db.db"
 	var ip, port string
-
 	for i := 1; i < len(args); i++ {
 		if args[i] == "--db-path" && i+1 < len(args) {
 			dbPath = args[i+1]
@@ -36,7 +35,6 @@ func Main(args []string) {
 	}
 	// e.g. --init
 	// in case the flag is not passed, the auto intialization could be triggered
-
 	var positionalArgs []string
 	for i := 1; i < len(args); i++ {
 		if args[i] == "--db-path" {
