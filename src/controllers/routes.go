@@ -3,7 +3,6 @@ package controllers
 import (
 	"forum/src/models"
 	"forum/src/views"
-	"html/template"
 	"log"
 	"net/http"
 	"strings"
@@ -85,20 +84,5 @@ func RoutesHandler(res http.ResponseWriter, req *http.Request) {
 		postRoutes(data)
 	default:
 		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
-	}
-}
-
-func respondError(statusInt int, res http.ResponseWriter, _ string) {
-	var templatesDir string = "templates"
-	var index *template.Template
-	index, err := template.ParseGlob(templatesDir + "/*.html")
-	if err != nil {
-		log.Printf("Error: %s", err.Error())
-		return
-	}
-	err = index.ExecuteTemplate(res, "error_view", (&models.ResponseStruct{}).Init())
-	if err != nil {
-		log.Printf("Error: %s", err.Error())
-		return
 	}
 }
