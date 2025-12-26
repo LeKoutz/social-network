@@ -21,7 +21,7 @@ func getRoutes(data models.ResponseStruct) {
 	case strings.HasPrefix(data.Request.RequestURI, "/register"):
 		views.UserRegister(data)
 	case strings.HasPrefix(data.Request.RequestURI, "/logout"):
-		views.UserLogout(data)
+		userLogout(data)
 	case strings.HasPrefix(data.Request.RequestURI, "/categories"):
 		showCategories(data)
 	case strings.HasPrefix(data.Request.RequestURI, "/category?id="):

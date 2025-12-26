@@ -5,6 +5,7 @@ import (
 	"forum/src/views"
 	"net/http"
 	"regexp"
+	"time"
 
 	"github.com/gofrs/uuid"
 )
@@ -23,6 +24,48 @@ func userLogin(data models.ResponseStruct) {
 		return
 	}
 	views.UserLogin(data)
+}
+
+func userLogout(data models.ResponseStruct) {
+	if data.Request.Method != http.MethodGet {
+		data.SetErrorConsume(models.ErrorMethodNotAllowed).WriteResponse()
+		return
+	}
+	GuestUser := models.GetGuestUser()
+	cookie, err := data.Request.Cookie("__Host-FRMSessionID")
+	if err != nil {
+		data.SetUser(GuestUser).SetErrorConsume(err)
+		data.SetView("error_view").WriteResponse()
+		return
+	}
+	user, err := models.GetUserBySession(cookie.Value)
+	if err != nil {
+		data.SetUser(user)
+		data.SetErrorConsume(err)
+		data.SetView("user_register_view").WriteResponse()
+		return
+	}
+	err = models.SetUserSession(user.Id, "")
+	if err != nil {
+		data.SetUser(user)
+		data.SetErrorConsume(err)
+		data.SetView("user_register_view").WriteResponse()
+		return
+	}
+	http.SetCookie(data.Response, nullifyCookie(cookie))
+	data.SetUser(GuestUser)
+	views.UserLogout(data)
+}
+
+func nullifyCookie(cookie *http.Cookie) *http.Cookie {
+	cookie = &http.Cookie{
+		Name:     "__Host-FRMSessionID",
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Unix(0, 0),
+		HttpOnly: true,
+	}
+	return cookie
 }
 
 func attemptLogin(data models.ResponseStruct) {
