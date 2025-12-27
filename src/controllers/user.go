@@ -123,7 +123,7 @@ func attemptLogin(data models.ResponseStruct) {
 		SameSite: http.SameSite(http.SameSiteStrictMode),
 	}
 	http.SetCookie(data.Response, cookie)
-	data.SetView("index_view").WriteResponse()
+	Index(data)
 }
 
 func registerUser(data models.ResponseStruct) {
@@ -178,7 +178,7 @@ func registerUser(data models.ResponseStruct) {
 	// 	return
 	// }
 	// user.LoggedIn = true
-	views.Index(data)
+	Index(data)
 }
 
 // Strong password validation. Makes sure the password is in between 10-16
