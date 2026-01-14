@@ -148,7 +148,7 @@ func attemptLogin(data models.ResponseStruct) {
 		SameSite: http.SameSite(http.SameSiteStrictMode),
 	}
 	http.SetCookie(data.Response, cookie)
-	Index(data)
+	http.Redirect(data.Response, data.Request, "/", http.StatusSeeOther)
 }
 
 func userRegister(data models.ResponseStruct) {
