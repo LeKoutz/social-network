@@ -40,15 +40,14 @@ func userLogin(data models.ResponseStruct) {
 		Index(*data.SetErrorConsume(models.ErrorAlreadyLoggedIn))
 		return
 	}
-	if data.Request.Method == http.MethodPost {
+	switch data.Request.Method {
+	case http.MethodPost:
 		attemptLogin(data)
-		return
-	}
-	if data.Request.Method != http.MethodGet {
+	case http.MethodGet:
+		views.UserLogin(data)
+	default:
 		data.SetErrorConsume(models.ErrorMethodNotAllowed).WriteResponse()
-		return
 	}
-	views.UserLogin(data)
 }
 
 func userLogout(data models.ResponseStruct) {
@@ -156,12 +155,20 @@ func userRegister(data models.ResponseStruct) {
 		Index(*data.SetErrorConsume(models.ErrorAlreadyLoggedIn))
 		return
 	}
-	if data.Request.Method == http.MethodGet {
+	switch data.Request.Method {
+	case http.MethodGet:
 		views.UserRegister(data)
 		return
-	}
-	if data.Request.Method != http.MethodPost {
+	case http.MethodPost:
+		attemptRegister(data)
+		return
+	default:
 		data.SetErrorConsume(models.ErrorMethodNotAllowed).WriteResponse()
+	}
+}
+
+func attemptRegister(data models.ResponseStruct) {
+	if data.Request.Method != http.MethodPost {
 		return
 	}
 	var err error
