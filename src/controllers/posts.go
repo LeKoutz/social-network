@@ -11,9 +11,8 @@ import (
 )
 
 func showPost(data models.ResponseStruct) {
-	// var str string = data.Request.RequestURI
-	id := data.Request.URL.Query().Get("id")
-	if len(id) == 0 {
+	id, ok := strings.CutPrefix(data.Request.RequestURI, "/post/view/")
+	if !ok || len(id) == 0 {
 		(&models.Error{}).Consume(models.ErrorPostEmptyId).LogAndRespondError(data.Response, data.User)
 		return
 	}
