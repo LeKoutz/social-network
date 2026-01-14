@@ -15,6 +15,7 @@ type ResponseStruct struct {
 	Error       Error
 	Request     *http.Request
 	Response    http.ResponseWriter
+	Message     Message
 }
 
 func (r *ResponseStruct) WriteResponse() {

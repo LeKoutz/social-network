@@ -6,6 +6,9 @@ import (
 )
 
 func startServer(ip, port string) error {
-	http.HandleFunc("/", controllers.RoutesHandler)
-	return http.ListenAndServe(ip+":"+port, nil)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", controllers.RoutesHandler)
+	// controllers.RegisterRoutes(mux)
+	// controllers.Middleware(mux)
+	return http.ListenAndServe(ip+":"+port, mux)
 }

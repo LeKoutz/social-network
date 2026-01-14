@@ -12,7 +12,8 @@
         <em>{{.TimestampString}}</em>
         <pre>{{.Body}}</pre>
         <div class="reactions">
-            <form method="POST" action="/post?id={{.Id}}">
+            <form method="POST" action="/post/{{.Id}}/react">
+                <input type="hidden" name="post-id" value="{{.Id}}"/>
                 <button type="sumbit"
                         id="likes"
                         name="action"
@@ -20,7 +21,8 @@
                         {{if not $.User.LoggedIn }}disabled{{end}}
                         >{{.Likes}} {{if .Liked}}👍{{else}}👍🏻{{end}}</button>
             </form>
-            <form method="POST" action="/post?id={{.Id}}">
+            <form method="POST" action="/post/{{.Id}}/react">
+                <input type="hidden" name="post-id" value="{{.Id}}"/>
                 <button type="sumbit"
                         name="action"
                         value="dislike"

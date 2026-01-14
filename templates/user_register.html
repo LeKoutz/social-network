@@ -5,9 +5,13 @@
 {{template "error" .}}
 {{end}}
 <div class="container">
-    <form method="POST" action="/user?action=register">
+    <form method="POST" action="/register">
         <fieldset>
             <legend>User Registration</legend>
+            <input
+                    type="hidden"
+                    name="action"
+                    value="register"/>
             <input
                     placeholder="Email"
                     type="email"

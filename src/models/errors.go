@@ -37,6 +37,7 @@ var (
 	ErrorUnauthorizedAction      = errors.New("Unauthorized action.")
 	ErrorMethodNotAllowed        = errors.New("Method not allowed.")
 	ErrorBadRequest              = errors.New("Bad request.")
+	ErrorUnknownAction           = errors.New("Unknown action requested.")
 )
 
 type Error struct {

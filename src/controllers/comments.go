@@ -9,13 +9,13 @@ import (
 )
 
 func createComment(data models.ResponseStruct) {
-	// Parse form data
-	err := data.Request.ParseForm()
-	if err != nil {
-		data.Error = *(&models.Error{}).Consume(err)
-		data.SetView("user_register_view").WriteResponse()
+	// Validate user is logged in
+	if !data.User.LoggedIn {
+		data.Error = *(&models.Error{}).Consume(models.ErrorCommentPermissionDenied)
+		data.SetView("user_login_view").WriteResponse()
 		return
 	}
+	// Parse form data
 	// Get form values
 	body := data.Request.FormValue("comment")
 	postIdStr := data.Request.FormValue("post_id")
@@ -28,12 +28,6 @@ func createComment(data models.ResponseStruct) {
 	if err != nil {
 		data.Error = *(&models.Error{}).Consume(err)
 		data.SetView("post_view").WriteResponse()
-		return
-	}
-	// Validate user is logged in
-	if !data.User.LoggedIn {
-		data.Error = *(&models.Error{}).Consume(models.ErrorCommentPermissionDenied)
-		data.SetView("user_login_view").WriteResponse()
 		return
 	}
 	// Create post object
@@ -54,13 +48,37 @@ func createComment(data models.ResponseStruct) {
 	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
 }
 
+func handleComment(data models.ResponseStruct) {
+	if data.Request.Method != http.MethodPost {
+		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	err := data.Request.ParseForm()
+	if err != nil {
+		data.Error = *(&models.Error{}).Consume(err)
+		data.SetView("error_view").WriteResponse()
+		return
+	}
+	action := data.Request.FormValue("action")
+	switch action {
+	case "like", "dislike":
+		handleCommentReaction(data)
+	case "create":
+		createComment(data)
+	default:
+		(&models.Error{}).Consume(models.ErrorUnknownAction).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	handleCommentReaction(data)
+}
+
 func handleCommentReaction(data models.ResponseStruct) {
 	err := data.Request.ParseForm()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	commentIdStr := data.Request.URL.Query().Get("id")
+	commentIdStr := data.Request.FormValue("comment-id")
 	if len(commentIdStr) == 0 {
 		(&models.Error{}).Consume(models.ErrorCommentEmptyId).LogAndRespondError(data.Response, data.User)
 		return

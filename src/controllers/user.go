@@ -18,9 +18,34 @@ var (
 	}
 )
 
+func handleUser(data models.ResponseStruct) {
+	if data.Request.Method == http.MethodPost && data.Request.Method != http.MethodGet {
+		data.SetErrorConsume(models.ErrorMethodNotAllowed).WriteResponse()
+		return
+	}
+	switch data.Request.RequestURI {
+	case "/user/login":
+		userLogin(data)
+	case "/user/logout":
+		userLogout(data)
+	case "/user/register":
+		userRegister(data)
+	default:
+		data.SetErrorConsume(models.ErrorUnknownAction).WriteResponse()
+	}
+}
+
 func userLogin(data models.ResponseStruct) {
 	if data.User.LoggedIn {
 		Index(*data.SetErrorConsume(models.ErrorAlreadyLoggedIn))
+		return
+	}
+	if data.Request.Method == http.MethodPost {
+		attemptLogin(data)
+		return
+	}
+	if data.Request.Method != http.MethodGet {
+		data.SetErrorConsume(models.ErrorMethodNotAllowed).WriteResponse()
 		return
 	}
 	views.UserLogin(data)
@@ -126,13 +151,20 @@ func attemptLogin(data models.ResponseStruct) {
 	Index(data)
 }
 
-func registerUser(data models.ResponseStruct) {
+func userRegister(data models.ResponseStruct) {
 	if data.User.LoggedIn {
 		Index(*data.SetErrorConsume(models.ErrorAlreadyLoggedIn))
 		return
 	}
+	if data.Request.Method == http.MethodGet {
+		views.UserRegister(data)
+		return
+	}
+	if data.Request.Method != http.MethodPost {
+		data.SetErrorConsume(models.ErrorMethodNotAllowed).WriteResponse()
+		return
+	}
 	var err error
-	// var user models.User
 	data.User.Username = data.Request.FormValue("username")
 	data.User.Email = data.Request.FormValue("email")
 	if err = data.User.ValidateUser(); err != nil {
@@ -167,18 +199,17 @@ func registerUser(data models.ResponseStruct) {
 		data.SetView("user_register_view").WriteResponse()
 		return
 	}
-	if err = models.RegisterUserOnDB(data.User); err != nil {
+	if err = data.User.Add(); err != nil {
 		data.SetUser(data.User).SetErrorConsume(models.ErrorInvalidUser)
 		data.SetView("user_register_view").WriteResponse()
 		return
 	}
-	// if err = Auth(user.Email, password); err != nil {
-	// 	data.SetUser(user).SetError(*(&models.Error{}).Consume(err))
-	// 	data.SetView("user_register_view").WriteResponse()
-	// 	return
-	// }
-	// user.LoggedIn = true
-	Index(data)
+	data.SetUser(models.GetGuestUser())
+	// TODO
+	// We have Error but we could generalize it to Message or LogMessage or
+	// SomethingMessage, with a types of "Error", "Success" for starters...
+	// data.?!?!?!?!
+	views.UserLogin(data)
 }
 
 // Strong password validation. Makes sure the password is in between 10-16

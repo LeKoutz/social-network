@@ -4,10 +4,17 @@
 {{if .Error.Has}}
 {{template "error" .}}
 {{end}}
+{{if .Message.Has}}
+{{template "message" .}}
+{{end}}
 <div class="container">
-    <form method="POST" action="/user?action=login">
+    <form method="POST" action="/login">
         <fieldset>
             <legend>User Login</legend>
+            <input
+                    type="hidden"
+                    name="action"
+                    value="login"/>
             <input
                     type="email"
                     placeholder="Email"

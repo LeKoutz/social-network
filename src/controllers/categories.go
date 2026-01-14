@@ -5,6 +5,7 @@ import (
 	"forum/src/views"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 func showCategories(data models.ResponseStruct) {
@@ -18,8 +19,8 @@ func showCategories(data models.ResponseStruct) {
 }
 
 func showCategory(data models.ResponseStruct) {
-	id := data.Request.URL.Query().Get("id")
-	if len(id) == 0 {
+	id, ok := strings.CutPrefix(data.Request.RequestURI, "/category/")
+	if !ok || len(id) == 0 {
 		(&models.Error{}).Consume(models.ErrorCategoryEmptyId).LogAndRespondError(data.Response, data.User)
 		return
 	}

@@ -87,19 +87,19 @@ func (u *User) ValidateUser() error {
 	return nil
 }
 
-func RegisterUserOnDB(user User) error {
-	err := user.ValidateUser()
+func (u *User) Add() error {
+	err := u.ValidateUser()
 	if err != nil {
 		return err
 	}
-	if IsEmailRegistered(user.Email) {
+	if IsEmailRegistered(u.Email) {
 		return ErrorEmailIsRegistered
 	}
 	stmt, err := DB.Prepare("INSERT INTO users (username, email, hash) VALUES (?, ?, ?)")
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(user.Username, user.Email, user.Hash)
+	_, err = stmt.Exec(u.Username, u.Email, u.Hash)
 	if err != nil {
 		return err
 	}

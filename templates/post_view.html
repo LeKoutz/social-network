@@ -18,20 +18,21 @@
             <pre>{{$post.Body}}</pre>
         </div>
         <div class="reactions">
-            <form method="POST" action="/post?id={{$post.Id}}">
+            <form method="POST" action="/post/{{$post.Id}}/react">
+                <input type="hidden" name="post-id" value="{{$post.Id}}"/>
                 <button type="sumbit"
                         name="action"
                         value="like"
                         {{if not $.User.LoggedIn }}disabled{{end}}
                         >{{$post.Likes}} {{if $post.Liked}}👍{{else}}👍🏻{{end}}</button>
             </form>
-            <form method="POST" action="/post?id={{$post.Id}}">
+            <form method="POST" action="/post/{{$post.Id}}/react">
+                <input type="hidden" name="post-id" value="{{$post.Id}}"/>
                 <button type="sumbit"
                         name="action"
                         value="dislike"
                         {{if not $.User.LoggedIn }}disabled{{end}}
                         >{{$post.Dislikes}} {{if $post.Disliked}}👎{{else}}👎🏻{{end}}</button>
-
             </form>
         </div>
         {{if $.User.LoggedIn}}
@@ -43,16 +44,18 @@
                 <span>{{.Username}} ({{.TimestampString}})</span>
                 <pre>{{.Body}}</pre>
                 <div class="reactions">
-                    <form method="POST" action="/comment?id={{.Id}}">
+                    <form method="POST" action="/post/{{$post.Id}}/comment/{{.Id}}/react">
                         <input type="hidden" name="post-id" value="{{$post.Id}}"/>
+                        <input type="hidden" name="comment-id" value="{{.Id}}"/>
                         <button type="sumbit"
                                 name="action"
                                 value="like"
                                 {{if not $.User.LoggedIn }}disabled{{end}}
                                 >{{.Likes}} {{if .Liked}}👍{{else}}👍🏻{{end}}</button>
                     </form>
-                    <form method="POST" action="/comment?id={{.Id}}">
+                    <form method="POST" action="/post/{{$post.Id}}/comment/{{.Id}}/react">
                         <input type="hidden" name="post-id" value="{{$post.Id}}"/>
+                        <input type="hidden" name="comment-id" value="{{.Id}}"/>
                         <button type="sumbit"
                                 name="action"
                                 value="dislike"
@@ -68,4 +71,3 @@
 </div>
 {{template "ending" .}}
 {{end}}
-
