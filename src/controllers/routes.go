@@ -58,8 +58,6 @@ func Routes(data models.ResponseStruct) {
 		showPosts(data)
 	case strings.Compare(data.Request.RequestURI, "/post/create") == 0:
 		handlePost(data)
-	case strings.Compare(data.Request.RequestURI, "/post/add") == 0:
-		handlePost(data)
 	case strings.HasPrefix(data.Request.RequestURI, "/post/view/"):
 		showPost(data)
 	case strings.Compare(data.Request.RequestURI, "/post/comment") == 0:

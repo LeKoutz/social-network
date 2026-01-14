@@ -145,7 +145,7 @@ func handlePost(data models.ResponseStruct) {
 	if strings.Compare(data.Request.RequestURI, "/posts") == 0 {
 		showPosts(data)
 		return
-	} else if strings.Compare(data.Request.RequestURI, "/post/add") == 0 {
+	} else if strings.Compare(data.Request.RequestURI, "/post/create") == 0 {
 		if data.Request.Method == http.MethodGet {
 			views.PostCreate(data)
 			return
