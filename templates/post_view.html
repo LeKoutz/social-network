@@ -9,12 +9,14 @@
     <div class="post" id="{{$post.Id}}">
         <div class="post-content">
             <a href="/post/view/{{$post.Id}}"><h3>{{$post.Title}}</h3></a>
-            <div class="categories">
+            <div class="post-details">
+                <p>Categories:
                 {{range $post.Categories}}
-                <a href="/category/view/{{.Id}}">{{.Name}}</a>
+                    <a href="/category/view/{{.Id}}">{{.Name}}</a>
                 {{end}}
+                </p>
+                <p>Written by <strong>{{$post.User.Username}}</strong> on <em>({{$post.TimestampString}})</em></p>
             </div>
-            <span>{{$post.User.Username}} ({{$post.TimestampString}})</span>
             <pre>{{$post.Body}}</pre>
         </div>
         <div class="reactions">
@@ -36,7 +38,9 @@
             </form>
         </div>
         {{if $.User.LoggedIn}}
-        {{ template "comment_create" $post}}
+            <div class="comment_form_container">
+            {{ template "comment_create" $post}}
+            </div>
         {{end}}
         <div class="comments">
             {{range $post.Comments}}

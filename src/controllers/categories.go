@@ -19,7 +19,7 @@ func showCategories(data models.ResponseStruct) {
 }
 
 func showCategory(data models.ResponseStruct) {
-	id, ok := strings.CutPrefix(data.Request.RequestURI, "/category/")
+	id, ok := strings.CutPrefix(data.Request.RequestURI, "/category/view/")
 	if !ok || len(id) == 0 {
 		(&models.Error{}).Consume(models.ErrorCategoryEmptyId).LogAndRespondError(data.Response, data.User)
 		return
@@ -59,5 +59,6 @@ func showCategory(data models.ResponseStruct) {
 		}
 	}
 	data.Posts = posts
-	data.SetPosts(posts).SetView("category_view").WriteResponse()
+	data.SetPosts(posts)
+	views.Category(data)
 }

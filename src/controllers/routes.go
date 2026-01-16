@@ -7,25 +7,8 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"regexp"
 	"strings"
 )
-
-func RegisterRoutes(mux *http.ServeMux) {
-	// mux.HandleFunc("GET /user/login", userLogin)
-	// mux.HandleFunc("POST /user/login", showPost)
-	// mux.HandleFunc("GET /user/logout", showPost)
-	// mux.HandleFunc("POST /user/logout", showPost)
-	// mux.HandleFunc("GET /user/register", showPost)
-	// mux.HandleFunc("POST /user/register", showPost)
-	// mux.HandleFunc("GET /post/{id}/view", showPost)
-	// mux.HandleFunc("GET /post/new", showPost)
-	// mux.HandleFunc("POST /post/new", showPost)
-	// mux.HandleFunc("POST /post/{id}/react", showPost)
-	// mux.HandleFunc("POST /post/{id}/comment", showPost)
-	// mux.HandleFunc("GET /category/{id}, showCategory)
-	// mux.HandleFunc("GET /", Index)
-}
 
 func Routes(data models.ResponseStruct) {
 	uri, err := url.ParseRequestURI(data.Request.RequestURI)
@@ -34,22 +17,9 @@ func Routes(data models.ResponseStruct) {
 		return
 	}
 	utils.LogDebug(uri)
-
-	categoryMask, err := regexp.Compile("/category/[0-9]+")
-	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	postMask, err := regexp.Compile("/post/[0-9]+")
-	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
-	}
 	switch {
-	case categoryMask.MatchString(data.Request.RequestURI):
+	case strings.HasPrefix(data.Request.RequestURI, "/category/view/"):
 		showCategory(data)
-	case postMask.MatchString(data.Request.RequestURI):
-		handlePost(data)
 	case strings.HasPrefix(data.Request.RequestURI, "/comment/react"):
 		handleCommentReaction(data)
 	case strings.HasPrefix(data.Request.RequestURI, "/comment"):
