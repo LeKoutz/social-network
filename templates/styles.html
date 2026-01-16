@@ -15,11 +15,23 @@ a {
     color: greenyellow;
 }
 
-.category-description {
-    color: lightgreen;
-    font-size: small;
-    margin: 0.5vh 0 1vh 0;
-    padding-left: 10px;
+.categories {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.categories * {
+    margin: 0px;
+    padding: 0px;
+}
+
+.category {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 1%;
+    border: #00ff00 dashed 1px;
 }
 
 fieldset {
