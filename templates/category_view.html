@@ -8,11 +8,11 @@
     {{template "category" index .Categories 0}}
     {{ range .Posts}}
     <div class="post" id="{{.Id}}">
-        <a href="/post/{{.Id}}"><h3>{{.Title}}</h3></a>
+        <a href="/post/view/{{.Id}}"><h3>{{.Title}}</h3></a>
         <em>{{.TimestampString}}</em>
         <pre>{{.Body}}</pre>
         <div class="reactions">
-            <form method="POST" action="/post/{{.Id}}/react">
+            <form method="POST" action="/post/react">
                 <input type="hidden" name="post-id" value="{{.Id}}"/>
                 <button type="sumbit"
                         id="likes"
@@ -21,7 +21,7 @@
                         {{if not $.User.LoggedIn }}disabled{{end}}
                         >{{.Likes}} {{if .Liked}}👍{{else}}👍🏻{{end}}</button>
             </form>
-            <form method="POST" action="/post/{{.Id}}/react">
+            <form method="POST" action="/post/react">
                 <input type="hidden" name="post-id" value="{{.Id}}"/>
                 <button type="sumbit"
                         name="action"

@@ -202,5 +202,5 @@ func handlePostReaction(data models.ResponseStruct) {
 			return
 		}
 	}
-	http.Redirect(data.Response, data.Request, "/post?id="+postIdStr, http.StatusSeeOther)
+	http.Redirect(data.Response, data.Request, "/post/view/"+postIdStr, http.StatusSeeOther)
 }

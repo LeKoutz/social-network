@@ -50,6 +50,8 @@ func Routes(data models.ResponseStruct) {
 		showCategory(data)
 	case postMask.MatchString(data.Request.RequestURI):
 		handlePost(data)
+	case strings.HasPrefix(data.Request.RequestURI, "/comment/react"):
+		handleCommentReaction(data)
 	case strings.HasPrefix(data.Request.RequestURI, "/comment"):
 		handleComment(data)
 	case strings.Compare(data.Request.RequestURI, "/categories") == 0:
@@ -58,6 +60,8 @@ func Routes(data models.ResponseStruct) {
 		showPosts(data)
 	case strings.Compare(data.Request.RequestURI, "/post/create") == 0:
 		handlePost(data)
+	case strings.Compare(data.Request.RequestURI, "/post/react") == 0:
+		handlePostReaction(data)
 	case strings.HasPrefix(data.Request.RequestURI, "/post/view/"):
 		showPost(data)
 	case strings.Compare(data.Request.RequestURI, "/post/comment") == 0:

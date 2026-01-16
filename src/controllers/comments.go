@@ -43,7 +43,7 @@ func createComment(data models.ResponseStruct) {
 		data.SetView("post_view").WriteResponse()
 		return
 	}
-	redirectURL := fmt.Sprintf("/post?id=%d#%d", post_id, commentId)
+	redirectURL := fmt.Sprintf("/post/view/%d#%d", post_id, commentId)
 	// Redirect to the post's page
 	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
 }
@@ -112,5 +112,5 @@ func handleCommentReaction(data models.ResponseStruct) {
 		}
 	}
 	postId := data.Request.FormValue("post-id")
-	http.Redirect(data.Response, data.Request, "/post?id="+postId+"#"+commentIdStr, http.StatusSeeOther)
+	http.Redirect(data.Response, data.Request, "/post/view/"+postId+"#"+commentIdStr, http.StatusSeeOther)
 }
