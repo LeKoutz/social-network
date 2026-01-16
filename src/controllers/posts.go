@@ -112,7 +112,7 @@ func createPost(data models.ResponseStruct) {
 		data.SetView("post_create_view").WriteResponse()
 		return
 	}
-	redirectURL := fmt.Sprintf("/post?id=%d", postId)
+	redirectURL := fmt.Sprintf("/post/view/%d", postId)
 	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
 }
 
