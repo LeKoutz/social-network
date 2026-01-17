@@ -144,33 +144,32 @@ func parseCreatePostRequest(data models.ResponseStruct) (models.Post, error) {
 	}, nil
 }
 
-func handlePost(data models.ResponseStruct) {
+func handlePostCreate(data models.ResponseStruct) {
 	if data.Request.Method != http.MethodPost && data.Request.Method != http.MethodGet {
 		data.SetErrorConsume(models.ErrorMethodNotAllowed)
 	}
-	if strings.Compare(data.Request.RequestURI, "/posts") == 0 {
-		showPosts(data)
-		return
-	} else if strings.Compare(data.Request.RequestURI, "/post/create") == 0 {
-		if data.Request.Method == http.MethodGet {
+	switch {
+	case strings.Compare(data.Request.RequestURI, "/post/create") == 0:
+		switch data.Request.Method {
+		case http.MethodGet:
+			categories, err := models.GetAllCategories()
+			if err != nil {
+				(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+				return
+			}
+			data.SetCategories(categories)
 			views.PostCreate(data)
 			return
-		} else {
+		case http.MethodPost:
 			err := data.Request.ParseForm()
 			if err != nil {
 				(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 				return
 			}
-			switch data.Request.FormValue("action") {
-			case "create":
 				createPost(data)
-			default:
-				handlePostReaction(data)
-			}
+		default:
+			(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
 		}
-	} else if strings.HasPrefix(data.Request.RequestURI, "/post/") {
-		showPost(data)
-		return
 	}
 }
 

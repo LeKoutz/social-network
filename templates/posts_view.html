@@ -9,11 +9,12 @@
         <h2>Posts</h2>
         {{ range .Posts}}
         <div id="{{.Id}}">
-            <a href="/post?id={{.Id}}"><h3>{{.Title}}</h3></a>
+            <a href="/post/view/{{.Id}}"><h3>{{.Title}}</h3></a>
             <em>{{.TimestampString}}</em>
             <pre>{{.Body}}</pre>
             <div class="reactions">
-                <form method="POST" action="/post?id={{.Id}}">
+                <form method="POST" action="/post/react">
+                    <input type="hidden" name="post-id" value="{{.Id}}"/>
                     <button type="sumbit"
                             id="likes"
                             name="action"
@@ -21,11 +22,12 @@
                             {{if not $.User.LoggedIn }}disabled{{end}}
                             >{{.Likes}} {{if .Liked}}👍{{else}}👍🏻{{end}}</button>
                 </form>
-                <form method="POST" action="/post?id={{.Id}}">
+                <form method="POST" action="/post/react">
+                    <input type="hidden" name="post-id" value="{{.Id}}"/>
                     <button type="sumbit"
                             id="likes"
                             name="action"
-                            value="like"
+                            value="dislike"
                             {{if not $.User.LoggedIn }}disabled{{end}}
                             >{{.Dislikes}} {{if .Disliked}}👎{{else}}👎🏻{{end}}</button>
 

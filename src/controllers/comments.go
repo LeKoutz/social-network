@@ -49,7 +49,7 @@ func createComment(data models.ResponseStruct) {
 	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
 }
 
-func handleComment(data models.ResponseStruct) {
+func handleCommentCreate(data models.ResponseStruct) {
 	if data.Request.Method != http.MethodPost {
 		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
 		return
@@ -60,17 +60,7 @@ func handleComment(data models.ResponseStruct) {
 		data.SetView("error_view").WriteResponse()
 		return
 	}
-	action := data.Request.FormValue("action")
-	switch action {
-	case "like", "dislike":
-		handleCommentReaction(data)
-	case "create":
-		createComment(data)
-	default:
-		(&models.Error{}).Consume(models.ErrorUnknownAction).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	handleCommentReaction(data)
+	createComment(data)
 }
 
 func handleCommentReaction(data models.ResponseStruct) {
