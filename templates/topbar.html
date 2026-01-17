@@ -5,21 +5,17 @@
     </div>
     <div class="menu">
         <ul>
-            <li>{{.User.Username}}</li>
             {{if .User.LoggedIn }}
-            <li><ul>
+            <li><a href="/user">{{.User.Username}}</a></li>
+            <ul>
                 <li><a href="/post/create">Create post</a></li>
                 <li><a href="/user/posts">My posts</a></li>
                 <li><a href="/user/likes">My likes</a></li>
-            </ul></li>
-            <li><ul>
                 <li><a href="/user/logout">Log out</a></li>
-            </ul></li>
+            </ul>
             {{else}}
-            <li><ul>
-                <li><a href="/user/login">Log in</a></li>
-                <li><a href="/user/register">Register</a></li>
-            </ul></li>
+            <li><a href="/user/login">Log in</a></li>
+            <li><a href="/user/register">Register</a></li>
             {{end}}
         </ul>
 

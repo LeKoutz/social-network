@@ -8,27 +8,30 @@
 {{template "message" .}}
 {{end}}
 <div class="container">
-    <form method="POST" action="/user/login">
-        <fieldset>
-            <legend>User Login</legend>
-            <input
-                    type="hidden"
-                    name="action"
-                    value="login"/>
-            <input
-                    type="email"
-                    placeholder="Email"
-                    name="email"/>
-            <input
-                    type="password"
-                    placeholder="Password"
-                    name="password"/>
-            <input
-                    type="submit"
-                    value="Login"
-                    name="submit"/>
-        </fieldset>
-    </form>
+    <div class="box">
+        <form method="POST" action="/user/login">
+            <fieldset>
+                <legend>User Login</legend>
+                <input
+                        type="hidden"
+                        name="action"
+                        value="login"/>
+                <input
+                        type="email"
+                        placeholder="Email"
+                        name="email"/>
+                <input
+                        type="password"
+                        placeholder="Password"
+                        name="password"/>
+                <input
+                        type="submit"
+                        value="Login"
+                        name="submit"/>
+            </fieldset>
+        </form>
+        <p>You don't have an account? <a href="/user/register">Register!</a></p>
+    </div>
 </div>
 {{template "ending"}}
 {{end}}

@@ -46,6 +46,8 @@ func Routes(data models.ResponseStruct) {
 		showUserPosts(data)
 	case strings.Compare(data.Request.RequestURI, "/user/likes") == 0:
 		showUserLikedPosts(data)
+	case strings.Compare(data.Request.RequestURI, "/user") == 0:
+		showUserView(data)
 	case strings.Compare(data.Request.RequestURI, "/") == 0:
 		Index(data)
 	default:
