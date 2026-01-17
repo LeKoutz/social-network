@@ -42,7 +42,7 @@
                 {{ template "comment_create" $post}}
             {{end}}
             {{range $post.Comments}}
-            <div class="comment" id="{{.Id}}">
+            <div class="comment" id="comment-{{.Id}}">
                 <span>{{.Username}} ({{.TimestampString}})</span>
                 <pre>{{.Body}}</pre>
                 <div class="reactions">
