@@ -19,11 +19,16 @@ type ResponseStruct struct {
 	Version     string
 }
 
-func (r *ResponseStruct) WriteResponse() {
+type ResponseStruct4ViewsIface interface {
+	SetView(string) *ResponseStruct
+	WriteResponse()
+}
+
+func (r ResponseStruct) WriteResponse() {
 	if r.Error.StatusCode != 0 {
 		r.Response.WriteHeader(r.Error.StatusCode)
 	}
-	respondView(*r)
+	respondView(r)
 }
 
 func (r *ResponseStruct) Init() *ResponseStruct {
@@ -37,9 +42,9 @@ func (r *ResponseStruct) SetWebsiteName(websiteName string) *ResponseStruct {
 	return r
 }
 
-func (r *ResponseStruct) SetView(viewname string) *ResponseStruct {
+func (r ResponseStruct) SetView(viewname string) *ResponseStruct {
 	r.View = viewname
-	return r
+	return &r
 }
 
 func (r *ResponseStruct) SetUser(user User) *ResponseStruct {
@@ -75,6 +80,10 @@ func (r *ResponseStruct) SetRequest(req *http.Request) *ResponseStruct {
 func (r *ResponseStruct) SetResponse(res http.ResponseWriter) *ResponseStruct {
 	r.Response = res
 	return r
+}
+
+func (r *ResponseStruct) GetResponse(res http.ResponseWriter) http.ResponseWriter {
+	return r.Response
 }
 
 func respondView(data ResponseStruct) {

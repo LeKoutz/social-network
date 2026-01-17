@@ -88,6 +88,12 @@ func showPosts(data models.ResponseStruct) {
 
 func createPost(data models.ResponseStruct) {
 	if data.Request.Method == http.MethodGet {
+		categories, err := models.GetAllCategories()
+		if err != nil {
+			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+			return
+		}
+		data.SetCategories(categories)
 		views.PostCreate(data)
 		return
 	}
