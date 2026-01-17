@@ -9,6 +9,10 @@ body {
     flex-direction: column;
     background-color: #2f2f2f;
     color: lightgreen;
+    gap: 15px;
+    height: 100vh;
+    margin-top: 0px;
+    margin-bottom: 0px;
 }
 
 a {
@@ -34,6 +38,10 @@ a {
     border: #00ff00 dashed 1px;
 }
 
+.category * {
+    width: max-content;
+}
+
 fieldset {
     display: flex;
     flex-direction: column;
@@ -41,6 +49,7 @@ fieldset {
     border-style: solid;
     border-width: 1px;
     border-radius: 2px;
+    gap: 5px;
 }
 
 legend {
@@ -54,6 +63,7 @@ legend {
 input, textarea {
     background-color: #1c1c1c;
     color: #fff;
+    border: gray solid 1px;
 }
 
 input[type=submit], button {
@@ -73,6 +83,11 @@ input[type=submit]:hover {
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
+    border-bottom: lightgreen solid 1px;
+}
+
+.topbar .title a {
+    text-decoration: none;
 }
 
 .topbar .title a h1 {
@@ -94,6 +109,8 @@ input[type=submit]:hover {
 .container {
     display: flex;
     flex-direction: column;
+    gap: 10px;
+    flex-grow: 1;
 }
 
 .reactions {
@@ -110,8 +127,28 @@ input[type=submit]:hover {
     border-radius: 2px;
 }
 
+.post {
+    border-top: lightgreen solid 1px;
+    padding: 0px 1% 0px 1%;
+    background-color: #1f2020;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
 .post div {
     padding: 1%;
+}
+
+.post .reactions {
+    border-top: lightgreen solid 1px;
+    border-bottom: lightgreen solid 1px;
+}
+
+.footer {
+    border-top: lightgreen solid 1px;
+    max-height: 55px;
+    height: 55px;
 }
 </style>
 {{end}}

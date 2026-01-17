@@ -9,7 +9,7 @@
     {{ range .Posts}}
     <div class="post" id="{{.Id}}">
         <a href="/post/view/{{.Id}}"><h3>{{.Title}}</h3></a>
-        <em>{{.TimestampString}}</em>
+        <p>Posted on <em>{{.TimestampString}}</em>.</p>
         <pre>{{.Body}}</pre>
         <div class="reactions">
             <form method="POST" action="/post/react">
@@ -30,9 +30,11 @@
                         >{{.Dislikes}} {{if .Disliked}}👎{{else}}👎🏻{{end}}</button>
             </form>
         </div>
+        <div class="comments">
         {{if $.User.LoggedIn}}
         {{ template "comment_create" .}}
         {{end}}
+        </div>
     </div>
     {{ end }}
 </div>

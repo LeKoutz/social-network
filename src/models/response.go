@@ -16,6 +16,7 @@ type ResponseStruct struct {
 	Request     *http.Request
 	Response    http.ResponseWriter
 	Message     Message
+	Version     string
 }
 
 func (r *ResponseStruct) WriteResponse() {
@@ -27,6 +28,7 @@ func (r *ResponseStruct) WriteResponse() {
 
 func (r *ResponseStruct) Init() *ResponseStruct {
 	r.WebsiteName = forum.WebsiteName
+	r.Version = getVersion()
 	return r
 }
 

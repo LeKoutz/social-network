@@ -15,7 +15,7 @@
                     <a href="/category/view/{{.Id}}">{{.Name}}</a>
                 {{end}}
                 </p>
-                <p>Written by <strong>{{$post.User.Username}}</strong> on <em>({{$post.TimestampString}})</em></p>
+                <p>Posted by <strong>{{$post.User.Username}}</strong> on <em>({{$post.TimestampString}})</em></p>
             </div>
             <pre>{{$post.Body}}</pre>
         </div>
@@ -37,12 +37,10 @@
                         >{{$post.Dislikes}} {{if $post.Disliked}}👎{{else}}👎🏻{{end}}</button>
             </form>
         </div>
-        {{if $.User.LoggedIn}}
-            <div class="comment_form_container">
-            {{ template "comment_create" $post}}
-            </div>
-        {{end}}
         <div class="comments">
+            {{if $.User.LoggedIn}}
+                {{ template "comment_create" $post}}
+            {{end}}
             {{range $post.Comments}}
             <div class="comment" id="{{.Id}}">
                 <span>{{.Username}} ({{.TimestampString}})</span>
