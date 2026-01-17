@@ -66,14 +66,14 @@ func userLogout(data models.ResponseStruct) {
 	if err != nil {
 		data.SetUser(user)
 		data.SetErrorConsume(err)
-		data.SetView("user_register_view").WriteResponse()
+		views.UserRegister(data)
 		return
 	}
 	err = models.SetUserSession(user.Id, "")
 	if err != nil {
 		data.SetUser(user)
 		data.SetErrorConsume(err)
-		data.SetView("user_register_view").WriteResponse()
+		views.UserRegister(data)
 		return
 	}
 	http.SetCookie(data.Response, nullifyCookie(cookie))
@@ -100,7 +100,7 @@ func attemptLogin(data models.ResponseStruct) {
 	if err != nil {
 		data.User = models.GetGuestUser()
 		data.SetErrorConsume(err)
-		data.SetView("user_register_view").WriteResponse()
+		views.UserRegister(data)
 		return
 	}
 	if len(data.Request.Form.Get("email")) != 0 {
@@ -113,21 +113,21 @@ func attemptLogin(data models.ResponseStruct) {
 	if err != nil {
 		data.User = models.GetGuestUser()
 		data.SetErrorConsume(err)
-		data.SetView("user_register_view").WriteResponse()
+		views.UserRegister(data)
 		return
 	}
 	sessionValue, err := uuid.NewV4()
 	if err != nil {
 		data.User = models.GetGuestUser()
 		data.SetErrorConsume(err)
-		data.SetView("user_register_view").WriteResponse()
+		views.UserRegister(data)
 		return
 	}
 	data.User, err = models.GetUserByEmail(email)
 	if err != nil {
 		data.User = models.GetGuestUser()
 		data.SetErrorConsume(err)
-		data.SetView("user_register_view").WriteResponse()
+		views.UserRegister(data)
 		return
 	}
 	data.User.LoggedIn = true
@@ -135,7 +135,7 @@ func attemptLogin(data models.ResponseStruct) {
 	if err != nil {
 		data.User = models.GetGuestUser()
 		data.SetErrorConsume(err)
-		data.SetView("user_register_view").WriteResponse()
+		views.UserRegister(data)
 		return
 	}
 	cookie := &http.Cookie{
@@ -176,39 +176,39 @@ func attemptRegister(data models.ResponseStruct) {
 	data.User.Email = data.Request.FormValue("email")
 	if err = data.User.ValidateUser(); err != nil {
 		data.SetUser(data.User).SetErrorConsume(err)
-		data.SetView("user_register_view").WriteResponse()
+		views.UserRegister(data)
 		return
 	}
 	if models.IsEmailRegistered(data.User.Email) {
 		data.SetUser(data.User).SetErrorConsume(models.ErrorEmailIsRegistered)
-		data.SetView("user_register_view").WriteResponse()
+		views.UserRegister(data)
 		return
 	}
 	if !models.IsUniqueUsername(data.User.Username) {
 		data.SetUser(data.User).SetErrorConsume(models.ErrorUsernameTaken)
-		data.SetView("user_register_view").WriteResponse()
+		views.UserRegister(data)
 		return
 	}
 	if !CompareRegistrationPasswords(data.Request.FormValue("password1"), data.Request.FormValue("password2")) {
 		data.SetUser(data.User).SetErrorConsume(models.ErrorPasswordMismatch)
-		data.SetView("user_register_view").WriteResponse()
+		views.UserRegister(data)
 		return
 	}
 	password := data.Request.FormValue("password1")
 	if err = validatePasswordStrength(password); err != nil {
 		data.SetUser(data.User).SetErrorConsume(err)
-		data.SetView("user_register_view").WriteResponse()
+		views.UserRegister(data)
 		return
 	}
 	data.User.Hash, err = HashPassword(password)
 	if err != nil {
 		data.SetUser(data.User).SetErrorConsume(err)
-		data.SetView("user_register_view").WriteResponse()
+		views.UserRegister(data)
 		return
 	}
 	if err = data.User.Add(); err != nil {
 		data.SetUser(data.User).SetErrorConsume(models.ErrorInvalidUser)
-		data.SetView("user_register_view").WriteResponse()
+		views.UserRegister(data)
 		return
 	}
 	data.SetUser(models.GetGuestUser())
@@ -248,8 +248,7 @@ func showUserPosts(data models.ResponseStruct) {
 		}
 	}
 	data.Posts = posts
-	data.View = "posts_view"
-	data.WriteResponse()
+	views.PostsView(data)
 }
 
 func showUserLikedPosts(data models.ResponseStruct) {
@@ -273,6 +272,5 @@ func showUserLikedPosts(data models.ResponseStruct) {
 		}
 	}
 	data.Posts = posts
-	data.View = "posts_view"
-	data.WriteResponse()
+	views.PostsView(data)
 }

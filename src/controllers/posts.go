@@ -97,19 +97,19 @@ func createPost(data models.ResponseStruct) {
 	}
 	if !data.User.LoggedIn {
 		data.Error = *(&models.Error{}).Consume(models.ErrorPostPermissionDenied)
-		data.SetView("user_login_view").WriteResponse()
+		views.UserLogin(data)
 		return
 	}
 	post, err := parseCreatePostRequest(data)
 	if err != nil {
 		data.Error = *(&models.Error{}).Consume(err)
-		data.SetView("post_create_view").WriteResponse()
+		views.PostCreate(data)
 		return
 	}
 	postId, err := post.Add()
 	if err != nil {
 		data.Error = *(&models.Error{}).Consume(err)
-		data.SetView("post_create_view").WriteResponse()
+		views.PostCreate(data)
 		return
 	}
 	redirectURL := fmt.Sprintf("/post/view/%d", postId)

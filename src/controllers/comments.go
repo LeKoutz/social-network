@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"forum/src/models"
+	"forum/src/views"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -12,7 +13,7 @@ func createComment(data models.ResponseStruct) {
 	// Validate user is logged in
 	if !data.User.LoggedIn {
 		data.Error = *(&models.Error{}).Consume(models.ErrorCommentPermissionDenied)
-		data.SetView("user_login_view").WriteResponse()
+		views.UserLogin(data)
 		return
 	}
 	// Parse form data
@@ -27,7 +28,7 @@ func createComment(data models.ResponseStruct) {
 	post_id, err := strconv.ParseInt(postIdStr, 10, 64)
 	if err != nil {
 		data.Error = *(&models.Error{}).Consume(err)
-		data.SetView("post_view").WriteResponse()
+		views.PostView(data)
 		return
 	}
 	// Create post object
@@ -40,7 +41,7 @@ func createComment(data models.ResponseStruct) {
 	commentId, err := comment.Add()
 	if err != nil {
 		data.Error = *(&models.Error{}).Consume(err)
-		data.SetView("post_view").WriteResponse()
+		views.PostView(data)
 		return
 	}
 	redirectURL := fmt.Sprintf("/post/view/%d#%d", post_id, commentId)
