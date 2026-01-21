@@ -5,35 +5,42 @@
 {{template "error" .}}
 {{end}}
 <div class="container">
-    <form method="POST" action="/user?action=register">
-        <fieldset>
-            <legend>User Registration</legend>
-            <input
-                    placeholder="Email"
-                    type="email"
-                    name="email"
-                    required/>
-            <input
-                    placeholder="Username"
-                    type="text"
-                    name="username"
-                    required/>
-            <input
-                    placeholder="Password"
-                    type="password"
-                    name="password1"
-                    required/>
-            <input
-                    placeholder="Confirm password"
-                    type="password"
-                    name="password2"
-                    required/>
-            <input
-                    type="submit"
-                    value="Register"
-                    name="submit"/>
-        </fieldset>
-    </form>
+    <div class="box">
+        <form method="POST" action="/user/register">
+            <fieldset>
+                <legend>User Registration</legend>
+                <input
+                        type="hidden"
+                        name="action"
+                        value="register"/>
+                <input
+                        placeholder="Email"
+                        type="email"
+                        name="email"
+                        required/>
+                <input
+                        placeholder="Username"
+                        type="text"
+                        name="username"
+                        required/>
+                <input
+                        placeholder="Password"
+                        type="password"
+                        name="password1"
+                        required/>
+                <input
+                        placeholder="Confirm password"
+                        type="password"
+                        name="password2"
+                        required/>
+                <input
+                        type="submit"
+                        value="Register"
+                        name="submit"/>
+            </fieldset>
+        </form>
+        <p>Already have an account? <a href="/user/login">Login!</a></p>
+    </div>
 </div>
 {{template "ending"}}
 {{end}}

@@ -1,7 +1,8 @@
-package forum
+package server
 
 import (
 	"fmt"
+	"forum/src/models"
 	"log"
 	"os"
 	"path/filepath"
@@ -20,22 +21,20 @@ func Main(args []string) {
 	// maybe initialize something first if needed...
 	// for example the database?!?!
 	// maybe that could be a flag...
-	var dbPath string = "./data/db.db"
+	var dbPath string = "./db.db"
 	var ip, port string
-
 	for i := 1; i < len(args); i++ {
 		if args[i] == "--db-path" && i+1 < len(args) {
 			dbPath = args[i+1]
 			i++
 		}
 	}
-	if err := InitDB(dbPath); err != nil {
+	if err := models.InitDB(dbPath); err != nil {
 		fmt.Printf("Error: %s\n", err.Error())
 		os.Exit(1)
 	}
 	// e.g. --init
 	// in case the flag is not passed, the auto intialization could be triggered
-
 	var positionalArgs []string
 	for i := 1; i < len(args); i++ {
 		if args[i] == "--db-path" {

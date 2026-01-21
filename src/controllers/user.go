@@ -1,0 +1,280 @@
+package controllers
+
+import (
+	"forum/src/models"
+	"forum/src/views"
+	"net/http"
+	"regexp"
+	"time"
+
+	"github.com/gofrs/uuid"
+)
+
+var (
+	AdminUser = models.User{
+		Username: "admin",
+		Role:     "admin",
+		LoggedIn: true,
+	}
+)
+
+func handleUser(data models.ResponseStruct) {
+	if data.Request.Method == http.MethodPost && data.Request.Method != http.MethodGet {
+		data.SetErrorConsume(models.ErrorMethodNotAllowed).WriteResponse()
+		return
+	}
+	switch data.Request.RequestURI {
+	case "/user/login":
+		userLogin(data)
+	case "/user/logout":
+		userLogout(data)
+	case "/user/register":
+		userRegister(data)
+	default:
+		data.SetErrorConsume(models.ErrorUnknownAction).WriteResponse()
+	}
+}
+
+func userLogin(data models.ResponseStruct) {
+	if data.User.LoggedIn {
+		Index(*data.SetErrorConsume(models.ErrorAlreadyLoggedIn))
+		return
+	}
+	switch data.Request.Method {
+	case http.MethodPost:
+		attemptLogin(data)
+	case http.MethodGet:
+		views.UserLogin(data)
+	default:
+		data.SetErrorConsume(models.ErrorMethodNotAllowed).WriteResponse()
+	}
+}
+
+func userLogout(data models.ResponseStruct) {
+	if data.Request.Method != http.MethodGet {
+		data.SetErrorConsume(models.ErrorMethodNotAllowed).WriteResponse()
+		return
+	}
+	GuestUser := models.GetGuestUser()
+	cookie, err := data.Request.Cookie("__Host-FRMSessionID")
+	if err != nil {
+		data.SetUser(GuestUser).SetErrorConsume(err)
+		data.SetView("error_view").WriteResponse()
+		return
+	}
+	user, err := models.GetUserBySession(cookie.Value)
+	if err != nil {
+		data.SetUser(user)
+		data.SetErrorConsume(err)
+		views.UserRegister(data)
+		return
+	}
+	err = models.SetUserSession(user.Id, "")
+	if err != nil {
+		data.SetUser(user)
+		data.SetErrorConsume(err)
+		views.UserRegister(data)
+		return
+	}
+	http.SetCookie(data.Response, nullifyCookie(cookie))
+	data.SetUser(GuestUser)
+	views.UserLogout(data)
+}
+
+func nullifyCookie(cookie *http.Cookie) *http.Cookie {
+	cookie = &http.Cookie{
+		Name:     "__Host-FRMSessionID",
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Unix(0, 0),
+		HttpOnly: true,
+	}
+	return cookie
+}
+
+func attemptLogin(data models.ResponseStruct) {
+	var email string
+	var password string
+	var err error
+	err = data.Request.ParseForm()
+	if err != nil {
+		data.User = models.GetGuestUser()
+		data.SetErrorConsume(err)
+		views.UserRegister(data)
+		return
+	}
+	if len(data.Request.Form.Get("email")) != 0 {
+		email = data.Request.Form.Get("email")
+	}
+	if len(data.Request.Form.Get("password")) != 0 {
+		password = data.Request.Form.Get("password")
+	}
+	err = Auth(email, password)
+	if err != nil {
+		data.User = models.GetGuestUser()
+		data.SetErrorConsume(err)
+		views.UserRegister(data)
+		return
+	}
+	sessionValue, err := uuid.NewV4()
+	if err != nil {
+		data.User = models.GetGuestUser()
+		data.SetErrorConsume(err)
+		views.UserRegister(data)
+		return
+	}
+	data.User, err = models.GetUserByEmail(email)
+	if err != nil {
+		data.User = models.GetGuestUser()
+		data.SetErrorConsume(err)
+		views.UserRegister(data)
+		return
+	}
+	data.User.LoggedIn = true
+	err = models.SetUserSession(data.User.Id, sessionValue.String())
+	if err != nil {
+		data.User = models.GetGuestUser()
+		data.SetErrorConsume(err)
+		views.UserRegister(data)
+		return
+	}
+	cookie := &http.Cookie{
+		Name:     "__Host-FRMSessionID",
+		Value:    sessionValue.String(),
+		Path:     "/",
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: http.SameSite(http.SameSiteStrictMode),
+	}
+	http.SetCookie(data.Response, cookie)
+	http.Redirect(data.Response, data.Request, "/", http.StatusSeeOther)
+}
+
+func userRegister(data models.ResponseStruct) {
+	if data.User.LoggedIn {
+		Index(*data.SetErrorConsume(models.ErrorAlreadyLoggedIn))
+		return
+	}
+	switch data.Request.Method {
+	case http.MethodGet:
+		views.UserRegister(data)
+		return
+	case http.MethodPost:
+		attemptRegister(data)
+		return
+	default:
+		data.SetErrorConsume(models.ErrorMethodNotAllowed).WriteResponse()
+	}
+}
+
+func attemptRegister(data models.ResponseStruct) {
+	if data.Request.Method != http.MethodPost {
+		return
+	}
+	var err error
+	data.User.Username = data.Request.FormValue("username")
+	data.User.Email = data.Request.FormValue("email")
+	if err = data.User.ValidateUser(); err != nil {
+		data.SetUser(data.User).SetErrorConsume(err)
+		views.UserRegister(data)
+		return
+	}
+	if models.IsEmailRegistered(data.User.Email) {
+		data.SetUser(data.User).SetErrorConsume(models.ErrorEmailIsRegistered)
+		views.UserRegister(data)
+		return
+	}
+	if !models.IsUniqueUsername(data.User.Username) {
+		data.SetUser(data.User).SetErrorConsume(models.ErrorUsernameTaken)
+		views.UserRegister(data)
+		return
+	}
+	if !CompareRegistrationPasswords(data.Request.FormValue("password1"), data.Request.FormValue("password2")) {
+		data.SetUser(data.User).SetErrorConsume(models.ErrorPasswordMismatch)
+		views.UserRegister(data)
+		return
+	}
+	password := data.Request.FormValue("password1")
+	if err = validatePasswordStrength(password); err != nil {
+		data.SetUser(data.User).SetErrorConsume(err)
+		views.UserRegister(data)
+		return
+	}
+	data.User.Hash, err = HashPassword(password)
+	if err != nil {
+		data.SetUser(data.User).SetErrorConsume(err)
+		views.UserRegister(data)
+		return
+	}
+	if err = data.User.Add(); err != nil {
+		data.SetUser(data.User).SetErrorConsume(models.ErrorInvalidUser)
+		views.UserRegister(data)
+		return
+	}
+	data.SetUser(models.GetGuestUser())
+	// TODO
+	// We have Error but we could generalize it to Message or LogMessage or
+	// SomethingMessage, with a types of "Error", "Success" for starters...
+	// data.?!?!?!?!
+	views.UserLogin(data)
+}
+
+// Strong password validation. Makes sure the password is in between 10-16
+// characters and includes letters, numbers and punctation symbols
+func validatePasswordStrength(password string) error {
+	unameMask := regexp.MustCompile(`^[[:punct:][:alnum:]]{10,16}$`)
+	if !unameMask.MatchString(password) {
+		return models.ErrorWeakPassword
+	}
+	return nil
+}
+
+func showUserPosts(data models.ResponseStruct) {
+	posts, err := models.GetPostsByUserId(data.User.Id)
+	if err != nil {
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	for i := range posts {
+		err = posts[i].GetReactions()
+		if err != nil {
+			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+			return
+		}
+		err = posts[i].GetReactionsByUserId(data.User.Id)
+		if err != nil {
+			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+			return
+		}
+	}
+	data.Posts = posts
+	views.PostsView(data)
+}
+
+func showUserLikedPosts(data models.ResponseStruct) {
+	var err error
+	var posts models.Posts
+	posts, err = models.GetLikedPostsByUserId(data.User.Id)
+	if err != nil {
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	for i := range posts {
+		err = posts[i].GetReactions()
+		if err != nil {
+			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+			return
+		}
+		err = posts[i].GetReactionsByUserId(data.User.Id)
+		if err != nil {
+			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+			return
+		}
+	}
+	data.Posts = posts
+	views.PostsView(data)
+}
+
+func showUserView(data models.ResponseStruct) {
+	views.UserView(data)
+}

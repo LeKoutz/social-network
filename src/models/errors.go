@@ -1,4 +1,4 @@
-package forum
+package models
 
 import (
 	"errors"
@@ -16,6 +16,7 @@ var (
 	ErrorWrongPassword           = errors.New("Wrong password")
 	ErrorWeakPassword            = errors.New("Weak password. Use lower and upper case letters, symbols and number. Length must be between 10-16 characters.")
 	ErrorPasswordMismatch        = errors.New("Password mismatch")
+	ErrorAlreadyLoggedIn         = errors.New("Already logged in.")
 	ErrorNotFound                = errors.New("Not found")
 	ErrorPostEmptyId             = errors.New("Post ID can't be empty.")
 	ErrorInvalidPostId           = errors.New("Invalid post ID")
@@ -35,6 +36,8 @@ var (
 	ErrorCategoryNameTooLong     = errors.New("Category name is too long. Use less than 128 characters.")
 	ErrorUnauthorizedAction      = errors.New("Unauthorized action.")
 	ErrorMethodNotAllowed        = errors.New("Method not allowed.")
+	ErrorBadRequest              = errors.New("Bad request.")
+	ErrorUnknownAction           = errors.New("Unknown action requested.")
 )
 
 type Error struct {
@@ -77,7 +80,8 @@ func (e *Error) LogError() {
 // Responds *Error to user with the error_view template
 func (e *Error) RespondError(res http.ResponseWriter, user User) {
 	data := ResponseStruct{}
-	data.Init().SetError(*e).SetUser(user).SetView("error_view").WriteResponse(res)
+	data.Init().SetResponse(res)
+	data.SetError(*e).SetUser(user).SetView("error_view").WriteResponse()
 }
 
 // Logs *Error to terminal and responds to user with error_view template

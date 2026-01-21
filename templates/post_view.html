@@ -8,51 +8,56 @@
     {{$post := index .Posts 0}}
     <div class="post" id="{{$post.Id}}">
         <div class="post-content">
-            <a href="/post?id={{$post.Id}}"><h3>{{$post.Title}}</h3></a>
-            <div class="categories">
+            <a href="/post/view/{{$post.Id}}"><h3>{{$post.Title}}</h3></a>
+            <div class="post-details">
+                <p>Categories:
                 {{range $post.Categories}}
-                <a href="/category?id={{.Id}}">{{.Name}}</a>
+                    <a href="/category/view/{{.Id}}">{{.Name}}</a>
                 {{end}}
+                </p>
+                <p>Posted by <strong>{{$post.User.Username}}</strong> on <em>({{$post.TimestampString}})</em></p>
             </div>
-            <span>{{$post.User.Username}} ({{$post.TimestampString}})</span>
             <pre>{{$post.Body}}</pre>
         </div>
         <div class="reactions">
-            <form method="POST" action="/post?id={{$post.Id}}">
+            <form method="POST" action="/post/react">
+                <input type="hidden" name="post-id" value="{{$post.Id}}"/>
                 <button type="sumbit"
                         name="action"
                         value="like"
                         {{if not $.User.LoggedIn }}disabled{{end}}
                         >{{$post.Likes}} {{if $post.Liked}}👍{{else}}👍🏻{{end}}</button>
             </form>
-            <form method="POST" action="/post?id={{$post.Id}}">
+            <form method="POST" action="/post/react">
+                <input type="hidden" name="post-id" value="{{$post.Id}}"/>
                 <button type="sumbit"
                         name="action"
                         value="dislike"
                         {{if not $.User.LoggedIn }}disabled{{end}}
                         >{{$post.Dislikes}} {{if $post.Disliked}}👎{{else}}👎🏻{{end}}</button>
-
             </form>
         </div>
-        {{if $.User.LoggedIn}}
-        {{ template "comment_create" $post}}
-        {{end}}
         <div class="comments">
+            {{if $.User.LoggedIn}}
+                {{ template "comment_create" $post}}
+            {{end}}
             {{range $post.Comments}}
-            <div class="comment" id="{{.Id}}">
+            <div class="comment" id="comment-{{.Id}}">
                 <span>{{.Username}} ({{.TimestampString}})</span>
                 <pre>{{.Body}}</pre>
                 <div class="reactions">
-                    <form method="POST" action="/comment?id={{.Id}}">
+                    <form method="POST" action="/comment/react">
                         <input type="hidden" name="post-id" value="{{$post.Id}}"/>
+                        <input type="hidden" name="comment-id" value="{{.Id}}"/>
                         <button type="sumbit"
                                 name="action"
                                 value="like"
                                 {{if not $.User.LoggedIn }}disabled{{end}}
                                 >{{.Likes}} {{if .Liked}}👍{{else}}👍🏻{{end}}</button>
                     </form>
-                    <form method="POST" action="/comment?id={{.Id}}">
+                    <form method="POST" action="/comment/react">
                         <input type="hidden" name="post-id" value="{{$post.Id}}"/>
+                        <input type="hidden" name="comment-id" value="{{.Id}}"/>
                         <button type="sumbit"
                                 name="action"
                                 value="dislike"
@@ -68,4 +73,3 @@
 </div>
 {{template "ending" .}}
 {{end}}
-

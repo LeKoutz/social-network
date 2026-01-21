@@ -1,0 +1,119 @@
+package models
+
+import (
+	"errors"
+	"forum/src/utils"
+)
+
+type Post struct {
+	Id              int64
+	Title           string
+	Body            string
+	UserId          int64
+	User            User
+	Timestamp       int64
+	TimestampString string
+	Likes           int
+	Liked           bool
+	Dislikes        int
+	Disliked        bool
+	Category        Category
+	Categories      Categories
+	Comments        Comments
+}
+
+func (p *Post) ValidatePost() error {
+	if len(p.Title) == 0 {
+		return ErrorPostTitleEmpty
+	}
+	if len(p.Body) == 0 {
+		return ErrorPostBodyEmpty
+	}
+	if p.Categories.IsEmpty() {
+		return ErrorPostHasNoCategory
+	}
+	return nil
+}
+
+// Adds a Post in the database. Returns its id or error
+func (p *Post) Add() (int64, error) {
+	err := p.ValidatePost()
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return 0, err
+	}
+	stmt, err := DB.Prepare("INSERT INTO posts (title, body, user_id, timestamp) VALUES (?, ?, ?, ?)")
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return 0, err
+	}
+	res, err := stmt.Exec(p.Title, p.Body, p.UserId, utils.GetCurrentTimestamp())
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return 0, err
+	}
+	postId, err := res.LastInsertId()
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return 0, err
+	}
+	for _, category := range p.Categories {
+		err = p.AddCategory(category)
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return 0, err
+		}
+	}
+	return postId, nil
+}
+
+func (p *Post) AddCategory(category Category) error {
+	return AddCategoryToPost(p.Id, category.Id)
+}
+
+func (p *Post) GetById() error {
+	var ts string
+	err := DB.QueryRow(`SELECT title, body, timestamp, user_id FROM posts WHERE id = ?`, p.Id).Scan(&p.Title, &p.Body, &ts, &p.UserId)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	t, err := utils.ConvertStringToTime(ts)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	p.TimestampString = utils.ConvertTimeToString(t)
+	p.User, err = getUserById(p.UserId)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	return nil
+}
+
+func (p *Post) GetReactions() error {
+	var err error
+	(*p).Likes, err = getLikesCountByPostId((*p).Id)
+	if err != nil {
+		return err
+	}
+	(*p).Dislikes, err = getDislikesCountByPostId((*p).Id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *Post) GetReactionsByUserId(user_id int64) error {
+	var err error
+	(*p).Liked, err = HasUserLikedPost(user_id, (*p).Id)
+	if err != nil {
+		return err
+	}
+	(*p).Disliked, err = HasUserDislikedPost(user_id, (*p).Id)
+	if err != nil {
+		return err
+	}
+	return nil
+}

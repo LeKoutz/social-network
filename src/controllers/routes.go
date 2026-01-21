@@ -1,0 +1,124 @@
+package controllers
+
+import (
+	"context"
+	"forum/src/models"
+	"forum/src/utils"
+	"log"
+	"net/http"
+	"net/url"
+	"strings"
+)
+
+func Routes(data models.ResponseStruct) {
+	uri, err := url.ParseRequestURI(data.Request.RequestURI)
+	if err != nil {
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	utils.LogDebug(uri)
+	switch {
+	case strings.HasPrefix(data.Request.RequestURI, "/category/view/"):
+		showCategory(data)
+	case strings.HasPrefix(data.Request.RequestURI, "/comment/react"):
+		handleCommentReaction(data)
+	case strings.HasPrefix(data.Request.RequestURI, "/comment/create"):
+		handleCommentCreate(data)
+	case strings.Compare(data.Request.RequestURI, "/categories") == 0:
+		showCategories(data)
+	case strings.Compare(data.Request.RequestURI, "/posts") == 0:
+		showPosts(data)
+	case strings.Compare(data.Request.RequestURI, "/post/create") == 0:
+		handlePostCreate(data)
+	case strings.Compare(data.Request.RequestURI, "/post/react") == 0:
+		handlePostReaction(data)
+	case strings.HasPrefix(data.Request.RequestURI, "/post/view/"):
+		showPost(data)
+	case strings.Compare(data.Request.RequestURI, "/post/comment") == 0:
+		showPost(data)
+	case strings.Compare(data.Request.RequestURI, "/user/login") == 0:
+		userLogin(data)
+	case strings.Compare(data.Request.RequestURI, "/user/register") == 0:
+		userRegister(data)
+	case strings.Compare(data.Request.RequestURI, "/user/logout") == 0:
+		userLogout(data)
+	case strings.Compare(data.Request.RequestURI, "/user/posts") == 0:
+		showUserPosts(data)
+	case strings.Compare(data.Request.RequestURI, "/user/likes") == 0:
+		showUserLikedPosts(data)
+	case strings.Compare(data.Request.RequestURI, "/user") == 0:
+		showUserView(data)
+	case strings.Compare(data.Request.RequestURI, "/") == 0:
+		Index(data)
+	default:
+		(&models.Error{}).Consume(models.ErrorNotFound).LogAndRespondError(data.Response, data.User)
+	}
+}
+
+func RoutesHandler(res http.ResponseWriter, req *http.Request) {
+	log.Printf("Info: %s -> %s http://%s%s", req.RemoteAddr, req.Method, req.Host, req.RequestURI)
+	log.Printf("Cookies: %d", len(req.Cookies()))
+	var err error
+	var user models.User = models.GetGuestUser()
+	for _, cookie := range req.Cookies() {
+		if cookie.Name == "__Host-FRMSessionID" {
+			user, err = models.GetUserBySession(cookie.Value)
+			if err != nil {
+				(&models.Error{}).Consume(err).LogError()
+				break
+			}
+			user.LoggedIn = true
+		}
+	}
+	data := models.ResponseStruct{}
+	data.Init().SetResponse(res).SetRequest(req).SetUser(user)
+	err = data.Request.ParseForm()
+	if err != nil {
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	utils.LogDebug(data.Request.Form)
+	if req.Method != http.MethodPost && req.Method != http.MethodGet {
+		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
+	}
+	Routes(data)
+}
+
+func LogMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		log.Printf("Info: %s -> %s http://%s%s", req.RemoteAddr, req.Method, req.Host, req.RequestURI)
+		log.Printf("Cookies: %d", len(req.Cookies()))
+		next.ServeHTTP(res, req)
+	})
+}
+
+func AuthMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		var err error
+		var user models.User = models.GetGuestUser()
+		for _, cookie := range req.Cookies() {
+			if cookie.Name == "__Host-FRMSessionID" {
+				user, err = models.GetUserBySession(cookie.Value)
+				if err != nil {
+					(&models.Error{}).Consume(err).LogError()
+					break
+				}
+				user.LoggedIn = true
+			}
+		}
+		// irrelevant anymore I guess
+		// data := models.ResponseStruct{}
+		// data.Init().SetResponse(res).SetRequest(req).SetUser(user)
+		// err = data.Request.ParseForm()
+		// if err != nil {
+		// 	(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		// 	return
+		// }
+		// utils.LogDebug(data.Request.Form)
+		// if req.Method != http.MethodPost && req.Method != http.MethodGet {
+		// 	(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
+		// }
+		ctx := context.WithValue(req.Context(), "User", user)
+		next.ServeHTTP(res, req.WithContext(ctx))
+	})
+}

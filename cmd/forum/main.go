@@ -1,7 +1,7 @@
 package main
 
 import (
-	forum "forum/src"
+	forum "forum/src/server"
 	"os"
 )
 

@@ -5,7 +5,7 @@
     {{if .Error.Has}}
         {{template "error" .}}
     {{end}}
-    <form method="POST" action="/post?action=create">
+    <form method="POST" action="/post/create">
         <fieldset>
             <legend>New post</legend>
             <input type="text" name="title" placeholder="Your title here" required/>
@@ -18,7 +18,6 @@
             <textarea name="body" placeholder="Your post here" required></textarea>
             <input type="submit"/>
         </fieldset>
-
     </form>
 </div>
 {{template "ending" .}}
