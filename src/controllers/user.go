@@ -69,7 +69,7 @@ func userLogout(data models.ResponseStruct) {
 		views.UserRegister(data)
 		return
 	}
-	err = models.SetUserSession(user.Id, "")
+	err = user.SetUserSession("")
 	if err != nil {
 		data.SetUser(user)
 		data.SetErrorConsume(err)
@@ -131,7 +131,7 @@ func attemptLogin(data models.ResponseStruct) {
 		return
 	}
 	data.User.LoggedIn = true
-	err = models.SetUserSession(data.User.Id, sessionValue.String())
+	err = data.User.SetUserSession(sessionValue.String())
 	if err != nil {
 		data.User = models.GetGuestUser()
 		data.SetErrorConsume(err)
@@ -230,7 +230,7 @@ func validatePasswordStrength(password string) error {
 }
 
 func showUserPosts(data models.ResponseStruct) {
-	posts, err := models.GetPostsByUserId(data.User.Id)
+	posts, err := data.User.GetPosts()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
@@ -254,7 +254,7 @@ func showUserPosts(data models.ResponseStruct) {
 func showUserLikedPosts(data models.ResponseStruct) {
 	var err error
 	var posts models.Posts
-	posts, err = models.GetLikedPostsByUserId(data.User.Id)
+	posts, err = data.User.GetLikedPosts()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
