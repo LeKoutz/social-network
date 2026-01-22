@@ -106,6 +106,82 @@ func (u *User) Add() error {
 	return nil
 }
 
+func (u *User) GetPosts() (Posts, error) {
+	var posts Posts
+	rows, err := DB.Query(`
+	SELECT posts.id, posts.title, posts.body, posts.timestamp
+	FROM posts
+	WHERE user_id = ?`, (*u).Id)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return Posts{}, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var post Post
+		var ts string
+		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts)
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return Posts{}, err
+		}
+		t, err := utils.ConvertStringToTime(ts)
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return Posts{}, err
+		}
+		post.TimestampString = utils.ConvertTimeToString(t)
+		posts = append(posts, post)
+	}
+	return posts, nil
+}
+
+func (u *User) GetLikedPosts() (Posts, error) {
+	var posts Posts
+	rows, err := DB.Query(`
+	SELECT posts.id, posts.title, posts.body, posts.timestamp
+	FROM posts
+	JOIN reactions r ON posts.id = r.post_id
+	WHERE r.user_id = ? AND r.value = 1
+	`, (*u).Id)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return Posts{}, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var post Post
+		var ts string
+		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts)
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return Posts{}, err
+		}
+		t, err := utils.ConvertStringToTime(ts)
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return Posts{}, err
+		}
+		post.TimestampString = utils.ConvertTimeToString(t)
+		posts = append(posts, post)
+	}
+	return posts, nil
+}
+
+func (u *User) SetUserSession(session_key string) error {
+	stmt, err := DB.Prepare("UPDATE users SET session_key = ? WHERE id = ?")
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err = stmt.Exec(session_key, (*u).Id)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	return nil
+}
+
 func IsUniqueUsername(username string) bool {
 	usernames, err := GetAllUsernames()
 	if err != nil {

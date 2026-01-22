@@ -33,7 +33,7 @@ func showPost(data models.ResponseStruct) {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	comments, err := models.GetCommentsByPostId(id_int)
+	comments, err := post.GetComments()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
