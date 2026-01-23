@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"forum/src/models"
 	"forum/src/views"
 	"net/http"
@@ -57,9 +58,10 @@ func userLogout(data models.ResponseStruct) {
 	}
 	GuestUser := models.GetGuestUser()
 	cookie, err := data.Request.Cookie("__Host-FRMSessionID")
-	if err != nil {
-		data.SetUser(GuestUser).SetErrorConsume(err)
-		data.SetView("error_view").WriteResponse()
+	if errors.Is(err, http.ErrNoCookie) {
+		data.SetUser(GuestUser).SetErrorConsume(models.ErrorAlreadyLoggedOut)
+		views.Error(data)
+		// data.SetView("error_view").WriteResponse()
 		return
 	}
 	user, err := models.GetUserBySession(cookie.Value)
