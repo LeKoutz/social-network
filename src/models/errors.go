@@ -38,6 +38,7 @@ var (
 	ErrorUnauthorizedAction      = errors.New("Unauthorized action.")
 	ErrorMethodNotAllowed        = errors.New("Method not allowed.")
 	ErrorBadRequest              = errors.New("Bad request.")
+	ErrorInternalServerError     = errors.New("Internal server error.")
 	ErrorUnknownAction           = errors.New("Unknown action requested.")
 )
 
@@ -69,6 +70,8 @@ func (e *Error) Consume(err error) *Error {
 		e.StatusCode = http.StatusForbidden
 	case ErrorMethodNotAllowed:
 		e.StatusCode = http.StatusMethodNotAllowed
+	case ErrorInternalServerError:
+		e.StatusCode = http.StatusInternalServerError
 	}
 	return e
 }

@@ -114,8 +114,14 @@ func attemptLogin(data models.ResponseStruct) {
 	err = Auth(email, password)
 	if err != nil {
 		data.User = models.GetGuestUser()
+		if !errors.Is(err, models.ErrorWrongPassword) {
+			(&models.Error{}).Consume(err).LogError()
+			data.SetErrorConsume(models.ErrorInternalServerError)
+			views.Error(data)
+			return
+		}
 		data.SetErrorConsume(err)
-		views.UserRegister(data)
+		views.UserLogin(data)
 		return
 	}
 	sessionValue, err := uuid.NewV4()
