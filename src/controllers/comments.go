@@ -28,7 +28,7 @@ func createComment(data models.ResponseStruct) {
 	post_id, err := strconv.ParseInt(postIdStr, 10, 64)
 	if err != nil {
 		data.Error.Consume(err)
-		views.PostView(data)
+		views.ErrorView(data)
 		return
 	}
 	// Create post object
@@ -41,7 +41,7 @@ func createComment(data models.ResponseStruct) {
 	commentId, err := comment.Add()
 	if err != nil {
 		data.Error.Consume(err)
-		views.PostView(data)
+		views.ErrorView(data)
 		return
 	}
 	redirectURL := fmt.Sprintf("/post/view/%d#comment-%d", post_id, commentId)
