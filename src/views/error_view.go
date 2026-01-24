@@ -4,6 +4,6 @@ import (
 	"forum/src/models"
 )
 
-func Error(data models.ResponseStruct4ViewsIface) {
+func ErrorView(data models.ResponseStruct4ViewsIface) {
 	data.SetView("error_view").WriteResponse()
 }

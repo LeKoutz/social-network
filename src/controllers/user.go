@@ -60,7 +60,7 @@ func userLogout(data models.ResponseStruct) {
 	cookie, err := data.Request.Cookie("__Host-FRMSessionID")
 	if errors.Is(err, http.ErrNoCookie) {
 		data.SetUser(GuestUser).SetErrorConsume(models.ErrorAlreadyLoggedOut)
-		views.Error(data)
+		views.ErrorView(data)
 		// data.SetView("error_view").WriteResponse()
 		return
 	}
@@ -117,7 +117,7 @@ func attemptLogin(data models.ResponseStruct) {
 		if !errors.Is(err, models.ErrorWrongPassword) {
 			(&models.Error{}).Consume(err).LogError()
 			data.SetErrorConsume(models.ErrorInternalServerError)
-			views.Error(data)
+			views.ErrorView(data)
 			return
 		}
 		data.SetErrorConsume(err)
