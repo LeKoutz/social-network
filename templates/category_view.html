@@ -14,8 +14,7 @@
         <div class="reactions">
             <form method="POST" action="/post/react">
                 <input type="hidden" name="post-id" value="{{.Id}}"/>
-                <button type="sumbit"
-                        id="likes"
+                <button type="submit"
                         name="action"
                         value="like"
                         {{if not $.User.LoggedIn }}disabled{{end}}
@@ -23,7 +22,7 @@
             </form>
             <form method="POST" action="/post/react">
                 <input type="hidden" name="post-id" value="{{.Id}}"/>
-                <button type="sumbit"
+                <button type="submit"
                         name="action"
                         value="dislike"
                         {{if not $.User.LoggedIn }}disabled{{end}}
