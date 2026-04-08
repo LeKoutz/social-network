@@ -1,6 +1,8 @@
-package forum
+package models
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestInit(t *testing.T) {
 	tests := []struct {
