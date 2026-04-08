@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"forum/src/models"
 
 	"golang.org/x/crypto/bcrypt"
@@ -25,6 +26,9 @@ func Auth(email, password string) error {
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(user.Hash), []byte(password))
 	if err != nil {
+		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+			return models.ErrorWrongPassword
+		}
 		return err
 	}
 	return nil

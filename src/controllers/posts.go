@@ -66,7 +66,7 @@ func showPost(data models.ResponseStruct) {
 func showPosts(data models.ResponseStruct) {
 	posts, err := models.GetAllPosts()
 	if err != nil {
-		data.Error = *(&models.Error{}).Consume(err)
+		data.Error.Consume(err)
 		(&models.Error{}).Consume(err).RespondError(data.Response, data.User)
 		return
 	}
@@ -102,19 +102,19 @@ func createPost(data models.ResponseStruct) {
 		return
 	}
 	if !data.User.LoggedIn {
-		data.Error = *(&models.Error{}).Consume(models.ErrorPostPermissionDenied)
+		data.Error.Consume(models.ErrorPostPermissionDenied)
 		views.UserLogin(data)
 		return
 	}
 	post, err := parseCreatePostRequest(data)
 	if err != nil {
-		data.Error = *(&models.Error{}).Consume(err)
+		data.Error.Consume(err)
 		views.PostCreate(data)
 		return
 	}
 	postId, err := post.Add()
 	if err != nil {
-		data.Error = *(&models.Error{}).Consume(err)
+		data.Error.Consume(err)
 		views.PostCreate(data)
 		return
 	}

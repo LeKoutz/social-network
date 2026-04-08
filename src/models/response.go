@@ -68,7 +68,7 @@ func (r *ResponseStruct) SetError(err Error) *ResponseStruct {
 }
 
 func (r *ResponseStruct) SetErrorConsume(err error) *ResponseStruct {
-	r.Error = *(&Error{}).Consume(err)
+	r.Error.Consume(err)
 	return r
 }
 

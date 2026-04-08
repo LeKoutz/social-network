@@ -2,7 +2,7 @@
 <form method="POST" action="/comment/create">
     <fieldset>
         <legend>Leave a comment</legend>
-        <textarea name="comment" placeholder="Enter your comment"></textarea>
+        <textarea type="text" name="comment" placeholder="Enter your comment" required></textarea>
         <input type="hidden" name="post_id" value="{{.Id}}"/>
         <input type="submit" name="submit" value="Post comment"/>
     </fieldset>

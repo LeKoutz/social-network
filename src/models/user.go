@@ -185,9 +185,7 @@ func (u *User) SetUserSession(session_key string) error {
 func IsUniqueUsername(username string) bool {
 	usernames, err := GetAllUsernames()
 	if err != nil {
-		var e Error
-		e.Consume(err)
-		e.LogError()
+		(&Error{}).Consume(err).LogError()
 		return false
 	}
 	return !slices.Contains(usernames, username)
@@ -196,9 +194,7 @@ func IsUniqueUsername(username string) bool {
 func IsUniqueEmail(email string) bool {
 	emails, err := GetAllUserEmails()
 	if err != nil {
-		var e Error
-		e.Consume(err)
-		e.LogError()
+		(&Error{}).Consume(err).LogError()
 		return false
 	}
 	return !slices.Contains(emails, email)

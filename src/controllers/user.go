@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"forum/src/models"
 	"forum/src/views"
 	"net/http"
@@ -57,9 +58,10 @@ func userLogout(data models.ResponseStruct) {
 	}
 	GuestUser := models.GetGuestUser()
 	cookie, err := data.Request.Cookie("__Host-FRMSessionID")
-	if err != nil {
-		data.SetUser(GuestUser).SetErrorConsume(err)
-		data.SetView("error_view").WriteResponse()
+	if errors.Is(err, http.ErrNoCookie) {
+		data.SetUser(GuestUser).SetErrorConsume(models.ErrorAlreadyLoggedOut)
+		views.ErrorView(data)
+		// data.SetView("error_view").WriteResponse()
 		return
 	}
 	user, err := models.GetUserBySession(cookie.Value)
@@ -112,8 +114,14 @@ func attemptLogin(data models.ResponseStruct) {
 	err = Auth(email, password)
 	if err != nil {
 		data.User = models.GetGuestUser()
+		if !errors.Is(err, models.ErrorWrongPassword) {
+			(&models.Error{}).Consume(err).LogError()
+			data.SetErrorConsume(models.ErrorInternalServerError)
+			views.ErrorView(data)
+			return
+		}
 		data.SetErrorConsume(err)
-		views.UserRegister(data)
+		views.UserLogin(data)
 		return
 	}
 	sessionValue, err := uuid.NewV4()

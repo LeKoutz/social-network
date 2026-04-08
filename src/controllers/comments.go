@@ -12,7 +12,7 @@ import (
 func createComment(data models.ResponseStruct) {
 	// Validate user is logged in
 	if !data.User.LoggedIn {
-		data.Error = *(&models.Error{}).Consume(models.ErrorCommentPermissionDenied)
+		data.Error.Consume(models.ErrorCommentPermissionDenied)
 		views.UserLogin(data)
 		return
 	}
@@ -27,8 +27,8 @@ func createComment(data models.ResponseStruct) {
 	}
 	post_id, err := strconv.ParseInt(postIdStr, 10, 64)
 	if err != nil {
-		data.Error = *(&models.Error{}).Consume(err)
-		views.PostView(data)
+		data.Error.Consume(err)
+		views.ErrorView(data)
 		return
 	}
 	// Create post object
@@ -40,8 +40,8 @@ func createComment(data models.ResponseStruct) {
 	// Save post to database
 	commentId, err := comment.Add()
 	if err != nil {
-		data.Error = *(&models.Error{}).Consume(err)
-		views.PostView(data)
+		data.Error.Consume(err)
+		views.ErrorView(data)
 		return
 	}
 	redirectURL := fmt.Sprintf("/post/view/%d#comment-%d", post_id, commentId)
@@ -56,7 +56,7 @@ func handleCommentCreate(data models.ResponseStruct) {
 	}
 	err := data.Request.ParseForm()
 	if err != nil {
-		data.Error = *(&models.Error{}).Consume(err)
+		data.Error.Consume(err)
 		data.SetView("error_view").WriteResponse()
 		return
 	}
