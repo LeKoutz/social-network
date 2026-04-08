@@ -1,7 +1,6 @@
 package models
 
 import (
-	"forum/src"
 	"html/template"
 	"net/http"
 )
@@ -32,7 +31,7 @@ func (r ResponseStruct) WriteResponse() {
 }
 
 func (r *ResponseStruct) Init() *ResponseStruct {
-	r.WebsiteName = forum.WebsiteName
+	r.WebsiteName = "Forum"
 	r.Version = getVersion()
 	return r
 }
