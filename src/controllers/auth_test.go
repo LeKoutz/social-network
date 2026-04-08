@@ -33,7 +33,7 @@ func TestAuth(t *testing.T) {
 		{
 			name:     "user not found",
 			email:    "nonexistent@tester.er",
-			password: "Test12345!@#",
+			password: "notfound",
 			want:     models.ErrorNotRegistered,
 		},
 	}
