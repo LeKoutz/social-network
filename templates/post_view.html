@@ -18,6 +18,9 @@
                 <p>Posted by <strong>{{$post.User.Username}}</strong> on <em>({{$post.TimestampString}})</em></p>
             </div>
             <pre>{{$post.Body}}</pre>
+            {{if $post.ImagePath}}
+                <img src="/{{$post.ImagePath}}" alt="Post image" style="max-width: 100%;"/>
+            {{end}}
         </div>
         <div class="reactions">
             <form method="POST" action="/post/react">

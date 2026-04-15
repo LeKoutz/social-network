@@ -5,7 +5,7 @@
     {{if .Error.Has}}
         {{template "error" .}}
     {{end}}
-    <form method="POST" action="/post/create">
+    <form method="POST" action="/post/create" enctype="multipart/form-data">
         <fieldset>
             <legend>New post</legend>
             <input type="text" name="title" placeholder="Your title here" required/>
@@ -16,6 +16,7 @@
                 </div>
                 {{ end }}
             <textarea name="body" placeholder="Your post here" required></textarea>
+            <input type="file" name="image" accept="image/jpeg,image/png,image/gif"/>
             <input type="submit"/>
         </fieldset>
     </form>
