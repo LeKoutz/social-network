@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	forum "forum/src"
 	"os"
 	"path/filepath"
+
+	"forum/src/controllers"
 )
 
 func main() {
@@ -12,5 +13,5 @@ func main() {
 		fmt.Fprintf(os.Stderr, "%s <password>", filepath.Base(os.Args[0]))
 		os.Exit(1)
 	}
-	fmt.Println(forum.HashPassword(os.Args[1]))
+	fmt.Println(controllers.HashPassword(os.Args[1]))
 }
