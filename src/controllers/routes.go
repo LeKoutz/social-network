@@ -106,18 +106,6 @@ func AuthMiddleware(next http.Handler) http.Handler {
 				user.LoggedIn = true
 			}
 		}
-		// irrelevant anymore I guess
-		// data := models.ResponseStruct{}
-		// data.Init().SetResponse(res).SetRequest(req).SetUser(user)
-		// err = data.Request.ParseForm()
-		// if err != nil {
-		// 	(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		// 	return
-		// }
-		// utils.LogDebug(data.Request.Form)
-		// if req.Method != http.MethodPost && req.Method != http.MethodGet {
-		// 	(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
-		// }
 		ctx := context.WithValue(req.Context(), "User", user)
 		next.ServeHTTP(res, req.WithContext(ctx))
 	})
