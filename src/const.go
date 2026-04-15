@@ -3,22 +3,11 @@ package forum
 import (
 	"forum/src/models"
 	"forum/src/utils"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 const (
 	WebsiteName = "Forum"
 )
-
-// HashPassword returns the bcrypt hash of a password
-func HashPassword(password string) (string, error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return "", err
-	}
-	return string(hash), nil
-}
 
 // MockGen generates mock data for the database
 func MockGen(dbPath string) error {
