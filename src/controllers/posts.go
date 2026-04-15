@@ -106,13 +106,13 @@ func createPost(data models.ResponseStruct) {
 		views.UserLogin(data)
 		return
 	}
-	post, err := parseCreatePostRequest(data)
+	post, imagePath, err := parseCreatePostRequest(data)
 	if err != nil {
 		data.Error.Consume(err)
 		views.PostCreate(data)
 		return
 	}
-	postId, err := post.Add()
+	postId, err := post.Add(imagePath)
 	if err != nil {
 		data.Error.Consume(err)
 		views.PostCreate(data)
@@ -122,12 +122,12 @@ func createPost(data models.ResponseStruct) {
 	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
 }
 
-func parseCreatePostRequest(data models.ResponseStruct) (models.Post, error) {
+func parseCreatePostRequest(data models.ResponseStruct) (models.Post, string, error) {
 	title := data.Request.FormValue("title")
 	body := data.Request.FormValue("body")
 	categories, err := models.GetAllCategories()
 	if err != nil {
-		return models.Post{}, err
+		return models.Post{}, "", err
 	}
 	var PostCategories models.Categories
 	for _, category := range categories {
@@ -136,12 +136,21 @@ func parseCreatePostRequest(data models.ResponseStruct) (models.Post, error) {
 			PostCategories = append(PostCategories, category)
 		}
 	}
+	imagePath := ""
+	imageFile, _, err := data.Request.FormFile("image")
+	if err == nil {
+		defer imageFile.Close()
+		imagePath, err = models.SaveImage(imageFile, 0, "./")
+		if err != nil {
+			return models.Post{}, "", err
+		}
+	}
 	return models.Post{
 		Title:      title,
 		Body:       body,
 		UserId:     data.User.Id,
 		Categories: PostCategories,
-	}, nil
+	}, imagePath, nil
 }
 
 func handlePostCreate(data models.ResponseStruct) {
@@ -165,12 +174,12 @@ func handlePostCreate(data models.ResponseStruct) {
 			views.PostCreate(data)
 			return
 		case http.MethodPost:
-			err := data.Request.ParseForm()
+			err := data.Request.ParseMultipartForm(20 << 20)
 			if err != nil {
 				(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 				return
 			}
-				createPost(data)
+			createPost(data)
 		default:
 			(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
 		}
