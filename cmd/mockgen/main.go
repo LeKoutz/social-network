@@ -7,8 +7,8 @@ import (
 	"forum/src/utils"
 )
 
-// MockGen generates mock data for the database
-func MockGen(dbPath string) error {
+// mockGen generates mock data for the database
+func mockGen(dbPath string) error {
 	if err := models.InitDB(dbPath); err != nil {
 		return err
 	}
@@ -36,5 +36,5 @@ func main() {
 	if len(os.Args) == 2 {
 		db_path = os.Args[1]
 	}
-	MockGen(db_path)
+	mockGen(db_path)
 }
