@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"forum/src/controllers"
+	"forum/src/utils"
 )
 
 func main() {
@@ -13,5 +13,5 @@ func main() {
 		fmt.Fprintf(os.Stderr, "%s <password>", filepath.Base(os.Args[0]))
 		os.Exit(1)
 	}
-	fmt.Println(controllers.HashPassword(os.Args[1]))
+	fmt.Println(utils.HashPassword(os.Args[1]))
 }

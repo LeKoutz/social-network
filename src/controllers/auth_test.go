@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"forum/src/models"
+	"forum/src/utils"
 )
 
 func TestAuth(t *testing.T) {
@@ -41,7 +42,7 @@ func TestAuth(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// Create user for valid test case
 			if tt.name == "tester" {
-				hash, _ := HashPassword(tt.password)
+				hash, _ := utils.HashPassword(tt.password)
 				user := models.User{
 					Username: "tester",
 					Email:    tt.email,
