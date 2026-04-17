@@ -51,7 +51,7 @@ and navigate to `http://[ip]:[port]`
 `mockgen` can be used to generate some sample data for your DB. Use it by
 running:
 ```
-./bin/mockgen
+./bin/mockgen [path-to-db]
 ```
 
 ### `hashgen`

@@ -3,6 +3,7 @@ package controllers
 import (
 	"errors"
 	"forum/src/models"
+	"forum/src/utils"
 	"forum/src/views"
 	"net/http"
 	"regexp"
@@ -208,7 +209,7 @@ func attemptRegister(data models.ResponseStruct) {
 		views.UserRegister(data)
 		return
 	}
-	data.User.Hash, err = HashPassword(password)
+	data.User.Hash, err = utils.HashPassword(password)
 	if err != nil {
 		data.SetUser(data.User).SetErrorConsume(err)
 		views.UserRegister(data)

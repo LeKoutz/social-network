@@ -33,12 +33,3 @@ func Auth(email, password string) error {
 	}
 	return nil
 }
-
-// Returns the hash (string) from password or error
-func HashPassword(password string) (string, error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return "", err
-	}
-	return string(hash), nil
-}
