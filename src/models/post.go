@@ -57,6 +57,7 @@ func (p *Post) Add() (int64, error) {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return 0, err
 	}
+	p.Id = postId
 	for _, category := range p.Categories {
 		err = p.AddCategory(category)
 		if err != nil {
