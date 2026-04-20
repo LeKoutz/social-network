@@ -140,7 +140,7 @@ func parseCreatePostRequest(data models.ResponseStruct) (models.Post, error) {
 	imageFile, _, err := data.Request.FormFile("image")
 	if err == nil {
 		defer imageFile.Close()
-		imagePath, err = models.SaveImage(imageFile, "./")
+		imagePath, err = models.SaveImage(imageFile)
 		if err != nil {
 			return models.Post{}, err
 		}
