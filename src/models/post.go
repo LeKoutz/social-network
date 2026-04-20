@@ -37,7 +37,7 @@ func (p *Post) ValidatePost() error {
 }
 
 // Adds a Post in the database. Returns its id or error
-func (p *Post) Add(imagePath string) (int64, error) {
+func (p *Post) Add() (int64, error) {
 	err := p.ValidatePost()
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
@@ -48,7 +48,7 @@ func (p *Post) Add(imagePath string) (int64, error) {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return 0, err
 	}
-	res, err := stmt.Exec(p.Title, p.Body, imagePath, p.UserId, utils.GetCurrentTimestamp())
+	res, err := stmt.Exec(p.Title, p.Body, p.ImagePath, p.UserId, utils.GetCurrentTimestamp())
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return 0, err

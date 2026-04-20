@@ -106,13 +106,13 @@ func createPost(data models.ResponseStruct) {
 		views.UserLogin(data)
 		return
 	}
-	post, imagePath, err := parseCreatePostRequest(data)
+	post, err := parseCreatePostRequest(data)
 	if err != nil {
 		data.Error.Consume(err)
 		views.PostCreate(data)
 		return
 	}
-	postId, err := post.Add(imagePath)
+	postId, err := post.Add()
 	if err != nil {
 		data.Error.Consume(err)
 		views.PostCreate(data)
@@ -122,12 +122,12 @@ func createPost(data models.ResponseStruct) {
 	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
 }
 
-func parseCreatePostRequest(data models.ResponseStruct) (models.Post, string, error) {
+func parseCreatePostRequest(data models.ResponseStruct) (models.Post, error) {
 	title := data.Request.FormValue("title")
 	body := data.Request.FormValue("body")
 	categories, err := models.GetAllCategories()
 	if err != nil {
-		return models.Post{}, "", err
+		return models.Post{}, err
 	}
 	var PostCategories models.Categories
 	for _, category := range categories {
@@ -142,7 +142,7 @@ func parseCreatePostRequest(data models.ResponseStruct) (models.Post, string, er
 		defer imageFile.Close()
 		imagePath, err = models.SaveImage(imageFile, 0, "./")
 		if err != nil {
-			return models.Post{}, "", err
+			return models.Post{}, err
 		}
 	}
 	return models.Post{
@@ -150,7 +150,8 @@ func parseCreatePostRequest(data models.ResponseStruct) (models.Post, string, er
 		Body:       body,
 		UserId:     data.User.Id,
 		Categories: PostCategories,
-	}, imagePath, nil
+		ImagePath: imagePath,
+	}, nil
 }
 
 func handlePostCreate(data models.ResponseStruct) {
