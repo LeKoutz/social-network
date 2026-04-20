@@ -22,25 +22,6 @@ var (
 	GifMagic  = []byte{0x47, 0x49, 0x46, 0x38}
 )
 
-func ValidateImage(reader *bytes.Reader) error {
-	buf := make([]byte, 512)
-	n, err := reader.Read(buf)
-	if err != nil && err != io.EOF {
-		return err
-	}
-	buf = buf[:n]
-
-	if reader.Len() > MaxImageSize {
-		return ErrorImageTooBig
-	}
-
-	if !isValidImageType(buf) {
-		return ErrorInvalidImageType
-	}
-
-	return nil
-}
-
 func isValidImageType(buf []byte) bool {
 	if len(buf) < 4 {
 		return false
