@@ -180,7 +180,7 @@ func handlePostCreate(data models.ResponseStruct) {
 				(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 				return
 			}
-			createPost(data)
+				createPost(data)
 		default:
 			(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
 		}
