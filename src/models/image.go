@@ -16,6 +16,12 @@ import (
 
 const MaxImageSize = 20 << 20
 
+var (
+	JpegMagic = []byte{0xFF, 0xD8, 0xFF}
+	PngMagic  = []byte{0x89, 0x50, 0x4E, 0x47}
+	GifMagic  = []byte{0x47, 0x49, 0x46, 0x38}
+)
+
 func ValidateImage(reader *bytes.Reader) error {
 	buf := make([]byte, 512)
 	n, err := reader.Read(buf)
@@ -40,17 +46,9 @@ func isValidImageType(buf []byte) bool {
 		return false
 	}
 
-	if bytes.HasPrefix(buf, []byte{0xFF, 0xD8, 0xFF}) {
-		return true
-	}
-	if bytes.HasPrefix(buf, []byte{0x89, 0x50, 0x4E, 0x47}) {
-		return true
-	}
-	if bytes.HasPrefix(buf, []byte{0x47, 0x49, 0x46, 0x38}) {
-		return true
-	}
-
-	return false
+	return bytes.HasPrefix(buf, JpegMagic) ||
+		bytes.HasPrefix(buf, PngMagic) ||
+		bytes.HasPrefix(buf, GifMagic)
 }
 
 func SaveImage(file multipart.File, postId int64, uploadDir string) (string, error) {
@@ -102,14 +100,14 @@ func SaveImage(file multipart.File, postId int64, uploadDir string) (string, err
 }
 
 func getImageExtension(buf []byte) string {
-	if bytes.HasPrefix(buf, []byte{0xFF, 0xD8, 0xFF}) {
+	switch {
+	case bytes.HasPrefix(buf, JpegMagic):
 		return ".jpg"
-	}
-	if bytes.HasPrefix(buf, []byte{0x89, 0x50, 0x4E, 0x47}) {
+	case bytes.HasPrefix(buf, PngMagic):
 		return ".png"
-	}
-	if bytes.HasPrefix(buf, []byte{0x47, 0x49, 0x46, 0x38}) {
+	case bytes.HasPrefix(buf, GifMagic):
 		return ".gif"
+	default:
+		return ""
 	}
-	return ""
 }
