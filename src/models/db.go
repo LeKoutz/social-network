@@ -5,6 +5,8 @@ import (
 	"forum/src/utils"
 	"os"
 	"path"
+	"runtime"
+	"fmt"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -27,11 +29,12 @@ func InitDB(dbPath string) error {
 }
 
 func runMigrations(db *sql.DB) {
-	x, err := os.Getwd()
-	if err != nil {
-		(&Error{}).Consume(err).LogError()
+	_, x, _, ok := runtime.Caller(0)
+	if !ok {
+		(&Error{}).Consume(fmt.Errorf("failed to get caller information")).LogError()
 		return
 	}
+	migrations_dir := path.Join(path.Dir(x), "..", "..", migrations_dir)
 	utils.LogDebug(x)
 	migrations_found, err := os.ReadDir(migrations_dir)
 	if err != nil {
