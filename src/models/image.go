@@ -51,7 +51,7 @@ func isValidImageType(buf []byte) bool {
 		bytes.HasPrefix(buf, GifMagic)
 }
 
-func SaveImage(file multipart.File, postId int64, uploadDir string) (string, error) {
+func SaveImage(file multipart.File, uploadDir string) (string, error) {
 	_, err := file.Seek(0, io.SeekStart)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
