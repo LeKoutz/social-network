@@ -1,5 +1,3 @@
 BEGIN TRANSACTION;
-ALTER TABLE "posts" (
-    ADD COLUMN "image_path"	TEXT;
-);
+ALTER TABLE "posts" ADD COLUMN "image_path" TEXT;
 END TRANSACTION;
