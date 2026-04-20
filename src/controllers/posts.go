@@ -175,7 +175,7 @@ func handlePostCreate(data models.ResponseStruct) {
 			views.PostCreate(data)
 			return
 		case http.MethodPost:
-			err := data.Request.ParseMultipartForm(20 << 20)
+			err := data.Request.ParseMultipartForm(models.MaxImageSize)
 			if err != nil {
 				(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 				return
