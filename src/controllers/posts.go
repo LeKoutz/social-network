@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"forum/src/models"
 	"forum/src/views"
+	"forum/src/utils"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -207,11 +208,27 @@ func handlePostReaction(data models.ResponseStruct) {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
+	post := models.Post{Id: postId}
+	err = post.GetById()
+	if err != nil {
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	notification := models.Notification{
+		UserId:  post.User.Id,
+		ActorId: data.User.Id,
+		TargetId: post.Id,
+	}
 	if data.Request.FormValue("action") == "like" {
 		err = DoLikePost(data.User.Id, postId)
 		if err != nil {
 			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
+		}
+		if data.User.Id != post.User.Id {
+			notification.Type = "like"
+			notification.Timestamp = utils.GetCurrentTimestamp()
+			err = models.CreateNotification(&notification)
 		}
 	}
 	if data.Request.FormValue("action") == "dislike" {
@@ -219,6 +236,11 @@ func handlePostReaction(data models.ResponseStruct) {
 		if err != nil {
 			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
+		}
+		if data.User.Id != post.User.Id {
+			notification.Type = "dislike"
+			notification.Timestamp = utils.GetCurrentTimestamp()
+			err = models.CreateNotification(&notification)
 		}
 	}
 	http.Redirect(data.Response, data.Request, "/post/view/"+postIdStr, http.StatusSeeOther)
