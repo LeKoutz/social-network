@@ -91,6 +91,8 @@ func nullifyCookie(cookie *http.Cookie) *http.Cookie {
 		Path:     "/",
 		Expires:  time.Unix(0, 0),
 		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSite(http.SameSiteStrictMode),
 	}
 	return cookie
 }
