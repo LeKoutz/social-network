@@ -20,6 +20,7 @@ type User struct {
 	OwnedComments Comments
 	OwnedLikes    Likes
 	OwnedDislikes Dislikes
+	Notifications  Notifications
 }
 
 func GetGuestUser() User {
@@ -284,4 +285,29 @@ func HasUserDislikedComment(userId, commentId int64) (bool, error) {
 		return false, err
 	}
 	return reactionId != 0, nil
+}
+
+func (u *User) GetNotifications() (Notifications, error) {
+	var notifications Notifications
+	rows, err := DB.Query(`
+	SELECT n.id, n.user_id, n.actor_id, n.type, n.target_id, n.timestamp, n.read, u.username
+	FROM notifications n
+	JOIN users u ON u.id = n.actor_id
+	WHERE user_id = ?
+	`, (*u).Id)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return Notifications{}, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var notification Notification
+		err = rows.Scan(&notification.Id, &notification.UserId, &notification.ActorId, &notification.Type, &notification.TargetId, &notification.Timestamp, &notification.Read, &notification.Actor.Username)
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return Notifications{}, err
+		}
+		notifications = append(notifications, notification)
+	}
+	return notifications, nil
 }
