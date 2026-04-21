@@ -153,6 +153,7 @@ func attemptLogin(data models.ResponseStruct) {
 		Name:     "__Host-FRMSessionID",
 		Value:    sessionValue.String(),
 		Path:     "/",
+		Expires:  time.Now().Add(24*time.Hour),
 		Secure:   true,
 		HttpOnly: true,
 		SameSite: http.SameSite(http.SameSiteStrictMode),
