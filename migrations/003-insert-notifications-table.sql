@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS "notifications" (
+	"id"	INTEGER NOT NULL UNIQUE,
+    "user_id"	INTEGER NOT NULL,
+    "actor_id" INTEGER NOT NULL,
+	"type"	TEXT NOT NULL,
+    "target_id" INTEGER NOT NULL,
+	"timestamp"	TEXT NOT NULL,
+    "read" BOOLEAN NOT NULL DEFAULT 0,
+	PRIMARY KEY("id" AUTOINCREMENT)
+);
