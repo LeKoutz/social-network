@@ -311,3 +311,17 @@ func (u *User) GetNotifications() (Notifications, error) {
 	}
 	return notifications, nil
 }
+
+func (u *User) MarkNotificationAsRead(notificationId int64) error {
+	stmt, err := DB.Prepare("UPDATE notifications SET read = 1 WHERE id = ? AND user_id = ?")
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err = stmt.Exec(notificationId, (*u).Id)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	return nil
+}
