@@ -115,7 +115,7 @@ func attemptLogin(data models.ResponseStruct) {
 	err = Auth(email, password)
 	if err != nil {
 		data.User = models.GetGuestUser()
-		if !errors.Is(err, models.ErrorWrongPassword) {
+		if !errors.Is(err, models.ErrorWrongPassword) && !errors.Is(err, models.ErrorNotRegistered) {
 			(&models.Error{}).Consume(err).LogError()
 			data.SetErrorConsume(models.ErrorInternalServerError)
 			views.ErrorView(data)
