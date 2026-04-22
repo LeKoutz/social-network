@@ -7,7 +7,6 @@ import (
 
 func startServer(ip, port string) error {
 	mux := http.NewServeMux()
-	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	mux.HandleFunc("/", controllers.RoutesHandler)
 	return http.ListenAndServe(ip+":"+port, mux)
 }

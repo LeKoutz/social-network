@@ -56,7 +56,7 @@ func SaveImage(file multipart.File) (string, error) {
 	ext := getImageExtension(fileBytes)
 	filename := fmt.Sprintf("%s%s", uuid.Must(uuid.NewV4()).String(), ext)
 
-	dir := filepath.Join("static", "images")
+	dir := filepath.Join("uploads", "images")
 	err = os.MkdirAll(dir, 0755)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
@@ -77,7 +77,7 @@ func SaveImage(file multipart.File) (string, error) {
 		return "", err
 	}
 
-	return filepath.Join("static", "images", filename), nil
+	return filepath.Join("uploads", "images", filename), nil
 }
 
 func getImageExtension(buf []byte) string {
