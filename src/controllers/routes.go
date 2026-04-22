@@ -49,7 +49,11 @@ func Routes(data models.ResponseStruct) {
 	case strings.Compare(data.Request.RequestURI, "/user") == 0:
 		showUserView(data)
 	case strings.Compare(data.Request.RequestURI, "/") == 0:
-		Index(data)
+		if data.Request.Method == http.MethodGet {
+			Index(data)
+		} else {
+			(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
+		}
 	default:
 		(&models.Error{}).Consume(models.ErrorNotFound).LogAndRespondError(data.Response, data.User)
 	}
