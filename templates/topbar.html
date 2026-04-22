@@ -16,10 +16,19 @@
                     <li><a href="/user/likes">My likes</a></li>
                     <li><details>
                         <summary>Notifications 🔔</summary>
+                        {{if .User.Notifications}}
                         <ul>
-                            <li>This is a notification</li>
-                            <li>This is another notification</li>
+                            {{range .User.Notifications}}
+                            {{if eq .Type "comment"}}
+                            <li>
+                                {{if not .Read}}<strong>{{end}}
+                                <a href = "/post/view/{{.TargetId}}#comment-{{.Id}}">{{.Actor.Username}} commented on your post </a>
+                                {{if not .Read}}</strong>{{end}}
+                            </li>
+                            {{end}}
+                            {{end}}
                         </ul>
+                        {{end}}
                     </details></li>
                     <li><a href="/user/logout">Log out</a></li>
                 </ul>
