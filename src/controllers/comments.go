@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"forum/src/models"
 	"forum/src/views"
+	"forum/src/utils"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -42,6 +43,25 @@ func createComment(data models.ResponseStruct) {
 	if err != nil {
 		data.Error.Consume(err)
 		views.ErrorView(data)
+		return
+	}
+	// Create notification for the post's author
+	post := models.Post{Id: post_id}
+	err = post.GetById()
+	if err != nil {
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	notification := models.Notification{
+		UserId:   	post.User.Id,
+		ActorId:  	data.User.Id,
+		Type:		"comment",
+		TargetId:	commentId,
+		Timestamp:	utils.GetCurrentTimestamp(),
+	}
+	err = models.CreateNotification(&notification)
+	if err != nil {
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
 	redirectURL := fmt.Sprintf("/post/view/%d#comment-%d", post_id, commentId)
