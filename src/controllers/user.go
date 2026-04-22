@@ -91,6 +91,8 @@ func nullifyCookie(cookie *http.Cookie) *http.Cookie {
 		Path:     "/",
 		Expires:  time.Unix(0, 0),
 		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSite(http.SameSiteStrictMode),
 	}
 	return cookie
 }
@@ -151,6 +153,7 @@ func attemptLogin(data models.ResponseStruct) {
 		Name:     "__Host-FRMSessionID",
 		Value:    sessionValue.String(),
 		Path:     "/",
+		Expires:  time.Now().Add(24*time.Hour),
 		Secure:   true,
 		HttpOnly: true,
 		SameSite: http.SameSite(http.SameSiteStrictMode),
