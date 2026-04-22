@@ -1,3 +1,5 @@
 BEGIN TRANSACTION;
-ALTER TABLE "posts" ADD COLUMN "image_path" TEXT;
+SELECT CASE WHEN NOT EXISTS(
+  SELECT 1 FROM pragma_table_info('posts') WHERE name='image_path'
+) THEN 'ALTER TABLE "posts" ADD COLUMN "image_path" TEXT' ELSE 'NOOP' END;
 END TRANSACTION;
