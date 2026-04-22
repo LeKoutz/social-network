@@ -122,5 +122,13 @@ func RoutesHandler(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost && req.Method != http.MethodGet {
 		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
 	}
+	if data.User.LoggedIn {
+		notifications, err := data.User.GetNotifications()
+		if err != nil {
+			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+			return
+		}
+		data.User.Notifications = notifications
+	}
 	Routes(data)
 }

@@ -12,13 +12,5 @@ func Index(data models.ResponseStruct) {
 		return
 	}
 	data.SetCategories(categories)
-	if data.User.LoggedIn {
-		notifications, err := data.User.GetNotifications()
-		if err != nil {
-			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-			return
-		}
-		data.User.Notifications = notifications
-	}
 	views.Index(data)
 }
