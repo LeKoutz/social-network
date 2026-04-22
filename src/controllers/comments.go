@@ -3,8 +3,8 @@ package controllers
 import (
 	"fmt"
 	"forum/src/models"
-	"forum/src/views"
 	"forum/src/utils"
+	"forum/src/views"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -53,11 +53,11 @@ func createComment(data models.ResponseStruct) {
 		return
 	}
 	notification := models.Notification{
-		UserId:   	post.User.Id,
-		ActorId:  	data.User.Id,
-		Type:		"comment",
-		TargetId:	commentId,
-		Timestamp:	utils.GetCurrentTimestamp(),
+		UserId:    post.User.Id,
+		ActorId:   data.User.Id,
+		Type:      "comment",
+		TargetId:  commentId,
+		Timestamp: utils.GetCurrentTimestamp(),
 	}
 	err = models.CreateNotification(&notification)
 	if err != nil {
