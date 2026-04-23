@@ -81,6 +81,9 @@ func userLogout(data models.ResponseStruct) {
 	}
 	http.SetCookie(data.Response, nullifyCookie(cookie))
 	data.SetUser(GuestUser)
+	data.Message.Has = true
+	data.Message.Type = "Success"
+	data.Message.Content = "Logout successful"
 	views.UserLogout(data)
 }
 
@@ -224,6 +227,9 @@ func attemptRegister(data models.ResponseStruct) {
 		return
 	}
 	data.SetUser(models.GetGuestUser())
+	data.Message.Content = "Registration was successful"
+	data.Message.Type = "Success"
+	data.Message.Has = true
 	// TODO
 	// We have Error but we could generalize it to Message or LogMessage or
 	// SomethingMessage, with a types of "Error", "Success" for starters...
