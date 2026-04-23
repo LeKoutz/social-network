@@ -2,4 +2,4 @@ bin
 *.db*
 tags
 data
-static/images
+uploads/images
