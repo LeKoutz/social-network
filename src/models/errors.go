@@ -70,6 +70,21 @@ func (e *Error) Consume(err error) *Error {
 		e.StatusCode = http.StatusForbidden
 	case ErrorMethodNotAllowed:
 		e.StatusCode = http.StatusMethodNotAllowed
+	case ErrorPostEmptyId,
+		ErrorInvalidPostId,
+		ErrorInvalidCommentId,
+		ErrorInvalidCategoryId,
+		ErrorPostBodyEmpty,
+		ErrorPostTitleEmpty,
+		ErrorPostHasNoCategory,
+		ErrorCommentEmpty,
+		ErrorCommentTooLong,
+		ErrorCommentEmptyId,
+		ErrorCategoryEmptyId,
+		ErrorCategoryNameEmpty,
+		ErrorCategoryNameTooLong,
+		ErrorBadRequest:
+		e.StatusCode = http.StatusBadRequest
 	case ErrorInternalServerError:
 		e.StatusCode = http.StatusInternalServerError
 	}
