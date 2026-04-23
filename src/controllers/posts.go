@@ -60,6 +60,17 @@ func showPost(data models.ResponseStruct) {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
+	// Update notifications to read for this post
+	for i, notification := range data.User.Notifications {
+		if notification.TargetId == post.Id && !notification.Read {
+			err = data.User.MarkNotificationAsRead(notification.Id)
+			if err != nil {
+				(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+				return
+			}
+			data.User.Notifications[i].Read = true
+		}
+	}
 	data.Posts = models.Posts{post}
 	views.PostView(data)
 }
