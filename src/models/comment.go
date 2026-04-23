@@ -74,3 +74,22 @@ func (c *Comment) GetReactionsByUserId(user_id int64) error {
 	}
 	return nil
 }
+
+func (c *Comment) GetCommentById() error {
+	var ts string
+	err := DB.QueryRow(
+		`SELECT id, post_id, user_id, body, timestamp
+		FROM comments
+		WHERE id = ?`, c.Id).Scan(&c.Id, &c.PostId, &c.UserId, &c.Body, &ts)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	t, err := utils.ConvertStringToTime(ts)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	c.TimestampString = utils.ConvertTimeToString(t)
+	return nil
+}
