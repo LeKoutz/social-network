@@ -62,13 +62,25 @@ func showPost(data models.ResponseStruct) {
 	}
 	// Update notifications to read for this post
 	for i, notification := range data.User.Notifications {
-		if notification.TargetId == post.Id && !notification.Read {
-			err = data.User.MarkNotificationAsRead(notification.Id)
-			if err != nil {
-				(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-				return
+		switch target := notification.Target.(type) {
+		case models.Post:
+			if target.Id == post.Id && !notification.Read {
+				err = data.User.MarkNotificationAsRead(notification.Id)
+				if err != nil {
+					(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+					return
+				}
+				data.User.Notifications[i].Read = true
 			}
-			data.User.Notifications[i].Read = true
+		case models.Comment:
+			if target.PostId == post.Id && !notification.Read {
+				err = data.User.MarkNotificationAsRead(notification.Id)
+				if err != nil {
+					(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+					return
+				}
+				data.User.Notifications[i].Read = true
+			}
 		}
 	}
 	data.Posts = models.Posts{post}

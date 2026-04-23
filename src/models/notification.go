@@ -10,6 +10,7 @@ type Notification struct {
 	Actor     User
 	Type      string
 	TargetId  int64
+	Target	  any
 	Timestamp string
 	Read      bool
 }

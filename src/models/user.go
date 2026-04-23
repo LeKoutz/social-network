@@ -309,6 +309,25 @@ func (u *User) GetNotifications() (Notifications, error) {
 		}
 		notifications = append(notifications, notification)
 	}
+	rows.Close()
+	for i, notification := range notifications {
+		switch notification.Type {
+			case "like", "dislike":
+				post := Post{Id: notification.TargetId}
+				err = post.GetById()
+				if err != nil {
+					continue
+				}
+				notifications[i].Target = post
+			case "comment", "commentLike", "commentDislike":
+				comment := Comment{Id: notification.TargetId}
+				err = comment.GetCommentById()
+				if err != nil {
+					continue
+				}
+				notifications[i].Target = comment
+			}
+		}
 	return notifications, nil
 }
 
