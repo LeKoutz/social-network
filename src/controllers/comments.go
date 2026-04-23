@@ -5,6 +5,7 @@ import (
 	"forum/src/models"
 	"forum/src/utils"
 	"forum/src/views"
+	"forum/src/utils"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -108,11 +109,31 @@ func handleCommentReaction(data models.ResponseStruct) {
 		(&models.Error{}).Consume(models.ErrorCommentPermissionDenied).LogAndRespondError(data.Response, data.User)
 		return
 	}
+	comment := models.Comment{Id: commentId}
+	err = comment.GetCommentById()
+	if err != nil {
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	notification := models.Notification{
+		UserId:  comment.UserId,
+		ActorId: data.User.Id,
+		TargetId: comment.Id,
+	}
 	if data.Request.FormValue("action") == "like" {
 		err = DoLikeComment(data.User.Id, commentId)
 		if err != nil {
 			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
+		}
+		if data.User.Id != comment.UserId {
+			notification.Type = "commentLike"
+			notification.Timestamp = utils.GetCurrentTimestamp()
+			err = models.CreateNotification(&notification)
+			if err != nil {
+				(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+				return
+			}
 		}
 	}
 	if data.Request.FormValue("action") == "dislike" {
@@ -120,6 +141,15 @@ func handleCommentReaction(data models.ResponseStruct) {
 		if err != nil {
 			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
+		}
+		if data.User.Id != comment.UserId {
+			notification.Type = "commentDislike"
+			notification.Timestamp = utils.GetCurrentTimestamp()
+			err = models.CreateNotification(&notification)
+			if err != nil {
+				(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+				return
+			}
 		}
 	}
 	postId := data.Request.FormValue("post-id")
