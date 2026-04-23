@@ -26,6 +26,20 @@
                                 {{if not .Read}}</strong>{{end}}
                             </li>
                             {{end}}
+                            {{if eq .Type "like"}}
+                            <li>
+                                {{if not .Read}}<strong>{{end}}
+                                <a href = "/post/view/{{.TargetId}}">{{.Actor.Username}} liked your post </a>
+                                {{if not .Read}}</strong>{{end}}
+                            </li>
+                            {{end}}
+                            {{if eq .Type "dislike"}}
+                            <li>
+                                {{if not .Read}}<strong>{{end}}
+                                <a href = "/post/view/{{.TargetId}}">{{.Actor.Username}} disliked your post </a>
+                                {{if not .Read}}</strong>{{end}}
+                            </li>
+                            {{end}}
                             {{end}}
                         </ul>
                         {{end}}
