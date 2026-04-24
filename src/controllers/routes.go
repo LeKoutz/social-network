@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"context"
 	"forum/src/models"
 	"forum/src/utils"
 	"log"
@@ -86,31 +85,4 @@ func RoutesHandler(res http.ResponseWriter, req *http.Request) {
 		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
 	}
 	Routes(data)
-}
-
-func LogMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		log.Printf("Info: %s -> %s http://%s%s", req.RemoteAddr, req.Method, req.Host, req.RequestURI)
-		log.Printf("Cookies: %d", len(req.Cookies()))
-		next.ServeHTTP(res, req)
-	})
-}
-
-func AuthMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		var err error
-		var user models.User = models.GetGuestUser()
-		for _, cookie := range req.Cookies() {
-			if cookie.Name == "__Host-FRMSessionID" {
-				user, err = models.GetUserBySession(cookie.Value)
-				if err != nil {
-					(&models.Error{}).Consume(err).LogError()
-					break
-				}
-				user.LoggedIn = true
-			}
-		}
-		ctx := context.WithValue(req.Context(), "User", user)
-		next.ServeHTTP(res, req.WithContext(ctx))
-	})
 }
