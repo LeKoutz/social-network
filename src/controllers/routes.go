@@ -77,6 +77,8 @@ func Routes(data models.ResponseStruct) {
 		} else {
 			(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
 		}
+	case strings.Compare(data.Request.RequestURI, "/user/notifications") == 0:
+		markAllNotificationsAsRead(data)
 	case strings.Compare(data.Request.RequestURI, "/user") == 0:
 		if data.Request.Method == http.MethodGet {
 			showUserView(data)

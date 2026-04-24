@@ -345,3 +345,17 @@ func (u *User) MarkNotificationAsRead(notificationId int64) error {
 	}
 	return nil
 }
+
+func (u *User) MarkAllNotificationsAsRead() error {
+	stmt, err := DB.Prepare("UPDATE notifications SET read = 1 WHERE user_id = ?")
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err = stmt.Exec((*u).Id)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	return nil
+}

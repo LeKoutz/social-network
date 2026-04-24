@@ -17,6 +17,9 @@
                     <li><details>
                         <summary>Notifications 🔔</summary>
                         {{if .User.Notifications}}
+                        <form method="post" action="/user/notifications">
+                            <button type="submit">Mark all as read</button>
+                        </form>
                         <ul>
                             {{range .User.Notifications}}
                             {{if eq .Type "comment"}}
