@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"runtime"
+	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -97,16 +98,19 @@ func runMigrations(db *sql.DB) error {
 				err = errors.Join(utils.GetFunctionName(), err)
 				return err
 			}
-			query := string(bytes)
-			_, err = db.Exec(query)
-			if err != nil {
-				err = errors.Join(utils.GetFunctionName(), err)
-				return err
-			}
-			_, err = db.Exec("INSERT INTO schema_migrations(version) VALUES (?)", file.Name())
-			if err != nil {
-				err = errors.Join(utils.GetFunctionName(), err)
-				return err
+			if strings.HasSuffix(file.Name(), ".sql") {
+				utils.LogInfo("Running migration file: "+file.Name())
+				query := string(bytes)
+				_, err = db.Exec(query)
+				if err != nil {
+					err = errors.Join(utils.GetFunctionName(), err)
+					return err
+				}
+				_, err = db.Exec("INSERT INTO schema_migrations(version) VALUES (?)", file.Name())
+				if err != nil {
+					err = errors.Join(utils.GetFunctionName(), err)
+					return err
+				}
 			}
 		}
 	}
