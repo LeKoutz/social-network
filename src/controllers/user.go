@@ -12,14 +12,6 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-var (
-	AdminUser = models.User{
-		Username: "admin",
-		Role:     "admin",
-		LoggedIn: true,
-	}
-)
-
 func handleUser(data models.ResponseStruct) {
 	if data.Request.Method == http.MethodPost && data.Request.Method != http.MethodGet {
 		data.SetErrorConsume(models.ErrorMethodNotAllowed).WriteResponse()
@@ -230,15 +222,11 @@ func attemptRegister(data models.ResponseStruct) {
 	data.Message.Content = "Registration was successful"
 	data.Message.Type = "Success"
 	data.Message.Has = true
-	// TODO
-	// We have Error but we could generalize it to Message or LogMessage or
-	// SomethingMessage, with a types of "Error", "Success" for starters...
-	// data.?!?!?!?!
 	views.UserLogin(data)
 }
 
 // Strong password validation. Makes sure the password is in between 10-16
-// characters and includes letters, numbers and punctation symbols
+// characters and includes letters, numbers and/or punctuation symbols
 func validatePasswordStrength(password string) error {
 	unameMask := regexp.MustCompile(`^[[:punct:][:alnum:]]{10,16}$`)
 	if !unameMask.MatchString(password) {
