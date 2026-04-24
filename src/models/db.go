@@ -46,7 +46,7 @@ func InitDB(dbPath string) error {
 func createMigrationsTable(db *sql.DB) error {
 	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS "schema_migrations" (
 		"version"	TEXT NOT NULL UNIQUE,
-		"timestamp"	TEXT DEFAULT CURRENT_TIMESTAMP
+		"timestamp"	TEXT NOT NULL DEFAULT current_timestamp
 	)`)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
@@ -103,7 +103,11 @@ func runMigrations(db *sql.DB) error {
 				err = errors.Join(utils.GetFunctionName(), err)
 				return err
 			}
-			db.Exec("INSERT INTO schema_migrations VALUES (?)", file.Name())
+			_, err = db.Exec("INSERT INTO schema_migrations(version) VALUES (?)", file.Name())
+			if err != nil {
+				err = errors.Join(utils.GetFunctionName(), err)
+				return err
+			}
 		}
 	}
 	return nil
