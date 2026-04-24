@@ -1,11 +1,11 @@
 FROM golang:1.24-alpine AS builder
 RUN apk add --no-cache gcc musl-dev
+RUN apk add --no-cache gcc musl-dev make
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=1 go build -o bin/forum cmd/forum/main.go
-RUN CGO_ENABLED=1 go build -o bin/mockgen cmd/mockgen/main.go
+RUN make forum mockgen
 
 FROM alpine:latest
 WORKDIR /app
