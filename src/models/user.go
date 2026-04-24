@@ -294,6 +294,7 @@ func (u *User) GetNotifications() (Notifications, error) {
 	FROM notifications n
 	JOIN users u ON u.id = n.actor_id
 	WHERE user_id = ?
+	ORDER BY n.timestamp DESC
 	`, (*u).Id)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
