@@ -12,14 +12,6 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-var (
-	AdminUser = models.User{
-		Username: "admin",
-		Role:     "admin",
-		LoggedIn: true,
-	}
-)
-
 func handleUser(data models.ResponseStruct) {
 	if data.Request.Method == http.MethodPost && data.Request.Method != http.MethodGet {
 		data.SetErrorConsume(models.ErrorMethodNotAllowed).WriteResponse()
