@@ -18,15 +18,27 @@ func Routes(data models.ResponseStruct) {
 	utils.LogDebug(uri)
 	switch {
 	case strings.HasPrefix(data.Request.RequestURI, "/category/view/"):
-		showCategory(data)
+		if data.Request.Method == http.MethodGet {
+			showCategory(data)
+		} else {
+			(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
+		}
 	case strings.HasPrefix(data.Request.RequestURI, "/comment/react"):
 		handleCommentReaction(data)
 	case strings.HasPrefix(data.Request.RequestURI, "/comment/create"):
 		handleCommentCreate(data)
 	case strings.Compare(data.Request.RequestURI, "/categories") == 0:
-		showCategories(data)
+		if data.Request.Method == http.MethodGet {
+			showCategories(data)
+		} else {
+			(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
+		}
 	case strings.Compare(data.Request.RequestURI, "/posts") == 0:
-		showPosts(data)
+		if data.Request.Method == http.MethodGet {
+			showPosts(data)
+		} else {
+			(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
+		}
 	case strings.Compare(data.Request.RequestURI, "/post/create") == 0:
 		handlePostCreate(data)
 	case strings.Compare(data.Request.RequestURI, "/post/react") == 0:
@@ -40,13 +52,29 @@ func Routes(data models.ResponseStruct) {
 	case strings.Compare(data.Request.RequestURI, "/user/register") == 0:
 		userRegister(data)
 	case strings.Compare(data.Request.RequestURI, "/user/logout") == 0:
-		userLogout(data)
+		if data.Request.Method == http.MethodGet {
+			userLogout(data)
+		} else {
+			(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
+		}
 	case strings.Compare(data.Request.RequestURI, "/user/posts") == 0:
-		showUserPosts(data)
+		if data.Request.Method == http.MethodGet {
+			showUserPosts(data)
+		} else {
+			(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
+		}
 	case strings.Compare(data.Request.RequestURI, "/user/likes") == 0:
-		showUserLikedPosts(data)
+		if data.Request.Method == http.MethodGet {
+			showUserLikedPosts(data)
+		} else {
+			(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
+		}
 	case strings.Compare(data.Request.RequestURI, "/user") == 0:
-		showUserView(data)
+		if data.Request.Method == http.MethodGet {
+			showUserView(data)
+		} else {
+			(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
+		}
 	case strings.Compare(data.Request.RequestURI, "/") == 0:
 		if data.Request.Method == http.MethodGet {
 			Index(data)
