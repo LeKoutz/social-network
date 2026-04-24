@@ -27,6 +27,7 @@ var (
 	ErrorPostTitleEmpty          = errors.New("Post title can't be empty.")
 	ErrorPostHasNoCategory       = errors.New("Post category can't be empty.")
 	ErrorPostPermissionDenied    = errors.New("You must be logged in to create a post.")
+	ErrorUserPermissionDenied    = errors.New("You must be logged in.")
 	ErrorCommentEmpty            = errors.New("Comment can't be empty.")
 	ErrorCommentTooLong          = errors.New("Comment is too long.")
 	ErrorCommentPermissionDenied = errors.New("You must be logged in to create a comment.")
@@ -66,6 +67,7 @@ func (e *Error) Consume(err error) *Error {
 		e.StatusCode = http.StatusNotFound
 	case
 		ErrorUnauthorizedAction,
+		ErrorUserPermissionDenied,
 		ErrorCommentPermissionDenied,
 		ErrorPostPermissionDenied:
 		e.StatusCode = http.StatusForbidden

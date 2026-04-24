@@ -49,6 +49,10 @@ func userLogout(data models.ResponseStruct) {
 		data.SetErrorConsume(models.ErrorMethodNotAllowed).WriteResponse()
 		return
 	}
+	if !data.User.LoggedIn {
+		(&models.Error{}).Consume(models.ErrorUserPermissionDenied).LogAndRespondError(data.Response, data.User)
+		return
+	}
 	GuestUser := models.GetGuestUser()
 	cookie, err := data.Request.Cookie("__Host-FRMSessionID")
 	if errors.Is(err, http.ErrNoCookie) {
@@ -236,6 +240,10 @@ func validatePasswordStrength(password string) error {
 }
 
 func showUserPosts(data models.ResponseStruct) {
+	if !data.User.LoggedIn {
+		(&models.Error{}).Consume(models.ErrorUserPermissionDenied).LogAndRespondError(data.Response, data.User)
+		return
+	}
 	posts, err := data.User.GetPosts()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
@@ -260,6 +268,10 @@ func showUserPosts(data models.ResponseStruct) {
 func showUserLikedPosts(data models.ResponseStruct) {
 	var err error
 	var posts models.Posts
+	if !data.User.LoggedIn {
+		(&models.Error{}).Consume(models.ErrorUserPermissionDenied).LogAndRespondError(data.Response, data.User)
+		return
+	}
 	posts, err = data.User.GetLikedPosts()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
@@ -282,5 +294,9 @@ func showUserLikedPosts(data models.ResponseStruct) {
 }
 
 func showUserView(data models.ResponseStruct) {
+	if !data.User.LoggedIn {
+		(&models.Error{}).Consume(models.ErrorUserPermissionDenied).LogAndRespondError(data.Response, data.User)
+		return
+	}
 	views.UserView(data)
 }
