@@ -14,6 +14,11 @@ func LogDebug(v any) {
 	log.Printf("Debug: %#v", v)
 }
 
+func LogInfo(s string) {
+	log.Printf("Info: %s", s)
+}
+
+
 func ConvertStringToTime(timeString string) (time.Time, error) {
 	timestamp, err := strconv.ParseInt(timeString, 10, 64)
 	if err != nil {
