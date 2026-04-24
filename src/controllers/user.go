@@ -49,6 +49,10 @@ func userLogout(data models.ResponseStruct) {
 		data.SetErrorConsume(models.ErrorMethodNotAllowed).WriteResponse()
 		return
 	}
+	if !data.User.LoggedIn {
+		(&models.Error{}).Consume(models.ErrorUserPermissionDenied).LogAndRespondError(data.Response, data.User)
+		return
+	}
 	GuestUser := models.GetGuestUser()
 	cookie, err := data.Request.Cookie("__Host-FRMSessionID")
 	if errors.Is(err, http.ErrNoCookie) {
@@ -105,9 +109,17 @@ func attemptLogin(data models.ResponseStruct) {
 	}
 	if len(data.Request.Form.Get("email")) != 0 {
 		email = data.Request.Form.Get("email")
+	} else {
+		data.SetErrorConsume(models.ErrorEmailFieldEmpty)
+		views.UserLogin(data)
+		return
 	}
 	if len(data.Request.Form.Get("password")) != 0 {
 		password = data.Request.Form.Get("password")
+	} else {
+		data.SetErrorConsume(models.ErrorPasswordFieldEmpty)
+		views.UserLogin(data)
+		return
 	}
 	err = Auth(email, password)
 	if err != nil {
@@ -179,6 +191,14 @@ func attemptRegister(data models.ResponseStruct) {
 		return
 	}
 	var err error
+	if len(data.Request.FormValue("username")) == 0 ||
+		len(data.Request.FormValue("email")) == 0 ||
+		len(data.Request.FormValue("password1")) == 0 ||
+		len(data.Request.FormValue("password2")) == 0 {
+		data.SetErrorConsume(models.ErrorBadRequest)
+		views.UserRegister(data)
+		return
+	}
 	data.User.Username = data.Request.FormValue("username")
 	data.User.Email = data.Request.FormValue("email")
 	if err = data.User.ValidateUser(); err != nil {
@@ -236,6 +256,10 @@ func validatePasswordStrength(password string) error {
 }
 
 func showUserPosts(data models.ResponseStruct) {
+	if !data.User.LoggedIn {
+		(&models.Error{}).Consume(models.ErrorUserPermissionDenied).LogAndRespondError(data.Response, data.User)
+		return
+	}
 	posts, err := data.User.GetPosts()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
@@ -260,6 +284,10 @@ func showUserPosts(data models.ResponseStruct) {
 func showUserLikedPosts(data models.ResponseStruct) {
 	var err error
 	var posts models.Posts
+	if !data.User.LoggedIn {
+		(&models.Error{}).Consume(models.ErrorUserPermissionDenied).LogAndRespondError(data.Response, data.User)
+		return
+	}
 	posts, err = data.User.GetLikedPosts()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
@@ -282,5 +310,9 @@ func showUserLikedPosts(data models.ResponseStruct) {
 }
 
 func showUserView(data models.ResponseStruct) {
+	if !data.User.LoggedIn {
+		(&models.Error{}).Consume(models.ErrorUserPermissionDenied).LogAndRespondError(data.Response, data.User)
+		return
+	}
 	views.UserView(data)
 }
