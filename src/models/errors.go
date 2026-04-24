@@ -10,6 +10,8 @@ import (
 var (
 	ErrorNotRegistered           = errors.New("Email is not registered")
 	ErrorEmailIsRegistered       = errors.New("Email is already registered")
+	ErrorEmailFieldEmpty         = errors.New("Email field can't be empty")
+	ErrorPasswordFieldEmpty      = errors.New("Password field can't be empty")
 	ErrorInvalidUsername         = errors.New("Username is invalid")
 	ErrorUsernameTaken           = errors.New("Username is taken")
 	ErrorInvalidUser             = errors.New("Invalid user")
@@ -86,6 +88,8 @@ func (e *Error) Consume(err error) *Error {
 		ErrorCategoryEmptyId,
 		ErrorCategoryNameEmpty,
 		ErrorCategoryNameTooLong,
+		ErrorEmailFieldEmpty,
+		ErrorPasswordFieldEmpty,
 		ErrorBadRequest:
 		e.StatusCode = http.StatusBadRequest
 	case ErrorInternalServerError:

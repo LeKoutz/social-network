@@ -109,9 +109,17 @@ func attemptLogin(data models.ResponseStruct) {
 	}
 	if len(data.Request.Form.Get("email")) != 0 {
 		email = data.Request.Form.Get("email")
+	} else {
+		data.SetErrorConsume(models.ErrorEmailFieldEmpty)
+		views.UserLogin(data)
+		return
 	}
 	if len(data.Request.Form.Get("password")) != 0 {
 		password = data.Request.Form.Get("password")
+	} else {
+		data.SetErrorConsume(models.ErrorPasswordFieldEmpty)
+		views.UserLogin(data)
+		return
 	}
 	err = Auth(email, password)
 	if err != nil {
@@ -183,6 +191,14 @@ func attemptRegister(data models.ResponseStruct) {
 		return
 	}
 	var err error
+	if len(data.Request.FormValue("username")) == 0 ||
+		len(data.Request.FormValue("email")) == 0 ||
+		len(data.Request.FormValue("password1")) == 0 ||
+		len(data.Request.FormValue("password2")) == 0 {
+		data.SetErrorConsume(models.ErrorBadRequest)
+		views.UserRegister(data)
+		return
+	}
 	data.User.Username = data.Request.FormValue("username")
 	data.User.Email = data.Request.FormValue("email")
 	if err = data.User.ValidateUser(); err != nil {
