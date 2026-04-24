@@ -75,7 +75,6 @@ func Routes(data models.ResponseStruct) {
 		} else {
 			(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
 		}
-		showUserView(data)
 	case strings.HasPrefix(data.Request.RequestURI, "/uploads/"):
 		handleImages(data)
 	case strings.Compare(data.Request.RequestURI, "/") == 0:
@@ -84,7 +83,6 @@ func Routes(data models.ResponseStruct) {
 		} else {
 			(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
 		}
-		Index(data)
 	default:
 		(&models.Error{}).Consume(models.ErrorNotFound).LogAndRespondError(data.Response, data.User)
 	}
