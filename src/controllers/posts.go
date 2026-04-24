@@ -148,6 +148,10 @@ func handlePostCreate(data models.ResponseStruct) {
 	if data.Request.Method != http.MethodPost && data.Request.Method != http.MethodGet {
 		data.SetErrorConsume(models.ErrorMethodNotAllowed)
 	}
+	if !data.User.LoggedIn {
+		(&models.Error{}).Consume(models.ErrorPostPermissionDenied).LogAndRespondError(data.Response, data.User)
+		return
+	}
 	switch {
 	case strings.Compare(data.Request.RequestURI, "/post/create") == 0:
 		switch data.Request.Method {

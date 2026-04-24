@@ -12,14 +12,6 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-var (
-	AdminUser = models.User{
-		Username: "admin",
-		Role:     "admin",
-		LoggedIn: true,
-	}
-)
-
 func handleUser(data models.ResponseStruct) {
 	if data.Request.Method == http.MethodPost && data.Request.Method != http.MethodGet {
 		data.SetErrorConsume(models.ErrorMethodNotAllowed).WriteResponse()
@@ -57,6 +49,10 @@ func userLogout(data models.ResponseStruct) {
 		data.SetErrorConsume(models.ErrorMethodNotAllowed).WriteResponse()
 		return
 	}
+	if !data.User.LoggedIn {
+		(&models.Error{}).Consume(models.ErrorUserPermissionDenied).LogAndRespondError(data.Response, data.User)
+		return
+	}
 	GuestUser := models.GetGuestUser()
 	cookie, err := data.Request.Cookie("__Host-FRMSessionID")
 	if errors.Is(err, http.ErrNoCookie) {
@@ -81,6 +77,9 @@ func userLogout(data models.ResponseStruct) {
 	}
 	http.SetCookie(data.Response, nullifyCookie(cookie))
 	data.SetUser(GuestUser)
+	data.Message.Has = true
+	data.Message.Type = "Success"
+	data.Message.Content = "Logout successful"
 	views.UserLogout(data)
 }
 
@@ -91,6 +90,8 @@ func nullifyCookie(cookie *http.Cookie) *http.Cookie {
 		Path:     "/",
 		Expires:  time.Unix(0, 0),
 		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSite(http.SameSiteStrictMode),
 	}
 	return cookie
 }
@@ -108,14 +109,22 @@ func attemptLogin(data models.ResponseStruct) {
 	}
 	if len(data.Request.Form.Get("email")) != 0 {
 		email = data.Request.Form.Get("email")
+	} else {
+		data.SetErrorConsume(models.ErrorEmailFieldEmpty)
+		views.UserLogin(data)
+		return
 	}
 	if len(data.Request.Form.Get("password")) != 0 {
 		password = data.Request.Form.Get("password")
+	} else {
+		data.SetErrorConsume(models.ErrorPasswordFieldEmpty)
+		views.UserLogin(data)
+		return
 	}
 	err = Auth(email, password)
 	if err != nil {
 		data.User = models.GetGuestUser()
-		if !errors.Is(err, models.ErrorWrongPassword) {
+		if !errors.Is(err, models.ErrorWrongPassword) && !errors.Is(err, models.ErrorNotRegistered) {
 			(&models.Error{}).Consume(err).LogError()
 			data.SetErrorConsume(models.ErrorInternalServerError)
 			views.ErrorView(data)
@@ -151,6 +160,7 @@ func attemptLogin(data models.ResponseStruct) {
 		Name:     "__Host-FRMSessionID",
 		Value:    sessionValue.String(),
 		Path:     "/",
+		Expires:  time.Now().Add(24*time.Hour),
 		Secure:   true,
 		HttpOnly: true,
 		SameSite: http.SameSite(http.SameSiteStrictMode),
@@ -181,6 +191,14 @@ func attemptRegister(data models.ResponseStruct) {
 		return
 	}
 	var err error
+	if len(data.Request.FormValue("username")) == 0 ||
+		len(data.Request.FormValue("email")) == 0 ||
+		len(data.Request.FormValue("password1")) == 0 ||
+		len(data.Request.FormValue("password2")) == 0 {
+		data.SetErrorConsume(models.ErrorBadRequest)
+		views.UserRegister(data)
+		return
+	}
 	data.User.Username = data.Request.FormValue("username")
 	data.User.Email = data.Request.FormValue("email")
 	if err = data.User.ValidateUser(); err != nil {
@@ -221,15 +239,14 @@ func attemptRegister(data models.ResponseStruct) {
 		return
 	}
 	data.SetUser(models.GetGuestUser())
-	// TODO
-	// We have Error but we could generalize it to Message or LogMessage or
-	// SomethingMessage, with a types of "Error", "Success" for starters...
-	// data.?!?!?!?!
+	data.Message.Content = "Registration was successful"
+	data.Message.Type = "Success"
+	data.Message.Has = true
 	views.UserLogin(data)
 }
 
 // Strong password validation. Makes sure the password is in between 10-16
-// characters and includes letters, numbers and punctation symbols
+// characters and includes letters, numbers and/or punctuation symbols
 func validatePasswordStrength(password string) error {
 	unameMask := regexp.MustCompile(`^[[:punct:][:alnum:]]{10,16}$`)
 	if !unameMask.MatchString(password) {
@@ -239,6 +256,10 @@ func validatePasswordStrength(password string) error {
 }
 
 func showUserPosts(data models.ResponseStruct) {
+	if !data.User.LoggedIn {
+		(&models.Error{}).Consume(models.ErrorUserPermissionDenied).LogAndRespondError(data.Response, data.User)
+		return
+	}
 	posts, err := data.User.GetPosts()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
@@ -263,6 +284,10 @@ func showUserPosts(data models.ResponseStruct) {
 func showUserLikedPosts(data models.ResponseStruct) {
 	var err error
 	var posts models.Posts
+	if !data.User.LoggedIn {
+		(&models.Error{}).Consume(models.ErrorUserPermissionDenied).LogAndRespondError(data.Response, data.User)
+		return
+	}
 	posts, err = data.User.GetLikedPosts()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
@@ -285,5 +310,9 @@ func showUserLikedPosts(data models.ResponseStruct) {
 }
 
 func showUserView(data models.ResponseStruct) {
+	if !data.User.LoggedIn {
+		(&models.Error{}).Consume(models.ErrorUserPermissionDenied).LogAndRespondError(data.Response, data.User)
+		return
+	}
 	views.UserView(data)
 }

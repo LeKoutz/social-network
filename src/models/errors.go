@@ -10,6 +10,8 @@ import (
 var (
 	ErrorNotRegistered           = errors.New("Email is not registered")
 	ErrorEmailIsRegistered       = errors.New("Email is already registered")
+	ErrorEmailFieldEmpty         = errors.New("Email field can't be empty")
+	ErrorPasswordFieldEmpty      = errors.New("Password field can't be empty")
 	ErrorInvalidUsername         = errors.New("Username is invalid")
 	ErrorUsernameTaken           = errors.New("Username is taken")
 	ErrorInvalidUser             = errors.New("Invalid user")
@@ -27,6 +29,7 @@ var (
 	ErrorPostTitleEmpty          = errors.New("Post title can't be empty.")
 	ErrorPostHasNoCategory       = errors.New("Post category can't be empty.")
 	ErrorPostPermissionDenied    = errors.New("You must be logged in to create a post.")
+	ErrorUserPermissionDenied    = errors.New("You must be logged in.")
 	ErrorCommentEmpty            = errors.New("Comment can't be empty.")
 	ErrorCommentTooLong          = errors.New("Comment is too long.")
 	ErrorCommentPermissionDenied = errors.New("You must be logged in to create a comment.")
@@ -40,6 +43,7 @@ var (
 	ErrorBadRequest              = errors.New("Bad request.")
 	ErrorInternalServerError     = errors.New("Internal server error.")
 	ErrorUnknownAction           = errors.New("Unknown action requested.")
+	ErrorFailedToGetCaller       = errors.New("failed to get caller information")
 )
 
 type Error struct {
@@ -65,11 +69,29 @@ func (e *Error) Consume(err error) *Error {
 		e.StatusCode = http.StatusNotFound
 	case
 		ErrorUnauthorizedAction,
+		ErrorUserPermissionDenied,
 		ErrorCommentPermissionDenied,
 		ErrorPostPermissionDenied:
 		e.StatusCode = http.StatusForbidden
 	case ErrorMethodNotAllowed:
 		e.StatusCode = http.StatusMethodNotAllowed
+	case ErrorPostEmptyId,
+		ErrorInvalidPostId,
+		ErrorInvalidCommentId,
+		ErrorInvalidCategoryId,
+		ErrorPostBodyEmpty,
+		ErrorPostTitleEmpty,
+		ErrorPostHasNoCategory,
+		ErrorCommentEmpty,
+		ErrorCommentTooLong,
+		ErrorCommentEmptyId,
+		ErrorCategoryEmptyId,
+		ErrorCategoryNameEmpty,
+		ErrorCategoryNameTooLong,
+		ErrorEmailFieldEmpty,
+		ErrorPasswordFieldEmpty,
+		ErrorBadRequest:
+		e.StatusCode = http.StatusBadRequest
 	case ErrorInternalServerError:
 		e.StatusCode = http.StatusInternalServerError
 	}

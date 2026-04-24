@@ -17,10 +17,6 @@ func usage(programName string) {
 
 // Entry point for the program
 func Main(args []string) {
-	// TODO pass args and populate them maybe, otherwise default
-	// maybe initialize something first if needed...
-	// for example the database?!?!
-	// maybe that could be a flag...
 	var dbPath string = "./db.db"
 	var ip, port string
 	for i := 1; i < len(args); i++ {
@@ -33,8 +29,6 @@ func Main(args []string) {
 		fmt.Printf("Error: %s\n", err.Error())
 		os.Exit(1)
 	}
-	// e.g. --init
-	// in case the flag is not passed, the auto intialization could be triggered
 	var positionalArgs []string
 	for i := 1; i < len(args); i++ {
 		if args[i] == "--db-path" {
