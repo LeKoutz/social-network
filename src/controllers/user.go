@@ -226,7 +226,7 @@ func attemptRegister(data models.ResponseStruct) {
 }
 
 // Strong password validation. Makes sure the password is in between 10-16
-// characters and includes letters, numbers or punctation symbols
+// characters and includes letters, numbers and/or punctuation symbols
 func validatePasswordStrength(password string) error {
 	unameMask := regexp.MustCompile(`^[[:punct:][:alnum:]]{10,16}$`)
 	if !unameMask.MatchString(password) {
