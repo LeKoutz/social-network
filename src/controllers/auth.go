@@ -13,10 +13,7 @@ func CompareRegistrationPasswords(pass1, pass2 string) bool {
 
 func Auth(email, password string) error {
 	var err error
-	// I guess in order to authenticate against an email and a password, we will
-	// need to first check if email is registered
 	if !models.IsEmailRegistered(email) {
-		// Return an error... this should be sent back to umh... places...?!
 		return models.ErrorNotRegistered
 	}
 	var user models.User
