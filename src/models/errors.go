@@ -40,6 +40,7 @@ var (
 	ErrorBadRequest              = errors.New("Bad request.")
 	ErrorInternalServerError     = errors.New("Internal server error.")
 	ErrorUnknownAction           = errors.New("Unknown action requested.")
+	ErrorFailedToGetCaller       = errors.New("failed to get caller information")
 )
 
 type Error struct {
