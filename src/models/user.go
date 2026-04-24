@@ -21,6 +21,7 @@ type User struct {
 	OwnedLikes    Likes
 	OwnedDislikes Dislikes
 	Notifications  Notifications
+	UnreadNotificationsCount int
 }
 
 func GetGuestUser() User {
@@ -312,6 +313,9 @@ func (u *User) GetNotifications() (Notifications, error) {
 	}
 	rows.Close()
 	for i, notification := range notifications {
+		if !notification.Read {
+			u.UnreadNotificationsCount++
+		}
 		switch notification.Type {
 			case "like", "dislike":
 				post := Post{Id: notification.TargetId}

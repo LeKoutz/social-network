@@ -15,7 +15,7 @@
                     <li><a href="/user/posts">My posts</a></li>
                     <li><a href="/user/likes">My likes</a></li>
                     <li><details>
-                        <summary>Notifications 🔔</summary>
+                        <summary>Notifications 🔔 {{if .User.UnreadNotificationsCount}}({{.User.UnreadNotificationsCount}}){{end}}</summary>
                         {{if .User.Notifications}}
                         <form method="post" action="/user/notifications">
                             <button type="submit">Mark all as read</button>
