@@ -256,3 +256,45 @@ func handlePostReaction(data models.ResponseStruct) {
 	}
 	http.Redirect(data.Response, data.Request, "/post/view/"+postIdStr, http.StatusSeeOther)
 }
+
+func handlePostDelete(data models.ResponseStruct) {
+	if !data.User.LoggedIn {
+		(&models.Error{}).Consume(models.ErrorPostPermissionDenied).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	if data.Request.Method != http.MethodPost {
+		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	postIdStr := data.Request.FormValue("post-id")
+	if len(postIdStr) == 0 {
+		(&models.Error{}).Consume(models.ErrorPostEmptyId).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	ok, err := regexp.MatchString(`^\d+$`, postIdStr)
+	if !ok {
+		(&models.Error{}).Consume(models.ErrorInvalidPostId).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	postId, err := strconv.ParseInt(postIdStr, 10, 64)
+	if err != nil {
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	post := models.Post{Id: postId}
+	err = post.GetById()
+	if err != nil {
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	if post.UserId != data.User.Id {
+		(&models.Error{}).Consume(models.ErrorPostPermissionDenied).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	err = post.Delete()
+	if err != nil {
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	http.Redirect(data.Response, data.Request, "/posts", http.StatusSeeOther)
+}

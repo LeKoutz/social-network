@@ -174,3 +174,17 @@ func (p *Post) GetComments() (Comments, error) {
 	}
 	return comments, nil
 }
+
+func (p *Post) Delete() error {
+	stmt, err := DB.Prepare("DELETE FROM posts WHERE id = ?")
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err = stmt.Exec(p.Id)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	return nil
+}
