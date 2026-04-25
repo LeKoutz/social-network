@@ -15,6 +15,8 @@ type User struct {
 	Email         string
 	Role          string
 	LoggedIn      bool
+	OAuthProvider string
+	OAuthId		  string
 	OwnedPosts    Posts
 	OwnedComments Comments
 	OwnedLikes    Likes
@@ -47,6 +49,15 @@ func GetUserBySession(sessionValue string) (User, error) {
 		return User{}, err
 	}
 	return user, nil
+}
+
+func GetUserByOAuth(provider, oauthID string) (User, error) {
+    var user User
+	err := DB.QueryRow(`SELECT id, email, username, oauth_provider, oauth_id FROM users WHERE oauth_provider = ? AND oauth_id = ?`, provider, oauthID).Scan(&user.Id, &user.Email, &user.Username, &user.OAuthProvider, &user.OAuthId)
+    if err != nil {
+        return User{}, err
+    }
+    return user, nil
 }
 
 func getUserById(id int64) (User, error) {
@@ -104,6 +115,29 @@ func (u *User) Add() error {
 		return err
 	}
 	return nil
+}
+
+func (u *User) AddOAuth() error {
+    if err := u.ValidateUser(); 
+		err != nil {
+        return err
+    }
+    if IsEmailRegistered(u.Email) {
+        return ErrorEmailIsRegistered
+    }
+    if !IsUniqueUsername(u.Username) {
+        return ErrorUsernameTaken
+    }
+	stmt, err := DB.Prepare("INSERT INTO users (username, email, oauth_provider, oauth_id) VALUES (?, ?, ?, ?)")
+	if err != nil {
+		return err
+	}
+    _, err = stmt.Exec(u.Username, u.Email, u.OAuthProvider, u.OAuthId)
+	if err != nil {
+        return err
+    }
+
+    return nil
 }
 
 func (u *User) GetPosts() (Posts, error) {
