@@ -93,3 +93,16 @@ func (c *Comment) GetCommentById() error {
 	c.TimestampString = utils.ConvertTimeToString(t)
 	return nil
 }
+
+func (c *Comment) Delete() error {
+	stmt, err := DB.Prepare("DELETE FROM comments WHERE id = ?")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(c.Id)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	return nil
+}
