@@ -10,6 +10,8 @@ type Like struct {
 	PostId    int64
 	UserId    int64
 	CommentId int64
+	Timestamp int64
+	TimestampString string
 }
 
 func CheckIfUserLikedPost(userId, postId int64) (int64, error) {
@@ -40,9 +42,9 @@ func CheckIfUserDislikedPost(userId, postId int64) (int64, error) {
 
 func AddLikeToPost(userId, postId int64) error {
 	_, err := DB.Exec(`
-		INSERT INTO reactions (user_id, post_id, value)
-		VALUES (?, ?, 1)
-		`, userId, postId)
+		INSERT INTO reactions (user_id, post_id, value, timestamp)
+		VALUES (?, ?, 1, ?)
+		`, userId, postId, utils.GetCurrentTimestamp())
 	return err
 }
 
@@ -56,9 +58,9 @@ func RemoveDislikeFromPost(dislikeId int64) error {
 
 func AddDislikeToPost(userId, postId int64) error {
 	_, err := DB.Exec(`
-		INSERT INTO reactions (user_id, post_id, value)
-		VALUES (?, ?, 2)
-		`, userId, postId)
+		INSERT INTO reactions (user_id, post_id, value, timestamp)
+		VALUES (?, ?, 2, ?)
+		`, userId, postId, utils.GetCurrentTimestamp())
 	return err
 }
 
@@ -98,17 +100,17 @@ func CheckIfUserDislikedComment(userId, commentId int64) (int64, error) {
 
 func AddLikeToComment(userId, commentId int64) error {
 	_, err := DB.Exec(`
-		INSERT INTO reactions (user_id, comment_id, value)
-		VALUES (?, ?, 1)
-		`, userId, commentId)
+		INSERT INTO reactions (user_id, comment_id, value, timestamp)
+		VALUES (?, ?, 1, ?)
+		`, userId, commentId, utils.GetCurrentTimestamp())
 	return err
 }
 
 func AddDislikeToComment(userId, commentId int64) error {
 	_, err := DB.Exec(`
-		INSERT INTO reactions (user_id, comment_id, value)
-		VALUES (?, ?, 2)
-		`, userId, commentId)
+		INSERT INTO reactions (user_id, comment_id, value, timestamp)
+		VALUES (?, ?, 2, ?)
+		`, userId, commentId, utils.GetCurrentTimestamp())
 	return err
 }
 
