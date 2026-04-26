@@ -14,10 +14,8 @@ type User struct {
 	Username      string
 	Hash          string
 	Email         string
-	Role          string
 	LoggedIn      bool
 	OAuthProvider string
-	OAuthId		  string
 	OwnedPosts    Posts
 	OwnedComments Comments
 	OwnedLikes    Likes
@@ -27,7 +25,6 @@ type User struct {
 func GetGuestUser() User {
 	return User{
 		Username: "guest",
-		Role:     "guest",
 		LoggedIn: false,
 	}
 }
@@ -143,11 +140,11 @@ func (u *User) AddOAuth() error {
     if !IsUniqueUsername(u.Username) {
         return ErrorUsernameTaken
     }
-	stmt, err := DB.Prepare("INSERT INTO users (username, email, oauth_provider, oauth_id) VALUES (?, ?, ?, ?)")
+	stmt, err := DB.Prepare("INSERT INTO users (username, email, oauth_provider) VALUES (?, ?, ?)")
 	if err != nil {
 		return err
 	}
-    _, err = stmt.Exec(u.Username, u.Email, u.OAuthProvider, u.OAuthId)
+    _, err = stmt.Exec(u.Username, u.Email, u.OAuthProvider)
 	if err != nil {
         return err
     }

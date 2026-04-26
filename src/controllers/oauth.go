@@ -65,7 +65,7 @@ func handleGoogleCallback(data models.ResponseStruct) {
 	json.NewDecoder(resp.Body).Decode(&info)
 
 	username := strings.ReplaceAll(info.Name, " ", "_")
-	createOrLoginUser(data, "google", info.ID, info.Email, username)
+	createOrLoginUser(data, "google", info.Email, username)
 }
 
 func handleGitHubCallback(data models.ResponseStruct) {
@@ -105,17 +105,16 @@ func handleGitHubCallback(data models.ResponseStruct) {
 	}
 
 	username := strings.ReplaceAll(info.Login, " ", "_")
-	createOrLoginUser(data, "github", info.ID, email, username)
+	createOrLoginUser(data, "github", email, username)
 }
 
-func createOrLoginUser(data models.ResponseStruct, provider, oauthID, email, username string) {
+func createOrLoginUser(data models.ResponseStruct, provider, email, username string) {
 	var user models.User
 	var err error
 	if !models.IsEmailRegistered(email) {
 		user.Username = username
 		user.Email = email
 		user.OAuthProvider = provider
-		user.OAuthId = oauthID
 		err := user.AddOAuth()
 		if err != nil {
 			data.Error.Consume(err).LogAndRespondError(data.Response, data.User)
