@@ -1,17 +1,16 @@
 package controllers
 
 import (
-	"net/http"
-	"strings"
 	"encoding/json"
-	"os"
-	"time"
 	"forum/src/models"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
-	"golang.org/x/oauth2/github"
 	"github.com/gofrs/uuid"
-
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/github"
+	"golang.org/x/oauth2/google"
+	"net/http"
+	"os"
+	"strings"
+	"time"
 )
 
 var (
@@ -55,10 +54,10 @@ func handleGoogleCallback(data models.ResponseStruct) {
 	}
 	defer resp.Body.Close()
 
-	var info struct{
-		ID string `json:"id"`
+	var info struct {
+		ID    string `json:"id"`
 		Email string `json:"email"`
-		Name string `json:"name"`
+		Name  string `json:"name"`
 	}
 	json.NewDecoder(resp.Body).Decode(&info)
 
@@ -80,28 +79,28 @@ func handleGitHubCallback(data models.ResponseStruct) {
 	}
 	defer resp.Body.Close()
 
-	var info struct{
-		ID string `json:"id"`
+	var info struct {
+		ID    string `json:"id"`
 		Login string `json:"login"`
-		}
+	}
 	json.NewDecoder(resp.Body).Decode(&info)
 
 	emailResp, _ := githubOAuthConf.Client(data.Request.Context(), token).Get("https://api.github.com/user/emails")
 	var email string
 	if emailResp != nil {
-    	defer emailResp.Body.Close()
-    	var emails []struct {
-        	Email   string `json:"email"`
-        	Primary bool   `json:"primary"`
-    	}
-    	json.NewDecoder(emailResp.Body).Decode(&emails)
-    	for _, e := range emails {
-        	if e.Primary {
-            	email = e.Email
-            	break
-        	}
-    	}
-}
+		defer emailResp.Body.Close()
+		var emails []struct {
+			Email   string `json:"email"`
+			Primary bool   `json:"primary"`
+		}
+		json.NewDecoder(emailResp.Body).Decode(&emails)
+		for _, e := range emails {
+			if e.Primary {
+				email = e.Email
+				break
+			}
+		}
+	}
 
 	username := strings.ReplaceAll(info.Login, " ", "_")
 	createOrLoginUser(data, "github", info.ID, email, username)
@@ -137,9 +136,9 @@ func createOrLoginUser(data models.ResponseStruct, provider, oauthID, email, use
 	user.SetUserSession(session.String())
 	cookie := &http.Cookie{
 		Name:     "__Host-FRMSessionID",
-		Value: session.String(),
+		Value:    session.String(),
 		Path:     "/",
-		Expires:  time.Now().Add(24*time.Hour),
+		Expires:  time.Now().Add(24 * time.Hour),
 		Secure:   true,
 		HttpOnly: true,
 		SameSite: http.SameSite(http.SameSiteStrictMode),
