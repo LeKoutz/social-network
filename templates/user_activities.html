@@ -1,0 +1,41 @@
+{{define "user_activities"}}
+{{template "header" .}}
+{{template "topbar" .}}
+{{if .Error.Has}}
+    {{template "error" .}}
+{{end}}
+<div class="container">
+    <div class="user-activity">
+        <h2>Recent Activities</h2>
+        {{range .User.Activities}}
+        <div class="activity">
+            {{if eq .Type "post"}}{{.Timestamp}}
+            <strong><a href="/user">{{$.User.Username}}</a></strong> posted:
+            {{template "activity_post" .}}
+            {{end}}
+            {{if eq .Type "comment"}}{{.Timestamp}}
+            <strong><a href="/user">{{$.User.Username}}</a></strong> commented:
+            {{template "activity_comment" .}}
+            {{end}}
+            {{if eq .Type "postLike"}}{{.Timestamp}}
+            <strong><a href="/user">{{$.User.Username}}</a></strong> liked a post:
+            {{template "activity_post" .}}
+            {{end}}
+            {{if eq .Type "postDislike"}}{{.Timestamp}}
+            <strong><a href="/user">{{$.User.Username}}</a></strong> disliked a post:
+            {{template "activity_post" .}}
+            {{end}}
+            {{if eq .Type "commentLike"}}{{.Timestamp}}
+            <strong><a href="/user">{{$.User.Username}}</a></strong> liked a comment:
+            {{template "activity_comment" .}}
+            {{end}}
+            {{if eq .Type "commentDislike"}}{{.Timestamp}}
+            <strong><a href="/user">{{$.User.Username}}</a></strong> disliked a comment:
+            {{template "activity_comment" .}}
+            {{end}}
+        </div>
+        {{end}}
+    </div>
+</div>
+{{template "ending" .}}
+{{end}}
