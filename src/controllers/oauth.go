@@ -49,7 +49,6 @@ func handleGoogleCallback(data models.ResponseStruct) {
 	resp, err := googleOAuthConf.Client(data.Request.Context(), token).Get("https://www.googleapis.com/oauth2/v2/userinfo")
 	if err != nil || resp == nil {
 		data.Error.Consume(err).LogError()
-		// http.redirect(data.response, data.request, "/user/login", http.statustemporaryredirect)
 		return
 	}
 	defer resp.Body.Close()
@@ -74,7 +73,6 @@ func handleGitHubCallback(data models.ResponseStruct) {
 	resp, err := githubOAuthConf.Client(data.Request.Context(), token).Get("https://api.github.com/user")
 	if err != nil || resp == nil {
 		data.Error.Consume(err).LogError()
-		// http.Redirect(data.Response, data.Request, "/user/login", http.StatusTemporaryRedirect)
 		return
 	}
 	defer resp.Body.Close()
@@ -122,13 +120,11 @@ func createOrLoginUser(data models.ResponseStruct, provider, oauthID, email, use
 		err := user.AddOAuth()
 		if err != nil {
 			data.Error.Consume(err).LogError()
-			// http.redirect(data.response, data.request, "/user/login", http.statustemporaryredirect)
 			return
 		}
 		user, err = models.GetUserByOAuth(provider, oauthID)
 		if err != nil {
 			data.Error.Consume(err).LogError()
-			// http.redirect(data.response, data.request, "/user/login", http.statustemporaryredirect)
 			return
 		}
 	}
