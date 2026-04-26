@@ -106,34 +106,41 @@ func handleGitHubCallback(data models.ResponseStruct) {
 }
 
 func createOrLoginUser(data models.ResponseStruct, provider, oauthID, email, username string) {
-	user, err := models.GetUserByOAuth(provider, oauthID)
-	if err != nil {
-		data.Error.Consume(err).LogError()
-		return
-	}
-	if user.Id == 0 {
-		user = models.User{
-			Username:      username,
-			Email:         email,
-			OAuthProvider: provider,
-			OAuthId:       oauthID,
-		}
+	var user models.User
+	var err error
+	if !models.IsEmailRegistered(email) {
+		user.Username = username
+		user.Email = email
+		user.OAuthProvider = provider
+		user.OAuthId = oauthID
 		err := user.AddOAuth()
 		if err != nil {
-			data.Error.Consume(err).LogError()
-			return
-		}
-		user, err = models.GetUserByOAuth(provider, oauthID)
-		if err != nil {
-			data.Error.Consume(err).LogError()
+			data.Error.Consume(err).LogAndRespondError(data.Response, data.User)
 			return
 		}
 	}
-	session, _ := uuid.NewV4()
-	user.SetUserSession(session.String())
+	sessionValue, err := uuid.NewV4()
+	if err != nil {
+		data.User = models.GetGuestUser()
+		data.Error.Consume(err).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	data.User, err = models.GetUserByOAuthProviderAndEmail(provider, email)
+	if err != nil {
+		data.User = models.GetGuestUser()
+		data.Error.Consume(err).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	data.User.LoggedIn = true
+	err = data.User.SetUserSession(sessionValue.String())
+	if err != nil {
+		data.User = models.GetGuestUser()
+		data.Error.Consume(err).LogAndRespondError(data.Response, data.User)
+		return
+	}
 	cookie := &http.Cookie{
 		Name:     "__Host-FRMSessionID",
-		Value:    session.String(),
+		Value:    sessionValue.String(),
 		Path:     "/",
 		Expires:  time.Now().Add(24 * time.Hour),
 		Secure:   true,
@@ -141,5 +148,13 @@ func createOrLoginUser(data models.ResponseStruct, provider, oauthID, email, use
 		SameSite: http.SameSite(http.SameSiteStrictMode),
 	}
 	http.SetCookie(data.Response, cookie)
-	http.Redirect(data.Response, data.Request, "/", http.StatusSeeOther)
+
+	// http.Redirect(data.Response, data.Request, "/", http.StatusSeeOther)
+	//
+	// Hack: cause if we redirect, it somehow doesn't read the cookie after the
+	// redirect. The cookie is set, though. It just doesn't leave the browser at
+	// this point. So, instead, we return them to the Index() controller without
+	// redirection... weird... the exact same flow goes fine on attemptLogin()
+	// and it *does* redirect. Maybe because we redirected from somewhere else?
+	Index(data)
 }

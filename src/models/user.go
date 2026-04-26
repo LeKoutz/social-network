@@ -62,11 +62,9 @@ func GetUserBySession(sessionValue string) (User, error) {
 	return user, nil
 }
 
-// WIP
-// Returns a user given the oauthID and provider
-func GetUserByOAuth(provider, oauthID string) (User, error) {
-    var user User
-	err := DB.QueryRow(`SELECT id, email, username, oauth_provider, oauth_id FROM users WHERE oauth_provider = ? AND oauth_id = ?`, provider, oauthID).Scan(&user.Id, &user.Email, &user.Username, &user.OAuthProvider, &user.OAuthId)
+func GetUserByOAuthProviderAndEmail(provider, email string) (User, error) {
+	var user User
+	err := DB.QueryRow(`SELECT id, email, username, oauth_provider FROM users WHERE oauth_provider = ? AND email = ?`, provider, email).Scan(&user.Id, &user.Email, &user.Username, &user.OAuthProvider)
     if err != nil {
         return User{}, err
     }
