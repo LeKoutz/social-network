@@ -31,11 +31,10 @@ func GetGuestUser() User {
 	}
 }
 
-// Returns the user, if any, for a given email address
-// Populates the `User.Hash` field for comparison against the given password
-func GetUserByEmail(email string) (User, error) {
+// Returns ONLY the `User.Hash` field for comparison against the given password
+func GetUserPasswordByEmail(email string) (User, error) {
 	var user User
-	err := DB.QueryRow(`SELECT id, email, username, hash FROM users WHERE email = ?`, email).Scan(&user.Id, &user.Email, &user.Username, &user.Hash)
+	err := DB.QueryRow(`SELECT hash FROM users WHERE email = ?`, email).Scan(&user.Hash)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return User{}, err
@@ -43,7 +42,16 @@ func GetUserByEmail(email string) (User, error) {
 	return user, nil
 }
 
-// Returns the user's id, email and username for given session ID
+func GetUserByEmail(email string) (User, error) {
+	var user User
+	err := DB.QueryRow(`SELECT id, email, username FROM users WHERE email = ?`, email).Scan(&user.Id, &user.Email, &user.Username)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return User{}, err
+	}
+	return user, nil
+}
+
 func GetUserBySession(sessionValue string) (User, error) {
 	var user User
 	err := DB.QueryRow(`SELECT id, email, username FROM users WHERE session_key = ?`, sessionValue).Scan(&user.Id, &user.Email, &user.Username)

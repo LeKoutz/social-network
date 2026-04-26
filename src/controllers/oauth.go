@@ -3,14 +3,15 @@ package controllers
 import (
 	"encoding/json"
 	"forum/src/models"
-	"github.com/gofrs/uuid"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/github"
-	"golang.org/x/oauth2/google"
 	"net/http"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/gofrs/uuid"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/github"
+	"golang.org/x/oauth2/google"
 )
 
 var (
