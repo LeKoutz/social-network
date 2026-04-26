@@ -1,6 +1,7 @@
 package models
 
 import (
+	"forum/src/utils"
 	"html/template"
 	"net/http"
 )
@@ -34,7 +35,7 @@ func (r ResponseStruct) WriteResponse() {
 
 func (r *ResponseStruct) Init() *ResponseStruct {
 	r.WebsiteName = "Forum"
-	r.Version = getVersion()
+	r.Version = utils.GetVersion()
 	return r
 }
 
