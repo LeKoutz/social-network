@@ -33,12 +33,14 @@ var (
 
 func handleGoogleLogin(data models.ResponseStruct) {
 	state, _ := uuid.NewV4()
-	http.Redirect(data.Response, data.Request, googleOAuthConf.AuthCodeURL(state.String()), http.StatusTemporaryRedirect)
+	url := googleOAuthConf.AuthCodeURL(state.String()) + "&prompt=consent"
+	http.Redirect(data.Response, data.Request, url, http.StatusTemporaryRedirect)
 }
 
 func handleGitHubLogin(data models.ResponseStruct) {
 	state, _ := uuid.NewV4()
-	http.Redirect(data.Response, data.Request, githubOAuthConf.AuthCodeURL(state.String()), http.StatusTemporaryRedirect)
+	url := githubOAuthConf.AuthCodeURL(state.String()) + "&prompt=consent"
+	http.Redirect(data.Response, data.Request, url, http.StatusTemporaryRedirect)
 }
 
 func handleGoogleCallback(data models.ResponseStruct) {
