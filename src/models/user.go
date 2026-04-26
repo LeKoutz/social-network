@@ -10,18 +10,19 @@ import (
 )
 
 type User struct {
-	Id            int64
-	Username      string
-	Hash          string
-	Email         string
-	LoggedIn      bool
-	OAuthProvider string
-	OwnedPosts    Posts
-	OwnedComments Comments
-	OwnedLikes    Likes
-	OwnedDislikes Dislikes
-	Notifications  Notifications
+	Id                       int64
+	Username                 string
+	Hash                     string
+	Email                    string
+	LoggedIn                 bool
+	OAuthProvider            string
+	OwnedPosts               Posts
+	OwnedComments            Comments
+	OwnedLikes               Likes
+	OwnedDislikes            Dislikes
+	Notifications            Notifications
 	UnreadNotificationsCount int
+	Activities               Activities
 }
 
 func GetGuestUser() User {
@@ -132,26 +133,25 @@ func (u *User) Add() error {
 }
 
 func (u *User) AddOAuth() error {
-    if err := u.ValidateUser(); 
-		err != nil {
-        return err
-    }
-    if IsEmailRegistered(u.Email) {
-        return ErrorEmailIsRegistered
-    }
-    if !IsUniqueUsername(u.Username) {
-        return ErrorUsernameTaken
-    }
+	if err := u.ValidateUser(); err != nil {
+		return err
+	}
+	if IsEmailRegistered(u.Email) {
+		return ErrorEmailIsRegistered
+	}
+	if !IsUniqueUsername(u.Username) {
+		return ErrorUsernameTaken
+	}
 	stmt, err := DB.Prepare("INSERT INTO users (username, email, oauth_provider) VALUES (?, ?, ?)")
 	if err != nil {
 		return err
 	}
-    _, err = stmt.Exec(u.Username, u.Email, u.OAuthProvider)
+	_, err = stmt.Exec(u.Username, u.Email, u.OAuthProvider)
 	if err != nil {
-        return err
-    }
+		return err
+	}
 
-    return nil
+	return nil
 }
 
 func (u *User) GetPosts() (Posts, error) {
@@ -305,14 +305,14 @@ func (u *User) GetNotifications() (Notifications, error) {
 	for rows.Next() {
 		var notification Notification
 		err = rows.Scan(&notification.Id,
-						&notification.UserId,
-						&notification.ActorId,
-						&notification.Type,
-						&notification.PostId,
-						&notification.CommentId,
-						&notification.TimestampString,
-						&notification.Read,
-						&notification.Actor.Username)
+			&notification.UserId,
+			&notification.ActorId,
+			&notification.Type,
+			&notification.PostId,
+			&notification.CommentId,
+			&notification.TimestampString,
+			&notification.Read,
+			&notification.Actor.Username)
 		if err != nil {
 			err = errors.Join(utils.GetFunctionName(), err)
 			return Notifications{}, err
