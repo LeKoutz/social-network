@@ -12,23 +12,6 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-func handleUser(data models.ResponseStruct) {
-	if data.Request.Method == http.MethodPost && data.Request.Method != http.MethodGet {
-		data.SetErrorConsume(models.ErrorMethodNotAllowed).WriteResponse()
-		return
-	}
-	switch data.Request.RequestURI {
-	case "/user/login":
-		userLogin(data)
-	case "/user/logout":
-		userLogout(data)
-	case "/user/register":
-		userRegister(data)
-	default:
-		data.SetErrorConsume(models.ErrorUnknownAction).WriteResponse()
-	}
-}
-
 func userLogin(data models.ResponseStruct) {
 	if data.User.LoggedIn {
 		Index(*data.SetErrorConsume(models.ErrorAlreadyLoggedIn))
