@@ -108,7 +108,11 @@ func handleGitHubCallback(data models.ResponseStruct) {
 }
 
 func createOrLoginUser(data models.ResponseStruct, provider, oauthID, email, username string) {
-	user, _ := models.GetUserByOAuth(provider, oauthID)
+	user, err := models.GetUserByOAuth(provider, oauthID)
+	if err != nil {
+		data.Error.Consume(err).LogError()
+		return
+	}
 	if user.Id == 0 {
 		user = models.User{
 			Username:      username,
