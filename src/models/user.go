@@ -85,7 +85,7 @@ func getUserById(id int64) (User, error) {
 }
 
 func (u *User) ValidateUsername() error {
-	unameMask := regexp.MustCompile(`^[a-zA-Z0-9]{4,15}$`)
+	unameMask := regexp.MustCompile(`^[a-zA-Z0-9_]{4,50}$`)
 	if !unameMask.MatchString((*u).Username) {
 		return ErrorInvalidUsername
 	}
