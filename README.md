@@ -8,7 +8,8 @@ It supports:
 - categorized posts,
 - comments on posts,
 - likes and dislikes per post/comment,
-- user login and registration.
+- user login and registration,
+- attaching an image to a post.
 
 ## Build
 
