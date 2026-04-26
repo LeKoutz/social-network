@@ -136,11 +136,21 @@ func parseCreatePostRequest(data models.ResponseStruct) (models.Post, error) {
 			PostCategories = append(PostCategories, category)
 		}
 	}
+	imagePath := ""
+	imageFile, _, err := data.Request.FormFile("image")
+	if err == nil {
+		defer imageFile.Close()
+		imagePath, err = models.SaveImage(imageFile)
+		if err != nil {
+			return models.Post{}, err
+		}
+	}
 	return models.Post{
 		Title:      title,
 		Body:       body,
 		UserId:     data.User.Id,
 		Categories: PostCategories,
+		ImagePath: imagePath,
 	}, nil
 }
 
@@ -165,7 +175,7 @@ func handlePostCreate(data models.ResponseStruct) {
 			views.PostCreate(data)
 			return
 		case http.MethodPost:
-			err := data.Request.ParseForm()
+			err := data.Request.ParseMultipartForm(models.MaxImageSize)
 			if err != nil {
 				(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 				return

@@ -9,6 +9,7 @@ type Post struct {
 	Id              int64
 	Title           string
 	Body            string
+	ImagePath       string
 	UserId          int64
 	User            User
 	Timestamp       int64
@@ -42,12 +43,12 @@ func (p *Post) Add() (int64, error) {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return 0, err
 	}
-	stmt, err := DB.Prepare("INSERT INTO posts (title, body, user_id, timestamp) VALUES (?, ?, ?, ?)")
+	stmt, err := DB.Prepare("INSERT INTO posts (title, body, image_path, user_id, timestamp) VALUES (?, ?, ?, ?, ?)")
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return 0, err
 	}
-	res, err := stmt.Exec(p.Title, p.Body, p.UserId, utils.GetCurrentTimestamp())
+	res, err := stmt.Exec(p.Title, p.Body, p.ImagePath, p.UserId, utils.GetCurrentTimestamp())
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return 0, err
@@ -84,7 +85,7 @@ func (p *Post) AddCategory(category Category) error {
 
 func (p *Post) GetById() error {
 	var ts string
-	err := DB.QueryRow(`SELECT title, body, timestamp, user_id FROM posts WHERE id = ?`, p.Id).Scan(&p.Title, &p.Body, &ts, &p.UserId)
+	err := DB.QueryRow(`SELECT title, body, image_path, timestamp, user_id FROM posts WHERE id = ?`, p.Id).Scan(&p.Title, &p.Body, &p.ImagePath, &ts, &p.UserId)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return err

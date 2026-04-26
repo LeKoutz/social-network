@@ -14,6 +14,8 @@ COPY --from=builder /app/bin/mockgen ./app/mockgen
 COPY --from=builder /app/templates ./templates
 COPY --from=builder /app/migrations ./migrations
 RUN mkdir -p /app/data
+COPY --from=builder /app/uploads ./uploads
+RUN mkdir -p /app/data /app/uploads/images
 EXPOSE 8080
 RUN ./app/mockgen /app/data/db.db
 CMD ["./app/forum", "--db-path", "/app/data/db.db", "0.0.0.0", "8080"]

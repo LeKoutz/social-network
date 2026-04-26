@@ -8,7 +8,7 @@ import (
 type Posts []Post
 
 func GetAllPosts() (Posts, error) {
-	rows, err := DB.Query(`SELECT id, title, body, timestamp FROM posts`)
+	rows, err := DB.Query(`SELECT id, title, body, timestamp, image_path FROM posts`)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return Posts{}, err
@@ -18,7 +18,7 @@ func GetAllPosts() (Posts, error) {
 	for rows.Next() {
 		var post Post
 		var ts string
-		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts)
+		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts, &post.ImagePath)
 		if err != nil {
 			err = errors.Join(utils.GetFunctionName(), err)
 			return Posts{}, err
@@ -37,7 +37,7 @@ func GetAllPosts() (Posts, error) {
 func GetPostsByCategoryId(id int64) (Posts, error) {
 	var posts Posts
 	rows, err := DB.Query(`
-	SELECT posts.id, posts.title, posts.body, posts.timestamp
+	SELECT posts.id, posts.title, posts.body, posts.timestamp, posts.image_path
 	FROM posts
 	JOIN posts_categories pc ON posts.id = pc.post_id
 	JOIN categories ON pc.category_id = categories.id
@@ -50,7 +50,7 @@ func GetPostsByCategoryId(id int64) (Posts, error) {
 	for rows.Next() {
 		var post Post
 		var ts string
-		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts)
+		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts, &post.ImagePath)
 		if err != nil {
 			err = errors.Join(utils.GetFunctionName(), err)
 			return Posts{}, err

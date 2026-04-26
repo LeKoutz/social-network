@@ -44,6 +44,8 @@ var (
 	ErrorInternalServerError     = errors.New("Internal server error.")
 	ErrorUnknownAction           = errors.New("Unknown action requested.")
 	ErrorFailedToGetCaller       = errors.New("failed to get caller information")
+	ErrorImageTooBig             = errors.New("Image is too big. Maximum size is 20MB.")
+	ErrorInvalidImageType        = errors.New("Invalid image type. Allowed types: JPEG, PNG, GIF.")
 )
 
 type Error struct {
