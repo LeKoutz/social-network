@@ -44,12 +44,12 @@ func handleGitHubLogin(data models.ResponseStruct) {
 func handleGoogleCallback(data models.ResponseStruct) {
 	token, err := googleOAuthConf.Exchange(data.Request.Context(), data.Request.URL.Query().Get("code"))
 	if err != nil {
-		data.Error.Consume(err).LogError()
+		data.Error.Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
 	resp, err := googleOAuthConf.Client(data.Request.Context(), token).Get("https://www.googleapis.com/oauth2/v2/userinfo")
 	if err != nil || resp == nil {
-		data.Error.Consume(err).LogError()
+		data.Error.Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
 	defer resp.Body.Close()
@@ -68,12 +68,12 @@ func handleGoogleCallback(data models.ResponseStruct) {
 func handleGitHubCallback(data models.ResponseStruct) {
 	token, err := githubOAuthConf.Exchange(data.Request.Context(), data.Request.URL.Query().Get("code"))
 	if err != nil {
-		data.Error.Consume(err).LogError()
+		data.Error.Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
 	resp, err := githubOAuthConf.Client(data.Request.Context(), token).Get("https://api.github.com/user")
 	if err != nil || resp == nil {
-		data.Error.Consume(err).LogError()
+		data.Error.Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
 	defer resp.Body.Close()
