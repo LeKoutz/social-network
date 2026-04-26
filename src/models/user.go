@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"errors"
 	"forum/src/utils"
 	"net/mail"
@@ -65,10 +66,13 @@ func GetUserBySession(sessionValue string) (User, error) {
 func GetUserByOAuthProviderAndEmail(provider, email string) (User, error) {
 	var user User
 	err := DB.QueryRow(`SELECT id, email, username, oauth_provider FROM users WHERE oauth_provider = ? AND email = ?`, provider, email).Scan(&user.Id, &user.Email, &user.Username, &user.OAuthProvider)
-    if err != nil {
-        return User{}, err
-    }
-    return user, nil
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return User{}, ErrorNoRows
+		}
+		return User{}, err
+	}
+	return user, nil
 }
 
 func getUserById(id int64) (User, error) {

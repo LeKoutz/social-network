@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"forum/src/models"
 	"net/http"
 	"os"
@@ -130,6 +131,10 @@ func createOrLoginUser(data models.ResponseStruct, provider, oauthID, email, use
 	data.User, err = models.GetUserByOAuthProviderAndEmail(provider, email)
 	if err != nil {
 		data.User = models.GetGuestUser()
+		if errors.Is(err, models.ErrorNoRows){
+			data.Error.Consume(models.ErrorEmailNotFoundForOAuth).LogAndRespondError(data.Response, data.User)
+			return
+		}
 		data.Error.Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
