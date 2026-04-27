@@ -19,6 +19,14 @@ type oauthConfig struct {
 	Scopes []string
 }
 
+type tokenResponse struct {
+	AccessToken string `json:"access_token"`
+}
+
+type Transport struct {
+	Token string
+}
+
 func (c *oauthConfig) AuthCodeURL(state string) string {
 	params := url.Values{
 		"client_id":     {c.ClientID},
@@ -62,6 +70,18 @@ func (c *oauthConfig) Exchange(ctx context.Context, code string) (string, error)
 	}
 
 	return tr.AccessToken, nil
+}
+
+func (b *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
+	req.Header.Set("Authorization", "Transport " + b.Token)
+	req.Header.Set("Accept", "application/json")
+	return http.DefaultTransport.RoundTrip(req)
+}
+
+func (c *oauthConfig) Client(ctx context.Context, token string) *http.Client {
+	return &http.Client{
+		Transport: &Transport{Token: token},
+	}
 }
 
 
