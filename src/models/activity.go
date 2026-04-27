@@ -13,8 +13,6 @@ type Activity struct {
 	Comment   Comment
 }
 
-type Activities []Activity
-
 func (u *User) GetActivity() error {
 	err := u.GetPostsActivity()
 	if err != nil {
