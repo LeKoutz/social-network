@@ -17,7 +17,7 @@ func Auth(email, password string) error {
 		return models.ErrorNotRegistered
 	}
 	var user models.User
-	user, err = models.GetUserByEmail(email)
+	user, err = models.GetUserPasswordByEmail(email)
 	if err != nil {
 		return err
 	}
