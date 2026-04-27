@@ -23,7 +23,7 @@ type tokenResponse struct {
 	AccessToken string `json:"access_token"`
 }
 
-type Transport struct {
+type BearerTransport struct {
 	Token string
 }
 
@@ -72,15 +72,15 @@ func (c *oauthConfig) Exchange(ctx context.Context, code string) (string, error)
 	return tr.AccessToken, nil
 }
 
-func (b *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
-	req.Header.Set("Authorization", "Transport " + b.Token)
+func (b *BearerTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	req.Header.Set("Authorization", "Bearer " + b.Token)
 	req.Header.Set("Accept", "application/json")
 	return http.DefaultTransport.RoundTrip(req)
 }
 
 func (c *oauthConfig) Client(ctx context.Context, token string) *http.Client {
 	return &http.Client{
-		Transport: &Transport{Token: token},
+		Transport: &BearerTransport{Token: token},
 	}
 }
 
