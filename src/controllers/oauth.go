@@ -104,7 +104,7 @@ var (
 	}
 )
 
-func handleOauthLogin(data models.ResponseStruct, provider string) {
+func handleOAuthLogin(data models.ResponseStruct, provider string) {
 	state, _ := uuid.NewV4()
 
 	cookie := &http.Cookie{
