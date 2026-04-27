@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
+	"context"
 	"forum/src/models"
 	"net/http"
 	"net/url"
@@ -27,6 +28,40 @@ func (c *oauthConfig) AuthCodeURL(state string) string {
 		"state":         {state},
 	}
 	return c.AuthURL + "?" + params.Encode()
+}
+
+func (c *oauthConfig) Exchange(ctx context.Context, code string) (string, error) {
+	data := url.Values{
+		"client_id":     {c.ClientID},
+		"client_secret": {c.ClientSecret},
+		"code":          {code},
+		"grant_type":    {"authorization_code"},
+		"redirect_uri":  {c.RedirectURL},
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "POST", c.TokenURL, strings.NewReader(data.Encode()))
+	if err != nil {
+		return "", err
+	}
+	
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Accept", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	var tr tokenResponse
+	if err := json.NewDecoder(resp.Body).Decode(&tr); err != nil {
+		return "", err
+	}
+	if tr.AccessToken == "" {
+		return "", errors.New("failed to retrieve access token")
+	}
+
+	return tr.AccessToken, nil
 }
 
 
