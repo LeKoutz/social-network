@@ -258,12 +258,11 @@ func createOrLoginUser(data models.ResponseStruct, provider, email, username str
 	}
 	http.SetCookie(data.Response, cookie)
 
-	// http.Redirect(data.Response, data.Request, "/", http.StatusSeeOther)
-	//
-	// Hack: cause if we redirect, it somehow doesn't read the cookie after the
+	// Because if we redirect, it somehow doesn't read the cookie after the
 	// redirect. The cookie is set, though. It just doesn't leave the browser at
 	// this point. So, instead, we return them to the Index() controller without
-	// redirection... weird... the exact same flow goes fine on attemptLogin()
-	// and it *does* redirect. Maybe because we redirected from somewhere else?
+	// redirection... The difference with internal auth attemptLogin() where we
+	// do redirection successfully is because we are doing it from the same
+	// origin. Here, we land from external page.
 	Index(data)
 }
