@@ -60,7 +60,7 @@ func createComment(data models.ResponseStruct) {
 		Timestamp: utils.GetCurrentTimestamp(),
 	}
 	if data.User.Id != post.User.Id {
-		err = models.CreateNotification(&notification)
+		err = notification.Add()
 		if err != nil {
 			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
@@ -130,7 +130,7 @@ func handleCommentReaction(data models.ResponseStruct) {
 		if data.User.Id != comment.UserId {
 			notification.Type = "commentLike"
 			notification.Timestamp = utils.GetCurrentTimestamp()
-			err = models.CreateNotification(&notification)
+			err = notification.Add()
 			if err != nil {
 				(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 				return
@@ -146,7 +146,7 @@ func handleCommentReaction(data models.ResponseStruct) {
 		if data.User.Id != comment.UserId {
 			notification.Type = "commentDislike"
 			notification.Timestamp = utils.GetCurrentTimestamp()
-			err = models.CreateNotification(&notification)
+			err = notification.Add()
 			if err != nil {
 				(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 				return
