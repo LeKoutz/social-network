@@ -321,14 +321,16 @@ func (u *User) GetNotifications() (Notifications, error) {
 				post := Post{Id: notification.TargetId}
 				err = post.GetById()
 				if err != nil {
-					continue
+					err = errors.Join(utils.GetFunctionName(), err)
+					(&Error{}).Consume(err).LogError()
 				}
 				notifications[i].Target = post
 			case "comment", "commentLike", "commentDislike":
 				comment := Comment{Id: notification.TargetId}
 				err = comment.GetCommentById()
 				if err != nil {
-					continue
+					err = errors.Join(utils.GetFunctionName(), err)
+					(&Error{}).Consume(err).LogError()
 				}
 				notifications[i].Target = comment
 			}
