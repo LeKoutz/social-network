@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"errors"
 	"forum/src/utils"
 	"net/mail"
@@ -13,10 +14,8 @@ type User struct {
 	Username      string
 	Hash          string
 	Email         string
-	Role          string
 	LoggedIn      bool
 	OAuthProvider string
-	OAuthId		  string
 	OwnedPosts    Posts
 	OwnedComments Comments
 	OwnedLikes    Likes
@@ -26,14 +25,24 @@ type User struct {
 func GetGuestUser() User {
 	return User{
 		Username: "guest",
-		Role:     "guest",
 		LoggedIn: false,
 	}
 }
 
+// Returns ONLY the `User.Hash` field for comparison against the given password
+func GetUserPasswordByEmail(email string) (User, error) {
+	var user User
+	err := DB.QueryRow(`SELECT hash FROM users WHERE email = ?`, email).Scan(&user.Hash)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return User{}, err
+	}
+	return user, nil
+}
+
 func GetUserByEmail(email string) (User, error) {
 	var user User
-	err := DB.QueryRow(`SELECT id, email, username, hash FROM users WHERE email = ?`, email).Scan(&user.Id, &user.Email, &user.Username, &user.Hash)
+	err := DB.QueryRow(`SELECT id, email, username FROM users WHERE email = ?`, email).Scan(&user.Id, &user.Email, &user.Username)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return User{}, err
@@ -43,7 +52,7 @@ func GetUserByEmail(email string) (User, error) {
 
 func GetUserBySession(sessionValue string) (User, error) {
 	var user User
-	err := DB.QueryRow(`SELECT id, email, username, hash FROM users WHERE session_key = ?`, sessionValue).Scan(&user.Id, &user.Email, &user.Username, &user.Hash)
+	err := DB.QueryRow(`SELECT id, email, username FROM users WHERE session_key = ?`, sessionValue).Scan(&user.Id, &user.Email, &user.Username)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return User{}, err
@@ -51,13 +60,16 @@ func GetUserBySession(sessionValue string) (User, error) {
 	return user, nil
 }
 
-func GetUserByOAuth(provider, oauthID string) (User, error) {
-    var user User
-	err := DB.QueryRow(`SELECT id, email, username, oauth_provider, oauth_id FROM users WHERE oauth_provider = ? AND oauth_id = ?`, provider, oauthID).Scan(&user.Id, &user.Email, &user.Username, &user.OAuthProvider, &user.OAuthId)
-    if err != nil {
-        return User{}, err
-    }
-    return user, nil
+func GetUserByOAuthProviderAndEmail(provider, email string) (User, error) {
+	var user User
+	err := DB.QueryRow(`SELECT id, email, username, oauth_provider FROM users WHERE oauth_provider = ? AND email = ?`, provider, email).Scan(&user.Id, &user.Email, &user.Username, &user.OAuthProvider)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return User{}, ErrorNoRows
+		}
+		return User{}, err
+	}
+	return user, nil
 }
 
 func getUserById(id int64) (User, error) {
@@ -72,7 +84,7 @@ func getUserById(id int64) (User, error) {
 }
 
 func (u *User) ValidateUsername() error {
-	unameMask := regexp.MustCompile(`^[a-zA-Z0-9]{4,15}$`)
+	unameMask := regexp.MustCompile(`^[a-zA-Z0-9_]{4,50}$`)
 	if !unameMask.MatchString((*u).Username) {
 		return ErrorInvalidUsername
 	}
@@ -128,11 +140,11 @@ func (u *User) AddOAuth() error {
     if !IsUniqueUsername(u.Username) {
         return ErrorUsernameTaken
     }
-	stmt, err := DB.Prepare("INSERT INTO users (username, email, oauth_provider, oauth_id) VALUES (?, ?, ?, ?)")
+	stmt, err := DB.Prepare("INSERT INTO users (username, email, oauth_provider) VALUES (?, ?, ?)")
 	if err != nil {
 		return err
 	}
-    _, err = stmt.Exec(u.Username, u.Email, u.OAuthProvider, u.OAuthId)
+    _, err = stmt.Exec(u.Username, u.Email, u.OAuthProvider)
 	if err != nil {
         return err
     }
