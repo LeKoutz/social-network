@@ -66,7 +66,7 @@ func (c *oauthConfig) Exchange(ctx context.Context, code string) (string, error)
 		return "", err
 	}
 	if tr.AccessToken == "" {
-		return "", errors.New("failed to retrieve access token")
+		return "", models.ErrorAccessToken
 	}
 
 	return tr.AccessToken, nil
