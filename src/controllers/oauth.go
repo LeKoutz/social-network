@@ -30,7 +30,7 @@ type Transport struct {
 func (c *oauthConfig) AuthCodeURL(state string) string {
 	params := url.Values{
 		"client_id":     {c.ClientID},
-		"redirect_uri":  {c.RedirectURL},
+		"redirect_url":  {c.RedirectURL},
 		"response_type": {"code"},
 		"scope":         {strings.Join(c.Scopes, " ")},
 		"state":         {state},
