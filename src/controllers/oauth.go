@@ -10,25 +10,29 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/github"
-	"golang.org/x/oauth2/google"
 )
 
+type oauthConfig struct {
+	ClientID, ClientSecret, RedirectURL, AuthURL, TokenURL string
+	Scopes []string
+}
+
 var (
-	googleOAuthConf = &oauth2.Config{
+	googleOAuthConf = &oauthConfig{
 		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
 		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
 		RedirectURL:  "http://localhost:8080/auth/google/callback",
 		Scopes:       []string{"email", "profile"},
-		Endpoint:     google.Endpoint,
+		AuthURL:      "https://accounts.google.com/o/oauth2/v2/auth",
+		TokenURL:     "https://oauth2.googleapis.com/token",
 	}
-	githubOAuthConf = &oauth2.Config{
+	githubOAuthConf = &oauthConfig{
 		ClientID:     os.Getenv("GITHUB_CLIENT_ID"),
 		ClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
 		RedirectURL:  "http://localhost:8080/auth/github/callback",
 		Scopes:       []string{"user:email", "read:user"},
-		Endpoint:     github.Endpoint,
+		AuthURL:      "https://github.com/login/oauth/authorize",
+		TokenURL:	  "https://github.com/login/oauth/access_token",
 	}
 )
 
