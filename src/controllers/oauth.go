@@ -104,7 +104,7 @@ var (
 	}
 )
 
-func handleGoogleLogin(data models.ResponseStruct) {
+func handleOAuthLogin(data models.ResponseStruct, provider string) {
 	state, _ := uuid.NewV4()
 
 	cookie := &http.Cookie{
@@ -117,23 +117,13 @@ func handleGoogleLogin(data models.ResponseStruct) {
 	}
 	http.SetCookie(data.Response, cookie)
 	
-	url := googleOAuthConf.AuthCodeURL(state.String()) + "&prompt=consent"
-	http.Redirect(data.Response, data.Request, url, http.StatusTemporaryRedirect)
-}
-
-func handleGitHubLogin(data models.ResponseStruct) {
-	state, _ := uuid.NewV4()
-	cookie := &http.Cookie{
-		Name:     "__Host-FRMState",
-		Value:    state.String(),
-		Path:     "/",
-		Expires:  time.Now().Add(10 * time.Minute),
-		Secure:   true,
-		HttpOnly: true,
+	var url string
+	switch provider {
+	case "google":
+		url = googleOAuthConf.AuthCodeURL(state.String()) + "&prompt=consent"
+	case "github":
+		url = githubOAuthConf.AuthCodeURL(state.String()) + "&prompt=consent"
 	}
-	http.SetCookie(data.Response, cookie)
-
-	url := githubOAuthConf.AuthCodeURL(state.String()) + "&prompt=consent"
 	http.Redirect(data.Response, data.Request, url, http.StatusTemporaryRedirect)
 }
 
