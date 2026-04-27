@@ -51,43 +51,27 @@ func (u *User) GetActivity() error {
 }
 
 func (u *User) GetPostsActivity() error {
-	rows, err := DB.Query(`
-	SELECT id, timestamp, title, body, user_id
-	FROM posts
-	WHERE user_id = ?`, (*u).Id)
+	posts, err := u.GetPosts()
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
-		return err
 	}
-	for rows.Next() {
-		var activity Activity
-		var post Post
-		var ts string
-		err = rows.Scan(&post.Id, &ts, &post.Title, &post.Body, &post.UserId)
+	for _, post := range posts {
+		err := post.GetById()
 		if err != nil {
 			err = errors.Join(utils.GetFunctionName(), err)
-			return err
 		}
-		t, err := utils.ConvertStringToTime(ts)
-		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
-			return err
-		}
-		rows.Close()
 		err = post.GetReactions()
 		if err != nil {
 			err = errors.Join(utils.GetFunctionName(), err)
-			return err
 		}
-		err = post.GetReactionsByUserId((*u).Id)
+		err = post.GetReactionsByUserId(u.Id)
 		if err != nil {
 			err = errors.Join(utils.GetFunctionName(), err)
-			return err
 		}
-		post.TimestampString = utils.ConvertTimeToString(t)
-		activity.Type = "post"
+		var activity Activity
 		activity.Timestamp = post.TimestampString
 		activity.Post = post
+		activity.Type = "post"
 		u.Activities = append(u.Activities, activity)
 	}
 	return nil
