@@ -44,7 +44,7 @@ func (c *oauthConfig) Exchange(ctx context.Context, code string) (string, error)
 		"client_secret": {c.ClientSecret},
 		"code":          {code},
 		"grant_type":    {"authorization_code"},
-		"redirect_uri":  {c.RedirectURL},
+		"redirect_url":  {c.RedirectURL},
 	}
 
 	req, err := http.NewRequestWithContext(ctx, "POST", c.TokenURL, strings.NewReader(data.Encode()))
