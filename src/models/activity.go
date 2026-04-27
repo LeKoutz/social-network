@@ -1,8 +1,8 @@
 package models
 
 type Activity struct {
-	Type	  string
-	Timestamp string
-	Post	  Post
-	Comment   Comment
+	Type	  		string
+	TimestampString	string
+	Post	  		Post
+	Comment   		Comment
 }

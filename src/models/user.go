@@ -389,7 +389,7 @@ func (u *User) GetActivity() error {
 		return err
 	}
 	sort.Slice(u.Activities, func(i, j int) bool {
-		return u.Activities[i].Timestamp > u.Activities[j].Timestamp
+		return u.Activities[i].TimestampString > u.Activities[j].TimestampString
 	})
 	return nil
 }
@@ -413,7 +413,7 @@ func (u *User) GetPostsActivity() error {
 			err = errors.Join(utils.GetFunctionName(), err)
 		}
 		var activity Activity
-		activity.Timestamp = post.TimestampString
+		activity.TimestampString = post.TimestampString
 		activity.Post = post
 		activity.Type = "post"
 		u.Activities = append(u.Activities, activity)
@@ -473,7 +473,7 @@ func (u *User) GetCommentsActivity() error {
 		}
 		comment.TimestampString = utils.ConvertTimeToString(t)
 		activity.Type = "comment"
-		activity.Timestamp = comment.TimestampString
+		activity.TimestampString = comment.TimestampString
 		activity.Comment = comment
 		activity.Post = post
 		u.Activities = append(u.Activities, activity)
@@ -518,7 +518,7 @@ func (u *User) GetLikedPostsActivity() error {
 			return err
 		}
 		activity.Type = "postLike"
-		activity.Timestamp = utils.ConvertTimeToString(t)
+		activity.TimestampString = utils.ConvertTimeToString(t)
 		activity.Post = post
 		u.Activities = append(u.Activities, activity)
 	}
@@ -562,7 +562,7 @@ func (u *User) GetDislikedPostsActivity() error {
 			return err
 		}
 		activity.Type = "postDislike"
-		activity.Timestamp = utils.ConvertTimeToString(t)
+		activity.TimestampString = utils.ConvertTimeToString(t)
 		activity.Post = post
 		u.Activities = append(u.Activities, activity)
 	}
@@ -612,7 +612,7 @@ func (u *User) GetLikedCommentsActivity() error {
 			return err
 		}
 		activity.Type = "commentLike"
-		activity.Timestamp = utils.ConvertTimeToString(t)
+		activity.TimestampString = utils.ConvertTimeToString(t)
 		activity.Comment = comment
 		activity.Post = post
 		u.Activities = append(u.Activities, activity)
@@ -663,7 +663,7 @@ func (u *User) GetDislikedCommentsActivity() error {
 			return err
 		}
 		activity.Type = "commentDislike"
-		activity.Timestamp = utils.ConvertTimeToString(t)
+		activity.TimestampString = utils.ConvertTimeToString(t)
 		activity.Comment = comment
 		activity.Post = post
 		u.Activities = append(u.Activities, activity)
