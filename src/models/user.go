@@ -525,32 +525,52 @@ func (u *User) GetLikedPostsActivity() error {
 	return nil
 }
 
-func (u *User) GetDislikedPostsActivity() error {
+func GetDislikedPostsByUserId(id int64) (Posts, error) {
+	var posts Posts
+	var err error
 	rows, err := DB.Query(`
 	SELECT p.id, p.title, p.body, p.user_id, r.timestamp
 	FROM posts p
 	JOIN reactions r ON p.id = r.post_id
 	WHERE r.user_id = ? AND r.value = 2
-	`, (*u).Id)
+	`, id)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
-		return err
+		return Posts{}, err
 	}
 	for rows.Next() {
-		var activity Activity
 		var post Post
 		var ts string
 		err = rows.Scan(&post.Id, &post.Title, &post.Body, &post.UserId, &ts)
 		if err != nil {
 			err = errors.Join(utils.GetFunctionName(), err)
-			return err
+			return Posts{}, err
 		}
+		t, err := utils.ConvertStringToTime(ts)
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return Posts{}, err
+		}
+		post.TimestampString = utils.ConvertTimeToString(t)
+		posts = append(posts, post)
+	}
+	return posts, nil
+}
+
+func (u *User) GetDislikedPostsActivity() error {
+	posts, err := GetDislikedPostsByUserId(u.Id)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	for _, post := range posts {
+		var activity Activity
+		var ts string
 		t, err := utils.ConvertStringToTime(ts)
 		if err != nil {
 			err = errors.Join(utils.GetFunctionName(), err)
 			return err
 		}
-		rows.Close()
 		err = post.GetReactions()
 		if err != nil {
 			err = errors.Join(utils.GetFunctionName(), err)
