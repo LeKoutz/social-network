@@ -3,48 +3,141 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
+	"context"
 	"forum/src/models"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/gofrs/uuid"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/github"
-	"golang.org/x/oauth2/google"
 )
 
+type oauthConfig struct {
+	ClientID, ClientSecret, RedirectURL, AuthURL, TokenURL string
+	Scopes []string
+}
+
+type tokenResponse struct {
+	AccessToken string `json:"access_token"`
+}
+
+type BearerTransport struct {
+	Token string
+}
+
+func (c *oauthConfig) AuthCodeURL(state string) string {
+	params := url.Values{
+		"client_id":     {c.ClientID},
+		"redirect_uri":  {c.RedirectURL},
+		"response_type": {"code"},
+		"scope":         {strings.Join(c.Scopes, " ")},
+		"state":         {state},
+	}
+	return c.AuthURL + "?" + params.Encode()
+}
+
+func (c *oauthConfig) Exchange(ctx context.Context, code string) (string, error) {
+	data := url.Values{
+		"client_id":     {c.ClientID},
+		"client_secret": {c.ClientSecret},
+		"code":          {code},
+		"grant_type":    {"authorization_code"},
+		"redirect_uri":  {c.RedirectURL},
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "POST", c.TokenURL, strings.NewReader(data.Encode()))
+	if err != nil {
+		return "", err
+	}
+	
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Accept", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	var tr tokenResponse
+	if err := json.NewDecoder(resp.Body).Decode(&tr); err != nil {
+		return "", err
+	}
+	if tr.AccessToken == "" {
+		return "", models.ErrorAccessToken
+	}
+
+	return tr.AccessToken, nil
+}
+
+func (b *BearerTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	req.Header.Set("Authorization", "Bearer " + b.Token)
+	req.Header.Set("Accept", "application/json")
+	return http.DefaultTransport.RoundTrip(req)
+}
+
+func (c *oauthConfig) Client(ctx context.Context, token string) *http.Client {
+	return &http.Client{
+		Transport: &BearerTransport{Token: token},
+	}
+}
+
+
 var (
-	googleOAuthConf = &oauth2.Config{
+	googleOAuthConf = &oauthConfig{
 		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
 		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
 		RedirectURL:  "http://localhost:8080/auth/google/callback",
 		Scopes:       []string{"email", "profile"},
-		Endpoint:     google.Endpoint,
+		AuthURL:      "https://accounts.google.com/o/oauth2/v2/auth",
+		TokenURL:     "https://oauth2.googleapis.com/token",
 	}
-	githubOAuthConf = &oauth2.Config{
+	githubOAuthConf = &oauthConfig{
 		ClientID:     os.Getenv("GITHUB_CLIENT_ID"),
 		ClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
 		RedirectURL:  "http://localhost:8080/auth/github/callback",
 		Scopes:       []string{"user:email", "read:user"},
-		Endpoint:     github.Endpoint,
+		AuthURL:      "https://github.com/login/oauth/authorize",
+		TokenURL:	  "https://github.com/login/oauth/access_token",
 	}
 )
 
-func handleGoogleLogin(data models.ResponseStruct) {
+func handleOAuthLogin(data models.ResponseStruct, provider string) {
 	state, _ := uuid.NewV4()
-	url := googleOAuthConf.AuthCodeURL(state.String()) + "&prompt=consent"
-	http.Redirect(data.Response, data.Request, url, http.StatusTemporaryRedirect)
-}
 
-func handleGitHubLogin(data models.ResponseStruct) {
-	state, _ := uuid.NewV4()
-	url := githubOAuthConf.AuthCodeURL(state.String()) + "&prompt=consent"
+	cookie := &http.Cookie{
+		Name:     "__Host-FRMState",
+		Value:    state.String(),
+		Path:     "/",
+		Expires:  time.Now().Add(10 * time.Minute),
+		Secure:   true,
+		HttpOnly: true,
+	}
+	http.SetCookie(data.Response, cookie)
+	
+	var url string
+	switch provider {
+	case "google":
+		url = googleOAuthConf.AuthCodeURL(state.String()) + "&prompt=consent"
+	case "github":
+		url = githubOAuthConf.AuthCodeURL(state.String()) + "&prompt=consent"
+	}
 	http.Redirect(data.Response, data.Request, url, http.StatusTemporaryRedirect)
 }
 
 func handleGoogleCallback(data models.ResponseStruct) {
+	cookieState, err := data.Request.Cookie("__Host-FRMState")
+	if err != nil {
+		data.Error.Consume(models.ErrorCookieNotFound).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	urlState := data.Request.URL.Query().Get("state")
+	if cookieState.Value != urlState {
+		data.Error.Consume(models.ErrorInvalidOAuthState).LogAndRespondError(data.Response, data.User)
+		return
+	}
 	token, err := googleOAuthConf.Exchange(data.Request.Context(), data.Request.URL.Query().Get("code"))
 	if err != nil {
 		data.Error.Consume(err).LogAndRespondError(data.Response, data.User)
@@ -69,6 +162,16 @@ func handleGoogleCallback(data models.ResponseStruct) {
 }
 
 func handleGitHubCallback(data models.ResponseStruct) {
+	cookieState, err := data.Request.Cookie("__Host-FRMState")
+	if err != nil {
+		data.Error.Consume(models.ErrorCookieNotFound).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	urlState := data.Request.URL.Query().Get("state")
+	if cookieState.Value != urlState {
+		data.Error.Consume(models.ErrorInvalidOAuthState).LogAndRespondError(data.Response, data.User)
+		return
+	}
 	token, err := githubOAuthConf.Exchange(data.Request.Context(), data.Request.URL.Query().Get("code"))
 	if err != nil {
 		data.Error.Consume(err).LogAndRespondError(data.Response, data.User)

@@ -48,6 +48,9 @@ var (
 	ErrorFailedToGetCaller       = errors.New("Failed to get caller information")
 	ErrorNoRows                  = errors.New("No rows")
 	ErrorEmailNotFoundForOAuth   = errors.New("Could not associate email with given OAuth provider. Try to login with a password or another provider.")
+	ErrorAccessToken			 = errors.New("Failed to retrieve access token")
+	ErrorCookieNotFound			 = errors.New("State cookie not found")
+	ErrorInvalidOAuthState		 = errors.New("Invalid OAuth state")
 )
 
 type Error struct {
