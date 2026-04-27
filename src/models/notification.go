@@ -15,8 +15,8 @@ type Notification struct {
 	Read      bool
 }
 
-func CreateNotification(notification *Notification) error {
+func (n *Notification) Add() error {
 	query := `INSERT INTO notifications (user_id, actor_id, type, target_id, timestamp) VALUES (?, ?, ?, ?, ?)`
-	_, err := DB.Exec(query, notification.UserId, notification.ActorId, notification.Type, notification.TargetId, notification.Timestamp)
+	_, err := DB.Exec(query, n.UserId, n.ActorId, n.Type, n.TargetId, n.Timestamp)
 	return err
 }
