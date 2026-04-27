@@ -138,6 +138,16 @@ func handleGitHubLogin(data models.ResponseStruct) {
 }
 
 func handleGoogleCallback(data models.ResponseStruct) {
+	cookieState, err := data.Request.Cookie("__Host-FRMState")
+	if err != nil {
+		data.Error.Consume(models.ErrorCookieNotFound).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	urlState := data.Request.URL.Query().Get("state")
+	if cookieState.Value != urlState {
+		data.Error.Consume(models.ErrorInvalidOAuthState).LogAndRespondError(data.Response, data.User)
+		return
+	}
 	token, err := googleOAuthConf.Exchange(data.Request.Context(), data.Request.URL.Query().Get("code"))
 	if err != nil {
 		data.Error.Consume(err).LogAndRespondError(data.Response, data.User)
@@ -162,6 +172,16 @@ func handleGoogleCallback(data models.ResponseStruct) {
 }
 
 func handleGitHubCallback(data models.ResponseStruct) {
+	cookieState, err := data.Request.Cookie("__Host-FRMState")
+	if err != nil {
+		data.Error.Consume(models.ErrorCookieNotFound).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	urlState := data.Request.URL.Query().Get("state")
+	if cookieState.Value != urlState {
+		data.Error.Consume(models.ErrorInvalidOAuthState).LogAndRespondError(data.Response, data.User)
+		return
+	}
 	token, err := githubOAuthConf.Exchange(data.Request.Context(), data.Request.URL.Query().Get("code"))
 	if err != nil {
 		data.Error.Consume(err).LogAndRespondError(data.Response, data.User)
