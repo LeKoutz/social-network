@@ -17,48 +17,7 @@
                     <li><details>
                         <summary>Notifications 🔔 {{if .User.UnreadNotificationsCount}}({{.User.UnreadNotificationsCount}}){{end}}</summary>
                         {{if .User.Notifications}}
-                        <form method="post" action="/user/notifications">
-                            <button type="submit">Mark all as read</button>
-                        </form>
-                        <ul>
-                            {{range .User.Notifications}}
-                            {{if eq .Type "comment"}}
-                            <li>
-                                {{if not .Read}}<strong>{{end}}
-                                <a href = "/post/view/{{.Target.PostId}}#comment-{{.Target.Id}}">{{.Actor.Username}} commented on your post </a>
-                                {{if not .Read}}</strong>{{end}}
-                            </li>
-                            {{end}}
-                            {{if eq .Type "like"}}
-                            <li>
-                                {{if not .Read}}<strong>{{end}}
-                                <a href = "/post/view/{{.Target.Id}}">{{.Actor.Username}} liked your post </a>
-                                {{if not .Read}}</strong>{{end}}
-                            </li>
-                            {{end}}
-                            {{if eq .Type "dislike"}}
-                            <li>
-                                {{if not .Read}}<strong>{{end}}
-                                <a href = "/post/view/{{.Target.Id}}">{{.Actor.Username}} disliked your post </a>
-                                {{if not .Read}}</strong>{{end}}
-                            </li>
-                            {{end}}
-                            {{if eq .Type "commentLike"}}
-                            <li>
-                                {{if not .Read}}<strong>{{end}}
-                                <a href = "/post/view/{{.Target.PostId}}#comment-{{.Target.Id}}">{{.Actor.Username}} liked your comment </a>
-                                {{if not .Read}}</strong>{{end}}
-                            </li>
-                            {{end}}
-                            {{if eq .Type "commentDislike"}}
-                            <li>
-                                {{if not .Read}}<strong>{{end}}
-                                <a href = "/post/view/{{.Target.PostId}}#comment-{{.Target.Id}}">{{.Actor.Username}} disliked your comment </a>
-                                {{if not .Read}}</strong>{{end}}
-                            </li>
-                            {{end}}
-                            {{end}}
-                        </ul>
+                        {{template "notifications" .User}}
                         {{end}}
                     </details></li>
                     <li><a href="/user/logout">Log out</a></li>
