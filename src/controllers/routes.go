@@ -17,6 +17,14 @@ func Routes(data models.ResponseStruct) {
 	}
 	utils.LogDebug(uri)
 	switch {
+	case strings.HasPrefix(data.Request.RequestURI, "/auth/google/callback"):
+		handleGoogleCallback(data)
+	case strings.HasPrefix(data.Request.RequestURI, "/auth/google"):
+		handleOAuthLogin(data, "google")
+	case strings.HasPrefix(data.Request.RequestURI, "/auth/github/callback"):
+		handleGitHubCallback(data)
+	case strings.HasPrefix(data.Request.RequestURI, "/auth/github"):
+		handleOAuthLogin(data, "github")
 	case strings.HasPrefix(data.Request.RequestURI, "/category/view/"):
 		if data.Request.Method == http.MethodGet {
 			showCategory(data)

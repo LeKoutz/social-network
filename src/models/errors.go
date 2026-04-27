@@ -43,9 +43,14 @@ var (
 	ErrorBadRequest              = errors.New("Bad request.")
 	ErrorInternalServerError     = errors.New("Internal server error.")
 	ErrorUnknownAction           = errors.New("Unknown action requested.")
-	ErrorFailedToGetCaller       = errors.New("failed to get caller information")
 	ErrorImageTooBig             = errors.New("Image is too big. Maximum size is 20MB.")
 	ErrorInvalidImageType        = errors.New("Invalid image type. Allowed types: JPEG, PNG, GIF.")
+	ErrorFailedToGetCaller       = errors.New("Failed to get caller information")
+	ErrorNoRows                  = errors.New("No rows")
+	ErrorEmailNotFoundForOAuth   = errors.New("Could not associate email with given OAuth provider. Try to login with a password or another provider.")
+	ErrorAccessToken			 = errors.New("Failed to retrieve access token")
+	ErrorCookieNotFound			 = errors.New("State cookie not found")
+	ErrorInvalidOAuthState		 = errors.New("Invalid OAuth state")
 )
 
 type Error struct {
