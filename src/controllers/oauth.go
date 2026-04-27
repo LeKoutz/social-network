@@ -5,6 +5,7 @@ import (
 	"errors"
 	"forum/src/models"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -16,6 +17,18 @@ type oauthConfig struct {
 	ClientID, ClientSecret, RedirectURL, AuthURL, TokenURL string
 	Scopes []string
 }
+
+func (c *oauthConfig) AuthCodeURL(state string) string {
+	params := url.Values{
+		"client_id":     {c.ClientID},
+		"redirect_uri":  {c.RedirectURL},
+		"response_type": {"code"},
+		"scope":         {strings.Join(c.Scopes, " ")},
+		"state":         {state},
+	}
+	return c.AuthURL + "?" + params.Encode()
+}
+
 
 var (
 	googleOAuthConf = &oauthConfig{
