@@ -620,32 +620,47 @@ func (u *User) GetLikedCommentsActivity() error {
 	return nil
 }
 
-func (u *User) GetDislikedCommentsActivity() error {
+func GetDislikedCommentsByUserId(id int64) (Comments, error) {
+	var comments Comments
+	var err error
 	rows, err := DB.Query(`
 	SELECT c.id, c.post_id, c.body, c.user_id, r.timestamp
 	FROM comments c
 	JOIN reactions r ON c.id = r.comment_id
 	WHERE r.user_id = ? AND r.value = 2
-	`, (*u).Id)
+	`, id)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
-		return err
+		return Comments{}, err
 	}
+	defer rows.Close()
 	for rows.Next() {
-		var activity Activity
 		var comment Comment
 		var ts string
 		err = rows.Scan(&comment.Id, &comment.PostId, &comment.Body, &comment.UserId, &ts)
 		if err != nil {
 			err = errors.Join(utils.GetFunctionName(), err)
-			return err
+			return Comments{}, err
 		}
 		t, err := utils.ConvertStringToTime(ts)
 		if err != nil {
 			err = errors.Join(utils.GetFunctionName(), err)
-			return err
+			return Comments{}, err
 		}
-		rows.Close()
+		comment.TimestampString = utils.ConvertTimeToString(t)
+		comments = append(comments, comment)
+	}
+	return comments, nil
+}
+
+func (u *User) GetDislikedCommentsActivity() error {
+	comments, err := GetDislikedCommentsByUserId(u.Id)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	for _, comment := range comments {
+		var activity Activity
 		err = comment.GetReactions()
 		if err != nil {
 			err = errors.Join(utils.GetFunctionName(), err)
@@ -663,7 +678,7 @@ func (u *User) GetDislikedCommentsActivity() error {
 			return err
 		}
 		activity.Type = "commentDislike"
-		activity.TimestampString = utils.ConvertTimeToString(t)
+		activity.TimestampString = comment.TimestampString
 		activity.Comment = comment
 		activity.Post = post
 		u.Activities = append(u.Activities, activity)
