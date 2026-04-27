@@ -59,10 +59,12 @@ func createComment(data models.ResponseStruct) {
 		TargetId:  commentId,
 		Timestamp: utils.GetCurrentTimestamp(),
 	}
-	err = models.CreateNotification(&notification)
-	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
+	if data.User.Id != post.User.Id {
+		err = models.CreateNotification(&notification)
+		if err != nil {
+			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+			return
+		}
 	}
 	redirectURL := fmt.Sprintf("/post/view/%d#comment-%d", post_id, commentId)
 	// Redirect to the post's page
