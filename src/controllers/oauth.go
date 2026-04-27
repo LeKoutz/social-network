@@ -30,7 +30,7 @@ type Transport struct {
 func (c *oauthConfig) AuthCodeURL(state string) string {
 	params := url.Values{
 		"client_id":     {c.ClientID},
-		"redirect_url":  {c.RedirectURL},
+		"redirect_uri":  {c.RedirectURL},
 		"response_type": {"code"},
 		"scope":         {strings.Join(c.Scopes, " ")},
 		"state":         {state},
@@ -44,7 +44,7 @@ func (c *oauthConfig) Exchange(ctx context.Context, code string) (string, error)
 		"client_secret": {c.ClientSecret},
 		"code":          {code},
 		"grant_type":    {"authorization_code"},
-		"redirect_url":  {c.RedirectURL},
+		"redirect_uri":  {c.RedirectURL},
 	}
 
 	req, err := http.NewRequestWithContext(ctx, "POST", c.TokenURL, strings.NewReader(data.Encode()))
