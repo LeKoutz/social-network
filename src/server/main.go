@@ -6,31 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
-	"bufio"
 )
-
-func loadEnv() {
-	file, err := os.Open(".env")
-	if err != nil {
-		return
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-		parts := strings.SplitN(line, "=", 2)
-		if len(parts) == 2 {
-			key := strings.TrimSpace(parts[0])
-			val := strings.TrimSpace(parts[1])
-			os.Setenv(key, val)
-		}
-	}
-}
 
 func usage(programName string) {
 	fmt.Fprintf(os.Stderr, "Usage:\n\n")
@@ -40,8 +16,6 @@ func usage(programName string) {
 }
 
 func Main(args []string) {
-	loadEnv()
-
 	var dbPath string = "./db.db"
 	var ip, port string
 	for i := 1; i < len(args); i++ {
