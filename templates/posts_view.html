@@ -13,7 +13,7 @@
             <em>{{.TimestampString}}</em>
             <pre>{{.Body}}</pre>
             {{if .ImagePath}}
-                <img src="/{{.ImagePath}}" alt="Post image" style="max-width: max-content;"/>
+                <img src="/{{.ImagePath}}" alt="Post image" style="max-width: 100%;"/>
             {{end}}
             <div class="reactions">
                 <form method="POST" action="/post/react">

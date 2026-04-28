@@ -89,7 +89,7 @@ var (
 	googleOAuthConf = &oauthConfig{
 		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
 		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
-		RedirectURL:  "http://localhost:8080/auth/google/callback",
+		RedirectURL:  os.Getenv("BASE_URL")+"auth/google/callback",
 		Scopes:       []string{"email", "profile"},
 		AuthURL:      "https://accounts.google.com/o/oauth2/v2/auth",
 		TokenURL:     "https://oauth2.googleapis.com/token",
@@ -97,7 +97,7 @@ var (
 	githubOAuthConf = &oauthConfig{
 		ClientID:     os.Getenv("GITHUB_CLIENT_ID"),
 		ClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
-		RedirectURL:  "http://localhost:8080/auth/github/callback",
+		RedirectURL:  os.Getenv("BASE_URL")+"auth/github/callback",
 		Scopes:       []string{"user:email", "read:user"},
 		AuthURL:      "https://github.com/login/oauth/authorize",
 		TokenURL:	  "https://github.com/login/oauth/access_token",
