@@ -289,7 +289,6 @@ func HasUserDislikedComment(userId, commentId int64) (bool, error) {
 	return reactionId != 0, nil
 }
 
-// TODO split
 func (u *User) GetNotifications() (Notifications, error) {
 	var notifications Notifications
 	rows, err := DB.Query(`
@@ -484,52 +483,37 @@ func (u *User) GetCommentsActivity() error {
 	return nil
 }
 
-// TODO split
 func (u *User) GetLikedPostsActivity() error {
-	rows, err := DB.Query(`
-	SELECT p.id, p.title, p.body, p.user_id, r.timestamp
-	FROM posts p
-	JOIN reactions r ON p.id = r.post_id
-	WHERE r.user_id = ? AND r.value = 1
-	`, (*u).Id)
+	reactions, err := GetPostLikesByUserId(u.Id)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
-		return err
 	}
-	for rows.Next() {
+	for _, reaction := range reactions {
 		var activity Activity
-		var post Post
-		var ts string
-		err = rows.Scan(&post.Id, &post.Title, &post.Body, &post.UserId, &ts)
+		var post = Post{Id: reaction.PostId}
+		err = post.GetById()
 		if err != nil {
 			err = errors.Join(utils.GetFunctionName(), err)
 			return err
 		}
-		t, err := utils.ConvertStringToTime(ts)
-		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
-			return err
-		}
-		rows.Close()
 		err = post.GetReactions()
 		if err != nil {
 			err = errors.Join(utils.GetFunctionName(), err)
 			return err
 		}
-		err = post.GetReactionsByUserId((*u).Id)
+		err = post.GetReactionsByUserId(u.Id)
 		if err != nil {
 			err = errors.Join(utils.GetFunctionName(), err)
 			return err
 		}
 		activity.Type = "postLike"
-		activity.TimestampString = utils.ConvertTimeToString(t)
+		activity.TimestampString = reaction.TimestampString
 		activity.Post = post
 		u.Activities = append(u.Activities, activity)
 	}
 	return nil
 }
 
-// TODO split
 func GetDislikedPostsByUserId(id int64) (Posts, error) {
 	var posts Posts
 	var err error
