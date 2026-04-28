@@ -289,6 +289,7 @@ func HasUserDislikedComment(userId, commentId int64) (bool, error) {
 	return reactionId != 0, nil
 }
 
+// TODO split
 func (u *User) GetNotifications() (Notifications, error) {
 	var notifications Notifications
 	rows, err := DB.Query(`
@@ -483,6 +484,7 @@ func (u *User) GetCommentsActivity() error {
 	return nil
 }
 
+// TODO split
 func (u *User) GetLikedPostsActivity() error {
 	rows, err := DB.Query(`
 	SELECT p.id, p.title, p.body, p.user_id, r.timestamp
@@ -527,6 +529,7 @@ func (u *User) GetLikedPostsActivity() error {
 	return nil
 }
 
+// TODO split
 func GetDislikedPostsByUserId(id int64) (Posts, error) {
 	var posts Posts
 	var err error
