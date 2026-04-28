@@ -85,6 +85,8 @@ func Routes(data models.ResponseStruct) {
 		} else {
 			(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
 		}
+	case strings.Compare(data.Request.RequestURI, "/user/activity") == 0:
+		showUserActivity(data)
 	case strings.HasPrefix(data.Request.RequestURI, "/uploads/"):
 		handleImages(data)
 	case strings.Compare(data.Request.RequestURI, "/") == 0:
