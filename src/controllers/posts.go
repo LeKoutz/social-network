@@ -31,8 +31,13 @@ func showPost(data models.ResponseStruct) {
 	post.Id = id_int
 	err = post.GetById()
 	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		if err == models.ErrorNoRows {
+		(&models.Error{}).Consume(models.ErrorContentNotFound).LogAndRespondError(data.Response, data.User)
 		return
+		} else {
+			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+			return
+		}
 	}
 	comments, err := post.GetComments()
 	if err != nil {

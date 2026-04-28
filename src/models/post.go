@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"errors"
 	"forum/src/utils"
 )
@@ -87,8 +88,13 @@ func (p *Post) GetById() error {
 	var ts string
 	err := DB.QueryRow(`SELECT title, body, image_path, timestamp, user_id FROM posts WHERE id = ?`, p.Id).Scan(&p.Title, &p.Body, &p.ImagePath, &ts, &p.UserId)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
-		return err
+		if errors.Is(err, sql.ErrNoRows) {
+			err = ErrorNoRows
+			return err
+		} else {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return err
+		}
 	}
 	t, err := utils.ConvertStringToTime(ts)
 	if err != nil {
