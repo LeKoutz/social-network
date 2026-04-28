@@ -10,32 +10,32 @@
         {{range .User.Activities}}
         <div class="activity">
             {{if eq .Type "post"}}
-            {{.Timestamp}}
+            {{.TimestampString}}
             <strong><a href="/user">{{$.User.Username}}</a></strong> posted:
             {{template "activity_post" .}}
             {{end}}
             {{if eq .Type "comment"}}
-            {{.Timestamp}}
+            {{.TimestampString}}
             <strong><a href="/user">{{$.User.Username}}</a></strong> commented:
             {{template "activity_comment" .}}
             {{end}}
             {{if eq .Type "postLike"}}
-            {{.Timestamp}}
+            {{.TimestampString}}
             <strong><a href="/user">{{$.User.Username}}</a></strong> liked a post:
             {{template "activity_post" .}}
             {{end}}
             {{if eq .Type "postDislike"}}
-            {{.Timestamp}}
+            {{.TimestampString}}
             <strong><a href="/user">{{$.User.Username}}</a></strong> disliked a post:
             {{template "activity_post" .}}
             {{end}}
             {{if eq .Type "commentLike"}}
-            {{.Timestamp}}
+            {{.TimestampString}}
             <strong><a href="/user">{{$.User.Username}}</a></strong> liked a comment:
             {{template "activity_comment" .}}
             {{end}}
             {{if eq .Type "commentDislike"}}
-            {{.Timestamp}}
+            {{.TimestampString}}
             <strong><a href="/user">{{$.User.Username}}</a></strong> disliked a comment:
             {{template "activity_comment" .}}
             {{end}}
