@@ -11,6 +11,39 @@ import (
 	"strings"
 )
 
+func parsePostID(data models.ResponseStruct) (int64, error) {
+	postIdStr := data.Request.FormValue("post-id")
+	if len(postIdStr) == 0 {
+		postIdStr = strings.TrimPrefix(data.Request.RequestURI, "/post/edit/")
+	}
+	if len(postIdStr) == 0 {
+		return 0, models.ErrorPostEmptyId
+	}
+	ok, err := regexp.MatchString(`^\d+$`, postIdStr)
+	if err != nil {
+		return 0, err
+	}
+	if !ok {
+		return 0, models.ErrorInvalidPostId
+	}
+	postId, err := strconv.ParseInt(postIdStr, 10, 64)
+	if err != nil {
+		return 0, err
+	}
+	return postId, nil
+}
+
+func markSelectedCategories(categories models.Categories, selected models.Categories) models.Categories {
+	selectedIDs := make(map[int64]bool, len(selected))
+	for _, category := range selected {
+		selectedIDs[category.Id] = true
+	}
+	for i := range categories {
+		categories[i].Selected = selectedIDs[categories[i].Id]
+	}
+	return categories
+}
+
 func showPost(data models.ResponseStruct) {
 	id, ok := strings.CutPrefix(data.Request.RequestURI, "/post/view/")
 	if !ok || len(id) == 0 {
@@ -40,8 +73,16 @@ func showPost(data models.ResponseStruct) {
 		return
 	}
 	for i := range comments {
-		comments[i].GetReactions()
-		comments[i].GetReactionsByUserId(data.User.Id)
+		err = comments[i].GetReactions()
+		if err != nil {
+			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+			return
+		}
+		err = comments[i].GetReactionsByUserId(data.User.Id)
+		if err != nil {
+			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+			return
+		}
 	}
 	post.Comments = comments
 	categories, err := models.GetCategoriesByPostId(post.Id)
@@ -192,7 +233,7 @@ func handlePostCreate(data models.ResponseStruct) {
 				(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 				return
 			}
-				createPost(data)
+			createPost(data)
 		default:
 			(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
 		}
@@ -297,4 +338,86 @@ func handlePostDelete(data models.ResponseStruct) {
 		return
 	}
 	http.Redirect(data.Response, data.Request, "/posts", http.StatusSeeOther)
+}
+
+func handlePostEdit(data models.ResponseStruct) {
+	if !data.User.LoggedIn {
+		(&models.Error{}).Consume(models.ErrorPostPermissionDenied).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	if strings.HasPrefix(data.Request.Header.Get("Content-Type"), "multipart/form-data") {
+		err := data.Request.ParseMultipartForm(models.MaxImageSize)
+		if err != nil {
+			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+			return
+		}
+	}
+	postId, err := parsePostID(data)
+	if err != nil {
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	post := models.Post{Id: postId}
+	err = post.GetById()
+	if err != nil {
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	if post.UserId != data.User.Id {
+		(&models.Error{}).Consume(models.ErrorPostPermissionDenied).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	post.Categories, err = models.GetCategoriesByPostId(post.Id)
+	if err != nil {
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	switch data.Request.FormValue("save-post") {
+	case "":
+		categories, err := models.GetAllCategories()
+		if err != nil {
+			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+			return
+		}
+		data.Categories = markSelectedCategories(categories, post.Categories)
+		data.Posts = models.Posts{post}
+		data.EditPost = true
+		views.PostCreate(data)
+		return
+	default:
+		updatedPost, err := parseCreatePostRequest(data)
+		if err != nil {
+			categories, categoriesErr := models.GetAllCategories()
+			if categoriesErr == nil {
+				post.Title = data.Request.FormValue("title")
+				post.Body = data.Request.FormValue("body")
+				post.Categories = updatedPost.Categories
+				data.Categories = markSelectedCategories(categories, updatedPost.Categories)
+			}
+			data.Posts = models.Posts{post}
+			data.EditPost = true
+			data.Error.Consume(err)
+			views.PostCreate(data)
+			return
+		}
+		post.Title = updatedPost.Title
+		post.Body = updatedPost.Body
+		post.Categories = updatedPost.Categories
+		if len(updatedPost.ImagePath) > 0 {
+			post.ImagePath = updatedPost.ImagePath
+		}
+		err = post.Update()
+		if err != nil {
+			categories, categoriesErr := models.GetAllCategories()
+			if categoriesErr == nil {
+				data.Categories = markSelectedCategories(categories, post.Categories)
+			}
+			data.Posts = models.Posts{post}
+			data.EditPost = true
+			data.Error.Consume(err)
+			views.PostCreate(data)
+			return
+		}
+		http.Redirect(data.Response, data.Request, fmt.Sprintf("/post/view/%d", post.Id), http.StatusSeeOther)
+	}
 }
