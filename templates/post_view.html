@@ -23,8 +23,7 @@
             {{end}}
             <div class="manage-post">
             {{if eq $.User.Id $post.User.Id}}
-            <form method="POST" action="/post/edit">
-                <input type="hidden" name="post-id" value="{{$post.Id}}"/>
+            <form method="POST" action="/post/edit/{{$post.Id}}">
                 <button type="submit">Edit Post</button>
             </form>
             <form method="POST" action="/post/delete">
@@ -58,7 +57,17 @@
             {{range $post.Comments}}
             <div class="comment" id="comment-{{.Id}}">
                 <span>{{.Username}} ({{.TimestampString}})</span>
+                {{if eq $.EditCommentId .Id}}
+                <form method="POST" action="/comment/edit">
+                    <input type="hidden" name="post-id" value="{{$post.Id}}"/>
+                    <input type="hidden" name="comment-id" value="{{.Id}}"/>
+                    <input type="hidden" name="save-comment" value="1"/>
+                    <textarea name="comment" required>{{.Body}}</textarea>
+                    <button type="submit">Save Comment</button>
+                </form>
+                {{else}}
                 <pre>{{.Body}}</pre>
+                {{end}}
                 <div class="manage-comment">
                     {{if eq $.User.Id .UserId}}
                     <form method="POST" action="/comment/edit">
