@@ -421,60 +421,62 @@ func (u *User) GetPostsActivity() error {
 	return nil
 }
 
-func (u *User) GetCommentsActivity() error {
+func GetCommentsByUserId(id int64) (Comments, error) {
+	var comments Comments
 	rows, err := DB.Query(`
 	SELECT id, post_id, body, timestamp, user_id
 	FROM comments
-	WHERE user_id = ?`, (*u).Id)
+	WHERE user_id = ?`, id)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
-		return err
+		return Comments{}, err
 	}
 	for rows.Next() {
-		var activity Activity
 		var comment Comment
 		var ts string
 		err = rows.Scan(&comment.Id, &comment.PostId, &comment.Body, &ts, &comment.UserId)
 		if err != nil {
 			err = errors.Join(utils.GetFunctionName(), err)
-			return err
+			return Comments{}, err
 		}
 		t, err := utils.ConvertStringToTime(ts)
 		if err != nil {
 			err = errors.Join(utils.GetFunctionName(), err)
-			return err
+			return Comments{}, err
 		}
-		rows.Close()
-		err = comment.GetReactions()
-		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
-			return err
-		}
-		err = comment.GetReactionsByUserId((*u).Id)
-		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
-			return err
-		}
+		comment.TimestampString = utils.ConvertTimeToString(t)
+		comments = append(comments, comment)
+	}
+	return comments, nil
+}
+
+func (u *User) GetCommentsActivity() error {
+	comments, err := GetCommentsByUserId(u.Id)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	for _, comment := range comments {
+		var activity Activity
 		var post = Post{Id: comment.PostId}
 		err = post.GetById()
 		if err != nil {
 			err = errors.Join(utils.GetFunctionName(), err)
 			return err
 		}
-		err = post.GetReactions()
+		err = comment.GetReactions()
 		if err != nil {
 			err = errors.Join(utils.GetFunctionName(), err)
 			return err
 		}
-		err = post.GetReactionsByUserId((*u).Id)
+		err = comment.GetReactionsByUserId(u.Id)
 		if err != nil {
 			err = errors.Join(utils.GetFunctionName(), err)
 			return err
 		}
-		comment.TimestampString = utils.ConvertTimeToString(t)
 		activity.Type = "comment"
-		activity.TimestampString = comment.TimestampString
 		activity.Comment = comment
+		activity.TimestampString = comment.TimestampString
 		activity.Post = post
 		u.Activities = append(u.Activities, activity)
 	}
