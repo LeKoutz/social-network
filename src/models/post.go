@@ -188,3 +188,29 @@ func (p *Post) Delete() error {
 	}
 	return nil
 }
+
+func (p *Post) Update() error {
+	err := p.ValidatePost()
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err = DB.Exec("UPDATE posts SET title = ?, body = ?, image_path = ? WHERE id = ?", p.Title, p.Body, p.ImagePath, p.Id)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err = DB.Exec("DELETE FROM posts_categories WHERE post_id = ?", p.Id)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	for _, category := range p.Categories {
+		err = p.AddCategory(category)
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return err
+		}
+	}
+	return nil
+}

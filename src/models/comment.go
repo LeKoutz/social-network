@@ -106,3 +106,16 @@ func (c *Comment) Delete() error {
 	}
 	return nil
 }
+
+func (c *Comment) Update() error {
+	if err := c.ValidateComment(); err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err := DB.Exec("UPDATE comments SET body = ? WHERE id = ?", c.Body, c.Id)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	return nil
+}
