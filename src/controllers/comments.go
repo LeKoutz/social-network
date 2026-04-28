@@ -56,8 +56,9 @@ func createComment(data models.ResponseStruct) {
 		UserId:    post.User.Id,
 		ActorId:   data.User.Id,
 		Type:      "comment",
-		TargetId:  commentId,
-		Timestamp: utils.GetCurrentTimestamp(),
+		PostId: 	post_id,
+		CommentId:  commentId,
+		TimestampString: utils.GetCurrentTimestamp(),
 	}
 	if data.User.Id != post.User.Id {
 		err = notification.Add()
@@ -116,10 +117,26 @@ func handleCommentReaction(data models.ResponseStruct) {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
+	postIdStr := data.Request.FormValue("post-id")
+	if len(postIdStr) == 0 {
+		(&models.Error{}).Consume(models.ErrorPostEmptyId).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	ok, err = regexp.MatchString(`^\d+$`, postIdStr)
+	if !ok {
+		(&models.Error{}).Consume(models.ErrorInvalidPostId).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	postId, err := strconv.ParseInt(postIdStr, 10, 64)
+	if err != nil {
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		return
+	}
 	notification := models.Notification{
-		UserId:  comment.UserId,
-		ActorId: data.User.Id,
-		TargetId: comment.Id,
+		UserId:    comment.UserId,
+		ActorId:   data.User.Id,
+		CommentId: comment.Id,
+		PostId:    postId,
 	}
 	if data.Request.FormValue("action") == "like" {
 		err = DoLikeComment(data.User.Id, commentId)
@@ -129,7 +146,7 @@ func handleCommentReaction(data models.ResponseStruct) {
 		}
 		if data.User.Id != comment.UserId {
 			notification.Type = "commentLike"
-			notification.Timestamp = utils.GetCurrentTimestamp()
+			notification.TimestampString = utils.GetCurrentTimestamp()
 			err = notification.Add()
 			if err != nil {
 				(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
@@ -145,7 +162,7 @@ func handleCommentReaction(data models.ResponseStruct) {
 		}
 		if data.User.Id != comment.UserId {
 			notification.Type = "commentDislike"
-			notification.Timestamp = utils.GetCurrentTimestamp()
+			notification.TimestampString = utils.GetCurrentTimestamp()
 			err = notification.Add()
 			if err != nil {
 				(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
@@ -153,6 +170,5 @@ func handleCommentReaction(data models.ResponseStruct) {
 			}
 		}
 	}
-	postId := data.Request.FormValue("post-id")
-	http.Redirect(data.Response, data.Request, "/post/view/"+postId+"#comment-"+commentIdStr, http.StatusSeeOther)
+	http.Redirect(data.Response, data.Request, "/post/view/"+postIdStr+"#comment-"+commentIdStr, http.StatusSeeOther)
 }

@@ -291,7 +291,7 @@ func HasUserDislikedComment(userId, commentId int64) (bool, error) {
 func (u *User) GetNotifications() (Notifications, error) {
 	var notifications Notifications
 	rows, err := DB.Query(`
-	SELECT n.id, n.user_id, n.actor_id, n.type, n.target_id, n.timestamp, n.read, u.username
+	SELECT n.id, n.user_id, n.actor_id, n.type, n.post_id, comment_id, n.timestamp, n.read, u.username
 	FROM notifications n
 	JOIN users u ON u.id = n.actor_id
 	WHERE user_id = ?
@@ -304,7 +304,15 @@ func (u *User) GetNotifications() (Notifications, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var notification Notification
-		err = rows.Scan(&notification.Id, &notification.UserId, &notification.ActorId, &notification.Type, &notification.TargetId, &notification.Timestamp, &notification.Read, &notification.Actor.Username)
+		err = rows.Scan(&notification.Id,
+						&notification.UserId,
+						&notification.ActorId,
+						&notification.Type,
+						&notification.PostId,
+						&notification.CommentId,
+						&notification.TimestampString,
+						&notification.Read,
+						&notification.Actor.Username)
 		if err != nil {
 			err = errors.Join(utils.GetFunctionName(), err)
 			return Notifications{}, err
@@ -312,29 +320,11 @@ func (u *User) GetNotifications() (Notifications, error) {
 		notifications = append(notifications, notification)
 	}
 	rows.Close()
-	for i, notification := range notifications {
+	for _, notification := range notifications {
 		if !notification.Read {
 			u.UnreadNotificationsCount++
 		}
-		switch notification.Type {
-			case "like", "dislike":
-				post := Post{Id: notification.TargetId}
-				err = post.GetById()
-				if err != nil {
-					err = errors.Join(utils.GetFunctionName(), err)
-					(&Error{}).Consume(err).LogError()
-				}
-				notifications[i].Target = post
-			case "comment", "commentLike", "commentDislike":
-				comment := Comment{Id: notification.TargetId}
-				err = comment.GetCommentById()
-				if err != nil {
-					err = errors.Join(utils.GetFunctionName(), err)
-					(&Error{}).Consume(err).LogError()
-				}
-				notifications[i].Target = comment
-			}
-		}
+	}
 	return notifications, nil
 }
 
