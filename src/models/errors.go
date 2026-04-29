@@ -51,7 +51,6 @@ var (
 	ErrorAccessToken			 = errors.New("Failed to retrieve access token")
 	ErrorCookieNotFound			 = errors.New("State cookie not found")
 	ErrorInvalidOAuthState		 = errors.New("Invalid OAuth state")
-	ErrorContentNotFound		 = errors.New("Content not found. It doesn't exist or it may have been deleted")
 )
 
 type Error struct {
@@ -73,8 +72,7 @@ func (e *Error) Consume(err error) *Error {
 	e.Error = err
 	e.Has = true
 	switch err {
-	case ErrorNotFound,
-		ErrorContentNotFound:
+	case ErrorNotFound:
 		e.StatusCode = http.StatusNotFound
 	case
 		ErrorUnauthorizedAction,
