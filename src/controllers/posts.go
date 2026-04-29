@@ -44,59 +44,75 @@ func markSelectedCategories(categories models.Categories, selected models.Catego
 	return categories
 }
 
-func showPost(data models.ResponseStruct) {
-	id, ok := strings.CutPrefix(data.Request.RequestURI, "/post/view/")
-	if !ok || len(id) == 0 {
-		(&models.Error{}).Consume(models.ErrorPostEmptyId).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	ok, err := regexp.MatchString(`^\d+$`, id)
-	if !ok {
-		(&models.Error{}).Consume(models.ErrorInvalidPostId).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	id_int, err := strconv.ParseInt(id, 10, 64)
-	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	var post models.Post
-	post.Id = id_int
+func getPostDataById(data *models.ResponseStruct) error {
+	var err error
+	post := &data.Posts[0]
 	err = post.GetById()
 	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
+		return err
 	}
 	comments, err := post.GetComments()
 	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
+		return err
 	}
 	for i := range comments {
 		err = comments[i].GetReactions()
 		if err != nil {
-			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-			return
+			return err
 		}
 		err = comments[i].GetReactionsByUserId(data.User.Id)
 		if err != nil {
-			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-			return
+			return err
 		}
 	}
 	post.Comments = comments
 	categories, err := models.GetCategoriesByPostId(post.Id)
 	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
+		return err
 	}
 	post.Categories = categories
 	err = post.GetReactions()
 	if err != nil {
+		return err
+	}
+	err = post.GetReactionsByUserId(data.User.Id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+
+func validateViewPostByIdRequest(data models.ResponseStruct) (models.Post, error) {
+	var post models.Post
+	var id_int int64
+	var err error
+	id, ok := strings.CutPrefix(data.Request.RequestURI, "/post/view/")
+	if !ok || len(id) == 0 {
+		return post, models.ErrorPostEmptyId
+	}
+	ok, err = regexp.MatchString(`^\d+$`, id)
+	if !ok {
+		return post, models.ErrorInvalidPostId
+	}
+	id_int, err = strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return post, models.ErrorInvalidPostId
+	}
+	post.Id = id_int
+	return post, nil
+}
+
+func showPost(data models.ResponseStruct) {
+	var err error
+	var post models.Post
+	post, err = validateViewPostByIdRequest(data)
+	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	err = post.GetReactionsByUserId(data.User.Id)
+	data.Posts = models.Posts{post}
+	err = getPostDataById(&data)
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
@@ -112,7 +128,6 @@ func showPost(data models.ResponseStruct) {
 			data.User.Notifications[i].Read = true
 		}
 	}
-	data.Posts = models.Posts{post}
 	views.PostView(data)
 }
 

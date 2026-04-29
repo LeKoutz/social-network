@@ -484,6 +484,7 @@ func (u *User) GetLikedPostsActivity() error {
 	}
 	return nil
 }
+
 func (u *User) GetDislikedPostsActivity() error {
 	reactions, err := GetPostDislikesByUserId(u.Id)
 	if err != nil {
