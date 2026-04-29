@@ -365,84 +365,77 @@ func handlePostDelete(data models.ResponseStruct) {
 	http.Redirect(data.Response, data.Request, "/posts", http.StatusSeeOther)
 }
 
-func handlePostEdit(data models.ResponseStruct) {
-	if !data.User.LoggedIn {
-		(&models.Error{}).Consume(models.ErrorPostPermissionDenied).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	if strings.HasPrefix(data.Request.Header.Get("Content-Type"), "multipart/form-data") {
-		err := data.Request.ParseMultipartForm(models.MaxImageSize)
+func handlePostEdit(data models.ResponseStruct){
+	postId, err := parsePostID(data)
+	var post = models.Post{Id: postId}
+	err = post.GetById()
 		if err != nil {
 			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
 		}
-	}
-	postId, err := parsePostID(data)
+	data.Posts = models.Posts{post}
+	err = validateEditPostRequest(data)
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	post := models.Post{Id: postId}
-	err = post.GetById()
+	categories, err := models.GetAllCategories()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	if post.UserId != data.User.Id {
-		(&models.Error{}).Consume(models.ErrorPostPermissionDenied).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	post.Categories, err = models.GetCategoriesByPostId(post.Id)
-	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	switch data.Request.FormValue("save-post") {
-	case "":
-		categories, err := models.GetAllCategories()
+	data.SetCategories(categories)
+	switch data.Request.Method {
+	case http.MethodGet:
+		post.Categories, err = models.GetCategoriesByPostId(post.Id)
 		if err != nil {
 			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
 		}
 		data.Categories = markSelectedCategories(categories, post.Categories)
-		data.Posts = models.Posts{post}
 		data.EditPost = true
 		views.PostCreate(data)
 		return
-	default:
+	case http.MethodPost:
+		err := data.Request.ParseMultipartForm(models.MaxImageSize)
+		if err != nil {
+			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+			return
+		}
 		updatedPost, err := parseCreatePostRequest(data)
 		if err != nil {
-			categories, categoriesErr := models.GetAllCategories()
-			if categoriesErr == nil {
-				post.Title = data.Request.FormValue("title")
-				post.Body = data.Request.FormValue("body")
-				post.Categories = updatedPost.Categories
-				data.Categories = markSelectedCategories(categories, updatedPost.Categories)
-			}
-			data.Posts = models.Posts{post}
-			data.EditPost = true
-			data.Error.Consume(err)
-			views.PostCreate(data)
+			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
 		}
-		post.Title = updatedPost.Title
-		post.Body = updatedPost.Body
-		post.Categories = updatedPost.Categories
-		if len(updatedPost.ImagePath) > 0 {
-			post.ImagePath = updatedPost.ImagePath
-		}
+		updatedPost.Id = postId
+		post = updatedPost
 		err = post.Update()
 		if err != nil {
-			categories, categoriesErr := models.GetAllCategories()
-			if categoriesErr == nil {
-				data.Categories = markSelectedCategories(categories, post.Categories)
-			}
-			data.Posts = models.Posts{post}
-			data.EditPost = true
-			data.Error.Consume(err)
-			views.PostCreate(data)
+			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
 		}
+		data.Posts = models.Posts{post}
+		data.EditPost = false
 		http.Redirect(data.Response, data.Request, fmt.Sprintf("/post/view/%d", post.Id), http.StatusSeeOther)
+	default:
+		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
 	}
+}
+
+func validateEditPostRequest(data models.ResponseStruct) error {
+	if data.Request.Method != http.MethodPost && data.Request.Method != http.MethodGet {
+		return models.ErrorMethodNotAllowed
+	}
+	if !data.User.LoggedIn {
+		return models.ErrorPostPermissionDenied
+	}
+	if !strings.HasPrefix(data.Request.RequestURI, "/post/edit") {
+		return models.ErrorUnknownAction
+	}
+	if len(data.Posts) > 0 {
+		if data.User.Id != data.Posts[0].User.Id {
+			return models.ErrorUnauthorizedAction
+		}
+	}
+	return nil
 }
