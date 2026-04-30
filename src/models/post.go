@@ -222,6 +222,12 @@ func (p *Post) Delete() error {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return err
 	}
+	_, err = tx.Exec("DELETE FROM notifications WHERE post_id = ?", p.Id)
+	if err != nil {
+		tx.Rollback()
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
 	return tx.Commit()
 }
 

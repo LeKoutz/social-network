@@ -100,13 +100,19 @@ func (c *Comment) Delete() error {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return err
 	}
-	_, err = DB.Exec("DELETE FROM reactions WHERE comment_id = ?", c.Id)
+	_, err = tx.Exec("DELETE FROM reactions WHERE comment_id = ?", c.Id)
 	if err != nil {
 		tx.Rollback()
 		err = errors.Join(utils.GetFunctionName(), err)
 		return err
 	}
-	_, err = DB.Exec("DELETE FROM comments WHERE comment_id = ?", c.Id)
+	_, err = tx.Exec("DELETE FROM comments WHERE id = ?", c.Id)
+	if err != nil {
+		tx.Rollback()
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err = tx.Exec("DELETE FROM notifications WHERE comment_id = ?", c.Id)
 	if err != nil {
 		tx.Rollback()
 		err = errors.Join(utils.GetFunctionName(), err)
