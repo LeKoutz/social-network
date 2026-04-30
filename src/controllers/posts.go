@@ -447,6 +447,9 @@ func updatePost(data *models.ResponseStruct) error {
 		return err
 	}
 	updatedPost.Id = post.Id
+	if updatedPost.ImagePath == "" {
+		updatedPost.ImagePath = post.ImagePath
+	}
 	post = updatedPost
 	err = post.Update()
 	if err != nil {
