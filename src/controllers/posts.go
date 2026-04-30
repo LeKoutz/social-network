@@ -49,11 +49,21 @@ func getPostDataById(data *models.ResponseStruct) error {
 	post := &data.Posts[0]
 	err = post.GetById()
 	if err != nil {
-		return err
+		if err == models.ErrorNoRows {
+			err = models.ErrorContentNotFound
+			return err
+		} else {
+			return err
+		}
 	}
 	comments, err := post.GetComments()
 	if err != nil {
-		return err
+		if err == models.ErrorNoRows {
+			err = models.ErrorContentNotFound
+			return err
+		} else {
+			return err
+		}
 	}
 	for i := range comments {
 		err = comments[i].GetReactions()
