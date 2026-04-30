@@ -95,16 +95,24 @@ func (c *Comment) GetCommentById() error {
 }
 
 func (c *Comment) Delete() error {
-	stmt, err := DB.Prepare("DELETE FROM comments WHERE id = ?")
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(c.Id)
+	tx, err := DB.Begin()
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return err
 	}
-	return nil
+	_, err = DB.Exec("DELETE FROM reactions WHERE comment_id = ?", c.Id)
+	if err != nil {
+		tx.Rollback()
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err = DB.Exec("DELETE FROM comments WHERE comment_id = ?", c.Id)
+	if err != nil {
+		tx.Rollback()
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	return tx.Commit()
 }
 
 func (c *Comment) Update() error {
