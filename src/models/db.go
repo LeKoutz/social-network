@@ -14,12 +14,13 @@ import (
 
 const migrations_dir = "migrations"
 
-var DB *sql.DB
+var db *sql.DB
 
 type MigrationsEnabled map[string]bool
 
 func InitDB(dbPath string) error {
-	db, err := sql.Open("sqlite3", dbPath)
+	var err error
+	db, err = sql.Open("sqlite3", dbPath)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return err
@@ -40,7 +41,6 @@ func InitDB(dbPath string) error {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return err
 	}
-	DB = db
 	return nil
 }
 

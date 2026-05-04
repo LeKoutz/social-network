@@ -16,7 +16,7 @@ type Like struct {
 
 func CheckIfUserLikedPost(userId, postId int64) (int64, error) {
 	var existingReactionId int64
-	err := DB.QueryRow(`
+	err := db.QueryRow(`
 		SELECT id FROM reactions
 		WHERE user_id = ? AND post_id = ? AND value = 1
 		`, userId, postId).Scan(&existingReactionId)
@@ -29,7 +29,7 @@ func CheckIfUserLikedPost(userId, postId int64) (int64, error) {
 
 func CheckIfUserDislikedPost(userId, postId int64) (int64, error) {
 	var existingDislikeId int64
-	err := DB.QueryRow(`
+	err := db.QueryRow(`
 		SELECT id FROM reactions
 		WHERE user_id = ? AND post_id = ? AND value = 2
 		`, userId, postId).Scan(&existingDislikeId)
@@ -41,7 +41,7 @@ func CheckIfUserDislikedPost(userId, postId int64) (int64, error) {
 }
 
 func AddLikeToPost(userId, postId int64) error {
-	_, err := DB.Exec(`
+	_, err := db.Exec(`
 		INSERT INTO reactions (user_id, post_id, value, timestamp)
 		VALUES (?, ?, 1, ?)
 		`, userId, postId, utils.GetCurrentTimestamp())
@@ -49,7 +49,7 @@ func AddLikeToPost(userId, postId int64) error {
 }
 
 func RemoveDislikeFromPost(dislikeId int64) error {
-	_, err := DB.Exec(`
+	_, err := db.Exec(`
 		DELETE FROM reactions
 		WHERE id = ?
 		`, dislikeId)
@@ -57,7 +57,7 @@ func RemoveDislikeFromPost(dislikeId int64) error {
 }
 
 func AddDislikeToPost(userId, postId int64) error {
-	_, err := DB.Exec(`
+	_, err := db.Exec(`
 		INSERT INTO reactions (user_id, post_id, value, timestamp)
 		VALUES (?, ?, 2, ?)
 		`, userId, postId, utils.GetCurrentTimestamp())
@@ -65,7 +65,7 @@ func AddDislikeToPost(userId, postId int64) error {
 }
 
 func RemoveLikeFromPost(userId, postId int64) error {
-	_, err := DB.Exec(`
+	_, err := db.Exec(`
 		DELETE FROM reactions
 		WHERE user_id = ? AND post_id = ? AND value = 1
 		`, userId, postId)
@@ -74,7 +74,7 @@ func RemoveLikeFromPost(userId, postId int64) error {
 
 func CheckIfUserLikedComment(userId, commentId int64) (int64, error) {
 	var existingReactionId int64
-	err := DB.QueryRow(`
+	err := db.QueryRow(`
 		SELECT id FROM reactions
 		WHERE user_id = ? AND comment_id = ? AND value = 1
 		`, userId, commentId).Scan(&existingReactionId)
@@ -87,7 +87,7 @@ func CheckIfUserLikedComment(userId, commentId int64) (int64, error) {
 
 func CheckIfUserDislikedComment(userId, commentId int64) (int64, error) {
 	var existingDislikeId int64
-	err := DB.QueryRow(`
+	err := db.QueryRow(`
 		SELECT id FROM reactions
 		WHERE user_id = ? AND comment_id = ? AND value = 2
 		`, userId, commentId).Scan(&existingDislikeId)
@@ -99,7 +99,7 @@ func CheckIfUserDislikedComment(userId, commentId int64) (int64, error) {
 }
 
 func AddLikeToComment(userId, commentId int64) error {
-	_, err := DB.Exec(`
+	_, err := db.Exec(`
 		INSERT INTO reactions (user_id, comment_id, value, timestamp)
 		VALUES (?, ?, 1, ?)
 		`, userId, commentId, utils.GetCurrentTimestamp())
@@ -107,7 +107,7 @@ func AddLikeToComment(userId, commentId int64) error {
 }
 
 func AddDislikeToComment(userId, commentId int64) error {
-	_, err := DB.Exec(`
+	_, err := db.Exec(`
 		INSERT INTO reactions (user_id, comment_id, value, timestamp)
 		VALUES (?, ?, 2, ?)
 		`, userId, commentId, utils.GetCurrentTimestamp())
@@ -115,7 +115,7 @@ func AddDislikeToComment(userId, commentId int64) error {
 }
 
 func RemoveLikeFromComment(userId, commentId int64) error {
-	_, err := DB.Exec(`
+	_, err := db.Exec(`
 		DELETE FROM reactions
 		WHERE user_id = ? AND comment_id = ? AND value = 1
 		`, userId, commentId)

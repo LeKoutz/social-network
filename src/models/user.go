@@ -36,7 +36,7 @@ func GetGuestUser() User {
 // Returns ONLY the `User.Hash` field for comparison against the given password
 func GetUserPasswordByEmail(email string) (User, error) {
 	var user User
-	err := DB.QueryRow(`SELECT hash FROM users WHERE email = ?`, email).Scan(&user.Hash)
+	err := db.QueryRow(`SELECT hash FROM users WHERE email = ?`, email).Scan(&user.Hash)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return User{}, err
@@ -46,7 +46,7 @@ func GetUserPasswordByEmail(email string) (User, error) {
 
 func GetUserByEmail(email string) (User, error) {
 	var user User
-	err := DB.QueryRow(`SELECT id, email, username FROM users WHERE email = ?`, email).Scan(&user.Id, &user.Email, &user.Username)
+	err := db.QueryRow(`SELECT id, email, username FROM users WHERE email = ?`, email).Scan(&user.Id, &user.Email, &user.Username)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return User{}, err
@@ -56,7 +56,7 @@ func GetUserByEmail(email string) (User, error) {
 
 func GetUserBySession(sessionValue string) (User, error) {
 	var user User
-	err := DB.QueryRow(`SELECT id, email, username FROM users WHERE session_key = ?`, sessionValue).Scan(&user.Id, &user.Email, &user.Username)
+	err := db.QueryRow(`SELECT id, email, username FROM users WHERE session_key = ?`, sessionValue).Scan(&user.Id, &user.Email, &user.Username)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return User{}, err
@@ -66,7 +66,7 @@ func GetUserBySession(sessionValue string) (User, error) {
 
 func GetUserByOAuthProviderAndEmail(provider, email string) (User, error) {
 	var user User
-	err := DB.QueryRow(`SELECT id, email, username, oauth_provider FROM users WHERE oauth_provider = ? AND email = ?`, provider, email).Scan(&user.Id, &user.Email, &user.Username, &user.OAuthProvider)
+	err := db.QueryRow(`SELECT id, email, username, oauth_provider FROM users WHERE oauth_provider = ? AND email = ?`, provider, email).Scan(&user.Id, &user.Email, &user.Username, &user.OAuthProvider)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return User{}, ErrorNoRows
@@ -78,7 +78,7 @@ func GetUserByOAuthProviderAndEmail(provider, email string) (User, error) {
 
 func getUserById(id int64) (User, error) {
 	var user User
-	err := DB.QueryRow(`SELECT username FROM users WHERE id = ?`, id).Scan(&user.Username)
+	err := db.QueryRow(`SELECT username FROM users WHERE id = ?`, id).Scan(&user.Username)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return User{}, err
@@ -122,7 +122,7 @@ func (u *User) Add() error {
 	if IsEmailRegistered(u.Email) {
 		return ErrorEmailIsRegistered
 	}
-	stmt, err := DB.Prepare("INSERT INTO users (username, email, hash) VALUES (?, ?, ?)")
+	stmt, err := db.Prepare("INSERT INTO users (username, email, hash) VALUES (?, ?, ?)")
 	if err != nil {
 		return err
 	}
@@ -143,7 +143,7 @@ func (u *User) AddOAuth() error {
 	if !IsUniqueUsername(u.Username) {
 		return ErrorUsernameTaken
 	}
-	stmt, err := DB.Prepare("INSERT INTO users (username, email, oauth_provider) VALUES (?, ?, ?)")
+	stmt, err := db.Prepare("INSERT INTO users (username, email, oauth_provider) VALUES (?, ?, ?)")
 	if err != nil {
 		return err
 	}
@@ -157,7 +157,7 @@ func (u *User) AddOAuth() error {
 
 func (u *User) GetPosts() (Posts, error) {
 	var posts Posts
-	rows, err := DB.Query(`
+	rows, err := db.Query(`
 	SELECT posts.id, posts.title, posts.body, posts.timestamp
 	FROM posts
 	WHERE user_id = ?`, (*u).Id)
@@ -187,7 +187,7 @@ func (u *User) GetPosts() (Posts, error) {
 
 func (u *User) GetLikedPosts() (Posts, error) {
 	var posts Posts
-	rows, err := DB.Query(`
+	rows, err := db.Query(`
 	SELECT posts.id, posts.title, posts.body, posts.timestamp
 	FROM posts
 	JOIN reactions r ON posts.id = r.post_id
@@ -218,7 +218,7 @@ func (u *User) GetLikedPosts() (Posts, error) {
 }
 
 func (u *User) SetUserSession(session_key string) error {
-	stmt, err := DB.Prepare("UPDATE users SET session_key = ? WHERE id = ?")
+	stmt, err := db.Prepare("UPDATE users SET session_key = ? WHERE id = ?")
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return err
@@ -291,7 +291,7 @@ func HasUserDislikedComment(userId, commentId int64) (bool, error) {
 
 func (u *User) GetNotifications() (Notifications, error) {
 	var notifications Notifications
-	rows, err := DB.Query(`
+	rows, err := db.Query(`
 	SELECT n.id, n.user_id, n.actor_id, n.type, n.post_id, comment_id, n.timestamp, n.read, u.username
 	FROM notifications n
 	JOIN users u ON u.id = n.actor_id
@@ -330,7 +330,7 @@ func (u *User) GetNotifications() (Notifications, error) {
 }
 
 func (u *User) MarkNotificationAsRead(notificationId int64) error {
-	stmt, err := DB.Prepare("UPDATE notifications SET read = 1 WHERE id = ? AND user_id = ?")
+	stmt, err := db.Prepare("UPDATE notifications SET read = 1 WHERE id = ? AND user_id = ?")
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return err
@@ -344,7 +344,7 @@ func (u *User) MarkNotificationAsRead(notificationId int64) error {
 }
 
 func (u *User) MarkAllNotificationsAsRead() error {
-	stmt, err := DB.Prepare("UPDATE notifications SET read = 1 WHERE user_id = ?")
+	stmt, err := db.Prepare("UPDATE notifications SET read = 1 WHERE user_id = ?")
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return err

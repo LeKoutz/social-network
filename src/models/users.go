@@ -6,7 +6,7 @@ import (
 )
 
 func GetAllUsernames() ([]string, error) {
-	rows, err := DB.Query(`SELECT username FROM users`)
+	rows, err := db.Query(`SELECT username FROM users`)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return []string{}, err
@@ -26,7 +26,7 @@ func GetAllUsernames() ([]string, error) {
 }
 
 func GetAllUserEmails() ([]string, error) {
-	rows, err := DB.Query(`SELECT email FROM users`)
+	rows, err := db.Query(`SELECT email FROM users`)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return []string{}, err

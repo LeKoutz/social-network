@@ -18,7 +18,7 @@ func (c *Category) IsEmpty() bool {
 
 func GetCategoryById(id int64) (Category, error) {
 	var category Category
-	err := DB.QueryRow(`SELECT name, description FROM categories WHERE id = ?`, id).Scan(&category.Name, &category.Description)
+	err := db.QueryRow(`SELECT name, description FROM categories WHERE id = ?`, id).Scan(&category.Name, &category.Description)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return Category{}, err

@@ -8,7 +8,7 @@ import (
 type Posts []Post
 
 func GetAllPosts() (Posts, error) {
-	rows, err := DB.Query(`SELECT id, title, body, timestamp, image_path FROM posts`)
+	rows, err := db.Query(`SELECT id, title, body, timestamp, image_path FROM posts`)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return Posts{}, err
@@ -36,7 +36,7 @@ func GetAllPosts() (Posts, error) {
 
 func GetPostsByCategoryId(id int64) (Posts, error) {
 	var posts Posts
-	rows, err := DB.Query(`
+	rows, err := db.Query(`
 	SELECT posts.id, posts.title, posts.body, posts.timestamp, posts.image_path
 	FROM posts
 	JOIN posts_categories pc ON posts.id = pc.post_id
