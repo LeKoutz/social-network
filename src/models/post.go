@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"errors"
 	"forum/src/utils"
 )
@@ -87,8 +88,13 @@ func (p *Post) GetById() error {
 	var ts string
 	err := DB.QueryRow(`SELECT title, body, image_path, timestamp, user_id FROM posts WHERE id = ?`, p.Id).Scan(&p.Title, &p.Body, &p.ImagePath, &ts, &p.UserId)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
-		return err
+		if errors.Is(err, sql.ErrNoRows) {
+			err = ErrorNoRows
+			return err
+		} else {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return err
+		}
 	}
 	t, err := utils.ConvertStringToTime(ts)
 	if err != nil {
@@ -144,8 +150,13 @@ func (p *Post) GetComments() (Comments, error) {
 	WHERE c.post_id = ?
 	ORDER BY c.timestamp ASC`, p.Id)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
-		return Comments{}, err
+		if errors.Is(err, sql.ErrNoRows) {
+			err = ErrorNoRows
+			return Comments{}, err
+		} else {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return Comments{}, err
+		}
 	}
 	defer rows.Close()
 	var comments Comments
@@ -173,4 +184,75 @@ func (p *Post) GetComments() (Comments, error) {
 		comments = append(comments, comment)
 	}
 	return comments, nil
+}
+
+func (p *Post) Delete() error {
+	tx, err := DB.Begin()
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err = tx.Exec("DELETE FROM reactions WHERE post_id = ?", p.Id)
+	if err != nil {
+		tx.Rollback()
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err = tx.Exec("DELETE FROM reactions WHERE comment_id IN (SELECT id FROM comments WHERE post_id = ?)", p.Id)
+	if err != nil {
+		tx.Rollback()
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err = tx.Exec("DELETE FROM comments WHERE post_id = ?", p.Id)
+	if err != nil {
+		tx.Rollback()
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err = tx.Exec("DELETE FROM posts_categories WHERE post_id = ?", p.Id)
+	if err != nil {
+		tx.Rollback()
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err = tx.Exec("DELETE FROM posts WHERE id = ?", p.Id)
+	if err != nil {
+		tx.Rollback()
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err = tx.Exec("DELETE FROM notifications WHERE post_id = ?", p.Id)
+	if err != nil {
+		tx.Rollback()
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	return tx.Commit()
+}
+
+func (p *Post) Update() error {
+	err := p.ValidatePost()
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err = DB.Exec("UPDATE posts SET title = ?, body = ?, image_path = ? WHERE id = ?", p.Title, p.Body, p.ImagePath, p.Id)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err = DB.Exec("DELETE FROM posts_categories WHERE post_id = ?", p.Id)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	for _, category := range p.Categories {
+		err = p.AddCategory(category)
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return err
+		}
+	}
+	return nil
 }

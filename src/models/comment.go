@@ -93,3 +93,43 @@ func (c *Comment) GetCommentById() error {
 	c.TimestampString = utils.ConvertTimeToString(t)
 	return nil
 }
+
+func (c *Comment) Delete() error {
+	tx, err := DB.Begin()
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err = tx.Exec("DELETE FROM reactions WHERE comment_id = ?", c.Id)
+	if err != nil {
+		tx.Rollback()
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err = tx.Exec("DELETE FROM comments WHERE id = ?", c.Id)
+	if err != nil {
+		tx.Rollback()
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err = tx.Exec("DELETE FROM notifications WHERE comment_id = ?", c.Id)
+	if err != nil {
+		tx.Rollback()
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	return tx.Commit()
+}
+
+func (c *Comment) Update() error {
+	if err := c.ValidateComment(); err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err := DB.Exec("UPDATE comments SET body = ? WHERE id = ?", c.Body, c.Id)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	return nil
+}
