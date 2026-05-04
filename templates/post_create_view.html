@@ -21,6 +21,11 @@
                 </div>
                 {{ end }}
             <textarea name="body" placeholder="Your post here" required>{{if $editing}}{{(index .Posts 0).Body}}{{end}}</textarea>
+            {{if $editing}}
+                {{if (index .Posts 0).ImagePath}}
+                    <img src="/{{(index .Posts 0).ImagePath}}" alt="Post image" style="max-width: 100%;"/>
+                {{end}}
+            {{end}}
             <input type="file" name="image" accept="image/jpeg,image/png,image/gif"/>
             <input type="submit" value="{{if $editing}}Save post{{else}}Create post{{end}}"/>
         </fieldset>

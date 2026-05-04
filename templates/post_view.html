@@ -23,7 +23,8 @@
             {{end}}
             <div class="manage-post">
             {{if eq $.User.Id $post.User.Id}}
-            <form method="POST" action="/post/edit/{{$post.Id}}">
+            <form method="GET" action="/post/edit">
+                <input type="hidden" name="post-id" value="{{$post.Id}}"/>
                 <button type="submit">Edit Post</button>
             </form>
             <form method="POST" action="/post/delete">
