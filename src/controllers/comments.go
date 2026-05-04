@@ -226,7 +226,7 @@ func handleCommentEdit(data models.ResponseStruct) {
 	}
 	err = validateFormCommentEdit(&data)
 	if err != nil {
-		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
 	err = verifyCommentPostAssociation(&data)
