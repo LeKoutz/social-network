@@ -187,17 +187,48 @@ func (p *Post) GetComments() (Comments, error) {
 }
 
 func (p *Post) Delete() error {
-	stmt, err := DB.Prepare("DELETE FROM posts WHERE id = ?")
+	tx, err := DB.Begin()
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return err
 	}
-	_, err = stmt.Exec(p.Id)
+	_, err = tx.Exec("DELETE FROM reactions WHERE post_id = ?", p.Id)
 	if err != nil {
+		tx.Rollback()
 		err = errors.Join(utils.GetFunctionName(), err)
 		return err
 	}
-	return nil
+	_, err = tx.Exec("DELETE FROM reactions WHERE comment_id IN (SELECT id FROM comments WHERE post_id = ?)", p.Id)
+	if err != nil {
+		tx.Rollback()
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err = tx.Exec("DELETE FROM comments WHERE post_id = ?", p.Id)
+	if err != nil {
+		tx.Rollback()
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err = tx.Exec("DELETE FROM posts_categories WHERE post_id = ?", p.Id)
+	if err != nil {
+		tx.Rollback()
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err = tx.Exec("DELETE FROM posts WHERE id = ?", p.Id)
+	if err != nil {
+		tx.Rollback()
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err = tx.Exec("DELETE FROM notifications WHERE post_id = ?", p.Id)
+	if err != nil {
+		tx.Rollback()
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	return tx.Commit()
 }
 
 func (p *Post) Update() error {
