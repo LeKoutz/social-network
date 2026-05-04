@@ -6,6 +6,11 @@ import (
 	"net/http"
 )
 
+var (
+	templatesDir = "templates"
+	tmpl         *template.Template
+)
+
 type ResponseStruct struct {
 	WebsiteName string
 	View        string
@@ -88,15 +93,22 @@ func (r *ResponseStruct) GetResponse(res http.ResponseWriter) http.ResponseWrite
 	return r.Response
 }
 
+func InitTemplates() error {
+	var err error
+	tmpl, err = template.ParseGlob(templatesDir + "/*.html")
+	return err
+}
+
 func respondView(data ResponseStruct) {
-	var templatesDir string = "templates"
-	var tmpl *template.Template
-	tmpl, err := template.ParseGlob(templatesDir + "/*.html")
-	if err != nil {
-		(&Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
+	if tmpl == nil {
+		var err error
+		tmpl, err = template.ParseGlob(templatesDir + "/*.html")
+		if err != nil {
+			(&Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+			return
+		}
 	}
-	err = tmpl.ExecuteTemplate(data.Response, data.View, data)
+	err := tmpl.ExecuteTemplate(data.Response, data.View, data)
 	if err != nil {
 		(&Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
