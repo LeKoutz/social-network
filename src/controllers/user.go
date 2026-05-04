@@ -316,3 +316,20 @@ func showUserView(data models.ResponseStruct) {
 	}
 	views.UserView(data)
 }
+
+func showUserActivity(data models.ResponseStruct) {
+	if !data.User.LoggedIn {
+		(&models.Error{}).Consume(models.ErrorUserPermissionDenied).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	if data.Request.Method != http.MethodGet {
+		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	err := data.User.GetActivity()
+	if err != nil {
+		(&models.Error{}).Consume(models.ErrorInternalServerError).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	views.UserActivity(data)
+}

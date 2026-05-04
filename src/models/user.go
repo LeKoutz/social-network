@@ -7,19 +7,23 @@ import (
 	"net/mail"
 	"regexp"
 	"slices"
+	"sort"
 )
 
 type User struct {
-	Id            int64
-	Username      string
-	Hash          string
-	Email         string
-	LoggedIn      bool
-	OAuthProvider string
-	OwnedPosts    Posts
-	OwnedComments Comments
-	OwnedLikes    Likes
-	OwnedDislikes Dislikes
+	Id                       int64
+	Username                 string
+	Hash                     string
+	Email                    string
+	LoggedIn                 bool
+	OAuthProvider            string
+	OwnedPosts               Posts
+	OwnedComments            Comments
+	OwnedLikes               Likes
+	OwnedDislikes            Dislikes
+	Notifications            Notifications
+	UnreadNotificationsCount int
+	Activities               Activities
 }
 
 func GetGuestUser() User {
@@ -130,26 +134,25 @@ func (u *User) Add() error {
 }
 
 func (u *User) AddOAuth() error {
-    if err := u.ValidateUser(); 
-		err != nil {
-        return err
-    }
-    if IsEmailRegistered(u.Email) {
-        return ErrorEmailIsRegistered
-    }
-    if !IsUniqueUsername(u.Username) {
-        return ErrorUsernameTaken
-    }
+	if err := u.ValidateUser(); err != nil {
+		return err
+	}
+	if IsEmailRegistered(u.Email) {
+		return ErrorEmailIsRegistered
+	}
+	if !IsUniqueUsername(u.Username) {
+		return ErrorUsernameTaken
+	}
 	stmt, err := DB.Prepare("INSERT INTO users (username, email, oauth_provider) VALUES (?, ?, ?)")
 	if err != nil {
 		return err
 	}
-    _, err = stmt.Exec(u.Username, u.Email, u.OAuthProvider)
+	_, err = stmt.Exec(u.Username, u.Email, u.OAuthProvider)
 	if err != nil {
-        return err
-    }
+		return err
+	}
 
-    return nil
+	return nil
 }
 
 func (u *User) GetPosts() (Posts, error) {
@@ -284,4 +287,310 @@ func HasUserDislikedComment(userId, commentId int64) (bool, error) {
 		return false, err
 	}
 	return reactionId != 0, nil
+}
+
+func (u *User) GetNotifications() (Notifications, error) {
+	var notifications Notifications
+	rows, err := DB.Query(`
+	SELECT n.id, n.user_id, n.actor_id, n.type, n.post_id, comment_id, n.timestamp, n.read, u.username
+	FROM notifications n
+	JOIN users u ON u.id = n.actor_id
+	WHERE user_id = ?
+	ORDER BY n.timestamp DESC
+	`, (*u).Id)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return Notifications{}, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var notification Notification
+		err = rows.Scan(&notification.Id,
+			&notification.UserId,
+			&notification.ActorId,
+			&notification.Type,
+			&notification.PostId,
+			&notification.CommentId,
+			&notification.TimestampString,
+			&notification.Read,
+			&notification.Actor.Username)
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return Notifications{}, err
+		}
+		notifications = append(notifications, notification)
+	}
+	rows.Close()
+	for _, notification := range notifications {
+		if !notification.Read {
+			u.UnreadNotificationsCount++
+		}
+	}
+	return notifications, nil
+}
+
+func (u *User) MarkNotificationAsRead(notificationId int64) error {
+	stmt, err := DB.Prepare("UPDATE notifications SET read = 1 WHERE id = ? AND user_id = ?")
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err = stmt.Exec(notificationId, (*u).Id)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	return nil
+}
+
+func (u *User) MarkAllNotificationsAsRead() error {
+	stmt, err := DB.Prepare("UPDATE notifications SET read = 1 WHERE user_id = ?")
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	_, err = stmt.Exec((*u).Id)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	return nil
+}
+
+func (u *User) GetActivity() error {
+	err := u.GetPostsActivity()
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	err = u.GetCommentsActivity()
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	err = u.GetLikedPostsActivity()
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	err = u.GetDislikedPostsActivity()
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	err = u.GetLikedCommentsActivity()
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	err = u.GetDislikedCommentsActivity()
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	sort.Slice(u.Activities, func(i, j int) bool {
+		return u.Activities[i].TimestampString > u.Activities[j].TimestampString
+	})
+	return nil
+}
+
+func (u *User) GetPostsActivity() error {
+	posts, err := u.GetPosts()
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+	}
+	for _, post := range posts {
+		err := post.GetById()
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
+		err = post.GetReactions()
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
+		err = post.GetReactionsByUserId(u.Id)
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
+		var activity Activity
+		activity.TimestampString = post.TimestampString
+		activity.Post = post
+		activity.Type = "post"
+		u.Activities = append(u.Activities, activity)
+	}
+	return nil
+}
+
+func (u *User) GetCommentsActivity() error {
+	comments, err := GetCommentsByUserId(u.Id)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	for _, comment := range comments {
+		var activity Activity
+		var post = Post{Id: comment.PostId}
+		err = post.GetById()
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return err
+		}
+		err = comment.GetReactions()
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return err
+		}
+		err = comment.GetReactionsByUserId(u.Id)
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return err
+		}
+		activity.Type = "comment"
+		activity.Comment = comment
+		activity.TimestampString = comment.TimestampString
+		activity.Post = post
+		u.Activities = append(u.Activities, activity)
+	}
+	return nil
+}
+
+func (u *User) GetLikedPostsActivity() error {
+	reactions, err := GetPostLikesByUserId(u.Id)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+	}
+	for _, reaction := range reactions {
+		var activity Activity
+		var post = Post{Id: reaction.PostId}
+		err = post.GetById()
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return err
+		}
+		err = post.GetReactions()
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return err
+		}
+		err = post.GetReactionsByUserId(u.Id)
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return err
+		}
+		activity.Type = "postLike"
+		activity.TimestampString = reaction.TimestampString
+		activity.Post = post
+		u.Activities = append(u.Activities, activity)
+	}
+	return nil
+}
+
+func (u *User) GetDislikedPostsActivity() error {
+	reactions, err := GetPostDislikesByUserId(u.Id)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	for _, reaction := range reactions {
+		var activity Activity
+		var post = Post{Id: reaction.PostId}
+		err = post.GetById()
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return err
+		}
+		err = post.GetReactions()
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return err
+		}
+		err = post.GetReactionsByUserId((*u).Id)
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return err
+		}
+		activity.Type = "postDislike"
+		activity.TimestampString = reaction.TimestampString
+		activity.Post = post
+		u.Activities = append(u.Activities, activity)
+	}
+	return nil
+}
+
+func (u *User) GetLikedCommentsActivity() error {
+	reactions, err := GetCommentLikesByUserId(u.Id)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	for _, reaction := range reactions {
+		var activity Activity
+		var comment = Comment{Id: reaction.CommentId}
+		err = comment.GetCommentById()
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return err
+		}
+		err = comment.GetReactions()
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return err
+		}
+		err = comment.GetReactionsByUserId(u.Id)
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return err
+		}
+		var post = Post{Id: comment.PostId}
+		err = post.GetById()
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return err
+		}
+		activity.Type = "commentLike"
+		activity.TimestampString = reaction.TimestampString
+		activity.Comment = comment
+		activity.Post = post
+		u.Activities = append(u.Activities, activity)
+	}
+	return nil
+}
+
+func (u *User) GetDislikedCommentsActivity() error {
+	reactions, err := GetCommentDisikesByUserId(u.Id)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		return err
+	}
+	for _, reaction := range reactions {
+		var activity Activity
+		var comment = Comment{Id: reaction.CommentId}
+		err = comment.GetCommentById()
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return err
+		}
+		err = comment.GetReactions()
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return err
+		}
+		err = comment.GetReactionsByUserId(u.Id)
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return err
+		}
+		var post = Post{Id: comment.PostId}
+		err = post.GetById()
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			return err
+		}
+		activity.Type = "commentDislike"
+		activity.TimestampString = reaction.TimestampString
+		activity.Comment = comment
+		activity.Post = post
+		u.Activities = append(u.Activities, activity)
+	}
+	return nil
 }

@@ -35,6 +35,10 @@ func Routes(data models.ResponseStruct) {
 		handleCommentReaction(data)
 	case strings.HasPrefix(data.Request.RequestURI, "/comment/create"):
 		handleCommentCreate(data)
+	case strings.HasPrefix(data.Request.RequestURI, "/comment/edit"):
+		handleCommentEdit(data)
+	case strings.HasPrefix(data.Request.RequestURI, "/comment/delete"):
+		handleCommentDelete(data)
 	case strings.Compare(data.Request.RequestURI, "/categories") == 0:
 		if data.Request.Method == http.MethodGet {
 			showCategories(data)
@@ -55,6 +59,10 @@ func Routes(data models.ResponseStruct) {
 		showPost(data)
 	case strings.Compare(data.Request.RequestURI, "/post/comment") == 0:
 		showPost(data)
+	case strings.HasPrefix(data.Request.RequestURI, "/post/edit"):
+		handlePostEdit(data)
+	case strings.HasPrefix(data.Request.RequestURI, "/post/delete"):
+		handlePostDelete(data)
 	case strings.Compare(data.Request.RequestURI, "/user/login") == 0:
 		userLogin(data)
 	case strings.Compare(data.Request.RequestURI, "/user/register") == 0:
@@ -77,12 +85,16 @@ func Routes(data models.ResponseStruct) {
 		} else {
 			(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
 		}
+	case strings.Compare(data.Request.RequestURI, "/user/notifications") == 0:
+		markAllNotificationsAsRead(data)
 	case strings.Compare(data.Request.RequestURI, "/user") == 0:
 		if data.Request.Method == http.MethodGet {
 			showUserView(data)
 		} else {
 			(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
 		}
+	case strings.Compare(data.Request.RequestURI, "/user/activity") == 0:
+		showUserActivity(data)
 	case strings.HasPrefix(data.Request.RequestURI, "/uploads/"):
 		handleImages(data)
 	case strings.Compare(data.Request.RequestURI, "/") == 0:
@@ -121,6 +133,14 @@ func RoutesHandler(res http.ResponseWriter, req *http.Request) {
 	utils.LogDebug(data.Request.Form)
 	if req.Method != http.MethodPost && req.Method != http.MethodGet {
 		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
+	}
+	if data.User.LoggedIn {
+		notifications, err := data.User.GetNotifications()
+		if err != nil {
+			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+			return
+		}
+		data.User.Notifications = notifications
 	}
 	Routes(data)
 }
