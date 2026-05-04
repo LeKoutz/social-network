@@ -10,7 +10,10 @@ It supports:
 - likes and dislikes per post/comment,
 - user login and registration,
 - attaching an image to a post,
-- user can login with Google and Github OAuth.
+- user can login with Google and Github OAuth,
+- notifications per comment to post and/or reactions to post/comment,
+- log of all user activities,
+- edit or remove posts/comments.
 
 ## Build
 
