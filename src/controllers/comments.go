@@ -71,22 +71,11 @@ func handleCommentCreate(data models.ResponseStruct) {
 		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	err := data.Request.ParseForm()
-	if err != nil {
-		data.Error.Consume(err)
-		data.SetView("error_view").WriteResponse()
-		return
-	}
 	createComment(data)
 }
 
 func handleCommentReaction(data models.ResponseStruct) {
 	var err error
-	err = data.Request.ParseForm()
-	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
-	}
 	commentIdStr := data.Request.FormValue("comment-id")
 	if len(commentIdStr) == 0 {
 		(&models.Error{}).Consume(models.ErrorCommentEmptyId).LogAndRespondError(data.Response, data.User)

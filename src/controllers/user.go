@@ -83,13 +83,6 @@ func attemptLogin(data models.ResponseStruct) {
 	var email string
 	var password string
 	var err error
-	err = data.Request.ParseForm()
-	if err != nil {
-		data.User = models.GetGuestUser()
-		data.SetErrorConsume(err)
-		views.UserRegister(data)
-		return
-	}
 	if len(data.Request.Form.Get("email")) != 0 {
 		email = data.Request.Form.Get("email")
 	} else {
