@@ -11,6 +11,8 @@ type ResponseStruct struct {
 	User        User
 	Posts       Posts
 	Categories  Categories
+	EditPost      bool
+	EditCommentId int64
 	Error       Error
 	Request     *http.Request
 	Response    http.ResponseWriter
