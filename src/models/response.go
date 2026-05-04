@@ -100,14 +100,6 @@ func InitTemplates() error {
 }
 
 func respondView(data ResponseStruct) {
-	if tmpl == nil {
-		var err error
-		tmpl, err = template.ParseGlob(templatesDir + "/*.html")
-		if err != nil {
-			(&Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-			return
-		}
-	}
 	err := tmpl.ExecuteTemplate(data.Response, data.View, data)
 	if err != nil {
 		(&Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
