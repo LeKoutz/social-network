@@ -6,8 +6,6 @@ import (
 	"forum/src/utils"
 	"forum/src/views"
 	"net/http"
-	"regexp"
-	"strconv"
 )
 
 func createComment(data models.ResponseStruct) {
@@ -21,13 +19,9 @@ func createComment(data models.ResponseStruct) {
 	// Get form values
 	body := data.Request.FormValue("comment")
 	postIdStr := data.Request.FormValue("post_id")
-	ok, err := regexp.MatchString(`^\d+$`, postIdStr)
-	if !ok {
-		(&models.Error{}).Consume(models.ErrorInvalidPostId).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	post_id, err := strconv.ParseInt(postIdStr, 10, 64)
+	post_id, err := utils.StringToInt64(postIdStr)
 	if err != nil {
+		err = models.ErrorInvalidPostId
 		data.Error.Consume(err)
 		views.ErrorView(data)
 		return
@@ -87,7 +81,8 @@ func handleCommentCreate(data models.ResponseStruct) {
 }
 
 func handleCommentReaction(data models.ResponseStruct) {
-	err := data.Request.ParseForm()
+	var err error
+	err = data.Request.ParseForm()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
@@ -97,13 +92,9 @@ func handleCommentReaction(data models.ResponseStruct) {
 		(&models.Error{}).Consume(models.ErrorCommentEmptyId).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	ok, err := regexp.MatchString(`^\d+$`, commentIdStr)
-	if !ok {
-		(&models.Error{}).Consume(models.ErrorInvalidCommentId).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	commentId, err := strconv.ParseInt(commentIdStr, 10, 64)
+	commentId, err := utils.StringToInt64(commentIdStr)
 	if err != nil {
+		err = models.ErrorInvalidCommentId
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
@@ -122,13 +113,9 @@ func handleCommentReaction(data models.ResponseStruct) {
 		(&models.Error{}).Consume(models.ErrorPostEmptyId).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	ok, err = regexp.MatchString(`^\d+$`, postIdStr)
-	if !ok {
-		(&models.Error{}).Consume(models.ErrorInvalidPostId).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	postId, err := strconv.ParseInt(postIdStr, 10, 64)
+	postId, err := utils.StringToInt64(postIdStr)
 	if err != nil {
+		err = models.ErrorInvalidPostId
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
@@ -187,13 +174,9 @@ func handleCommentDelete(data models.ResponseStruct) {
 		(&models.Error{}).Consume(models.ErrorCommentEmptyId).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	ok, err := regexp.MatchString(`^\d+$`, commentIdStr)
-	if !ok {
-		(&models.Error{}).Consume(models.ErrorInvalidCommentId).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	commentId, err := strconv.ParseInt(commentIdStr, 10, 64)
+	commentId, err := utils.StringToInt64(commentIdStr)
 	if err != nil {
+		err = models.ErrorInvalidCommentId
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
@@ -202,13 +185,9 @@ func handleCommentDelete(data models.ResponseStruct) {
 		(&models.Error{}).Consume(models.ErrorPostEmptyId).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	ok, err = regexp.MatchString(`^\d+$`, postIdStr)
-	if !ok {
-		(&models.Error{}).Consume(models.ErrorInvalidPostId).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	postId, err := strconv.ParseInt(postIdStr, 10, 64)
+	postId, err := utils.StringToInt64(postIdStr)
 	if err != nil {
+		err = models.ErrorInvalidPostId
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
@@ -289,12 +268,9 @@ func validateFormCommentEdit(data *models.ResponseStruct) error {
 	if len(commentIdStr) == 0 {
 		return models.ErrorCommentEmptyId
 	}
-	ok, err := regexp.MatchString(`^\d+$`, commentIdStr)
-	if !ok {
-		return models.ErrorInvalidCommentId
-	}
-	commentId, err := strconv.ParseInt(commentIdStr, 10, 64)
+	commentId, err := utils.StringToInt64(commentIdStr)
 	if err != nil {
+		err = models.ErrorInvalidCommentId
 		return err
 	}
 	postIdStr := data.Request.FormValue("post-id")
@@ -302,13 +278,9 @@ func validateFormCommentEdit(data *models.ResponseStruct) error {
 		(&models.Error{}).Consume(models.ErrorPostEmptyId).LogAndRespondError(data.Response, data.User)
 		return models.ErrorPostEmptyId
 	}
-	ok, err = regexp.MatchString(`^\d+$`, postIdStr)
-	if !ok {
-		return models.ErrorInvalidPostId
-	}
-	postId, err := strconv.ParseInt(postIdStr, 10, 64)
+	postId, err := utils.StringToInt64(postIdStr)
 	if err != nil {
-		return err
+		return models.ErrorInvalidPostId
 	}
 	comment = models.Comment{Id: commentId}
 	post.Comments = models.Comments{comment}

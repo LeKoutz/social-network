@@ -6,8 +6,6 @@ import (
 	"forum/src/views"
 	"forum/src/utils"
 	"net/http"
-	"regexp"
-	"strconv"
 	"strings"
 )
 
@@ -19,16 +17,9 @@ func parsePostID(data models.ResponseStruct) (int64, error) {
 	if len(postIdStr) == 0 {
 		return 0, models.ErrorPostEmptyId
 	}
-	ok, err := regexp.MatchString(`^\d+$`, postIdStr)
+	postId, err := utils.StringToInt64(postIdStr)
 	if err != nil {
-		return 0, err
-	}
-	if !ok {
 		return 0, models.ErrorInvalidPostId
-	}
-	postId, err := strconv.ParseInt(postIdStr, 10, 64)
-	if err != nil {
-		return 0, err
 	}
 	return postId, nil
 }
@@ -95,21 +86,15 @@ func getPostDataById(data *models.ResponseStruct) error {
 
 func validateViewPostByIdRequest(data models.ResponseStruct) (models.Post, error) {
 	var post models.Post
-	var id_int int64
 	var err error
 	id, ok := strings.CutPrefix(data.Request.RequestURI, "/post/view/")
 	if !ok || len(id) == 0 {
 		return post, models.ErrorPostEmptyId
 	}
-	ok, err = regexp.MatchString(`^\d+$`, id)
-	if !ok {
-		return post, models.ErrorInvalidPostId
-	}
-	id_int, err = strconv.ParseInt(id, 10, 64)
+	post.Id, err = utils.StringToInt64(id)
 	if err != nil {
 		return post, models.ErrorInvalidPostId
 	}
-	post.Id = id_int
 	return post, nil
 }
 
@@ -266,6 +251,8 @@ func handlePostCreate(data models.ResponseStruct) {
 }
 
 func handlePostReaction(data models.ResponseStruct) {
+	var post models.Post
+	var err error
 	if !data.User.LoggedIn {
 		(&models.Error{}).Consume(models.ErrorPostPermissionDenied).LogAndRespondError(data.Response, data.User)
 		return
@@ -275,17 +262,12 @@ func handlePostReaction(data models.ResponseStruct) {
 		(&models.Error{}).Consume(models.ErrorPostEmptyId).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	ok, err := regexp.MatchString(`^\d+$`, postIdStr)
-	if !ok {
-		(&models.Error{}).Consume(models.ErrorInvalidPostId).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	postId, err := strconv.ParseInt(postIdStr, 10, 64)
+	post.Id, err = utils.StringToInt64(postIdStr)
 	if err != nil {
+		err = models.ErrorInvalidPostId
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	post := models.Post{Id: postId}
 	err = post.GetById()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
@@ -297,7 +279,7 @@ func handlePostReaction(data models.ResponseStruct) {
 		PostId: post.Id,
 	}
 	if data.Request.FormValue("action") == "like" {
-		err = DoLikePost(data.User.Id, postId)
+		err = DoLikePost(data.User.Id, post.Id)
 		if err != nil {
 			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
@@ -309,7 +291,7 @@ func handlePostReaction(data models.ResponseStruct) {
 		}
 	}
 	if data.Request.FormValue("action") == "dislike" {
-		err = DoDislikePost(data.User.Id, postId)
+		err = DoDislikePost(data.User.Id, post.Id)
 		if err != nil {
 			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
@@ -324,6 +306,8 @@ func handlePostReaction(data models.ResponseStruct) {
 }
 
 func handlePostDelete(data models.ResponseStruct) {
+	var err error
+	var post models.Post
 	if !data.User.LoggedIn {
 		(&models.Error{}).Consume(models.ErrorPostPermissionDenied).LogAndRespondError(data.Response, data.User)
 		return
@@ -337,17 +321,12 @@ func handlePostDelete(data models.ResponseStruct) {
 		(&models.Error{}).Consume(models.ErrorPostEmptyId).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	ok, err := regexp.MatchString(`^\d+$`, postIdStr)
-	if !ok {
-		(&models.Error{}).Consume(models.ErrorInvalidPostId).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	postId, err := strconv.ParseInt(postIdStr, 10, 64)
+	post.Id, err = utils.StringToInt64(postIdStr)
 	if err != nil {
+		err = models.ErrorInvalidPostId
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	post := models.Post{Id: postId}
 	err = post.GetById()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)

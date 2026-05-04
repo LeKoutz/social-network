@@ -2,9 +2,8 @@ package controllers
 
 import (
 	"forum/src/models"
+	"forum/src/utils"
 	"forum/src/views"
-	"regexp"
-	"strconv"
 	"strings"
 )
 
@@ -24,13 +23,9 @@ func showCategory(data models.ResponseStruct) {
 		(&models.Error{}).Consume(models.ErrorCategoryEmptyId).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	ok, err := regexp.MatchString(`^\d+$`, id)
-	if !ok {
-		(&models.Error{}).Consume(models.ErrorInvalidCategoryId).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	id_int, err := strconv.ParseInt(id, 10, 64)
+	id_int, err := utils.StringToInt64(id)
 	if err != nil {
+		err = models.ErrorInvalidCategoryId
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
