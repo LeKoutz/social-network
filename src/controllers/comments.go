@@ -259,8 +259,7 @@ func validateFormCommentEdit(data *models.ResponseStruct) error {
 	}
 	commentId, err := utils.StringToInt64(commentIdStr)
 	if err != nil {
-		err = models.ErrorInvalidCommentId
-		return err
+		return models.ErrorInvalidCommentId
 	}
 	postIdStr := data.Request.FormValue("post-id")
 	if len(postIdStr) == 0 {
