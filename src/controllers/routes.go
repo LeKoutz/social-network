@@ -55,23 +55,31 @@ var routes = Routes{
 	Route{Method: "GET", Path: "/uploads/", Prefix: true, Function: handleImages},
 }
 
-func matchRoute(data models.ResponseStruct) *Route {
+func matchRoute(data models.ResponseStruct) (*Route, error) {
 	for _, route_s := range routes {
 		if route_s.Prefix && strings.HasPrefix(data.Request.RequestURI, route_s.Path) {
 			if route_s.Method == data.Request.Method || route_s.Method == "*" {
-				return &route_s
+				return &route_s, nil
+			} else {
+				return nil, models.ErrorMethodNotAllowed
 			}
 		} else if strings.Compare(data.Request.RequestURI, route_s.Path) == 0 {
 			if route_s.Method == data.Request.Method || route_s.Method == "*" {
-				return &route_s
+				return &route_s, nil
+			} else {
+				return nil, models.ErrorMethodNotAllowed
 			}
 		}
 	}
-	return nil
+	return nil, models.ErrorNotFound
 }
 
 func RouteToController(data models.ResponseStruct) {
-	route := matchRoute(data)
+	route, err := matchRoute(data)
+	if err != nil {
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		return
+	}
 	if route != nil {
 		route.Function(data)
 		return
