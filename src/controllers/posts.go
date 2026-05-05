@@ -112,18 +112,7 @@ func showPost(data models.ResponseStruct) {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	// Update notifications to read for this post
-	for i, notification := range data.User.Notifications {
-		if notification.PostId == post.Id && !notification.Read {
-			err = data.User.MarkNotificationAsRead(notification.Id)
-			if err != nil {
-				(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-				return
-			}
-			data.User.Notifications[i].Read = true
-			data.User.UnreadNotificationsCount--
-		}
-	}
+	data.User.MarkAsReadPost(post)
 	views.PostView(&data)
 }
 
@@ -239,33 +228,24 @@ func handlePostReaction(data models.ResponseStruct) {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	notification := models.Notification{
-		UserId:  post.User.Id,
-		ActorId: data.User.Id,
-		PostId: post.Id,
-	}
 	if data.Request.FormValue("action") == "like" {
-		err = DoLikePost(data.User.Id, post.Id)
+		err = data.User.LikePost(post.Id)
 		if err != nil {
 			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
 		}
-		notification.Type = "like"
-		notification.TimestampString = utils.GetCurrentTimestamp()
-		err = models.CreateNotification(notification)
+		err = post.CreateReactionNotification(data.User.Id, "like")
 		if err != nil {
 		(&models.Error{}).Consume(err).LogError()
 		}
 	}
 	if data.Request.FormValue("action") == "dislike" {
-		err = DoDislikePost(data.User.Id, post.Id)
+		err = data.User.DislikePost(post.Id)
 		if err != nil {
 			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
 		}
-		notification.Type = "dislike"
-		notification.TimestampString = utils.GetCurrentTimestamp()
-		err = models.CreateNotification(notification)
+		err = post.CreateReactionNotification(data.User.Id, "dislike")
 		if err != nil {
 		(&models.Error{}).Consume(err).LogError()
 		}		

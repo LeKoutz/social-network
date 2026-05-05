@@ -113,3 +113,43 @@ func RemoveLikeFromComment(userId, commentId int64) error {
 		`, userId, commentId)
 	return err
 }
+
+func (user *User) LikeComment(commentId int64) error {
+	alreadyLiked, err := HasUserLikedComment(user.Id, commentId)
+	if err != nil {
+		return err
+	}
+	if alreadyLiked {
+		return RemoveLikeFromComment(user.Id, commentId)
+	}
+	existingDislikeId, err := CheckIfUserDislikedComment(user.Id, commentId)
+	if err != nil {
+		return err
+	}
+	if existingDislikeId != 0 {
+		if err = RemoveReaction(existingDislikeId); err != nil {
+			return err
+		}
+	}
+	return AddLikeToComment(user.Id, commentId)
+}
+
+func (user *User) LikePost(postId int64) error {
+	alreadyLiked, err := HasUserLikedPost(user.Id, postId)
+	if err != nil {
+		return err
+	}
+	if alreadyLiked {
+		return RemoveLikeFromPost(user.Id, postId)
+	}
+	existingDislikeId, err := CheckIfUserDislikedPost(user.Id, postId)
+	if err != nil {
+		return err
+	}
+	if existingDislikeId != 0 {
+		if err = RemoveReaction(existingDislikeId); err != nil {
+			return err
+		}
+	}
+	return AddLikeToPost(user.Id, postId)
+}

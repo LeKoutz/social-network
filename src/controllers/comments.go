@@ -42,66 +42,48 @@ func handleCommentCreate(data models.ResponseStruct) {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	notification := models.Notification{
-		UserId:    post.User.Id,
-		ActorId:   data.User.Id,
-		Type:      "comment",
-		PostId: 	post.Id,
-		CommentId:  comment.Id,
-		TimestampString: utils.GetCurrentTimestamp(),
-	}
-	err = models.CreateNotification(notification)
+	err = comment.CreateCommentNotification(post)
 	if err != nil {
-		(&models.Error{}).Consume(err).LogError()
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		return
 	}
 	redirectURL := fmt.Sprintf("/post/view/%d#comment-%d", post.Id, comment.Id)
 	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
 }
 
 func handleCommentReaction(data models.ResponseStruct) {
+	var comment models.Comment
 	var err error
-	commentId, err := parseCommentId(data)
+	comment.Id, err = parseCommentId(data)
 	if err != nil {
-		err = models.ErrorInvalidCommentId
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	comment := models.Comment{Id: commentId}
 	err = comment.GetCommentById()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	notification := models.Notification{
-		UserId:    comment.UserId,
-		ActorId:   data.User.Id,
-		CommentId: comment.Id,
-		PostId:    comment.PostId,
-	}
 	if data.Request.FormValue("action") == "like" {
-		err = DoLikeComment(data.User.Id, commentId)
+		err = data.User.LikeComment(comment.Id)
 		if err != nil {
 			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
 		}
-		notification.Type = "commentLike"
-		notification.TimestampString = utils.GetCurrentTimestamp()
-		err = models.CreateNotification(notification)
+		err = comment.CreateReactionNotification(data.User.Id, "commentLike")
 		if err != nil {
-		(&models.Error{}).Consume(err).LogError()
+			(&models.Error{}).Consume(err).LogError()
 		}
 	}
 	if data.Request.FormValue("action") == "dislike" {
-		err = DoDislikeComment(data.User.Id, commentId)
+		err = data.User.DislikeComment(comment.Id)
 		if err != nil {
 			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
 		}
-		notification.Type = "commentDislike"
-		notification.TimestampString = utils.GetCurrentTimestamp()
-		err = models.CreateNotification(notification)
+		err = comment.CreateReactionNotification(data.User.Id, "commentDislike")
 		if err != nil {
-		(&models.Error{}).Consume(err).LogError()
+			(&models.Error{}).Consume(err).LogError()
 		}
 	}
 	redirectURL := fmt.Sprintf("/post/view/%d#comment-%d", comment.PostId, comment.Id)
