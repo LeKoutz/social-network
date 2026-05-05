@@ -8,29 +8,36 @@ import (
 	"net/http"
 )
 
+func parseCommentId(data models.ResponseStruct) (int64, error) {
+	commentIdStr := data.Request.FormValue("comment-id")
+	if len(commentIdStr) == 0 {
+		return 0, models.ErrorCommentEmptyId
+	}
+	commentId, err := utils.StringToInt64(commentIdStr)
+	if err != nil {
+		return 0, models.ErrorInvalidCommentId
+	}
+	return commentId, nil
+}
+
 func handleCommentCreate(data models.ResponseStruct) {
+	var comment models.Comment
+	var err error
 	body := data.Request.FormValue("comment")
-	postIdStr := data.Request.FormValue("post-id")
-	post_id, err := utils.StringToInt64(postIdStr)
+	comment.PostId, err = parsePostId(data)
 	if err != nil {
-		err = models.ErrorInvalidPostId
-		data.Error.Consume(err)
-		views.ErrorView(&data)
+		(&models.Error{}).Consume(models.ErrorInvalidPostId).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	comment := models.Comment{
-		Body:   body,
-		UserId: data.User.Id,
-		PostId: post_id,
-	}
-	commentId, err := comment.Add()
-	if err != nil {
-		data.Error.Consume(err)
-		views.ErrorView(&data)
-		return
-	}
-	post := models.Post{Id: post_id}
+	post := models.Post{Id: comment.PostId}
 	err = post.GetById()
+	if err != nil {
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	comment.Body = body
+	comment.UserId = data.User.Id
+	comment.Id, err = comment.Add()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
@@ -39,26 +46,21 @@ func handleCommentCreate(data models.ResponseStruct) {
 		UserId:    post.User.Id,
 		ActorId:   data.User.Id,
 		Type:      "comment",
-		PostId: 	post_id,
-		CommentId:  commentId,
+		PostId: 	post.Id,
+		CommentId:  comment.Id,
 		TimestampString: utils.GetCurrentTimestamp(),
 	}
 	err = models.CreateNotification(notification)
 	if err != nil {
-	(&models.Error{}).Consume(err).LogError()
+		(&models.Error{}).Consume(err).LogError()
 	}
-	redirectURL := fmt.Sprintf("/post/view/%d#comment-%d", post_id, commentId)
+	redirectURL := fmt.Sprintf("/post/view/%d#comment-%d", post.Id, comment.Id)
 	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
 }
 
 func handleCommentReaction(data models.ResponseStruct) {
 	var err error
-	commentIdStr := data.Request.FormValue("comment-id")
-	if len(commentIdStr) == 0 {
-		(&models.Error{}).Consume(models.ErrorCommentEmptyId).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	commentId, err := utils.StringToInt64(commentIdStr)
+	commentId, err := parseCommentId(data)
 	if err != nil {
 		err = models.ErrorInvalidCommentId
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
@@ -107,12 +109,7 @@ func handleCommentReaction(data models.ResponseStruct) {
 }
 
 func handleCommentDelete(data models.ResponseStruct) {
-	commentIdStr := data.Request.FormValue("comment-id")
-	if len(commentIdStr) == 0 {
-		(&models.Error{}).Consume(models.ErrorCommentEmptyId).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	commentId, err := utils.StringToInt64(commentIdStr)
+	commentId, err := parseCommentId(data)
 	if err != nil {
 		err = models.ErrorInvalidCommentId
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
@@ -144,7 +141,7 @@ func handleCommentEdit(data models.ResponseStruct) {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	err = verifyCommentPostAssociation(&data)
+	err = verifyCommentOwnership(&data)
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
@@ -168,39 +165,26 @@ func validateFormCommentEdit(data *models.ResponseStruct) error {
 	var err error
 	var post models.Post
 	var comment models.Comment
-	commentIdStr := data.Request.FormValue("comment-id")
-	if len(commentIdStr) == 0 {
-		return models.ErrorCommentEmptyId
-	}
-	commentId, err := utils.StringToInt64(commentIdStr)
+	commentId, err := parseCommentId(*data)
 	if err != nil {
 		return models.ErrorInvalidCommentId
 	}
-	postIdStr := data.Request.FormValue("post-id")
-	if len(postIdStr) == 0 {
-		return models.ErrorPostEmptyId
-	}
-	postId, err := utils.StringToInt64(postIdStr)
+	post.Id, err = parsePostId(*data)
 	if err != nil {
 		return models.ErrorInvalidPostId
 	}
 	comment = models.Comment{Id: commentId}
 	post.Comments = models.Comments{comment}
-	post.Id = postId
 	data.Posts = models.Posts{post}
 	return nil
 }
 
-func verifyCommentPostAssociation(data *models.ResponseStruct) error {
+func verifyCommentOwnership(data *models.ResponseStruct) error {
 	var err error
-	post := &data.Posts[0]
 	comment := &data.Posts[0].Comments[0]
 	err = comment.GetCommentById()
 	if err != nil {
 		return err
-	}
-	if comment.PostId != post.Id {
-		return models.ErrorInvalidPostId
 	}
 	// Check your priviledge
 	if comment.UserId != data.User.Id {

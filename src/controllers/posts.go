@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func parsePostID(data models.ResponseStruct) (int64, error) {
+func parsePostId(data models.ResponseStruct) (int64, error) {
 	postIdStr := data.Request.FormValue("post-id")
 	if len(postIdStr) == 0 {
 		postIdStr = strings.TrimPrefix(data.Request.RequestURI, "/post/edit/")
@@ -228,12 +228,7 @@ func handlePostCreate(data models.ResponseStruct) {
 func handlePostReaction(data models.ResponseStruct) {
 	var post models.Post
 	var err error
-	postIdStr := data.Request.FormValue("post-id")
-	if len(postIdStr) == 0 {
-		(&models.Error{}).Consume(models.ErrorPostEmptyId).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	post.Id, err = utils.StringToInt64(postIdStr)
+	post.Id, err = parsePostId(data)
 	if err != nil {
 		err = models.ErrorInvalidPostId
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
@@ -275,13 +270,14 @@ func handlePostReaction(data models.ResponseStruct) {
 		(&models.Error{}).Consume(err).LogError()
 		}		
 	}
-	http.Redirect(data.Response, data.Request, "/post/view/"+postIdStr, http.StatusSeeOther)
+	redirectURL := fmt.Sprintf("/post/view/%d", post.Id)
+	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
 }
 
 func handlePostDelete(data models.ResponseStruct) {
 	var err error
 	var post models.Post
-	post.Id, err = parsePostID(data)
+	post.Id, err = parsePostId(data)
 	if err != nil {
 		(&models.Error{}).Consume(models.ErrorInvalidPostId).LogAndRespondError(data.Response, data.User)
 		return
@@ -306,7 +302,7 @@ func handlePostDelete(data models.ResponseStruct) {
 func handlePostEdit(data models.ResponseStruct){
 	var err error
 	var post models.Post
-	post.Id, err = parsePostID(data)
+	post.Id, err = parsePostId(data)
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
