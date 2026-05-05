@@ -17,10 +17,6 @@ type User struct {
 	Email                    string
 	LoggedIn                 bool
 	OAuthProvider            string
-	OwnedPosts               Posts
-	OwnedComments            Comments
-	OwnedLikes               Likes
-	OwnedDislikes            Dislikes
 	Notifications            Notifications
 	UnreadNotificationsCount int
 	Activities               Activities

@@ -6,14 +6,6 @@ import (
 	"forum/src/utils"
 )
 
-type Like struct {
-	PostId    int64
-	UserId    int64
-	CommentId int64
-	Timestamp int64
-	TimestampString string
-}
-
 func CheckIfUserLikedPost(userId, postId int64) (int64, error) {
 	var existingReactionId int64
 	err := db.QueryRow(`

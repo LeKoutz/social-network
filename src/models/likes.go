@@ -5,8 +5,6 @@ import (
 	utils "forum/src/utils"
 )
 
-type Likes []Like
-
 func getLikesCountByPostId(postId int64) (int, error) {
 	var likes int
 	err := db.QueryRow(`
