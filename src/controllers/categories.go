@@ -30,19 +30,20 @@ func showCategories(data models.ResponseStruct) {
 }
 
 func showCategory(data models.ResponseStruct) {
-	categoryId, err := parseCategoryId(data)
+	var category models.Category
+	var err error
+	category.Id, err = parseCategoryId(data)
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	category, err := models.GetCategoryById(categoryId)
+	err = category.GetCategoryById()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	data.Categories = models.Categories{}
-	data.Categories = append(data.Categories, category)
-	posts, err := models.GetPostsByCategoryId(categoryId)
+	data.Categories = models.Categories{category}
+	posts, err := models.GetPostsByCategoryId(category.Id)
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
