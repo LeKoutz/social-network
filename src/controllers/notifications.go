@@ -10,10 +10,6 @@ func markAllNotificationsAsRead(data models.ResponseStruct) {
 		data.SetErrorConsume(models.ErrorUnauthorizedAction).WriteResponse()
 		return
 	}
-	if data.Request.Method != http.MethodPost {
-		data.SetErrorConsume(models.ErrorMethodNotAllowed).WriteResponse()
-		return
-	}
 	err := data.User.MarkAllNotificationsAsRead()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)

@@ -28,10 +28,6 @@ func userLogin(data models.ResponseStruct) {
 }
 
 func userLogout(data models.ResponseStruct) {
-	if data.Request.Method != http.MethodGet {
-		data.SetErrorConsume(models.ErrorMethodNotAllowed).WriteResponse()
-		return
-	}
 	if !data.User.LoggedIn {
 		(&models.Error{}).Consume(models.ErrorUserPermissionDenied).LogAndRespondError(data.Response, data.User)
 		return
@@ -163,9 +159,6 @@ func userRegister(data models.ResponseStruct) {
 }
 
 func attemptRegister(data models.ResponseStruct) {
-	if data.Request.Method != http.MethodPost {
-		return
-	}
 	var err error
 	if len(data.Request.FormValue("username")) == 0 ||
 		len(data.Request.FormValue("email")) == 0 ||
@@ -296,10 +289,6 @@ func showUserView(data models.ResponseStruct) {
 func showUserActivity(data models.ResponseStruct) {
 	if !data.User.LoggedIn {
 		(&models.Error{}).Consume(models.ErrorUserPermissionDenied).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	if data.Request.Method != http.MethodGet {
-		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
 		return
 	}
 	err := data.User.GetActivity()

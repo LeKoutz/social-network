@@ -84,7 +84,6 @@ func (c *oauthConfig) Client(ctx context.Context, token string) *http.Client {
 	}
 }
 
-
 var (
 	googleOAuthConf = &oauthConfig{
 		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
@@ -103,6 +102,14 @@ var (
 		TokenURL:	  "https://github.com/login/oauth/access_token",
 	}
 )
+
+func handleOAuthLoginGoogle(data models.ResponseStruct) {
+	handleOAuthLogin(data, "google")
+}
+
+func handleOAuthLoginGithub(data models.ResponseStruct) {
+	handleOAuthLogin(data, "github")
+}
 
 func handleOAuthLogin(data models.ResponseStruct, provider string) {
 	state, _ := uuid.NewV4()

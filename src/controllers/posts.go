@@ -151,20 +151,6 @@ func showPosts(data models.ResponseStruct) {
 }
 
 func createPost(data models.ResponseStruct) {
-	if data.Request.Method == http.MethodGet {
-		categories, err := models.GetAllCategories()
-		if err != nil {
-			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-			return
-		}
-		data.SetCategories(categories)
-		views.PostCreate(data)
-		return
-	}
-	if data.Request.Method != http.MethodPost {
-		data.SetErrorConsume(models.ErrorMethodNotAllowed)
-		return
-	}
 	if !data.User.LoggedIn {
 		data.Error.Consume(models.ErrorPostPermissionDenied)
 		views.UserLogin(data)
@@ -219,9 +205,6 @@ func parseCreatePostRequest(data models.ResponseStruct) (models.Post, error) {
 }
 
 func handlePostCreate(data models.ResponseStruct) {
-	if data.Request.Method != http.MethodPost && data.Request.Method != http.MethodGet {
-		data.SetErrorConsume(models.ErrorMethodNotAllowed)
-	}
 	if !data.User.LoggedIn {
 		(&models.Error{}).Consume(models.ErrorPostPermissionDenied).LogAndRespondError(data.Response, data.User)
 		return
@@ -313,19 +296,9 @@ func handlePostDelete(data models.ResponseStruct) {
 		(&models.Error{}).Consume(models.ErrorPostPermissionDenied).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	if data.Request.Method != http.MethodPost {
-		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	postIdStr := data.Request.FormValue("post-id")
-	if len(postIdStr) == 0 {
-		(&models.Error{}).Consume(models.ErrorPostEmptyId).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	post.Id, err = utils.StringToInt64(postIdStr)
+	post.Id, err = parsePostID(data)
 	if err != nil {
-		err = models.ErrorInvalidPostId
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		(&models.Error{}).Consume(models.ErrorInvalidPostId).LogAndRespondError(data.Response, data.User)
 		return
 	}
 	err = post.GetById()
@@ -352,12 +325,11 @@ func handlePostEdit(data models.ResponseStruct){
 	}
 	var err error
 	var post models.Post
-	postId, err := parsePostID(data)
+	post.Id, err = parsePostID(data)
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	post = models.Post{Id: postId}
 	err = post.GetById()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)

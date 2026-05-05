@@ -8,15 +8,12 @@ import (
 	"net/http"
 )
 
-func createComment(data models.ResponseStruct) {
-	// Validate user is logged in
+func handleCommentCreate(data models.ResponseStruct) {
 	if !data.User.LoggedIn {
 		data.Error.Consume(models.ErrorCommentPermissionDenied)
 		views.UserLogin(data)
 		return
 	}
-	// Parse form data
-	// Get form values
 	body := data.Request.FormValue("comment")
 	postIdStr := data.Request.FormValue("post_id")
 	post_id, err := utils.StringToInt64(postIdStr)
@@ -26,20 +23,17 @@ func createComment(data models.ResponseStruct) {
 		views.ErrorView(data)
 		return
 	}
-	// Create post object
 	comment := models.Comment{
 		Body:   body,
 		UserId: data.User.Id,
 		PostId: post_id,
 	}
-	// Save post to database
 	commentId, err := comment.Add()
 	if err != nil {
 		data.Error.Consume(err)
 		views.ErrorView(data)
 		return
 	}
-	// Create notification for the post's author
 	post := models.Post{Id: post_id}
 	err = post.GetById()
 	if err != nil {
@@ -62,16 +56,7 @@ func createComment(data models.ResponseStruct) {
 		}
 	}
 	redirectURL := fmt.Sprintf("/post/view/%d#comment-%d", post_id, commentId)
-	// Redirect to the post's page
 	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
-}
-
-func handleCommentCreate(data models.ResponseStruct) {
-	if data.Request.Method != http.MethodPost {
-		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	createComment(data)
 }
 
 func handleCommentReaction(data models.ResponseStruct) {
@@ -144,10 +129,6 @@ func handleCommentDelete(data models.ResponseStruct) {
 		(&models.Error{}).Consume(models.ErrorCommentPermissionDenied).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	if data.Request.Method != http.MethodPost {
-		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
-		return
-	}
 	commentIdStr := data.Request.FormValue("comment-id")
 	if len(commentIdStr) == 0 {
 		(&models.Error{}).Consume(models.ErrorCommentEmptyId).LogAndRespondError(data.Response, data.User)
@@ -184,10 +165,6 @@ func handleCommentEdit(data models.ResponseStruct) {
 		(&models.Error{}).Consume(models.ErrorCommentPermissionDenied).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	if data.Request.Method != http.MethodPost {
-		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
-		return
-	}
 	err = validateFormCommentEdit(&data)
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
@@ -195,19 +172,19 @@ func handleCommentEdit(data models.ResponseStruct) {
 	}
 	err = verifyCommentPostAssociation(&data)
 	if err != nil {
-		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
 	if data.Request.FormValue("save-comment") == "1" {
 		err = updateCommentFromForm(&data)
 		if err != nil {
-			(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
+			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
 		}
 	}
 	err = showEditComment(&data)
 	if err != nil {
-		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
 	views.PostView(data)
