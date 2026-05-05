@@ -44,7 +44,7 @@ var routes = Routes{
 	Route{Method: "*", Path: "/post/edit", Prefix: true, Function: handlePostEdit, NeedsLogin: true},
 	Route{Method: "POST", Path: "/post/delete", Function: handlePostDelete, NeedsLogin: true},
 
-	Route{Method: "*", Path: "/user/login", Function: userLogin, NeedsLogin: true},
+	Route{Method: "*", Path: "/user/login", Function: userLogin},
 	Route{Method: "*", Path: "/user/register", Function: userRegister},
 	Route{Method: "GET", Path: "/user/logout", Function: userLogout, NeedsLogin: true},
 	Route{Method: "GET", Path: "/user/posts", Function: showUserPosts, NeedsLogin: true},
