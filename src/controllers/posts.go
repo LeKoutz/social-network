@@ -121,6 +121,7 @@ func showPost(data models.ResponseStruct) {
 				return
 			}
 			data.User.Notifications[i].Read = true
+			data.User.UnreadNotificationsCount--
 		}
 	}
 	views.PostView(data)
