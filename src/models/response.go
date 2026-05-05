@@ -4,6 +4,7 @@ import (
 	"forum/src/utils"
 	"html/template"
 	"net/http"
+	"sort"
 )
 
 var (
@@ -61,6 +62,9 @@ func (r *ResponseStruct) SetUser(user User) *ResponseStruct {
 
 func (r *ResponseStruct) SetPosts(posts Posts) *ResponseStruct {
 	r.Posts = posts
+	sort.Slice(r.Posts, func(i, j int) bool {
+		return r.Posts[i].TimestampString > r.Posts[j].TimestampString
+	})
 	return r
 }
 
