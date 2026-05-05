@@ -17,6 +17,7 @@ type Route struct {
 	Prefix   bool
 	Method   string
 	Path     string
+	NeedsLogin bool
 }
 
 var routes = Routes{
@@ -25,10 +26,10 @@ var routes = Routes{
 	Route{Method: "GET", Path: "/category/view/", Prefix: true, Function: showCategory},
 	Route{Method: "GET", Path: "/categories", Prefix: true, Function: showCategories},
 
-	Route{Method: "POST", Path: "/comment/create", Function: handleCommentCreate},
+	Route{Method: "POST", Path: "/comment/create", Function: handleCommentCreate, NeedsLogin: true},
 	Route{Method: "POST", Path: "/comment/react", Function: handleCommentReaction},
-	Route{Method: "POST", Path: "/comment/edit", Function: handleCommentEdit},
-	Route{Method: "POST", Path: "/comment/delete", Function: handleCommentDelete},
+	Route{Method: "POST", Path: "/comment/edit", Function: handleCommentEdit, NeedsLogin: true},
+	Route{Method: "POST", Path: "/comment/delete", Function: handleCommentDelete, NeedsLogin: true},
 
 	Route{Method: "GET", Path: "/auth/google/callback", Prefix: true, Function: handleGoogleCallback},
 	Route{Method: "GET", Path: "/auth/google", Prefix: true, Function: handleOAuthLoginGoogle},
@@ -36,21 +37,21 @@ var routes = Routes{
 	Route{Method: "GET", Path: "/auth/github", Prefix: true, Function: handleOAuthLoginGithub},
 
 	Route{Method: "GET", Path: "/posts", Function: showPosts},
-	Route{Method: "*", Path: "/post/create", Function: handlePostCreate},
-	Route{Method: "POST", Path: "/post/react", Function: handlePostReaction},
+	Route{Method: "*", Path: "/post/create", Function: handlePostCreate, NeedsLogin: true},
+	Route{Method: "POST", Path: "/post/react", Function: handlePostReaction, NeedsLogin: true},
 	Route{Method: "GET", Path: "/post/view/", Prefix: true, Function: showPost},
 	Route{Method: "GET", Path: "/post/comment", Function: showPost},
-	Route{Method: "*", Path: "/post/edit", Prefix: true, Function: handlePostEdit},
-	Route{Method: "POST", Path: "/post/delete", Function: handlePostDelete},
+	Route{Method: "*", Path: "/post/edit", Prefix: true, Function: handlePostEdit, NeedsLogin: true},
+	Route{Method: "POST", Path: "/post/delete", Function: handlePostDelete, NeedsLogin: true},
 
-	Route{Method: "*", Path: "/user/login", Function: userLogin},
+	Route{Method: "*", Path: "/user/login", Function: userLogin, NeedsLogin: true},
 	Route{Method: "*", Path: "/user/register", Function: userRegister},
-	Route{Method: "GET", Path: "/user/logout", Function: userLogout},
-	Route{Method: "GET", Path: "/user/posts", Function: showUserPosts},
-	Route{Method: "GET", Path: "/user/likes", Function: showUserLikedPosts},
-	Route{Method: "GET", Path: "/user/notifications", Function: markAllNotificationsAsRead},
-	Route{Method: "GET", Path: "/user", Function: showUserView},
-	Route{Method: "GET", Path: "/user/activity", Function: showUserActivity},
+	Route{Method: "GET", Path: "/user/logout", Function: userLogout, NeedsLogin: true},
+	Route{Method: "GET", Path: "/user/posts", Function: showUserPosts, NeedsLogin: true},
+	Route{Method: "GET", Path: "/user/likes", Function: showUserLikedPosts, NeedsLogin: true},
+	Route{Method: "GET", Path: "/user/notifications", Function: markAllNotificationsAsRead, NeedsLogin: true},
+	Route{Method: "GET", Path: "/user", Function: showUserView, NeedsLogin: true},
+	Route{Method: "GET", Path: "/user/activity", Function: showUserActivity, NeedsLogin: true},
 
 	Route{Method: "GET", Path: "/uploads/", Prefix: true, Function: handleImages},
 }
@@ -81,7 +82,13 @@ func RouteToController(data models.ResponseStruct) {
 		return
 	}
 	if route != nil {
-		route.Function(data)
+		if data.User.LoggedIn && route.NeedsLogin {
+			route.Function(data)
+		} else if !route.NeedsLogin {
+			route.Function(data)
+		} else {
+			(&models.Error{}).Consume(models.ErrorUnauthorizedAction).LogAndRespondError(data.Response, data.User)
+		}
 		return
 	}
 	(&models.Error{}).Consume(models.ErrorNotFound).LogAndRespondError(data.Response, data.User)

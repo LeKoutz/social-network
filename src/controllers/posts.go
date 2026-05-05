@@ -151,11 +151,6 @@ func showPosts(data models.ResponseStruct) {
 }
 
 func createPost(data models.ResponseStruct) {
-	if !data.User.LoggedIn {
-		data.Error.Consume(models.ErrorPostPermissionDenied)
-		views.UserLogin(data)
-		return
-	}
 	post, err := parseCreatePostRequest(data)
 	if err != nil {
 		data.Error.Consume(err)
@@ -205,10 +200,6 @@ func parseCreatePostRequest(data models.ResponseStruct) (models.Post, error) {
 }
 
 func handlePostCreate(data models.ResponseStruct) {
-	if !data.User.LoggedIn {
-		(&models.Error{}).Consume(models.ErrorPostPermissionDenied).LogAndRespondError(data.Response, data.User)
-		return
-	}
 	switch {
 	case strings.Compare(data.Request.RequestURI, "/post/create") == 0:
 		switch data.Request.Method {
@@ -237,10 +228,6 @@ func handlePostCreate(data models.ResponseStruct) {
 func handlePostReaction(data models.ResponseStruct) {
 	var post models.Post
 	var err error
-	if !data.User.LoggedIn {
-		(&models.Error{}).Consume(models.ErrorPostPermissionDenied).LogAndRespondError(data.Response, data.User)
-		return
-	}
 	postIdStr := data.Request.FormValue("post-id")
 	if len(postIdStr) == 0 {
 		(&models.Error{}).Consume(models.ErrorPostEmptyId).LogAndRespondError(data.Response, data.User)
@@ -292,10 +279,6 @@ func handlePostReaction(data models.ResponseStruct) {
 func handlePostDelete(data models.ResponseStruct) {
 	var err error
 	var post models.Post
-	if !data.User.LoggedIn {
-		(&models.Error{}).Consume(models.ErrorPostPermissionDenied).LogAndRespondError(data.Response, data.User)
-		return
-	}
 	post.Id, err = parsePostID(data)
 	if err != nil {
 		(&models.Error{}).Consume(models.ErrorInvalidPostId).LogAndRespondError(data.Response, data.User)
@@ -319,10 +302,6 @@ func handlePostDelete(data models.ResponseStruct) {
 }
 
 func handlePostEdit(data models.ResponseStruct){
-	if !data.User.LoggedIn {
-		(&models.Error{}).Consume(models.ErrorPostPermissionDenied).LogAndRespondError(data.Response, data.User)
-		return
-	}
 	var err error
 	var post models.Post
 	post.Id, err = parsePostID(data)

@@ -9,11 +9,6 @@ import (
 )
 
 func handleCommentCreate(data models.ResponseStruct) {
-	if !data.User.LoggedIn {
-		data.Error.Consume(models.ErrorCommentPermissionDenied)
-		views.UserLogin(data)
-		return
-	}
 	body := data.Request.FormValue("comment")
 	postIdStr := data.Request.FormValue("post-id")
 	post_id, err := utils.StringToInt64(postIdStr)
@@ -72,10 +67,6 @@ func handleCommentReaction(data models.ResponseStruct) {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	if !data.User.LoggedIn {
-		(&models.Error{}).Consume(models.ErrorCommentPermissionDenied).LogAndRespondError(data.Response, data.User)
-		return
-	}
 	comment := models.Comment{Id: commentId}
 	err = comment.GetCommentById()
 	if err != nil {
@@ -125,10 +116,6 @@ func handleCommentReaction(data models.ResponseStruct) {
 }
 
 func handleCommentDelete(data models.ResponseStruct) {
-	if !data.User.LoggedIn {
-		(&models.Error{}).Consume(models.ErrorCommentPermissionDenied).LogAndRespondError(data.Response, data.User)
-		return
-	}
 	commentIdStr := data.Request.FormValue("comment-id")
 	if len(commentIdStr) == 0 {
 		(&models.Error{}).Consume(models.ErrorCommentEmptyId).LogAndRespondError(data.Response, data.User)
@@ -161,10 +148,6 @@ func handleCommentDelete(data models.ResponseStruct) {
 
 func handleCommentEdit(data models.ResponseStruct) {
 	var err error
-	if !data.User.LoggedIn {
-		(&models.Error{}).Consume(models.ErrorCommentPermissionDenied).LogAndRespondError(data.Response, data.User)
-		return
-	}
 	err = validateFormCommentEdit(&data)
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)

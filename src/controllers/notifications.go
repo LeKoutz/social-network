@@ -6,10 +6,6 @@ import (
 )
 
 func markAllNotificationsAsRead(data models.ResponseStruct) {
-	if !data.User.LoggedIn {
-		data.SetErrorConsume(models.ErrorUnauthorizedAction).WriteResponse()
-		return
-	}
 	err := data.User.MarkAllNotificationsAsRead()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
