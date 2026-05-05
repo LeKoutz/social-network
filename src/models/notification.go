@@ -1,8 +1,5 @@
 package models
 
-import (
-)
-
 type Notification struct {
 	Id        int64
 	UserId    int64
@@ -21,4 +18,11 @@ func (n *Notification) Add() error {
 	query := `INSERT INTO notifications (user_id, actor_id, type, post_id, comment_id, timestamp) VALUES (?, ?, ?, ?, ?, ?)`
 	_, err := db.Exec(query, n.UserId, n.ActorId, n.Type, n.PostId, n.CommentId, n.TimestampString)
 	return err
+}
+
+func CreateNotification(notification Notification) error {
+	if notification.ActorId == notification.UserId {
+		return nil
+	}
+	return notification.Add()
 }

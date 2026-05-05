@@ -43,12 +43,9 @@ func handleCommentCreate(data models.ResponseStruct) {
 		CommentId:  commentId,
 		TimestampString: utils.GetCurrentTimestamp(),
 	}
-	if data.User.Id != post.User.Id {
-		err = notification.Add()
-		if err != nil {
-			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-			return
-		}
+	err = models.CreateNotification(notification)
+	if err != nil {
+	(&models.Error{}).Consume(err).LogError()
 	}
 	redirectURL := fmt.Sprintf("/post/view/%d#comment-%d", post_id, commentId)
 	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
@@ -85,14 +82,11 @@ func handleCommentReaction(data models.ResponseStruct) {
 			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
 		}
-		if data.User.Id != comment.UserId {
-			notification.Type = "commentLike"
-			notification.TimestampString = utils.GetCurrentTimestamp()
-			err = notification.Add()
-			if err != nil {
-				(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-				return
-			}
+		notification.Type = "commentLike"
+		notification.TimestampString = utils.GetCurrentTimestamp()
+		err = models.CreateNotification(notification)
+		if err != nil {
+		(&models.Error{}).Consume(err).LogError()
 		}
 	}
 	if data.Request.FormValue("action") == "dislike" {
@@ -101,14 +95,11 @@ func handleCommentReaction(data models.ResponseStruct) {
 			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
 		}
-		if data.User.Id != comment.UserId {
-			notification.Type = "commentDislike"
-			notification.TimestampString = utils.GetCurrentTimestamp()
-			err = notification.Add()
-			if err != nil {
-				(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-				return
-			}
+		notification.Type = "commentDislike"
+		notification.TimestampString = utils.GetCurrentTimestamp()
+		err = models.CreateNotification(notification)
+		if err != nil {
+		(&models.Error{}).Consume(err).LogError()
 		}
 	}
 	redirectURL := fmt.Sprintf("/post/view/%d#comment-%d", comment.PostId, comment.Id)

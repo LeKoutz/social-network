@@ -255,10 +255,11 @@ func handlePostReaction(data models.ResponseStruct) {
 			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
 		}
-		if data.User.Id != post.User.Id {
-			notification.Type = "like"
-			notification.TimestampString = utils.GetCurrentTimestamp()
-			err = notification.Add()
+		notification.Type = "like"
+		notification.TimestampString = utils.GetCurrentTimestamp()
+		err = models.CreateNotification(notification)
+		if err != nil {
+		(&models.Error{}).Consume(err).LogError()
 		}
 	}
 	if data.Request.FormValue("action") == "dislike" {
@@ -267,11 +268,12 @@ func handlePostReaction(data models.ResponseStruct) {
 			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
 		}
-		if data.User.Id != post.User.Id {
-			notification.Type = "dislike"
-			notification.TimestampString = utils.GetCurrentTimestamp()
-			err = notification.Add()
-		}
+		notification.Type = "dislike"
+		notification.TimestampString = utils.GetCurrentTimestamp()
+		err = models.CreateNotification(notification)
+		if err != nil {
+		(&models.Error{}).Consume(err).LogError()
+		}		
 	}
 	http.Redirect(data.Response, data.Request, "/post/view/"+postIdStr, http.StatusSeeOther)
 }
