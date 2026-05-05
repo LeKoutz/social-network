@@ -169,37 +169,11 @@ func handleCommentDelete(data models.ResponseStruct) {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	postIdStr := data.Request.FormValue("post-id")
-	if len(postIdStr) == 0 {
-		(&models.Error{}).Consume(models.ErrorPostEmptyId).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	postId, err := utils.StringToInt64(postIdStr)
-	if err != nil {
-		err = models.ErrorInvalidPostId
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	post := models.Post{Id: postId}
-	err = post.GetById()
+	comment := models.Comment{Id: commentId}
+	err = comment.GetCommentById()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
-	}
-	// TODO
-	// Instead of getting all comments just to find one, we can use GetCommentById.
-	// The function exists in the Add Notifications branch. Once it is merged and rebased, we can use it here.
-	comments, err := post.GetComments()
-	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	post.Comments = comments
-	comment := models.Comment{}
-	for _, c := range post.Comments {
-		if c.Id == commentId {
-			comment = c
-		}
 	}
 	if comment.UserId != data.User.Id {
 		(&models.Error{}).Consume(models.ErrorCommentPermissionDenied).LogAndRespondError(data.Response, data.User)
@@ -210,7 +184,7 @@ func handleCommentDelete(data models.ResponseStruct) {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	redirectURL := fmt.Sprintf("/post/view/%d", postId)
+	redirectURL := fmt.Sprintf("/post/view/%d", comment.PostId)
 	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
 }
 
