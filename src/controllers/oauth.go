@@ -254,12 +254,10 @@ func createOrLoginUser(data models.ResponseStruct, provider, email, username str
 		data.Error.Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	notifications, err := data.User.GetNotifications()
+	err = data.User.GetNotifications()
 	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
+		(&models.Error{}).Consume(err).LogError()
 	}
-	data.User.Notifications = notifications
 	cookie := &http.Cookie{
 		Name:     "__Host-FRMSessionID",
 		Value:    sessionValue.String(),

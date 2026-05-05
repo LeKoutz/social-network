@@ -289,44 +289,15 @@ func HasUserDislikedComment(userId, commentId int64) (bool, error) {
 	return reactionId != 0, nil
 }
 
-func (u *User) GetNotifications() (Notifications, error) {
-	var notifications Notifications
-	rows, err := db.Query(`
-	SELECT n.id, n.user_id, n.actor_id, n.type, n.post_id, comment_id, n.timestamp, n.read, u.username
-	FROM notifications n
-	JOIN users u ON u.id = n.actor_id
-	WHERE user_id = ?
-	ORDER BY n.timestamp DESC
-	`, (*u).Id)
+func (u *User) GetNotifications() error {
+	notifications, err := GetNotificationsByUserId(u.Id)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
-		return Notifications{}, err
+		return err
 	}
-	defer rows.Close()
-	for rows.Next() {
-		var notification Notification
-		err = rows.Scan(&notification.Id,
-			&notification.UserId,
-			&notification.ActorId,
-			&notification.Type,
-			&notification.PostId,
-			&notification.CommentId,
-			&notification.TimestampString,
-			&notification.Read,
-			&notification.Actor.Username)
-		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
-			return Notifications{}, err
-		}
-		notifications = append(notifications, notification)
-	}
-	rows.Close()
-	for _, notification := range notifications {
-		if !notification.Read {
-			u.UnreadNotificationsCount++
-		}
-	}
-	return notifications, nil
+	u.Notifications = notifications
+	u.CountUnreadNotifications()
+	return nil
 }
 
 func (u *User) MarkNotificationAsRead(notificationId int64) error {
@@ -593,4 +564,12 @@ func (u *User) GetDislikedCommentsActivity() error {
 		u.Activities = append(u.Activities, activity)
 	}
 	return nil
+}
+
+func (u *User) CountUnreadNotifications() {
+	for _, notification := range u.Notifications {
+		if !notification.Read {
+			u.UnreadNotificationsCount++
+		}
+	}
 }

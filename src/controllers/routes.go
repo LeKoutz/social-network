@@ -107,6 +107,10 @@ func RoutesHandler(res http.ResponseWriter, req *http.Request) {
 				break
 			}
 			user.LoggedIn = true
+			err := user.GetNotifications()
+			if err != nil {
+				(&models.Error{}).Consume(err).LogError()
+			}
 		}
 	}
 	data := models.ResponseStruct{}
@@ -119,14 +123,6 @@ func RoutesHandler(res http.ResponseWriter, req *http.Request) {
 	utils.LogDebug(data.Request.Form)
 	if req.Method != http.MethodPost && req.Method != http.MethodGet {
 		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
-	}
-	if data.User.LoggedIn {
-		notifications, err := data.User.GetNotifications()
-		if err != nil {
-			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-			return
-		}
-		data.User.Notifications = notifications
 	}
 	RouteToController(data)
 }
