@@ -14,7 +14,7 @@ func showCategories(data models.ResponseStruct) {
 		return
 	}
 	data.SetCategories(categories)
-	views.Categories(data)
+	views.Categories(&data)
 }
 
 func showCategory(data models.ResponseStruct) {
@@ -55,5 +55,5 @@ func showCategory(data models.ResponseStruct) {
 	}
 	data.Posts = posts
 	data.SetPosts(posts)
-	views.Category(data)
+	views.Category(&data)
 }

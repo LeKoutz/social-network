@@ -15,7 +15,7 @@ func handleCommentCreate(data models.ResponseStruct) {
 	if err != nil {
 		err = models.ErrorInvalidPostId
 		data.Error.Consume(err)
-		views.ErrorView(data)
+		views.ErrorView(&data)
 		return
 	}
 	comment := models.Comment{
@@ -26,7 +26,7 @@ func handleCommentCreate(data models.ResponseStruct) {
 	commentId, err := comment.Add()
 	if err != nil {
 		data.Error.Consume(err)
-		views.ErrorView(data)
+		views.ErrorView(&data)
 		return
 	}
 	post := models.Post{Id: post_id}
@@ -161,7 +161,7 @@ func handleCommentEdit(data models.ResponseStruct) {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	views.PostView(data)
+	views.PostView(&data)
 }
 
 func validateFormCommentEdit(data *models.ResponseStruct) error {

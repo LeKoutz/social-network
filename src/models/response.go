@@ -49,9 +49,9 @@ func (r *ResponseStruct) SetWebsiteName(websiteName string) *ResponseStruct {
 	return r
 }
 
-func (r ResponseStruct) SetView(viewname string) *ResponseStruct {
+func (r *ResponseStruct) SetView(viewname string) *ResponseStruct {
 	r.View = viewname
-	return &r
+	return r
 }
 
 func (r *ResponseStruct) SetUser(user User) *ResponseStruct {

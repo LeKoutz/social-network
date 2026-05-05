@@ -124,7 +124,7 @@ func showPost(data models.ResponseStruct) {
 			data.User.UnreadNotificationsCount--
 		}
 	}
-	views.PostView(data)
+	views.PostView(&data)
 }
 
 func showPosts(data models.ResponseStruct) {
@@ -147,20 +147,20 @@ func showPosts(data models.ResponseStruct) {
 		}
 	}
 	data.SetPosts(posts)
-	views.PostsView(data)
+	views.PostsView(&data)
 }
 
 func createPost(data models.ResponseStruct) {
 	post, err := parseCreatePostRequest(data)
 	if err != nil {
 		data.Error.Consume(err)
-		views.PostCreate(data)
+		views.PostCreate(&data)
 		return
 	}
 	postId, err := post.Add()
 	if err != nil {
 		data.Error.Consume(err)
-		views.PostCreate(data)
+		views.PostCreate(&data)
 		return
 	}
 	redirectURL := fmt.Sprintf("/post/view/%d", postId)
@@ -210,7 +210,7 @@ func handlePostCreate(data models.ResponseStruct) {
 				return
 			}
 			data.SetCategories(categories)
-			views.PostCreate(data)
+			views.PostCreate(&data)
 			return
 		case http.MethodPost:
 			err := data.Request.ParseMultipartForm(models.MaxImageSize)
@@ -334,7 +334,7 @@ func handlePostEdit(data models.ResponseStruct){
 			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
 		}
-		views.PostCreate(data)
+		views.PostCreate(&data)
 	case http.MethodPost:
 		err = updatePost(&data)
 		if err != nil {

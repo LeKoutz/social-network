@@ -12,5 +12,5 @@ func Index(data models.ResponseStruct) {
 		return
 	}
 	data.SetCategories(categories)
-	views.Index(data)
+	views.Index(&data)
 }
