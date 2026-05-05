@@ -97,22 +97,11 @@ func handleCommentReaction(data models.ResponseStruct) {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	postIdStr := data.Request.FormValue("post-id")
-	if len(postIdStr) == 0 {
-		(&models.Error{}).Consume(models.ErrorPostEmptyId).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	postId, err := utils.StringToInt64(postIdStr)
-	if err != nil {
-		err = models.ErrorInvalidPostId
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
-	}
 	notification := models.Notification{
 		UserId:    comment.UserId,
 		ActorId:   data.User.Id,
 		CommentId: comment.Id,
-		PostId:    postId,
+		PostId:    comment.PostId,
 	}
 	if data.Request.FormValue("action") == "like" {
 		err = DoLikeComment(data.User.Id, commentId)
@@ -146,7 +135,8 @@ func handleCommentReaction(data models.ResponseStruct) {
 			}
 		}
 	}
-	http.Redirect(data.Response, data.Request, "/post/view/"+postIdStr+"#comment-"+commentIdStr, http.StatusSeeOther)
+	redirectURL := fmt.Sprintf("/post/view/%d#comment-%d", comment.PostId, comment.Id)
+	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
 }
 
 func handleCommentDelete(data models.ResponseStruct) {
