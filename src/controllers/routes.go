@@ -49,7 +49,7 @@ var routes = Routes{
 	Route{Method: "GET", Path: "/user/logout", Function: userLogout, NeedsLogin: true},
 	Route{Method: "GET", Path: "/user/posts", Function: showUserPosts, NeedsLogin: true},
 	Route{Method: "GET", Path: "/user/likes", Function: showUserLikedPosts, NeedsLogin: true},
-	Route{Method: "GET", Path: "/user/notifications", Function: markAllNotificationsAsRead, NeedsLogin: true},
+	Route{Method: "POST", Path: "/user/notifications", Function: markAllNotificationsAsRead, NeedsLogin: true},
 	Route{Method: "GET", Path: "/user", Function: showUserView, NeedsLogin: true},
 	Route{Method: "GET", Path: "/user/activity", Function: showUserActivity, NeedsLogin: true},
 
