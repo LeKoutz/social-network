@@ -15,7 +15,7 @@ func handleCommentCreate(data models.ResponseStruct) {
 		return
 	}
 	body := data.Request.FormValue("comment")
-	postIdStr := data.Request.FormValue("post_id")
+	postIdStr := data.Request.FormValue("post-id")
 	post_id, err := utils.StringToInt64(postIdStr)
 	if err != nil {
 		err = models.ErrorInvalidPostId
