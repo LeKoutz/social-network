@@ -69,9 +69,10 @@ input, textarea {
 input[type=submit], button {
     background-color: #1c1c1c;
     color: greenyellow;
+    border: gray solid 1px;
 }
 
-input[type=submit]:hover {
+input[type=submit]:hover, button:hover {
     background-color: #1c1c1c;
     color: greenyellow;
     border-color: greenyellow;
@@ -140,7 +141,7 @@ input[type=submit]:hover {
 
 .post {
     border-top: lightgreen solid 1px;
-    padding: 0px 1% 0px 1%;
+    padding: 20px;
     background-color: #1f2020;
     display: flex;
     flex-direction: column;
@@ -184,9 +185,12 @@ input[type=submit]:hover {
     background-color: #1c1c1c;
     border: lightgreen solid 1px;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 8px;
     padding: 8px;
+    max-height: 25%;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .activity {
@@ -199,6 +203,11 @@ input[type=submit]:hover {
     border-top: lightgreen solid 1px;
     border-bottom: lightgreen solid 1px;
     padding: 1%;
+}
+
+.manage-comment, .manage-post {
+    display: flex;
+    flex-direction: row;
 }
 </style>
 {{end}}

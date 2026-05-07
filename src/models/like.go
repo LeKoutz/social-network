@@ -6,17 +6,9 @@ import (
 	"forum/src/utils"
 )
 
-type Like struct {
-	PostId    int64
-	UserId    int64
-	CommentId int64
-	Timestamp int64
-	TimestampString string
-}
-
 func CheckIfUserLikedPost(userId, postId int64) (int64, error) {
 	var existingReactionId int64
-	err := DB.QueryRow(`
+	err := db.QueryRow(`
 		SELECT id FROM reactions
 		WHERE user_id = ? AND post_id = ? AND value = 1
 		`, userId, postId).Scan(&existingReactionId)
@@ -29,7 +21,7 @@ func CheckIfUserLikedPost(userId, postId int64) (int64, error) {
 
 func CheckIfUserDislikedPost(userId, postId int64) (int64, error) {
 	var existingDislikeId int64
-	err := DB.QueryRow(`
+	err := db.QueryRow(`
 		SELECT id FROM reactions
 		WHERE user_id = ? AND post_id = ? AND value = 2
 		`, userId, postId).Scan(&existingDislikeId)
@@ -41,7 +33,7 @@ func CheckIfUserDislikedPost(userId, postId int64) (int64, error) {
 }
 
 func AddLikeToPost(userId, postId int64) error {
-	_, err := DB.Exec(`
+	_, err := db.Exec(`
 		INSERT INTO reactions (user_id, post_id, value, timestamp)
 		VALUES (?, ?, 1, ?)
 		`, userId, postId, utils.GetCurrentTimestamp())
@@ -49,7 +41,7 @@ func AddLikeToPost(userId, postId int64) error {
 }
 
 func RemoveDislikeFromPost(dislikeId int64) error {
-	_, err := DB.Exec(`
+	_, err := db.Exec(`
 		DELETE FROM reactions
 		WHERE id = ?
 		`, dislikeId)
@@ -57,7 +49,7 @@ func RemoveDislikeFromPost(dislikeId int64) error {
 }
 
 func AddDislikeToPost(userId, postId int64) error {
-	_, err := DB.Exec(`
+	_, err := db.Exec(`
 		INSERT INTO reactions (user_id, post_id, value, timestamp)
 		VALUES (?, ?, 2, ?)
 		`, userId, postId, utils.GetCurrentTimestamp())
@@ -65,7 +57,7 @@ func AddDislikeToPost(userId, postId int64) error {
 }
 
 func RemoveLikeFromPost(userId, postId int64) error {
-	_, err := DB.Exec(`
+	_, err := db.Exec(`
 		DELETE FROM reactions
 		WHERE user_id = ? AND post_id = ? AND value = 1
 		`, userId, postId)
@@ -74,7 +66,7 @@ func RemoveLikeFromPost(userId, postId int64) error {
 
 func CheckIfUserLikedComment(userId, commentId int64) (int64, error) {
 	var existingReactionId int64
-	err := DB.QueryRow(`
+	err := db.QueryRow(`
 		SELECT id FROM reactions
 		WHERE user_id = ? AND comment_id = ? AND value = 1
 		`, userId, commentId).Scan(&existingReactionId)
@@ -87,7 +79,7 @@ func CheckIfUserLikedComment(userId, commentId int64) (int64, error) {
 
 func CheckIfUserDislikedComment(userId, commentId int64) (int64, error) {
 	var existingDislikeId int64
-	err := DB.QueryRow(`
+	err := db.QueryRow(`
 		SELECT id FROM reactions
 		WHERE user_id = ? AND comment_id = ? AND value = 2
 		`, userId, commentId).Scan(&existingDislikeId)
@@ -99,7 +91,7 @@ func CheckIfUserDislikedComment(userId, commentId int64) (int64, error) {
 }
 
 func AddLikeToComment(userId, commentId int64) error {
-	_, err := DB.Exec(`
+	_, err := db.Exec(`
 		INSERT INTO reactions (user_id, comment_id, value, timestamp)
 		VALUES (?, ?, 1, ?)
 		`, userId, commentId, utils.GetCurrentTimestamp())
@@ -107,7 +99,7 @@ func AddLikeToComment(userId, commentId int64) error {
 }
 
 func AddDislikeToComment(userId, commentId int64) error {
-	_, err := DB.Exec(`
+	_, err := db.Exec(`
 		INSERT INTO reactions (user_id, comment_id, value, timestamp)
 		VALUES (?, ?, 2, ?)
 		`, userId, commentId, utils.GetCurrentTimestamp())
@@ -115,9 +107,49 @@ func AddDislikeToComment(userId, commentId int64) error {
 }
 
 func RemoveLikeFromComment(userId, commentId int64) error {
-	_, err := DB.Exec(`
+	_, err := db.Exec(`
 		DELETE FROM reactions
 		WHERE user_id = ? AND comment_id = ? AND value = 1
 		`, userId, commentId)
 	return err
+}
+
+func (user *User) LikeComment(commentId int64) error {
+	alreadyLiked, err := HasUserLikedComment(user.Id, commentId)
+	if err != nil {
+		return err
+	}
+	if alreadyLiked {
+		return RemoveLikeFromComment(user.Id, commentId)
+	}
+	existingDislikeId, err := CheckIfUserDislikedComment(user.Id, commentId)
+	if err != nil {
+		return err
+	}
+	if existingDislikeId != 0 {
+		if err = RemoveReaction(existingDislikeId); err != nil {
+			return err
+		}
+	}
+	return AddLikeToComment(user.Id, commentId)
+}
+
+func (user *User) LikePost(postId int64) error {
+	alreadyLiked, err := HasUserLikedPost(user.Id, postId)
+	if err != nil {
+		return err
+	}
+	if alreadyLiked {
+		return RemoveLikeFromPost(user.Id, postId)
+	}
+	existingDislikeId, err := CheckIfUserDislikedPost(user.Id, postId)
+	if err != nil {
+		return err
+	}
+	if existingDislikeId != 0 {
+		if err = RemoveReaction(existingDislikeId); err != nil {
+			return err
+		}
+	}
+	return AddLikeToPost(user.Id, postId)
 }

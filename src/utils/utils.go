@@ -4,9 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"regexp"
 	"runtime"
 	"strconv"
 	"time"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -17,7 +19,6 @@ func LogDebug(v any) {
 func LogInfo(s string) {
 	log.Printf("Info: %s", s)
 }
-
 
 func ConvertStringToTime(timeString string) (time.Time, error) {
 	timestamp, err := strconv.ParseInt(timeString, 10, 64)
@@ -58,4 +59,22 @@ func HashPassword(password string) (string, error) {
 		return "", err
 	}
 	return string(hash), nil
+}
+
+func StringToInt64(str string) (int64, error) {
+	var err error
+	var ok bool
+	var n int64
+	ok, err = regexp.MatchString(`^\d+$`, str)
+	if !ok {
+		return n, fmt.Errorf("Regex mismatch")
+	}
+	if err != nil {
+		return n, err
+	}
+	n, err = strconv.ParseInt(str, 10, 64)
+	if err != nil {
+		return n, err
+	}
+	return n, err
 }

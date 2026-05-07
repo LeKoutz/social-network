@@ -44,7 +44,7 @@ func (p *Post) Add() (int64, error) {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return 0, err
 	}
-	stmt, err := DB.Prepare("INSERT INTO posts (title, body, image_path, user_id, timestamp) VALUES (?, ?, ?, ?, ?)")
+	stmt, err := db.Prepare("INSERT INTO posts (title, body, image_path, user_id, timestamp) VALUES (?, ?, ?, ?, ?)")
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return 0, err
@@ -71,7 +71,7 @@ func (p *Post) Add() (int64, error) {
 }
 
 func (p *Post) AddCategory(category Category) error {
-	stmt, err := DB.Prepare("INSERT INTO posts_categories (post_id, category_id) VALUES (?, ?)")
+	stmt, err := db.Prepare("INSERT INTO posts_categories (post_id, category_id) VALUES (?, ?)")
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return err
@@ -86,7 +86,7 @@ func (p *Post) AddCategory(category Category) error {
 
 func (p *Post) GetById() error {
 	var ts string
-	err := DB.QueryRow(`SELECT title, body, image_path, timestamp, user_id FROM posts WHERE id = ?`, p.Id).Scan(&p.Title, &p.Body, &p.ImagePath, &ts, &p.UserId)
+	err := db.QueryRow(`SELECT title, body, image_path, timestamp, user_id FROM posts WHERE id = ?`, p.Id).Scan(&p.Title, &p.Body, &p.ImagePath, &ts, &p.UserId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			err = ErrorNoRows
@@ -137,7 +137,7 @@ func (p *Post) GetReactionsByUserId(user_id int64) error {
 }
 
 func (p *Post) GetComments() (Comments, error) {
-	rows, err := DB.Query(`
+	rows, err := db.Query(`
 	SELECT
 	c.id,
 	c.post_id,
@@ -187,7 +187,7 @@ func (p *Post) GetComments() (Comments, error) {
 }
 
 func (p *Post) Delete() error {
-	tx, err := DB.Begin()
+	tx, err := db.Begin()
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return err
@@ -237,12 +237,12 @@ func (p *Post) Update() error {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return err
 	}
-	_, err = DB.Exec("UPDATE posts SET title = ?, body = ?, image_path = ? WHERE id = ?", p.Title, p.Body, p.ImagePath, p.Id)
+	_, err = db.Exec("UPDATE posts SET title = ?, body = ?, image_path = ? WHERE id = ?", p.Title, p.Body, p.ImagePath, p.Id)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return err
 	}
-	_, err = DB.Exec("DELETE FROM posts_categories WHERE post_id = ?", p.Id)
+	_, err = db.Exec("DELETE FROM posts_categories WHERE post_id = ?", p.Id)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return err

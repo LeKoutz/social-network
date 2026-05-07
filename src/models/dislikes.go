@@ -5,11 +5,9 @@ import (
 	utils "forum/src/utils"
 )
 
-type Dislikes []Dislike
-
 func getDislikesCountByCommentId(commentId int64) (int64, error) {
 	var dislikes int64
-	err := DB.QueryRow(`
+	err := db.QueryRow(`
         SELECT COUNT(*)
         FROM reactions
         WHERE comment_id = ? AND value = 2
@@ -23,7 +21,7 @@ func getDislikesCountByCommentId(commentId int64) (int64, error) {
 
 func getDislikesCountByPostId(postId int64) (int, error) {
 	var dislikes int
-	err := DB.QueryRow(`
+	err := db.QueryRow(`
         SELECT COUNT(*)
         FROM reactions
         WHERE post_id = ? AND value = 2

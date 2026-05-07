@@ -6,12 +6,10 @@ import (
 	"forum/src/views"
 	"forum/src/utils"
 	"net/http"
-	"regexp"
-	"strconv"
 	"strings"
 )
 
-func parsePostID(data models.ResponseStruct) (int64, error) {
+func parsePostId(data models.ResponseStruct) (int64, error) {
 	postIdStr := data.Request.FormValue("post-id")
 	if len(postIdStr) == 0 {
 		postIdStr = strings.TrimPrefix(data.Request.RequestURI, "/post/edit/")
@@ -19,16 +17,9 @@ func parsePostID(data models.ResponseStruct) (int64, error) {
 	if len(postIdStr) == 0 {
 		return 0, models.ErrorPostEmptyId
 	}
-	ok, err := regexp.MatchString(`^\d+$`, postIdStr)
+	postId, err := utils.StringToInt64(postIdStr)
 	if err != nil {
-		return 0, err
-	}
-	if !ok {
 		return 0, models.ErrorInvalidPostId
-	}
-	postId, err := strconv.ParseInt(postIdStr, 10, 64)
-	if err != nil {
-		return 0, err
 	}
 	return postId, nil
 }
@@ -95,21 +86,15 @@ func getPostDataById(data *models.ResponseStruct) error {
 
 func validateViewPostByIdRequest(data models.ResponseStruct) (models.Post, error) {
 	var post models.Post
-	var id_int int64
 	var err error
 	id, ok := strings.CutPrefix(data.Request.RequestURI, "/post/view/")
 	if !ok || len(id) == 0 {
 		return post, models.ErrorPostEmptyId
 	}
-	ok, err = regexp.MatchString(`^\d+$`, id)
-	if !ok {
-		return post, models.ErrorInvalidPostId
-	}
-	id_int, err = strconv.ParseInt(id, 10, 64)
+	post.Id, err = utils.StringToInt64(id)
 	if err != nil {
 		return post, models.ErrorInvalidPostId
 	}
-	post.Id = id_int
 	return post, nil
 }
 
@@ -127,18 +112,8 @@ func showPost(data models.ResponseStruct) {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	// Update notifications to read for this post
-	for i, notification := range data.User.Notifications {
-		if notification.PostId == post.Id && !notification.Read {
-			err = data.User.MarkNotificationAsRead(notification.Id)
-			if err != nil {
-				(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-				return
-			}
-			data.User.Notifications[i].Read = true
-		}
-	}
-	views.PostView(data)
+	data.User.MarkAsReadPost(post)
+	views.PostView(&data)
 }
 
 func showPosts(data models.ResponseStruct) {
@@ -161,39 +136,20 @@ func showPosts(data models.ResponseStruct) {
 		}
 	}
 	data.SetPosts(posts)
-	views.PostsView(data)
+	views.PostsView(&data)
 }
 
 func createPost(data models.ResponseStruct) {
-	if data.Request.Method == http.MethodGet {
-		categories, err := models.GetAllCategories()
-		if err != nil {
-			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-			return
-		}
-		data.SetCategories(categories)
-		views.PostCreate(data)
-		return
-	}
-	if data.Request.Method != http.MethodPost {
-		data.SetErrorConsume(models.ErrorMethodNotAllowed)
-		return
-	}
-	if !data.User.LoggedIn {
-		data.Error.Consume(models.ErrorPostPermissionDenied)
-		views.UserLogin(data)
-		return
-	}
 	post, err := parseCreatePostRequest(data)
 	if err != nil {
 		data.Error.Consume(err)
-		views.PostCreate(data)
+		views.PostCreate(&data)
 		return
 	}
 	postId, err := post.Add()
 	if err != nil {
 		data.Error.Consume(err)
-		views.PostCreate(data)
+		views.PostCreate(&data)
 		return
 	}
 	redirectURL := fmt.Sprintf("/post/view/%d", postId)
@@ -233,13 +189,6 @@ func parseCreatePostRequest(data models.ResponseStruct) (models.Post, error) {
 }
 
 func handlePostCreate(data models.ResponseStruct) {
-	if data.Request.Method != http.MethodPost && data.Request.Method != http.MethodGet {
-		data.SetErrorConsume(models.ErrorMethodNotAllowed)
-	}
-	if !data.User.LoggedIn {
-		(&models.Error{}).Consume(models.ErrorPostPermissionDenied).LogAndRespondError(data.Response, data.User)
-		return
-	}
 	switch {
 	case strings.Compare(data.Request.RequestURI, "/post/create") == 0:
 		switch data.Request.Method {
@@ -250,7 +199,7 @@ func handlePostCreate(data models.ResponseStruct) {
 				return
 			}
 			data.SetCategories(categories)
-			views.PostCreate(data)
+			views.PostCreate(&data)
 			return
 		case http.MethodPost:
 			err := data.Request.ParseMultipartForm(models.MaxImageSize)
@@ -266,88 +215,53 @@ func handlePostCreate(data models.ResponseStruct) {
 }
 
 func handlePostReaction(data models.ResponseStruct) {
-	if !data.User.LoggedIn {
-		(&models.Error{}).Consume(models.ErrorPostPermissionDenied).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	postIdStr := data.Request.FormValue("post-id")
-	if len(postIdStr) == 0 {
-		(&models.Error{}).Consume(models.ErrorPostEmptyId).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	ok, err := regexp.MatchString(`^\d+$`, postIdStr)
-	if !ok {
-		(&models.Error{}).Consume(models.ErrorInvalidPostId).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	postId, err := strconv.ParseInt(postIdStr, 10, 64)
+	var post models.Post
+	var err error
+	post.Id, err = parsePostId(data)
 	if err != nil {
+		err = models.ErrorInvalidPostId
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	post := models.Post{Id: postId}
 	err = post.GetById()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	notification := models.Notification{
-		UserId:  post.User.Id,
-		ActorId: data.User.Id,
-		PostId: post.Id,
-	}
 	if data.Request.FormValue("action") == "like" {
-		err = DoLikePost(data.User.Id, postId)
+		err = data.User.LikePost(post.Id)
 		if err != nil {
 			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
 		}
-		if data.User.Id != post.User.Id {
-			notification.Type = "like"
-			notification.TimestampString = utils.GetCurrentTimestamp()
-			err = notification.Add()
+		err = post.CreateReactionNotification(data.User.Id, "like")
+		if err != nil {
+		(&models.Error{}).Consume(err).LogError()
 		}
 	}
 	if data.Request.FormValue("action") == "dislike" {
-		err = DoDislikePost(data.User.Id, postId)
+		err = data.User.DislikePost(post.Id)
 		if err != nil {
 			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
 		}
-		if data.User.Id != post.User.Id {
-			notification.Type = "dislike"
-			notification.TimestampString = utils.GetCurrentTimestamp()
-			err = notification.Add()
-		}
+		err = post.CreateReactionNotification(data.User.Id, "dislike")
+		if err != nil {
+		(&models.Error{}).Consume(err).LogError()
+		}		
 	}
-	http.Redirect(data.Response, data.Request, "/post/view/"+postIdStr, http.StatusSeeOther)
+	redirectURL := fmt.Sprintf("/post/view/%d", post.Id)
+	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
 }
 
 func handlePostDelete(data models.ResponseStruct) {
-	if !data.User.LoggedIn {
-		(&models.Error{}).Consume(models.ErrorPostPermissionDenied).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	if data.Request.Method != http.MethodPost {
-		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	postIdStr := data.Request.FormValue("post-id")
-	if len(postIdStr) == 0 {
-		(&models.Error{}).Consume(models.ErrorPostEmptyId).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	ok, err := regexp.MatchString(`^\d+$`, postIdStr)
-	if !ok {
+	var err error
+	var post models.Post
+	post.Id, err = parsePostId(data)
+	if err != nil {
 		(&models.Error{}).Consume(models.ErrorInvalidPostId).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	postId, err := strconv.ParseInt(postIdStr, 10, 64)
-	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	post := models.Post{Id: postId}
 	err = post.GetById()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
@@ -366,18 +280,13 @@ func handlePostDelete(data models.ResponseStruct) {
 }
 
 func handlePostEdit(data models.ResponseStruct){
-	if !data.User.LoggedIn {
-		(&models.Error{}).Consume(models.ErrorPostPermissionDenied).LogAndRespondError(data.Response, data.User)
-		return
-	}
 	var err error
 	var post models.Post
-	postId, err := parsePostID(data)
+	post.Id, err = parsePostId(data)
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	post = models.Post{Id: postId}
 	err = post.GetById()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
@@ -401,7 +310,7 @@ func handlePostEdit(data models.ResponseStruct){
 			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
 		}
-		views.PostCreate(data)
+		views.PostCreate(&data)
 	case http.MethodPost:
 		err = updatePost(&data)
 		if err != nil {

@@ -12,7 +12,7 @@ type Reaction struct {
 }
 
 func RemoveReaction(reactionId int64) error {
-	_, err := DB.Exec(`
+	_, err := db.Exec(`
 		DELETE FROM reactions
 		WHERE id = ?
 		`, reactionId)

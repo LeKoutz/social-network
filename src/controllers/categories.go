@@ -2,11 +2,22 @@ package controllers
 
 import (
 	"forum/src/models"
+	"forum/src/utils"
 	"forum/src/views"
-	"regexp"
-	"strconv"
 	"strings"
 )
+
+func parseCategoryId(data models.ResponseStruct) (int64, error) {
+	id, ok := strings.CutPrefix(data.Request.RequestURI, "/category/view/")
+	if !ok || len(id) == 0 {
+		return 0, models.ErrorCategoryEmptyId
+	}
+	categoryId, err := utils.StringToInt64(id)
+	if err != nil {
+		return 0, models.ErrorInvalidCategoryId
+	}
+	return categoryId, nil
+}
 
 func showCategories(data models.ResponseStruct) {
 	categories, err := models.GetAllCategories()
@@ -15,33 +26,24 @@ func showCategories(data models.ResponseStruct) {
 		return
 	}
 	data.SetCategories(categories)
-	views.Categories(data)
+	views.Categories(&data)
 }
 
 func showCategory(data models.ResponseStruct) {
-	id, ok := strings.CutPrefix(data.Request.RequestURI, "/category/view/")
-	if !ok || len(id) == 0 {
-		(&models.Error{}).Consume(models.ErrorCategoryEmptyId).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	ok, err := regexp.MatchString(`^\d+$`, id)
-	if !ok {
-		(&models.Error{}).Consume(models.ErrorInvalidCategoryId).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	id_int, err := strconv.ParseInt(id, 10, 64)
+	var category models.Category
+	var err error
+	category.Id, err = parseCategoryId(data)
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	category, err := models.GetCategoryById(id_int)
+	err = category.GetCategoryById()
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	data.Categories = models.Categories{}
-	data.Categories = append(data.Categories, category)
-	posts, err := models.GetPostsByCategoryId(id_int)
+	data.Categories = models.Categories{category}
+	posts, err := models.GetPostsByCategoryId(category.Id)
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
@@ -60,5 +62,5 @@ func showCategory(data models.ResponseStruct) {
 	}
 	data.Posts = posts
 	data.SetPosts(posts)
-	views.Category(data)
+	views.Category(&data)
 }

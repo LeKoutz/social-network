@@ -1,9 +1,9 @@
 #!/bin/sh
 
-cat > ./src/models/version.go << EOF
-package models
+cat > ./src/utils/version.go << EOF
+package utils
 
-func getVersion() string {
+func GetVersion() string {
     return "$(git describe --tags HEAD)"
 }
 

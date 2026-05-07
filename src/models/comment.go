@@ -34,7 +34,7 @@ func (c *Comment) Add() (int64, error) {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return 0, err
 	}
-	res, err := DB.Exec(
+	res, err := db.Exec(
 		"INSERT INTO comments (post_id, user_id, body, timestamp) VALUES (?, ?, ?, ?)",
 		c.PostId,
 		c.UserId,
@@ -77,7 +77,7 @@ func (c *Comment) GetReactionsByUserId(user_id int64) error {
 
 func (c *Comment) GetCommentById() error {
 	var ts string
-	err := DB.QueryRow(
+	err := db.QueryRow(
 		`SELECT id, post_id, user_id, body, timestamp
 		FROM comments
 		WHERE id = ?`, c.Id).Scan(&c.Id, &c.PostId, &c.UserId, &c.Body, &ts)
@@ -95,7 +95,7 @@ func (c *Comment) GetCommentById() error {
 }
 
 func (c *Comment) Delete() error {
-	tx, err := DB.Begin()
+	tx, err := db.Begin()
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return err
@@ -126,7 +126,7 @@ func (c *Comment) Update() error {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return err
 	}
-	_, err := DB.Exec("UPDATE comments SET body = ? WHERE id = ?", c.Body, c.Id)
+	_, err := db.Exec("UPDATE comments SET body = ? WHERE id = ?", c.Body, c.Id)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return err

@@ -8,7 +8,7 @@ import (
 type Categories []Category
 
 func GetAllCategories() (Categories, error) {
-	rows, err := DB.Query(`SELECT id, name, description FROM categories`)
+	rows, err := db.Query(`SELECT id, name, description FROM categories`)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return []Category{}, err
@@ -39,7 +39,7 @@ func (c *Categories) IsEmpty() bool {
 
 func GetCategoriesByPostId(post_id int64) (Categories, error) {
 	var categories Categories
-	rows, err := DB.Query(`
+	rows, err := db.Query(`
 	SELECT c.id, c.name, c.description
 	FROM categories c
 	JOIN posts_categories pc ON c.id = pc.category_id
@@ -70,7 +70,7 @@ func AddCategory(category Category) error {
 	if (&category).DoesCategoryExist() {
 		return ErrorCategoryAlreadyExists
 	}
-	stmt, err := DB.Prepare("INSERT INTO categories (name, description) VALUES (?, ?)")
+	stmt, err := db.Prepare("INSERT INTO categories (name, description) VALUES (?, ?)")
 	if err != nil {
 		return err
 	}

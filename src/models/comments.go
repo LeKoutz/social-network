@@ -9,7 +9,7 @@ type Comments []Comment
 
 func GetCommentsByUserId(id int64) (Comments, error) {
 	var comments Comments
-	rows, err := DB.Query(`
+	rows, err := db.Query(`
 	SELECT id, post_id, body, timestamp, user_id
 	FROM comments
 	WHERE user_id = ?`, id)

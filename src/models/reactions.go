@@ -9,7 +9,7 @@ type Reactions []Reaction
 
 func GetPostLikesByUserId(id int64) (Reactions, error) {
 	var reactions Reactions
-	rows, err := DB.Query(`
+	rows, err := db.Query(`
 	SELECT id, post_id, user_id, timestamp
 	FROM reactions
 	WHERE user_id = ? AND value=1 AND post_id IS NOT NULL
@@ -40,7 +40,7 @@ func GetPostLikesByUserId(id int64) (Reactions, error) {
 
 func GetPostDislikesByUserId(id int64) (Reactions, error) {
 	var reactions Reactions
-	rows, err := DB.Query(`
+	rows, err := db.Query(`
 	SELECT id, post_id, user_id, timestamp
 	FROM reactions
 	WHERE user_id = ? AND value=2 AND post_id IS NOT NULL
@@ -71,7 +71,7 @@ func GetPostDislikesByUserId(id int64) (Reactions, error) {
 
 func GetCommentLikesByUserId(id int64) (Reactions, error) {
 	var reactions Reactions
-	rows, err := DB.Query(`
+	rows, err := db.Query(`
 	SELECT id, comment_id, user_id, timestamp
 	FROM reactions
 	WHERE user_id = ? AND value=1 AND comment_id IS NOT NULL
@@ -102,7 +102,7 @@ func GetCommentLikesByUserId(id int64) (Reactions, error) {
 
 func GetCommentDisikesByUserId(id int64) (Reactions, error) {
 	var reactions Reactions
-	rows, err := DB.Query(`
+	rows, err := db.Query(`
 	SELECT id, comment_id, user_id, timestamp
 	FROM reactions
 	WHERE user_id = ? AND value=2 AND comment_id IS NOT NULL

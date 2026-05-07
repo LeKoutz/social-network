@@ -1,8 +1,15 @@
 package models
 
 import (
+	"forum/src/utils"
 	"html/template"
 	"net/http"
+	"sort"
+)
+
+var (
+	templatesDir = "templates"
+	tmpl         *template.Template
 )
 
 type ResponseStruct struct {
@@ -34,7 +41,7 @@ func (r ResponseStruct) WriteResponse() {
 
 func (r *ResponseStruct) Init() *ResponseStruct {
 	r.WebsiteName = "Forum"
-	r.Version = getVersion()
+	r.Version = utils.GetVersion()
 	return r
 }
 
@@ -43,9 +50,9 @@ func (r *ResponseStruct) SetWebsiteName(websiteName string) *ResponseStruct {
 	return r
 }
 
-func (r ResponseStruct) SetView(viewname string) *ResponseStruct {
+func (r *ResponseStruct) SetView(viewname string) *ResponseStruct {
 	r.View = viewname
-	return &r
+	return r
 }
 
 func (r *ResponseStruct) SetUser(user User) *ResponseStruct {
@@ -55,6 +62,9 @@ func (r *ResponseStruct) SetUser(user User) *ResponseStruct {
 
 func (r *ResponseStruct) SetPosts(posts Posts) *ResponseStruct {
 	r.Posts = posts
+	sort.Slice(r.Posts, func(i, j int) bool {
+		return r.Posts[i].TimestampString > r.Posts[j].TimestampString
+	})
 	return r
 }
 
@@ -87,15 +97,14 @@ func (r *ResponseStruct) GetResponse(res http.ResponseWriter) http.ResponseWrite
 	return r.Response
 }
 
+func InitTemplates() error {
+	var err error
+	tmpl, err = template.ParseGlob(templatesDir + "/*.html")
+	return err
+}
+
 func respondView(data ResponseStruct) {
-	var templatesDir string = "templates"
-	var tmpl *template.Template
-	tmpl, err := template.ParseGlob(templatesDir + "/*.html")
-	if err != nil {
-		(&Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	err = tmpl.ExecuteTemplate(data.Response, data.View, data)
+	err := tmpl.ExecuteTemplate(data.Response, data.View, data)
 	if err != nil {
 		(&Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
