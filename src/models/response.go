@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"forum/src/utils"
 	"html/template"
 	"net/http"
@@ -21,8 +22,8 @@ type ResponseStruct struct {
 	EditPost      bool
 	EditCommentId int64
 	Error       Error
-	Request     *http.Request
-	Response    http.ResponseWriter
+	Request     *http.Request `json:"-"`
+	Response    http.ResponseWriter `json:"-"`
 	Message     Message
 	Version     string
 }
@@ -104,7 +105,12 @@ func InitTemplates() error {
 }
 
 func respondView(data ResponseStruct) {
-	err := tmpl.ExecuteTemplate(data.Response, data.View, data)
+	bs, err := json.Marshal(data)
+	if err != nil {
+		(&Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+	}
+	data.Response.Header().Add("Content-Type", "application/json")
+	_, err = data.Response.Write(bs)
 	if err != nil {
 		(&Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
