@@ -1,4 +1,5 @@
-{{define "topbar"}}
+function TopBar() {
+    return `
 <div class="topbar">
     <div class="title">
         <a href="/"><h1>{{.WebsiteName}}</h1></a>
@@ -32,5 +33,5 @@
 
     </div>
 </div>
-{{end}}
-
+`
+}
