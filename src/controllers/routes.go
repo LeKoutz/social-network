@@ -54,6 +54,7 @@ var routes = Routes{
 	Route{Method: "GET", Path: "/api/user/activity", Function: showUserActivity, NeedsLogin: true},
 
 	Route{Method: "GET", Path: "/uploads/", Prefix: true, Function: handleImages},
+	Route{Method: "GET", Path: "/", Prefix: true, Function: serveSPA},
 }
 
 func matchRoute(data models.ResponseStruct) (*Route, error) {
