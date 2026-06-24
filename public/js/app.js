@@ -1,0 +1,35 @@
+function mainViewLayout() {
+return `
+        <!-- {{template "topbar" .}} -->
+        <!--
+            {{if .Error.Has}}
+            {{template "error" .}}
+            {{end}}
+        -->
+        <div class="container">
+            <div class="welcome">
+                <!--
+                    TODO: This should be derived from the API call
+                    <h2>Welcome{{if .User.LoggedIn}}, {{.User.Username}}{{end}}!</h2>
+                -->
+                <p>Below, you will see the post categories available as well as a brief
+                description when applicable. Click any of them to navigate to its list
+                of posts.</p>
+                <!--
+                    TODO: Also derived from the API call...
+                    {{if not .User.LoggedIn}}
+                    <p>If you want to upload posts or comment to other ones or just react
+                    (like or dislike) comments or posts, you have to <a href="/user/login">login</a>.</p>
+                    <p>In case you don't have an account, you can create one by clicking
+                    <a href="/user/register">here</a>  or via menu at the top of the page.</p>
+                    {{end}}
+                -->
+            </div>
+            <!-- {{template "categories" .}} -->
+        </div>
+        <div class="footer">
+            <p>Version: <!-- {{.Version}} --></p>
+        </div>`
+}
+
+document.querySelector('body').innerHTML = mainViewLayout();
