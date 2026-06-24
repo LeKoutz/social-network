@@ -1,12 +1,5 @@
-{{define "user_login_view"}}
-{{template "header"}}
-{{template "topbar" .}}
-{{if .Error.Has}}
-{{template "error" .}}
-{{end}}
-{{if .Message.Has}}
-{{template "message" .}}
-{{end}}
+export function showUserLogin() {
+    return `
 <div class="container">
     <div class="box">
         <form method="POST" action="/user/login">
@@ -41,5 +34,5 @@
         <p>You don't have an account? <a href="/user/register">Register!</a></p>
     </div>
 </div>
-{{template "ending"}}
-{{end}}
+`
+}
