@@ -10,10 +10,7 @@ function mainViewLayout(data) {
         -->
         <div class="container">
             <div class="welcome">
-                <!--
-                    TODO: This should be derived from the API call
-                    <h2>Welcome{{if .User.LoggedIn}}, {{.User.Username}}{{end}}!</h2>
-                -->
+                <h2>Welcome${(data.User.LoggedIn)? data.User.Username:''}!</h2>
                 <p>Below, you will see the post categories available as well as a brief
                 description when applicable. Click any of them to navigate to its list
                 of posts.</p>
