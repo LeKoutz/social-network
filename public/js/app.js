@@ -1,13 +1,10 @@
 import { TopBar } from './topbar.js';
+import { ShowError } from './error.js';
 
 function mainViewLayout(data) {
     return `
         ${TopBar(data)}
-        <!--
-            {{if .Error.Has}}
-            {{template "error" .}}
-            {{end}}
-        -->
+        ${(data.Error.Has) ? ShowError(data) : ''}
         <div class="container">
             <div class="welcome">
                 <h2>Welcome${(data.User.LoggedIn)? data.User.Username:''}!</h2>
