@@ -6,9 +6,9 @@ export function TopBar(data) {
     </div>
     <div class="menu">
         <ul>
-            {{if .User.LoggedIn }}
+            ${data.User.LoggedIn ? `
             <li>
-                <a href="/user">{{.User.Username}}</a>
+                <a href="/user">${data.User.Username}</a>
             </li>
             <li>
                 <ul>
@@ -17,20 +17,17 @@ export function TopBar(data) {
                     <li><a href="/user/posts">My posts</a></li>
                     <li><a href="/user/likes">My likes</a></li>
                     <li><details>
-                        <summary>Notifications 🔔 {{if .User.UnreadNotificationsCount}}({{.User.UnreadNotificationsCount}}){{end}}</summary>
-                        {{if .User.Notifications}}
-                        {{template "notifications" .User}}
-                        {{end}}
+                        <summary>Notifications 🔔 ${data.User.UnreadNotificationsCount > 0 ? `(${data.user.unreadNotificationsCount})` : ''}</summary>
+                        ${data.User.Notifications.length > 0 ? NotificationsList(data.User.Notifications) : ''}
                     </details></li>
                     <li><a href="/user/logout">Log out</a></li>
                 </ul>
             </li>
-            {{else}}
+            ` : `
             <li><a href="/user/login">Log in</a></li>
             <li><a href="/user/register">Register</a></li>
-            {{end}}
+            `}
         </ul>
-
     </div>
 </div>
 `
