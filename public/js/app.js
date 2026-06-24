@@ -1,6 +1,8 @@
+import { TopBar } from './topbar.js';
+
 function mainViewLayout() {
 return `
-        <!-- {{template "topbar" .}} -->
+        ${TopBar()}
         <!--
             {{if .Error.Has}}
             {{template "error" .}}

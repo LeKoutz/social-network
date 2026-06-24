@@ -1,4 +1,4 @@
-function TopBar() {
+export function TopBar() {
     return `
 <div class="topbar">
     <div class="title">
