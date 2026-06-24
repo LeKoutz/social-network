@@ -1,5 +1,3 @@
-{{define "styling"}}
-<style>
 * {
     font-family: system-ui;
 }
@@ -209,5 +207,3 @@ input[type=submit]:hover, button:hover {
     display: flex;
     flex-direction: row;
 }
-</style>
-{{end}}
