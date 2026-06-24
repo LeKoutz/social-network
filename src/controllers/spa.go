@@ -17,7 +17,7 @@ func serveSPA(data models.ResponseStruct) {
 	// 	return
 	// }
 	fileURL := data.Request.URL.Path
-	_, err := os.Stat("./public/" + fileURL)
+	stat, err := os.Stat("./public/" + fileURL)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			(&models.Error{}).Consume(models.ErrorNotFound).LogAndRespondError(data.Response, data.User)
@@ -27,6 +27,8 @@ func serveSPA(data models.ResponseStruct) {
 			return
 		}
 	}
+	if stat.IsDir() {
+		(&models.Error{}).Consume(models.ErrorPermissionDenied).LogAndRespondError(data.Response, data.User)
+	}
 	http.ServeFile(data.Response, data.Request, "./public/"+fileURL)
 }
-

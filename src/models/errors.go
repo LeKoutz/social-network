@@ -28,6 +28,7 @@ var (
 	ErrorPostBodyEmpty           = errors.New("Post body can't be empty.")
 	ErrorPostTitleEmpty          = errors.New("Post title can't be empty.")
 	ErrorPostHasNoCategory       = errors.New("Post category can't be empty.")
+	ErrorPermissionDenied        = errors.New("Permission denied.")
 	ErrorPostPermissionDenied    = errors.New("You must be logged in to create a post.")
 	ErrorUserPermissionDenied    = errors.New("You must be logged in.")
 	ErrorCommentEmpty            = errors.New("Comment can't be empty.")
@@ -48,9 +49,9 @@ var (
 	ErrorFailedToGetCaller       = errors.New("Failed to get caller information")
 	ErrorNoRows                  = errors.New("No rows")
 	ErrorEmailNotFoundForOAuth   = errors.New("Could not associate email with given OAuth provider. Try to login with a password or another provider.")
-	ErrorAccessToken			 = errors.New("Failed to retrieve access token")
-	ErrorCookieNotFound			 = errors.New("State cookie not found")
-	ErrorInvalidOAuthState		 = errors.New("Invalid OAuth state")
+	ErrorAccessToken             = errors.New("Failed to retrieve access token")
+	ErrorCookieNotFound          = errors.New("State cookie not found")
+	ErrorInvalidOAuthState       = errors.New("Invalid OAuth state")
 	ErrorContentNotFound         = errors.New("Content not found. It doesn't exist or it may have been deleted")
 )
 
@@ -80,7 +81,8 @@ func (e *Error) Consume(err error) *Error {
 		ErrorUnauthorizedAction,
 		ErrorUserPermissionDenied,
 		ErrorCommentPermissionDenied,
-		ErrorPostPermissionDenied:
+		ErrorPostPermissionDenied,
+		ErrorPermissionDenied:
 		e.StatusCode = http.StatusForbidden
 	case ErrorMethodNotAllowed:
 		e.StatusCode = http.StatusMethodNotAllowed
