@@ -8,7 +8,7 @@ import (
 )
 
 func parseCategoryId(data models.ResponseStruct) (int64, error) {
-	id, ok := strings.CutPrefix(data.Request.RequestURI, "/category/view/")
+	id, ok := strings.CutPrefix(data.Request.RequestURI, "/api/category/view/")
 	if !ok || len(id) == 0 {
 		return 0, models.ErrorCategoryEmptyId
 	}
