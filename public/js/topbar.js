@@ -1,8 +1,8 @@
-export function TopBar() {
+export function TopBar(data) {
     return `
 <div class="topbar">
     <div class="title">
-        <a href="/"><h1>{{.WebsiteName}}</h1></a>
+        <a href="/"><h1>${data.WebsiteName}</h1></a>
     </div>
     <div class="menu">
         <ul>

@@ -1,8 +1,8 @@
 import { TopBar } from './topbar.js';
 
-function mainViewLayout() {
+function mainViewLayout(data) {
 return `
-        ${TopBar()}
+        ${TopBar(data)}
         <!--
             {{if .Error.Has}}
             {{template "error" .}}
@@ -34,4 +34,6 @@ return `
         </div>`
 }
 
-document.querySelector('body').innerHTML = mainViewLayout();
+const response = await fetch('/api/')
+const data = await response.json()
+document.querySelector('body').innerHTML = mainViewLayout(data);
