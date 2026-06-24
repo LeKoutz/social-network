@@ -17,6 +17,9 @@ func serveSPA(data models.ResponseStruct) {
 	// 	return
 	// }
 	fileURL := data.Request.URL.Path
+	if fileURL == "" || fileURL == "/" {
+		fileURL = "/index.html"
+	}
 	stat, err := os.Stat("./public/" + fileURL)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
