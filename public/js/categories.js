@@ -10,7 +10,7 @@ export function Categories(data) {
 function createCategories(categories) {
     return categories.map(category => `
         <div class="category" id="${category.Id}">
-            <h2>${category.Name}</h2>
+             <a href="#/category/view/${category.Id}"><h2>${category.Name}</h2></a>
             <p>${category.Description}</p>
         </div>
     `).join('')
