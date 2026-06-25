@@ -2,7 +2,7 @@ import { TopBar } from './topbar.js';
 import { showUserLogin } from './forms/user_login.js';
 import { showUserRegister } from './forms/user_register.js'
 import { ShowError } from './error.js';
-import { Categories } from './categories.js';
+import { Categories, showCategoryView } from './categories.js';
 
 function mainViewLayout(data) {
     return `
@@ -33,14 +33,19 @@ const body = document.querySelector('body');
 body.innerHTML = mainViewLayout(data);
 const container = document.querySelector('.container');
 
-function routeSelect() {
-    switch (window.location.hash) {
+async function routeSelect() {
+    const hash = window.location.hash
+    const id = parseInt(hash.split('/').at(-1)) || ''
+    switch (hash) {
         case '#/user/login':
             container.innerHTML = showUserLogin();
             break;
         case '#/user/register':
             container.innerHTML = showUserRegister();
             break;
+        case `#/category/view/${id}`:
+            container.innerHTML = await showCategoryView(id);
+            break
         case '#/' || '' || '#':
             body.innerHTML = mainViewLayout(data);
             break;
