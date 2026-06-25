@@ -25,7 +25,7 @@ export function TopBar(data) {
             </li>
             ` : `
             <li><a href="#/user/login">Log in</a></li>
-            <li><a href="/user/register">Register</a></li>
+            <li><a href="#/user/register">Register</a></li>
             `}
         </ul>
     </div>

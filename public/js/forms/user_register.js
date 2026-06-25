@@ -1,10 +1,5 @@
-{{define "user_register_view"}}
-{{template "header"}}
-{{template "topbar" .}}
-{{if .Error.Has}}
-{{template "error" .}}
-{{end}}
-<div class="container">
+export function showUserRegister() {
+    return `<div class="container">
     <div class="box">
         <form method="POST" action="/user/register">
             <fieldset>
@@ -43,9 +38,8 @@
             <a href="/auth/google">Continue with Google</a>
             <a href="/auth/github">Continue with GitHub</a>
         </div>
-        <p>Already have an account? <a href="/user/login">Login!</a></p>
+        <p>Already have an account? <a href="#/user/login">Login!</a></p>
     </div>
 </div>
-{{template "ending"}}
-{{end}}
-
+`
+}

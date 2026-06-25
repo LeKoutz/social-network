@@ -1,5 +1,6 @@
 import { TopBar } from './topbar.js';
 import { showUserLogin } from './forms/user_login.js';
+import { showUserRegister } from './forms/user_register.js'
 import { ShowError } from './error.js';
 import { Categories } from './categories.js';
 
@@ -36,6 +37,9 @@ function routeSelect() {
     switch (window.location.hash) {
         case '#/user/login':
             container.innerHTML = showUserLogin();
+            break;
+        case '#/user/register':
+            container.innerHTML = showUserRegister();
             break;
         case '#/' || '' || '#':
             body.innerHTML = mainViewLayout(data);
