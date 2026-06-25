@@ -1,4 +1,5 @@
 import { TopBar } from './topbar.js';
+import { showUserLogin } from './forms/user_login.js';
 import { ShowError } from './error.js';
 import { Categories } from './categories.js';
 
@@ -27,4 +28,23 @@ function mainViewLayout(data) {
 
 const response = await fetch('/api/')
 const data = await response.json()
-document.querySelector('body').innerHTML = mainViewLayout(data);
+const body = document.querySelector('body');
+body.innerHTML = mainViewLayout(data);
+const container = document.querySelector('.container');
+
+function routeSelect() {
+    switch (window.location.hash) {
+        case '#/user/login':
+            container.innerHTML = showUserLogin();
+            break;
+        case '#/' || '' || '#':
+            body.innerHTML = mainViewLayout(data);
+            break;
+    }
+}
+
+routeSelect();
+
+window.addEventListener('hashchange', () => {
+    routeSelect()
+});
