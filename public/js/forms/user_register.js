@@ -1,7 +1,7 @@
 export function showUserRegister() {
     return `<div class="container">
     <div class="box">
-        <form method="POST" action="/user/register">
+        <form method="POST" action="/api/user/register">
             <fieldset>
                 <legend>User Registration</legend>
                 <input

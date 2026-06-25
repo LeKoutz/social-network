@@ -16,9 +16,9 @@ function mainViewLayout(data) {
                 of posts.</p>
                     ${(!data.User.LoggedIn)?
                             `<p>If you want to upload posts or comment to other ones or just react
-                    (like or dislike) comments or posts, you have to <a href="/user/login">login</a>.</p>
+                    (like or dislike) comments or posts, you have to <a href="#/user/login">login</a>.</p>
                     <p>In case you don't have an account, you can create one by clicking
-                    <a href="/user/register">here</a>  or via menu at the top of the page.</p>`:''}
+                    <a href="#/user/register">here</a>  or via menu at the top of the page.</p>`:''}
             </div>
             ${Categories(data)}
         </div>
