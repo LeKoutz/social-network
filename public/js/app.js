@@ -1,5 +1,6 @@
 import { TopBar } from './topbar.js';
 import { ShowError } from './error.js';
+import { Categories } from './categories.js';
 
 function mainViewLayout(data) {
     return `
@@ -17,7 +18,7 @@ function mainViewLayout(data) {
                     <p>In case you don't have an account, you can create one by clicking
                     <a href="/user/register">here</a>  or via menu at the top of the page.</p>`:''}
             </div>
-            <!-- {{template "categories" .}} -->
+            ${Categories(data)}
         </div>
         <div class="footer">
             <p>Version: ${data.Version}</p>
