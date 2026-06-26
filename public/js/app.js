@@ -1,6 +1,6 @@
 import { TopBar } from './topbar.js';
 import { showUserLogin } from './forms/user_login.js';
-import { showUserRegister } from './forms/user_register.js'
+import { showUserRegister, attachRegisterListener } from './forms/user_register.js'
 import { ShowError } from './error.js';
 import { Categories, showCategoryView } from './categories.js';
 import { ShowMessage } from './message.js'
@@ -44,6 +44,7 @@ async function routeSelect() {
             break;
         case '#/user/register':
             container.innerHTML = showUserRegister();
+            attachRegisterListener(data, container);
             break;
         case `#/category/view/${id}`:
             container.innerHTML = await showCategoryView(id);

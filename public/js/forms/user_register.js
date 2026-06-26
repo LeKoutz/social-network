@@ -1,7 +1,10 @@
+import { ShowMessage } from '../message.js'
+import { ShowError } from '../error.js'
+
 export function showUserRegister() {
     return `<div class="container">
     <div class="box">
-        <form method="POST" action="/api/user/register">
+        <form id="register" method="POST" action="/api/user/register">
             <fieldset>
                 <legend>User Registration</legend>
                 <input
@@ -42,4 +45,19 @@ export function showUserRegister() {
     </div>
 </div>
 `
+}
+
+export function attachRegisterListener(data, container) {
+        const form = document.querySelector('#register')
+        if (form) {
+                form.addEventListener('submit', async (e) => {
+                        e.preventDefault()
+                        const response = await fetch('/api/user/register', {
+                                method: 'POST',
+                                body: new URLSearchParams(new FormData(e.target))
+                        })
+                        const data = await response.json()
+                        container.innerHTML = data.Error.Has ? ShowError(data) : ShowMessage(data);
+                })
+        }
 }
