@@ -3,11 +3,13 @@ import { showUserLogin } from './forms/user_login.js';
 import { showUserRegister } from './forms/user_register.js'
 import { ShowError } from './error.js';
 import { Categories, showCategoryView } from './categories.js';
+import { ShowMessage } from './message.js'
 
 function mainViewLayout(data) {
     return `
         ${TopBar(data)}
         ${(data.Error.Has) ? ShowError(data) : ''}
+        ${(data.Message.Has) ? ShowMessage(data) : ''}
         <div class="container">
             <div class="welcome">
                 <h2>Welcome ${(data.User.LoggedIn)? data.User.Username:''}!</h2>
