@@ -7,7 +7,7 @@ import { Categories, showCategoryView } from './categories.js';
 import { ShowMessage } from './message.js'
 import { userLogout } from './logout.js';
 import { showPostView, displayPost } from './posts.js';
-import { attachCommentCreateListener } from './comments.js'
+import { attachCommentCreateListener } from './forms/comment_create.js'
 
 function mainViewLayout(data) {
     return `

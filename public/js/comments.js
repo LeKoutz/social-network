@@ -1,6 +1,3 @@
-import { showPostView } from "./posts.js"
-import { ShowError } from './error.js';
-
 export function showPostComments(data) {
     const post = data.Posts[0]
     return post.Comments.map(comment => `
@@ -56,39 +53,4 @@ export function showPostComments(data) {
             </div>
         </div>
     `).join('')
-}
-
-export function showCommentCreate(post) {
-    return `
-<form method="POST" id=create-comment action="/api/comment/create">
-    <fieldset>
-        <legend>Leave a comment</legend>
-        <textarea type="text" name="comment" placeholder="Enter your comment" required></textarea>
-        <input type="hidden" name="post-id" value="${post.Id}"/>
-        <input type="submit" name="submit" value="Post comment"/>
-    </fieldset>
-</form>
-`
-}
-
-export function attachCommentCreateListener() {
-        const form = document.querySelector('#create-comment')
-        const container = document.querySelector('.container');
-        if (form) {
-                form.addEventListener('submit', async (e) => {
-                        e.preventDefault()
-                        const response = await fetch('/api/comment/create', {
-                                method: 'POST',
-                                body: new URLSearchParams(new FormData(e.target))
-                        })
-                        const data = await response.json()
-                        console.log(data)
-                        if (data.Error && data.Error.Has) {
-                            container.innerHTML = ShowError(data)
-                            return
-                        }
-                        container.innerHTML = await showPostView(data.postId)
-                        document.querySelector(`#comment-${data.commentId}`).scrollIntoView()
-                })
-        }
 }

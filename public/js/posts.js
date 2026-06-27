@@ -1,4 +1,5 @@
-import { showPostComments, showCommentCreate, attachCommentCreateListener } from "./comments.js"
+import { showPostComments } from "./comments.js"
+import { showCommentCreate } from "./forms/comment_create.js"
 import { showPostCategories } from "./categories.js"
 
 export function displayPosts(data) {
