@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
 	"forum/src/models"
 	"forum/src/utils"
@@ -47,8 +48,11 @@ func handleCommentCreate(data models.ResponseStruct) {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	redirectURL := fmt.Sprintf("/post/view/%d#comment-%d", post.Id, comment.Id)
-	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
+	data.Response.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(data.Response).Encode(map[string]int64{
+		"postId":    post.Id,
+		"commentId": comment.Id,
+	})
 }
 
 func handleCommentReaction(data models.ResponseStruct) {

@@ -1,4 +1,4 @@
-import { showPostComments } from "./comments.js"
+import { showPostComments, showCommentCreate, attachCommentCreateListener } from "./comments.js"
 import { showPostCategories } from "./categories.js"
 
 export function displayPosts(data) {
@@ -27,7 +27,7 @@ export function displayPosts(data) {
             </form>
         </div>
         <div class="comments">
-        ${data.User.LoggedIn ? /*TODO: showCommentCreate()*/ '' : ''}
+        ${data.User.LoggedIn ? showCommentCreate(post) : ''}
         </div>
     </div>
     `).join('')
@@ -84,7 +84,7 @@ export function displayPost(data) {
             </form>
         </div>
         <div class="comments">
-            ${data.User.LoggedIn ? /* TODO: showCommentCreate() */ '' : '' }
+            ${data.User.LoggedIn ? showCommentCreate(post) : ''}
             ${post.Comments ? showPostComments(data) : ''}
         </div>
     </div>
@@ -96,6 +96,5 @@ export function displayPost(data) {
 export async function showPostView(id) {
     const response = await fetch(`/api/post/view/${id}`)
     const data = await response.json()
-    console.log(data)
     return `${displayPost(data)}`
 }

@@ -6,6 +6,7 @@ import { Categories, showCategoryView } from './categories.js';
 import { ShowMessage } from './message.js'
 import { userLogout } from './logout.js';
 import { showPostView, displayPost } from './posts.js';
+import { attachCommentCreateListener } from './comments.js'
 
 function mainViewLayout(data) {
     return `
@@ -53,9 +54,11 @@ async function routeSelect() {
             break
         case `#/category/view/${id}`:
             container.innerHTML = await showCategoryView(id);
+            attachCommentCreateListener()
             break
         case `#/post/view/${id}`:
             container.innerHTML = await showPostView(id);
+            attachCommentCreateListener()
             break
         case '#/' || '' || '#':
             body.innerHTML = mainViewLayout(data);
