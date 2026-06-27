@@ -4,6 +4,7 @@ import { showUserRegister, attachRegisterListener } from './forms/user_register.
 import { ShowError } from './error.js';
 import { Categories, showCategoryView } from './categories.js';
 import { ShowMessage } from './message.js'
+import { userLogout } from './logout.js';
 
 function mainViewLayout(data) {
     return `
@@ -46,6 +47,9 @@ async function routeSelect() {
             container.innerHTML = showUserRegister();
             attachRegisterListener(data, container);
             break;
+        case '#/user/logout':
+            container.innerHTML = await userLogout()
+            break
         case `#/category/view/${id}`:
             container.innerHTML = await showCategoryView(id);
             break
