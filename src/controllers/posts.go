@@ -87,7 +87,7 @@ func getPostDataById(data *models.ResponseStruct) error {
 func validateViewPostByIdRequest(data models.ResponseStruct) (models.Post, error) {
 	var post models.Post
 	var err error
-	id, ok := strings.CutPrefix(data.Request.RequestURI, "/post/view/")
+	id, ok := strings.CutPrefix(data.Request.RequestURI, "/api/post/view/")
 	if !ok || len(id) == 0 {
 		return post, models.ErrorPostEmptyId
 	}

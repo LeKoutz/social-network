@@ -28,3 +28,9 @@ export async function showCategoryView(id) {
     </div>
     `
 }
+
+export function showPostCategories(post) {
+    return post.Categories.map(category => `
+        <a href="#/category/view/${category.Id}">${category.Name}</a>
+    `).join('')
+}
