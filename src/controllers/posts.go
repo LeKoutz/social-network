@@ -1,10 +1,11 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
 	"forum/src/models"
-	"forum/src/views"
 	"forum/src/utils"
+	"forum/src/views"
 	"net/http"
 	"strings"
 )
@@ -152,8 +153,10 @@ func createPost(data models.ResponseStruct) {
 		views.PostCreate(&data)
 		return
 	}
-	redirectURL := fmt.Sprintf("/post/view/%d", postId)
-	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
+	data.Response.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(data.Response).Encode(map[string]int64{
+		"postId":    postId,
+	})
 }
 
 func parseCreatePostRequest(data models.ResponseStruct) (models.Post, error) {
@@ -190,7 +193,7 @@ func parseCreatePostRequest(data models.ResponseStruct) (models.Post, error) {
 
 func handlePostCreate(data models.ResponseStruct) {
 	switch {
-	case strings.Compare(data.Request.RequestURI, "/post/create") == 0:
+	case strings.Compare(data.Request.RequestURI, "/api/post/create") == 0:
 		switch data.Request.Method {
 		case http.MethodGet:
 			categories, err := models.GetAllCategories()

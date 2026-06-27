@@ -1,6 +1,7 @@
 import { TopBar } from './topbar.js';
 import { showUserLogin } from './forms/user_login.js';
 import { showUserRegister, attachRegisterListener } from './forms/user_register.js'
+import { showPostCreateView, attachPostCreateListener } from './forms/post_create.js'
 import { ShowError } from './error.js';
 import { Categories, showCategoryView } from './categories.js';
 import { ShowMessage } from './message.js'
@@ -59,6 +60,10 @@ async function routeSelect() {
         case `#/post/view/${id}`:
             container.innerHTML = await showPostView(id);
             attachCommentCreateListener()
+            break
+        case `#/post/create`:
+            container.innerHTML = await showPostCreateView(data);
+            attachPostCreateListener()
             break
         case '#/' || '' || '#':
             body.innerHTML = mainViewLayout(data);

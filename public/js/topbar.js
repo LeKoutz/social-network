@@ -12,7 +12,7 @@ export function TopBar(data) {
             </li>
             <li>
                 <ul>
-                    <li><a href="/post/create">Create post</a></li>
+                    <li><a href="#/post/create">Create post</a></li>
                     <li><a href="/user/activity">My activity</a></li>
                     <li><a href="/user/posts">My posts</a></li>
                     <li><a href="/user/likes">My likes</a></li>
