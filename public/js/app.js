@@ -1,12 +1,12 @@
 import { TopBar } from './topbar.js';
 import { showUserLogin } from './forms/user_login.js';
 import { showUserRegister, attachRegisterListener } from './forms/user_register.js'
-import { showPostCreateView, attachPostCreateListener } from './forms/post_create.js'
+import { showPostCreateView, attachPostCreateListener, showPostEditView } from './forms/post_create.js'
 import { ShowError } from './error.js';
 import { Categories, showCategoryView } from './categories.js';
 import { ShowMessage } from './message.js'
 import { userLogout } from './logout.js';
-import { showPostView, displayPost } from './posts.js';
+import { showPostView, displayPost, } from './posts.js';
 import { attachCommentCreateListener } from './forms/comment_create.js'
 
 function mainViewLayout(data) {
@@ -64,6 +64,10 @@ async function routeSelect() {
         case `#/post/create`:
             container.innerHTML = await showPostCreateView(data);
             attachPostCreateListener()
+            break
+        case `#/post/edit/${id}`:
+            container.innerHTML = await showPostEditView(id);
+            attachPostCreateListener({ editing: true })
             break
         case '#/' || '' || '#':
             body.innerHTML = mainViewLayout(data);

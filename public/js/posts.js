@@ -49,10 +49,7 @@ export function displayPost(data) {
             </div>
             <div class=manage-post>
                 ${data.User.Id === post.User.Id ? `
-                <form method="GET" action="/post/edit">
-                    <input type="hidden" name="post-id" value="${post.Id}"/>
-                    <button type="submit">Edit Post</button>
-                </form>
+                <a href="#/post/edit/${post.Id}"><button type="button">Edit Post</button></a>
                 <form method="POST" action="/post/delete">
                     <input type="hidden" name="post-id" value="${post.Id}"/>
                     <button type="submit">Delete Post</button>
@@ -76,7 +73,7 @@ export function displayPost(data) {
                         >${post.Likes} ${post.Liked ? '👍' : '👍🏻' }</button>
             </form>
             <form method="POST" action="/post/react">
-                <input type="hidden" name="post-id" value="{{$post.Id}}"/>
+                <input type="hidden" name="post-id" value="${post.Id}"/>
                 <button type="submit"
                         name="action"
                         value="dislike"

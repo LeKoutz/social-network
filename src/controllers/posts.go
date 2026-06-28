@@ -13,7 +13,7 @@ import (
 func parsePostId(data models.ResponseStruct) (int64, error) {
 	postIdStr := data.Request.FormValue("post-id")
 	if len(postIdStr) == 0 {
-		postIdStr = strings.TrimPrefix(data.Request.RequestURI, "/post/edit/")
+		postIdStr = strings.TrimPrefix(data.Request.RequestURI, "/api/post/edit/")
 	}
 	if len(postIdStr) == 0 {
 		return 0, models.ErrorPostEmptyId
@@ -320,7 +320,7 @@ func handlePostEdit(data models.ResponseStruct){
 			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
 		}
-		http.Redirect(data.Response, data.Request, fmt.Sprintf("/post/view/%d", post.Id), http.StatusSeeOther)
+		views.PostView(&data)
 	default:
 		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
 	}
