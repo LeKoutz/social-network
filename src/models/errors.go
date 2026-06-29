@@ -13,6 +13,7 @@ var (
 	ErrorEmailFieldEmpty         = errors.New("Email field can't be empty")
 	ErrorPasswordFieldEmpty      = errors.New("Password field can't be empty")
 	ErrorInvalidUsername         = errors.New("Username is invalid")
+	ErrorInvalidGender			 = errors.New("Gender is invalid")
 	ErrorUsernameTaken           = errors.New("Username is taken")
 	ErrorInvalidUser             = errors.New("Invalid user")
 	ErrorWrongPassword           = errors.New("Wrong password")

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"fmt"
 	"forum/src/models"
 	"forum/src/utils"
 	"forum/src/views"
@@ -128,7 +129,7 @@ func attemptLogin(data models.ResponseStruct) {
 		Name:     "__Host-FRMSessionID",
 		Value:    sessionValue.String(),
 		Path:     "/",
-		Expires:  time.Now().Add(24*time.Hour),
+		Expires:  time.Now().Add(24 * time.Hour),
 		Secure:   true,
 		HttpOnly: true,
 		SameSite: http.SameSite(http.SameSiteStrictMode),
@@ -158,6 +159,10 @@ func attemptRegister(data models.ResponseStruct) {
 	var err error
 	if len(data.Request.FormValue("username")) == 0 ||
 		len(data.Request.FormValue("email")) == 0 ||
+		len(data.Request.FormValue("first_name")) == 0 ||
+		len(data.Request.FormValue("last_name")) == 0 ||
+		len(data.Request.FormValue("age")) == 0 ||
+		len(data.Request.FormValue("gender")) == 0 ||
 		len(data.Request.FormValue("password1")) == 0 ||
 		len(data.Request.FormValue("password2")) == 0 {
 		data.SetErrorConsume(models.ErrorBadRequest)
@@ -198,6 +203,17 @@ func attemptRegister(data models.ResponseStruct) {
 		views.UserRegister(&data)
 		return
 	}
+	data.User.FirstName = data.Request.FormValue("first_name")
+	data.User.LastName = data.Request.FormValue("last_name")
+	age, err := utils.StringToInt64(data.Request.FormValue("age"))
+	if err != nil {
+		data.SetUser(data.User).SetErrorConsume(err)
+		views.UserRegister(&data)
+		return
+	}
+	data.User.Age = age
+	data.User.Gender = data.Request.FormValue("gender")
+	fmt.Println(data.User.Gender)
 	if err = data.User.Add(); err != nil {
 		data.SetUser(data.User).SetErrorConsume(models.ErrorInvalidUser)
 		views.UserRegister(&data)

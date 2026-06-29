@@ -13,6 +13,10 @@ import (
 type User struct {
 	Id                       int64
 	Username                 string
+	FirstName				 string
+	LastName				 string
+	Age						 int64
+	Gender					 string
 	Hash                     string
 	Email                    string
 	LoggedIn                 bool
@@ -110,6 +114,13 @@ func (u *User) ValidateUser() error {
 	return nil
 }
 
+func (u *User) isValidGender() bool {
+	if u.Gender != "male" && u.Gender != "female" && u.Gender != "other" {
+		return false
+	}
+	return true
+}
+
 func (u *User) Add() error {
 	err := u.ValidateUser()
 	if err != nil {
@@ -118,11 +129,14 @@ func (u *User) Add() error {
 	if IsEmailRegistered(u.Email) {
 		return ErrorEmailIsRegistered
 	}
-	stmt, err := db.Prepare("INSERT INTO users (username, email, hash) VALUES (?, ?, ?)")
+	if !u.isValidGender() {
+		return ErrorInvalidGender
+	}
+	stmt, err := db.Prepare("INSERT INTO users (username, first_name, last_name, gender, age, email, hash) VALUES (?, ?, ?, ?, ?, ?, ?)")
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(u.Username, u.Email, u.Hash)
+	_, err = stmt.Exec(u.Username, u.FirstName, u.LastName, u.Gender, u.Age, u.Email, u.Hash)
 	if err != nil {
 		return err
 	}

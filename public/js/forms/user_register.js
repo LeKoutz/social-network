@@ -17,10 +17,31 @@ export function showUserRegister() {
                         name="email"
                         required/>
                 <input
-                        placeholder="Username"
+                        placeholder="Nickname"
                         type="text"
                         name="username"
                         required/>
+                <input
+                        placeholder="First Name"
+                        type="first_name"
+                        name="first_name"
+                        required/>
+                <input
+                        placeholder="Last Name"
+                        type="last_name"
+                        name="last_name"
+                        required/>
+                <input
+                        placeholder="Age"
+                        type="age"
+                        name="age"
+                        required/>
+                <select name="gender" required>
+                        <option value="">Gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                </select>
                 <input
                         placeholder="Password"
                         type="password"

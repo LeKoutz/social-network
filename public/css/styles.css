@@ -58,6 +58,12 @@ legend {
     border-radius: 2px;
 }
 
+select {
+    background-color: #1c1c1c;
+    color: #6e6e6e;
+    border: gray solid 1px;
+}
+
 input, textarea {
     background-color: #1c1c1c;
     color: #fff;
