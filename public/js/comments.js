@@ -5,7 +5,7 @@ export function showPostComments(data) {
             <span>${comment.Username} (${comment.TimestampString})</span>
             <div class="manage-comment">
                 ${ data.User.Id === comment.UserId ? `
-                <form method="POST" action="/comment/edit">
+                <form method="POST" class="comment-edit" data-type="edit" action="/api/comment/edit">
                     <input type="hidden" name="post-id" value="${post.Id}"/>
                     <input type="hidden" name="comment-id" value="${comment.Id}"/>
                     <button type="submit">Edit Comment</button>
@@ -20,7 +20,7 @@ export function showPostComments(data) {
                 }
             </div>
             ${ data.EditCommentId === comment.Id ? `
-            <form method="POST" action="/comment/edit">
+            <form method="POST" class="comment-edit" data-type="save" action="/api/comment/edit">
                 <input type="hidden" name="post-id" value="${post.Id}"/>
                 <input type="hidden" name="comment-id" value="${comment.Id}"/>
                 <input type="hidden" name="save-comment" value="1"/>

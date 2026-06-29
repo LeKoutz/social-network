@@ -198,7 +198,5 @@ func updateCommentFromForm(data *models.ResponseStruct) error {
 	if err != nil {
 		return err
 	}
-	redirectURL := fmt.Sprintf("/post/view/%d#comment-%d", comment.PostId, comment.Id)
-	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
 	return nil
 }
