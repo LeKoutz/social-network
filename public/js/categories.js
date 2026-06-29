@@ -1,3 +1,4 @@
+import { ShowMessage } from './message.js'
 import { displayPosts } from './posts.js'
 
 export function Categories(data) {
@@ -24,7 +25,7 @@ export async function showCategoryView(id) {
     return `
     <div class="container">
         ${data.Categories[0].Name}
-        ${displayPosts(data)}
+        ${data.Posts ? displayPosts(data) : ShowMessage(data, {Type: 'Oops', Content: 'This category is empty'})}
     </div>
     `
 }
