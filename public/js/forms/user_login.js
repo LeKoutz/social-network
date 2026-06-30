@@ -1,8 +1,11 @@
+import { ShowMessage } from '../message.js'
+import { ShowError } from '../error.js'
+
 export function showUserLogin() {
     return `
 <div class="container">
     <div class="box">
-        <form method="POST" action="/api/user/login">
+        <form method="POST" id="login" action="/api/user/login">
             <fieldset>
                 <legend>User Login</legend>
                 <input
@@ -35,4 +38,19 @@ export function showUserLogin() {
     </div>
 </div>
 `
+}
+
+export function attachLoginListener(data, container) {
+        const form = document.querySelector('#login')
+        if (form) {
+                form.addEventListener('submit', async (e) => {
+                        e.preventDefault()
+                        const response = await fetch('/api/user/login', {
+                                method: 'POST',
+                                body: new URLSearchParams(new FormData(e.target))
+                        })
+                        const data = await response.json()
+                        container.innerHTML = data.Error.Has ? ShowError(data) : ShowMessage(data);
+                })
+        }
 }

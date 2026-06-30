@@ -1,5 +1,5 @@
 import { TopBar } from './topbar.js';
-import { showUserLogin } from './forms/user_login.js';
+import { showUserLogin, attachLoginListener } from './forms/user_login.js';
 import { showUserRegister, attachRegisterListener } from './forms/user_register.js'
 import { showPostCreateView, attachPostCreateListener, showPostEditView } from './forms/post_create.js'
 import { ShowError } from './error.js';
@@ -45,6 +45,7 @@ async function routeSelect() {
     switch (hash) {
         case '#/user/login':
             container.innerHTML = showUserLogin();
+            attachLoginListener(data, container);
             break;
         case '#/user/register':
             container.innerHTML = showUserRegister();
