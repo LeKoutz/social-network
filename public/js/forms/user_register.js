@@ -2,7 +2,7 @@ import { ShowMessage } from '../message.js'
 import { ShowError } from '../error.js'
 
 export function showUserRegister() {
-    return `<div class="container">
+    return `
     <div class="box">
         <form id="register" method="POST" action="/api/user/register">
             <fieldset>
@@ -64,11 +64,10 @@ export function showUserRegister() {
         </div>
         <p>Already have an account? <a href="#/user/login">Login!</a></p>
     </div>
-</div>
 `
 }
 
-export function attachRegisterListener(data, container) {
+export function attachRegisterListener() {
         const form = document.querySelector('#register')
         if (form) {
                 form.addEventListener('submit', async (e) => {
@@ -78,7 +77,7 @@ export function attachRegisterListener(data, container) {
                                 body: new URLSearchParams(new FormData(e.target))
                         })
                         const data = await response.json()
-                        container.innerHTML = data.Error.Has ? ShowError(data) : ShowMessage(data);
+                        document.querySelector('.alerts').innerHTML = data.Error.Has ? ShowError(data) : ShowMessage(data);
                 })
         }
 }
