@@ -10,9 +10,9 @@ export function showUserLogin() {
                         name="action"
                         value="login"/>
                 <input
-                        type="email"
-                        placeholder="Email"
-                        name="email"
+                        type="identifier"
+                        placeholder="Email or Nickname"
+                        name="identifier"
                         required
                         />
                 <input

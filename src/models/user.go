@@ -34,9 +34,9 @@ func GetGuestUser() User {
 }
 
 // Returns ONLY the `User.Hash` field for comparison against the given password
-func GetUserPasswordByEmail(email string) (User, error) {
+func GetUserPasswordByIdentifier(identifier string) (User, error) {
 	var user User
-	err := db.QueryRow(`SELECT hash FROM users WHERE email = ?`, email).Scan(&user.Hash)
+	err := db.QueryRow(`SELECT hash FROM users WHERE email = ? OR username = ?`,identifier, identifier).Scan(&user.Hash)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return User{}, err
@@ -44,9 +44,9 @@ func GetUserPasswordByEmail(email string) (User, error) {
 	return user, nil
 }
 
-func GetUserByEmail(email string) (User, error) {
+func GetUserByIdentifier(identifier string) (User, error) {
 	var user User
-	err := db.QueryRow(`SELECT id, email, username FROM users WHERE email = ?`, email).Scan(&user.Id, &user.Email, &user.Username)
+	err := db.QueryRow(`SELECT id, email, username FROM users WHERE email = ? OR username = ?`,identifier, identifier).Scan(&user.Id, &user.Email, &user.Username)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
 		return User{}, err
@@ -261,6 +261,10 @@ func IsUniqueEmail(email string) bool {
 
 func IsEmailRegistered(email string) bool {
 	return !IsUniqueEmail(email)
+}
+
+func IsUsernameRegistered(username string) bool {
+	return !IsUniqueUsername(username)
 }
 
 // Check if user already liked this post

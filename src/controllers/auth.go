@@ -11,13 +11,13 @@ func CompareRegistrationPasswords(pass1, pass2 string) bool {
 	return pass1 == pass2
 }
 
-func Auth(email, password string) error {
+func Auth(identifier, password string) error {
 	var err error
-	if !models.IsEmailRegistered(email) {
+	if !models.IsEmailRegistered(identifier) && !models.IsUsernameRegistered(identifier) {
 		return models.ErrorNotRegistered
 	}
 	var user models.User
-	user, err = models.GetUserPasswordByEmail(email)
+	user, err = models.GetUserPasswordByIdentifier(identifier)
 	if err != nil {
 		return err
 	}

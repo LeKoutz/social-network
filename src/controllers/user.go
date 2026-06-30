@@ -73,11 +73,11 @@ func nullifyCookie(cookie *http.Cookie) *http.Cookie {
 }
 
 func attemptLogin(data models.ResponseStruct) {
-	var email string
+	var identifier string
 	var password string
 	var err error
-	if len(data.Request.Form.Get("email")) != 0 {
-		email = data.Request.Form.Get("email")
+	if len(data.Request.Form.Get("identifier")) != 0 {
+		identifier = data.Request.Form.Get("identifier")
 	} else {
 		data.SetErrorConsume(models.ErrorEmailFieldEmpty)
 		views.UserLogin(&data)
@@ -90,7 +90,7 @@ func attemptLogin(data models.ResponseStruct) {
 		views.UserLogin(&data)
 		return
 	}
-	err = Auth(email, password)
+	err = Auth(identifier, password)
 	if err != nil {
 		data.User = models.GetGuestUser()
 		if !errors.Is(err, models.ErrorWrongPassword) && !errors.Is(err, models.ErrorNotRegistered) {
@@ -110,7 +110,7 @@ func attemptLogin(data models.ResponseStruct) {
 		views.UserRegister(&data)
 		return
 	}
-	data.User, err = models.GetUserByEmail(email)
+	data.User, err = models.GetUserByIdentifier(identifier)
 	if err != nil {
 		data.User = models.GetGuestUser()
 		data.SetErrorConsume(err)
