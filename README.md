@@ -148,3 +148,9 @@ To run the linter, use:
 ```bash
 npm run lint
 ```
+
+If you see errors about identation or semicolons, you can use the following so
+eslint can try to fix them:
+```bash
+npm run lint-fix
+```
