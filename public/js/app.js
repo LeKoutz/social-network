@@ -7,6 +7,7 @@ import { Categories, showCategoryView } from './categories.js';
 import { ShowMessage } from './message.js';
 import { userLogout } from './logout.js';
 import { showPostView, displayPost, } from './posts.js';
+import { ShowUserMenu } from './user.js';
 import { attachCommentCreateListener, attachCommentEditListener } from './forms/comment_create.js';
 import { renderFooter } from './footer.js';
 
@@ -47,6 +48,9 @@ async function routeSelect() {
     const hash = window.location.hash;
     const id = parseInt(hash.split('/').at(-1)) || '';
     switch (hash) {
+    case '#/user':
+        content.innerHTML = ShowUserMenu();
+        break;
     case '#/user/login':
         content.innerHTML = showUserLogin();
         attachLoginListener();
@@ -68,7 +72,7 @@ async function routeSelect() {
         attachCommentEditListener();
         break;
     case `#/post/create`:
-        content.innerHTML = await showPostCreateView(data);
+        content.innerHTML = showPostCreateView(data);
         attachPostCreateListener();
         break;
     case `#/post/edit/${id}`:
