@@ -133,3 +133,18 @@ or
 ```
 make test
 ```
+
+## Contributing
+
+We make use of eslint for linting our JS part of the codebase. To make use of it
+after cloning, run:
+
+```bash
+npm install
+```
+
+To run the linter, use:
+
+```bash
+npm run lint
+```
