@@ -7,41 +7,38 @@ function parseActivities(activities) {
 }
 
 function parseActivity(activity) {
+    let inner = '';
+    switch(activity.Type) {
+    case "post":
+        inner = ` posted: ${ShowActivityPost(activity)}`;
+        break;
+    case "comment":
+        inner = ` commented: ${ShowActivityComment(activity)}`;
+        break;
+
+    case "postLike":
+        inner = ` liked a post: ${ShowActivityPost(activity)}`;
+        break;
+
+    case "postDislike":
+        inner = ` disliked a post: ${ShowActivityPost(activity)}`;
+        break;
+
+    case  "commentLike":
+        inner = ` liked a comment: ${ShowActivityComment(activity)}`;
+        break;
+
+    case "commentDislike":
+        inner = ` disliked a comment: ${ShowActivityComment(activity)}`;
+        break;
+    }
     return `
     <div class="activity">
     ${activity.TimestampString}
     <strong><a href="/#/user">${activity.User.Username}}</a></strong> 
-
-    ${ (activity.Type === "post") ? 
-            ` posted:
-            ${ShowActivityPost(activity)}
-            `:
-
-            (activity.Type === "comment") ?
-            ` commented:
-            ${ShowActivityComment(activity)}
-            `:
-
-            (activity.Type === "postLike") ?
-            ` liked a post:
-            ${ShowActivityPost(activity)}
-            `:
-
-            (activity.Type === "postDislike") ?
-            `  disliked a post:
-            ${ShowActivityPost(activity)}
-            `:
-            (activity.Type ===  "commentLike") ?
-            `  liked a comment:
-            ${ShowActivityComment(activity)}
-            `:
-
-            (activity.Type === "commentDislike") ?
-            `  disliked a comment:
-            ${ShowActivityComment(activity)}
-            `:''}
+    ${inner}
     </div>
-    `
+    `;
 }
 
 export async function ShowUserActivity() {
