@@ -10,7 +10,7 @@ export function displayPosts(data) {
         <pre>${post.Body}</pre>
         ${post.ImagePath ? `<img src="/${post.ImagePath}" alt="Post image" style="max-width: max-content;"/>` : ''}
         <div class="reactions">
-            <form method="POST" action="/post/react">
+            <form method="POST" action="/api/post/react">
                 <input type="hidden" name="post-id" value="${post.Id}"/>
                 <button type="submit"
                         name="action"
@@ -18,7 +18,7 @@ export function displayPosts(data) {
                         ${data.User.LoggedIn ? '' : 'disabled'}
                         >${post.Likes} ${post.Liked ? '👍': '👍🏻'}</button>
             </form>
-            <form method="POST" action="/post/react">
+            <form method="POST" action="/api/post/react">
                 <input type="hidden" name="post-id" value="${post.Id}"/>
                 <button type="submit"
                         name="action"
@@ -50,7 +50,7 @@ export function displayPost(data) {
             <div class=manage-post>
                 ${data.User.Id === post.User.Id ? `
                 <a href="#/post/edit/${post.Id}"><button type="button">Edit Post</button></a>
-                <form method="POST" action="/post/delete">
+                <form method="POST" action="/api/post/delete">
                     <input type="hidden" name="post-id" value="${post.Id}"/>
                     <button type="submit">Delete Post</button>
                 </form>
@@ -64,7 +64,7 @@ export function displayPost(data) {
             <div class="manage-post">
         </div>
         <div class="reactions">
-            <form method="POST" action="/post/react">
+            <form method="POST" action="/api/post/react">
                 <input type="hidden" name="post-id" value="${post.Id}"/>
                 <button type="submit"
                         name="action"
@@ -72,7 +72,7 @@ export function displayPost(data) {
                         ${!data.User.LoggedIn ? 'disabled' : '' }
                         >${post.Likes} ${post.Liked ? '👍' : '👍🏻' }</button>
             </form>
-            <form method="POST" action="/post/react">
+            <form method="POST" action="/api/post/react">
                 <input type="hidden" name="post-id" value="${post.Id}"/>
                 <button type="submit"
                         name="action"
