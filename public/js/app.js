@@ -78,6 +78,9 @@ async function routeSelect() {
         case '#/' || '' || '#':
             content.innerHTML = showWelcome(data);
             break;
+        default:
+            content.innerHTML = showWelcome(data);
+            break;
     }
 }
 
