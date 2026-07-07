@@ -13,18 +13,19 @@ export function Categories(data) {
 function createCategories(categories) {
     return categories.map(category => `
         <div class="category" id="${category.Id}">
-             <a href="#/category/view/${category.Id}"><h2>${category.Name}</h2></a>
-            <p>${category.Description}</p>
+            <a href="#/category/view/${category.Id}"><h2>${category.Name}</h2></a>
+            <p class="category-description">${category.Description}</p>
         </div>
     `).join('')
 }
 
 export async function showCategoryView(id) {
-    const response = await fetch(`/api/category/view/${id}`)
-    const data = await response.json()
+    const response = await fetch(`/api/category/view/${id}`);
+    const data = await response.json();
+    const category = createCategories(data.Categories);
     return `
     <div class="container">
-        ${data.Categories[0].Name}
+        ${category}
         ${data.Posts ? displayPosts(data) : ShowMessage(data, {Type: 'Oops', Content: 'This category is empty'})}
     </div>
     `
