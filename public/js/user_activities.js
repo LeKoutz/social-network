@@ -3,7 +3,7 @@ import {ShowActivityPost} from "./activity_post.js";
 
 function parseActivities(activities) {
 
-    return activities !== null ? activities.map(activity=>parseActivity(activity)):'';
+    return activities !== null ? activities.map(activity=>parseActivity(activity)).join(''):'';
 }
 
 function parseActivity(activity) {
