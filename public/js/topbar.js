@@ -7,7 +7,7 @@ export function TopBar(data) {
     <ul>
         ${data.User.LoggedIn ? `
         <li>
-            <a href="/user">${data.User.Username}</a>
+            <a href="#/user">${data.User.Username}</a>
         </li>
         <li>
             <ul>
