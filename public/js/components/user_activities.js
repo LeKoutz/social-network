@@ -2,11 +2,10 @@ import {ShowActivityComment} from "./activity_comment.js";
 import {ShowActivityPost} from "./activity_post.js";
 
 function parseActivities(activities) {
-
     return activities !== null ? activities.map(activity=>parseActivity(activity)).join(''):'';
 }
 
-function parseActivity(activity) {
+function parseActivity(activity, data) {
     let inner = '';
     switch(activity.Type) {
     case "post":
@@ -35,20 +34,20 @@ function parseActivity(activity) {
     return `
     <div class="activity">
     ${activity.TimestampString}
-    <strong><a href="/#/user">${activity.User.Username}}</a></strong> 
+    <strong><a href="/#/user">${data?.User?.Username}</a></strong> 
     ${inner}
     </div>
     `;
 }
 
 export async function ShowUserActivity() {
-    const data = await fetch('/api/').then(response=>response.json());
-    console.log(data.User.Activities);
+    const data = await fetch('/api/user/activity').then(response=>response.json());
+    console.log(data);
     return `
 <div class="container">
     <div class="user-activity">
         <h2>Recent Activities</h2>
-        ${parseActivities(data.User.Activities)}
+        ${parseActivities(data.User.Activities, data)}
     </div>
 </div>`;
 }
@@ -59,7 +58,7 @@ export async function ShowUserLikes() {
 <div class="container">
     <div class="user-activity">
         <h2>My Likes</h2>
-        ${parseActivities(data.User.Activities)}
+        ${parseActivities(data.User.Activities, data)}
     </div>
 </div>`;
 }
@@ -70,7 +69,7 @@ export async function ShowUserPosts() {
 <div class="container">
     <div class="user-activity">
         <h2>My Posts</h2>
-        ${parseActivities(data.User.Activities)}
+        ${parseActivities(data.User.Activities, data)}
     </div>
 </div>`;
 }
