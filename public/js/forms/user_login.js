@@ -39,16 +39,16 @@ export function showUserLogin() {
 }
 
 export function attachLoginListener() {
-        const form = document.querySelector('#login');
-        if (form) {
-                form.addEventListener('submit', async (e) => {
-                        e.preventDefault();
-                        const response = await fetch('/api/user/login', {
-                                method: 'POST',
-                                body: new URLSearchParams(new FormData(e.target))
-                        });
-                        const data = await response.json();
-                        document.querySelector('.alerts').innerHTML = data.Error.Has ? ShowError(data) : ShowMessage(data);
-                });
-        }
+    const form = document.querySelector('#login');
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const response = await fetch('/api/user/login', {
+                method: 'POST',
+                body: new URLSearchParams(new FormData(e.target))
+            });
+            const data = await response.json();
+            document.querySelector('.alerts').innerHTML = data.Error.Has ? ShowError(data) : ShowMessage(data);
+        });
+    }
 }

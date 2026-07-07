@@ -30,26 +30,26 @@ export function showPostCreateView(data, options = { editing: false }) {
 }
 
 export function attachPostCreateListener(options = { editing: false }) {
-        const form = document.querySelector('#post-create');
-        const container = document.querySelector('.container');
-        if (form) {
-            
-            form.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const url = options.editing ? `/api/post/edit/${form.querySelector('[name="post-id"]').value}` : '/api/post/create';
-                    // TODO: This pattern is repeated maybe it could be a function requestPOST(url) returns data? But it would require an option to use URLSearchParams if the fetch uses ParseForm or not if it uses ParseMultipartForm
-                    const response = await fetch(url, {
-                            method: 'POST',
-                            body: new FormData(e.target)
-                    });
-                    const data = await response.json();
-                    if (data.Error && data.Error.Has) {
-                        container.innerHTML = ShowError(data);
-                        return;
-                    }
-                    container.innerHTML = await showPostView(data.Posts[0].Id);
+    const form = document.querySelector('#post-create');
+    const container = document.querySelector('.container');
+    if (form) {
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const url = options.editing ? `/api/post/edit/${form.querySelector('[name="post-id"]').value}` : '/api/post/create';
+            // TODO: This pattern is repeated maybe it could be a function requestPOST(url) returns data? But it would require an option to use URLSearchParams if the fetch uses ParseForm or not if it uses ParseMultipartForm
+            const response = await fetch(url, {
+                method: 'POST',
+                body: new FormData(e.target)
             });
-        }
+            const data = await response.json();
+            if (data.Error && data.Error.Has) {
+                container.innerHTML = ShowError(data);
+                return;
+            }
+            container.innerHTML = await showPostView(data.Posts[0].Id);
+        });
+    }
 }
 
 export async function showPostEditView(id) {

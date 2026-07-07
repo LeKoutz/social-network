@@ -18,7 +18,7 @@ function showWelcome(data) {
             description when applicable. Click any of them to navigate to its list
             of posts.</p>
                 ${(!data.User.LoggedIn)?
-                        `<p>If you want to upload posts or comment to other ones or just react
+        `<p>If you want to upload posts or comment to other ones or just react
                 (like or dislike) comments or posts, you have to <a href="#/user/login">login</a>.</p>
                 <p>In case you don't have an account, you can create one by clicking
                 <a href="#/user/register">here</a>  or via menu at the top of the page.</p>`:''}
@@ -47,40 +47,40 @@ async function routeSelect() {
     const hash = window.location.hash;
     const id = parseInt(hash.split('/').at(-1)) || '';
     switch (hash) {
-        case '#/user/login':
-            content.innerHTML = showUserLogin();
-            attachLoginListener();
-            break;
-        case '#/user/register':
-            content.innerHTML = showUserRegister();
-            attachRegisterListener();
-            break;
-        case '#/user/logout':
-            content.innerHTML = await userLogout();
-            break;
-        case `#/category/view/${id}`:
-            content.innerHTML = await showCategoryView(id);
-            attachCommentCreateListener();
-            break;
-        case `#/post/view/${id}`:
-            content.innerHTML = await showPostView(id);
-            attachCommentCreateListener();
-            attachCommentEditListener();
-            break;
-        case `#/post/create`:
-            content.innerHTML = await showPostCreateView(data);
-            attachPostCreateListener();
-            break;
-        case `#/post/edit/${id}`:
-            content.innerHTML = await showPostEditView(id);
-            attachPostCreateListener({ editing: true });
-            break;
-        case '#/' || '' || '#':
-            content.innerHTML = showWelcome(data);
-            break;
-        default:
-            content.innerHTML = showWelcome(data);
-            break;
+    case '#/user/login':
+        content.innerHTML = showUserLogin();
+        attachLoginListener();
+        break;
+    case '#/user/register':
+        content.innerHTML = showUserRegister();
+        attachRegisterListener();
+        break;
+    case '#/user/logout':
+        content.innerHTML = await userLogout();
+        break;
+    case `#/category/view/${id}`:
+        content.innerHTML = await showCategoryView(id);
+        attachCommentCreateListener();
+        break;
+    case `#/post/view/${id}`:
+        content.innerHTML = await showPostView(id);
+        attachCommentCreateListener();
+        attachCommentEditListener();
+        break;
+    case `#/post/create`:
+        content.innerHTML = await showPostCreateView(data);
+        attachPostCreateListener();
+        break;
+    case `#/post/edit/${id}`:
+        content.innerHTML = await showPostEditView(id);
+        attachPostCreateListener({ editing: true });
+        break;
+    case '#/' || '' || '#':
+        content.innerHTML = showWelcome(data);
+        break;
+    default:
+        content.innerHTML = showWelcome(data);
+        break;
     }
 }
 

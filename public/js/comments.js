@@ -16,8 +16,8 @@ export function showPostComments(data) {
                     <button type="submit">Delete Comment</button>
                 </form>
                 ` :
-                ''
-                }
+        ''
+}
             </div>
             ${ data.EditCommentId === comment.Id ? `
             <form method="POST" class="comment-edit" data-type="save" action="/api/comment/edit">
@@ -28,9 +28,9 @@ export function showPostComments(data) {
                 <button type="submit">Save Comment</button>
             </form>
             `
-            :
-            `<pre>${comment.Body}</pre>`
-            }
+        :
+        `<pre>${comment.Body}</pre>`
+}
             <div class="reactions">
                 <form method="POST" action="/comment/react">
                     <input type="hidden" name="post-id" value="${post.Id}"/>

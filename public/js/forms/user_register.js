@@ -68,16 +68,16 @@ export function showUserRegister() {
 }
 
 export function attachRegisterListener() {
-        const form = document.querySelector('#register');
-        if (form) {
-                form.addEventListener('submit', async (e) => {
-                        e.preventDefault();
-                        const response = await fetch('/api/user/register', {
-                                method: 'POST',
-                                body: new URLSearchParams(new FormData(e.target))
-                        });
-                        const data = await response.json();
-                        document.querySelector('.alerts').innerHTML = data.Error.Has ? ShowError(data) : ShowMessage(data);
-                });
-        }
+    const form = document.querySelector('#register');
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const response = await fetch('/api/user/register', {
+                method: 'POST',
+                body: new URLSearchParams(new FormData(e.target))
+            });
+            const data = await response.json();
+            document.querySelector('.alerts').innerHTML = data.Error.Has ? ShowError(data) : ShowMessage(data);
+        });
+    }
 }

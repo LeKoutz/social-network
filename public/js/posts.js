@@ -54,10 +54,10 @@ export function displayPost(data) {
                     <input type="hidden" name="post-id" value="${post.Id}"/>
                     <button type="submit">Delete Post</button>
                 </form>
-                ` 
-                : 
-                ''
-            }
+                `
+        :
+        ''
+}
             </div>
             <pre>${post.Body}</pre>
             ${post.ImagePath ? `<img src="/${post.ImagePath}" alt="Post image" style="max-width: 100%;"/>` : '' }
