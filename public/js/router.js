@@ -2,6 +2,7 @@ import { showCategoryView } from './categories.js';
 import { showUserLogin, attachLoginListener } from './forms/user_login.js';
 import { showUserRegister, attachRegisterListener } from './forms/user_register.js';
 import { showPostCreateView, attachPostCreateListener, showPostEditView } from './forms/post_create.js';
+import { ShowUserActivity } from './user_activities.js';
 import { userLogout } from './logout.js';
 import { showPostView } from './posts.js';
 import { ShowUserMenu } from './user.js';
@@ -26,6 +27,9 @@ export async function routeSelect(data, content) {
         break;
     case '#/user/logout':
         content.innerHTML = await userLogout();
+        break;
+    case '#/user/activity':
+        content.innerHTML = await ShowUserActivity();
         break;
     case `#/category/view/${id}`:
         content.innerHTML = await showCategoryView(id);

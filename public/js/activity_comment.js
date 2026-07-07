@@ -1,4 +1,5 @@
-{{define "activity_comment"}}
+export function ShowActivityComment(activity) {
+    return `
 <div class="container">
     <h3>{{.Post.Title}}</h3>
     <pre>{{.Post.Body}}</pre>
@@ -14,4 +15,5 @@
         </div>
     </div>
 </div>
-{{end}}
+`;
+}
