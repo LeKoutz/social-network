@@ -119,6 +119,7 @@ func (e *Error) LogError() {
 func (e *Error) RespondError(res http.ResponseWriter, user User) {
 	data := ResponseStruct{}
 	data.Init().SetResponse(res)
+	data.Response.Header().Add("Content-Type", "application/json")
 	data.SetError(*e).SetUser(user).SetView("error_view").WriteResponse()
 }
 
