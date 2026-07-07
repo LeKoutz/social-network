@@ -1,5 +1,5 @@
-import { ShowMessage } from '../message.js';
-import { ShowError } from '../error.js';
+import { ShowMessage } from '../components/message.js';
+import { ShowError } from '../components/error.js';
 
 export function showUserLogin() {
     return `

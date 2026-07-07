@@ -1,5 +1,5 @@
-import { showPostView } from '../posts.js';
-import { ShowError } from '../error.js';
+import { showPostView } from '../components/posts.js';
+import { ShowError } from '../components/error.js';
 
 export function showPostCreateView(data, options = { editing: false }) {
     const post = options.editing ? data.Posts[0] : null;

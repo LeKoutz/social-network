@@ -1,14 +1,14 @@
-import { showCategoryView } from './categories.js';
+import { showCategoryView } from './components/categories.js';
 import { showUserLogin, attachLoginListener } from './forms/user_login.js';
 import { showUserRegister, attachRegisterListener } from './forms/user_register.js';
 import { showPostCreateView, attachPostCreateListener, showPostEditView } from './forms/post_create.js';
-import { ShowUserActivity } from './user_activities.js';
-import { userLogout } from './logout.js';
-import { showPostView } from './posts.js';
-import { ShowUserMenu } from './user.js';
-import { showWelcome } from './welcome.js';
+import { ShowUserActivity, ShowUserLikes, ShowUserPosts } from './components/user_activities.js';
+import { userLogout } from './components/logout.js';
+import { showPostView } from './components/posts.js';
+import { ShowUserMenu } from './components/user.js';
+import { showWelcome } from './components/welcome.js';
 import { attachCommentCreateListener, attachCommentEditListener } from './forms/comment_create.js';
-import { ShowError } from './error.js';
+import { ShowError } from './components/error.js';
 
 export async function routeSelect(data, content) {
     const hash = window.location.hash;
@@ -27,6 +27,12 @@ export async function routeSelect(data, content) {
         break;
     case '#/user/logout':
         content.innerHTML = await userLogout();
+        break;
+    case '#/user/likes':
+        content.innerHTML = await ShowUserLikes();
+        break;
+    case '#/user/posts':
+        content.innerHTML = await ShowUserPosts();
         break;
     case '#/user/activity':
         content.innerHTML = await ShowUserActivity();

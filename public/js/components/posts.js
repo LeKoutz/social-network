@@ -1,5 +1,5 @@
 import { showPostComments } from "./comments.js";
-import { showCommentCreate } from "./forms/comment_create.js";
+import { showCommentCreate } from "../forms/comment_create.js";
 import { showPostCategories } from "./categories.js";
 
 export function displayPosts(data) {

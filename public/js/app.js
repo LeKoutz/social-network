@@ -1,7 +1,7 @@
-import { TopBar } from './topbar.js';
-import { renderFooter } from './footer.js';
+import { TopBar } from './partials/topbar.js';
+import { renderFooter } from './partials/footer.js';
 import { routeSelect } from './router.js';
-import { showWelcome } from './welcome.js';
+import { showWelcome } from './components/welcome.js';
 
 const response = await fetch('/api/');
 const data = await response.json();

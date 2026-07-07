@@ -52,3 +52,25 @@ export async function ShowUserActivity() {
     </div>
 </div>`;
 }
+
+export async function ShowUserLikes() {
+    const data = await fetch('/api/user/likes').then(r=>r.json());
+    return `
+<div class="container">
+    <div class="user-activity">
+        <h2>My Likes</h2>
+        ${parseActivities(data.User.Activities)}
+    </div>
+</div>`;
+}
+
+export async function ShowUserPosts() {
+    const data = await fetch('/api/user/posts').then(r=>r.json());
+    return `
+<div class="container">
+    <div class="user-activity">
+        <h2>My Posts</h2>
+        ${parseActivities(data.User.Activities)}
+    </div>
+</div>`;
+}

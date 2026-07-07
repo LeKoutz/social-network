@@ -1,6 +1,5 @@
-import { showPostView } from '../posts.js';
-import { ShowError } from '../error.js';
-import { displayPost } from '../posts.js';
+import { showPostView, displayPost } from '../components/posts.js';
+import { ShowError } from '../components/error.js';
 
 
 export function showCommentCreate(post) {
