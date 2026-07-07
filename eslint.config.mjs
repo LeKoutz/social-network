@@ -7,7 +7,8 @@ export default defineConfig([
         files: ["**/*.{js,mjs,cjs}"],
         rules: {
             semi: ["warn", "always"],
-            indent: ["error", 4]
+            indent: ["error", 4],
+            "no-trailing-spaces": ["error"]
         },
         plugins: { js },
         extends: ["js/recommended"],
