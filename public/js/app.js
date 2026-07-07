@@ -1,14 +1,14 @@
 import { TopBar } from './topbar.js';
 import { showUserLogin, attachLoginListener } from './forms/user_login.js';
-import { showUserRegister, attachRegisterListener } from './forms/user_register.js'
-import { showPostCreateView, attachPostCreateListener, showPostEditView } from './forms/post_create.js'
+import { showUserRegister, attachRegisterListener } from './forms/user_register.js';
+import { showPostCreateView, attachPostCreateListener, showPostEditView } from './forms/post_create.js';
 import { ShowError } from './error.js';
 import { Categories, showCategoryView } from './categories.js';
-import { ShowMessage } from './message.js'
+import { ShowMessage } from './message.js';
 import { userLogout } from './logout.js';
 import { showPostView, displayPost, } from './posts.js';
-import { attachCommentCreateListener, attachCommentEditListener } from './forms/comment_create.js'
-import { renderFooter } from './footer.js'
+import { attachCommentCreateListener, attachCommentEditListener } from './forms/comment_create.js';
+import { renderFooter } from './footer.js';
 
 function showWelcome(data) {
     return `
@@ -24,28 +24,28 @@ function showWelcome(data) {
                 <a href="#/user/register">here</a>  or via menu at the top of the page.</p>`:''}
         </div>
         ${Categories(data)}
-`
+`;
 }
 
-const response = await fetch('/api/')
-const data = await response.json()
-const body = document.querySelector('body')
-const topbar = document.createElement('div')
-topbar.classList.add('topbar')
-topbar.innerHTML = TopBar(data)
-const alerts = document.createElement('div')
-alerts.classList.add('alerts')
-const content = document.createElement('div')
+const response = await fetch('/api/');
+const data = await response.json();
+const body = document.querySelector('body');
+const topbar = document.createElement('div');
+topbar.classList.add('topbar');
+topbar.innerHTML = TopBar(data);
+const alerts = document.createElement('div');
+alerts.classList.add('alerts');
+const content = document.createElement('div');
 content.innerHTML = showWelcome(data);
-content.classList.add('content')
-const footer = document.createElement('div')
-footer.classList.add('footer')
-footer.innerHTML = renderFooter(data)
-body.append(topbar, alerts, content, footer)
+content.classList.add('content');
+const footer = document.createElement('div');
+footer.classList.add('footer');
+footer.innerHTML = renderFooter(data);
+body.append(topbar, alerts, content, footer);
 
 async function routeSelect() {
-    const hash = window.location.hash
-    const id = parseInt(hash.split('/').at(-1)) || ''
+    const hash = window.location.hash;
+    const id = parseInt(hash.split('/').at(-1)) || '';
     switch (hash) {
         case '#/user/login':
             content.innerHTML = showUserLogin();
@@ -56,25 +56,25 @@ async function routeSelect() {
             attachRegisterListener();
             break;
         case '#/user/logout':
-            content.innerHTML = await userLogout()
-            break
+            content.innerHTML = await userLogout();
+            break;
         case `#/category/view/${id}`:
             content.innerHTML = await showCategoryView(id);
-            attachCommentCreateListener()
-            break
+            attachCommentCreateListener();
+            break;
         case `#/post/view/${id}`:
             content.innerHTML = await showPostView(id);
-            attachCommentCreateListener()
-            attachCommentEditListener()
-            break
+            attachCommentCreateListener();
+            attachCommentEditListener();
+            break;
         case `#/post/create`:
             content.innerHTML = await showPostCreateView(data);
-            attachPostCreateListener()
-            break
+            attachPostCreateListener();
+            break;
         case `#/post/edit/${id}`:
             content.innerHTML = await showPostEditView(id);
-            attachPostCreateListener({ editing: true })
-            break
+            attachPostCreateListener({ editing: true });
+            break;
         case '#/' || '' || '#':
             content.innerHTML = showWelcome(data);
             break;
@@ -87,5 +87,5 @@ async function routeSelect() {
 routeSelect();
 
 window.addEventListener('hashchange', () => {
-    routeSelect()
+    routeSelect();
 });

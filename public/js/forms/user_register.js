@@ -1,5 +1,5 @@
-import { ShowMessage } from '../message.js'
-import { ShowError } from '../error.js'
+import { ShowMessage } from '../message.js';
+import { ShowError } from '../error.js';
 
 export function showUserRegister() {
     return `
@@ -64,20 +64,20 @@ export function showUserRegister() {
         </div>
         <p>Already have an account? <a href="#/user/login">Login!</a></p>
     </div>
-`
+`;
 }
 
 export function attachRegisterListener() {
-        const form = document.querySelector('#register')
+        const form = document.querySelector('#register');
         if (form) {
                 form.addEventListener('submit', async (e) => {
-                        e.preventDefault()
+                        e.preventDefault();
                         const response = await fetch('/api/user/register', {
                                 method: 'POST',
                                 body: new URLSearchParams(new FormData(e.target))
-                        })
-                        const data = await response.json()
+                        });
+                        const data = await response.json();
                         document.querySelector('.alerts').innerHTML = data.Error.Has ? ShowError(data) : ShowMessage(data);
-                })
+                });
         }
 }

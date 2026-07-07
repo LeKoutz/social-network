@@ -3,5 +3,5 @@ export function renderFooter(data) {
             <div class="footer">
             <p>Version: ${data.Version}</p>
         </div>
-`
+`;
 }

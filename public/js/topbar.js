@@ -28,5 +28,5 @@ export function TopBar(data) {
         `}
     </ul>
 </div>
-`
+`;
 }

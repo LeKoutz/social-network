@@ -1,5 +1,5 @@
-import { ShowMessage } from './message.js'
-import { displayPosts } from './posts.js'
+import { ShowMessage } from './message.js';
+import { displayPosts } from './posts.js';
 
 export function Categories(data) {
     return `
@@ -7,7 +7,7 @@ export function Categories(data) {
         <h2>Categories</h2>
         ${createCategories(data.Categories)}
     </div>
-    `
+    `;
 }
 
 function createCategories(categories) {
@@ -16,7 +16,7 @@ function createCategories(categories) {
             <a href="#/category/view/${category.Id}"><h2>${category.Name}</h2></a>
             <p class="category-description">${category.Description}</p>
         </div>
-    `).join('')
+    `).join('');
 }
 
 export async function showCategoryView(id) {
@@ -28,11 +28,11 @@ export async function showCategoryView(id) {
         ${category}
         ${data.Posts ? displayPosts(data) : ShowMessage(data, {Type: 'Oops', Content: 'This category is empty'})}
     </div>
-    `
+    `;
 }
 
 export function showPostCategories(post) {
     return post.Categories.map(category => `
         <a href="#/category/view/${category.Id}">${category.Name}</a>
-    `).join('')
+    `).join('');
 }

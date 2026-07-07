@@ -1,6 +1,6 @@
-import { showPostComments } from "./comments.js"
-import { showCommentCreate } from "./forms/comment_create.js"
-import { showPostCategories } from "./categories.js"
+import { showPostComments } from "./comments.js";
+import { showCommentCreate } from "./forms/comment_create.js";
+import { showPostCategories } from "./categories.js";
 
 export function displayPosts(data) {
     return data.Posts.map(post => `
@@ -31,11 +31,11 @@ export function displayPosts(data) {
         ${data.User.LoggedIn ? showCommentCreate(post) : ''}
         </div>
     </div>
-    `).join('')
+    `).join('');
 }
 
 export function displayPost(data) {
-    const post = data.Posts[0]
+    const post = data.Posts[0];
     return `
     <div class="container">
     <div class="post" id="${post.Id}">
@@ -88,11 +88,11 @@ export function displayPost(data) {
     </div>
 </div>
 </div>
-    `
+    `;
 }
 
 export async function showPostView(id) {
-    const response = await fetch(`/api/post/view/${id}`)
-    const data = await response.json()
-    return `${displayPost(data)}`
+    const response = await fetch(`/api/post/view/${id}`);
+    const data = await response.json();
+    return `${displayPost(data)}`;
 }

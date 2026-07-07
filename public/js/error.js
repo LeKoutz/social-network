@@ -4,6 +4,6 @@ export function ShowError(data) {
     <legend>Error</legend>
     <p>${data.Error.Message}</p>
 </fieldset>
-`
+`;
 }
 

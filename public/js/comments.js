@@ -1,5 +1,5 @@
 export function showPostComments(data) {
-    const post = data.Posts[0]
+    const post = data.Posts[0];
     return post.Comments.map(comment => `
         <div class="comment" id="comment-${comment.Id}">
             <span>${comment.Username} (${comment.TimestampString})</span>
@@ -52,5 +52,5 @@ export function showPostComments(data) {
                 </form>
             </div>
         </div>
-    `).join('')
+    `).join('');
 }
