@@ -16,7 +16,7 @@ export function TopBar(data) {
                 <li><a href="#/user/posts">My posts</a></li>
                 <li><a href="#/user/likes">My likes</a></li>
                 <li><details>
-                    <summary>Notifications 🔔 ${data.User.UnreadNotificationsCount > 0 ? `(${data.user.unreadNotificationsCount})` : ''}</summary>
+                    <summary>Notifications 🔔 ${data.User.UnreadNotificationsCount > 0 ? `(${data.User.unreadNotificationsCount})` : ''}</summary>
                     ${data.User.Notifications && data.User.Notifications.length > 0 ? '' /*TODO NotificationsList(data.User.Notifications) */ : ''}
                 </details></li>
                 <li><a href="#/user/logout">Log out</a></li>
