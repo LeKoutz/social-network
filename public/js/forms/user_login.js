@@ -49,6 +49,7 @@ export function attachLoginListener() {
             });
             const data = await response.json();
             document.querySelector('.alerts').innerHTML = data.Error.Has ? ShowError(data) : ShowMessage(data);
+            data.User.LoggedIn ? setTimeout(() => window.location.hash = '', 1000) : '';
         });
     }
 }

@@ -135,7 +135,10 @@ func attemptLogin(data models.ResponseStruct) {
 		SameSite: http.SameSite(http.SameSiteStrictMode),
 	}
 	http.SetCookie(data.Response, cookie)
-	http.Redirect(data.Response, data.Request, "/", http.StatusSeeOther)
+	data.Message.Has = true
+	data.Message.Type = "Success"
+	data.Message.Content = "Login successful"
+	views.UserLogin(&data)
 }
 
 func userRegister(data models.ResponseStruct) {

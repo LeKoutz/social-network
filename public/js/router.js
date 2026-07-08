@@ -9,6 +9,7 @@ import { ShowUserMenu } from './components/user.js';
 import { showWelcome } from './components/welcome.js';
 import { attachCommentCreateListener, attachCommentEditListener } from './forms/comment_create.js';
 import { ShowError } from './components/error.js';
+import { TopBar } from './partials/topbar.js';
 
 export async function routeSelect(data, content) {
     const hash = window.location.hash;
@@ -27,6 +28,7 @@ export async function routeSelect(data, content) {
         break;
     case '#/user/logout':
         content.innerHTML = await userLogout();
+        setTimeout(() => window.location.hash = '',1000);
         break;
     case '#/user/likes':
         content.innerHTML = await ShowUserLikes();
@@ -57,7 +59,11 @@ export async function routeSelect(data, content) {
     case '#/':
     case '':
     case '#':
+        const response = await fetch('/api/');
+        const data = await response.json();
         content.innerHTML = showWelcome(data);
+        document.querySelector('.topbar').innerHTML = TopBar(data);
+        document.querySelector('.alerts').innerHTML = '';
         break;
     default:
         ShowError({Error:{Message:"Soft 404"}});

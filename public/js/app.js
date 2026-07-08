@@ -22,5 +22,6 @@ body.append(topbar, alerts, content, footer);
 routeSelect(data, content);
 
 window.addEventListener('hashchange', () => {
+    alerts.innerHTML = '';
     routeSelect(data, content);
 });

@@ -78,6 +78,7 @@ export function attachRegisterListener() {
             });
             const data = await response.json();
             document.querySelector('.alerts').innerHTML = data.Error.Has ? ShowError(data) : ShowMessage(data);
+            if (!data.Error.Has) setTimeout(() => window.location.hash = '#/user/login', 1000);
         });
     }
 }
