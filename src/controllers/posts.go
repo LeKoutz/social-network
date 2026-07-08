@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"encoding/json"
 	"fmt"
 	"forum/src/models"
 	"forum/src/utils"
@@ -153,10 +152,9 @@ func createPost(data models.ResponseStruct) {
 		views.PostCreate(&data)
 		return
 	}
-	data.Response.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(data.Response).Encode(map[string]int64{
-		"postId":    postId,
-	})
+	post.Id = postId
+	data.Posts = models.Posts{post}
+	views.PostView(&data)
 }
 
 func parseCreatePostRequest(data models.ResponseStruct) (models.Post, error) {
