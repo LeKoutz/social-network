@@ -23,11 +23,11 @@ type Route struct {
 var routes = Routes{
 	Route{Method: "GET", Path: "/api/", Function: Index},
 
-	Route{Method: "GET", Path: "/api/category/view/", Prefix: true, Function: showCategory},
-	Route{Method: "GET", Path: "/api/categories", Prefix: true, Function: showCategories},
+	Route{Method: "GET", Path: "/api/category/view/", Prefix: true, Function: showCategory, NeedsLogin: true},
+	Route{Method: "GET", Path: "/api/categories", Prefix: true, Function: showCategories, NeedsLogin: true},
 
 	Route{Method: "POST", Path: "/api/comment/create", Function: handleCommentCreate, NeedsLogin: true},
-	Route{Method: "POST", Path: "/api/comment/react", Function: handleCommentReaction},
+	Route{Method: "POST", Path: "/api/comment/react", Function: handleCommentReaction, NeedsLogin: true},
 	Route{Method: "POST", Path: "/api/comment/edit", Function: handleCommentEdit, NeedsLogin: true},
 	Route{Method: "POST", Path: "/api/comment/delete", Function: handleCommentDelete, NeedsLogin: true},
 
@@ -36,11 +36,11 @@ var routes = Routes{
 	Route{Method: "GET", Path: "/api/auth/github/callback", Prefix: true, Function: handleGitHubCallback},
 	Route{Method: "GET", Path: "/api/auth/github", Prefix: true, Function: handleOAuthLoginGithub},
 
-	Route{Method: "GET", Path: "/api/posts", Function: showPosts},
+	Route{Method: "GET", Path: "/api/posts", Function: showPosts, NeedsLogin: true},
 	Route{Method: "*", Path: "/api/post/create", Function: handlePostCreate, NeedsLogin: true},
 	Route{Method: "POST", Path: "/api/post/react", Function: handlePostReaction, NeedsLogin: true},
-	Route{Method: "GET", Path: "/api/post/view/", Prefix: true, Function: showPost},
-	Route{Method: "GET", Path: "/api/post/comment", Function: showPost},
+	Route{Method: "GET", Path: "/api/post/view/", Prefix: true, Function: showPost, NeedsLogin: true},
+	Route{Method: "GET", Path: "/api/post/comment", Function: showPost, NeedsLogin: true},
 	Route{Method: "*", Path: "/api/post/edit", Prefix: true, Function: handlePostEdit, NeedsLogin: true},
 	Route{Method: "POST", Path: "/api/post/delete", Function: handlePostDelete, NeedsLogin: true},
 
@@ -53,7 +53,7 @@ var routes = Routes{
 	Route{Method: "GET", Path: "/api/user", Function: showUserView, NeedsLogin: true},
 	Route{Method: "GET", Path: "/api/user/activity", Function: showUserActivity, NeedsLogin: true},
 
-	Route{Method: "GET", Path: "/uploads/", Prefix: true, Function: handleImages},
+	Route{Method: "GET", Path: "/uploads/", Prefix: true, Function: handleImages, NeedsLogin: true},
 	Route{Method: "GET", Path: "/", Prefix: true, Function: serveSPA},
 }
 
