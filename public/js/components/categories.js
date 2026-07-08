@@ -23,10 +23,11 @@ export async function showCategoryView(id) {
     const response = await fetch(`/api/category/view/${id}`);
     const data = await response.json();
     const category = createCategories(data.Categories);
+    document.querySelector('.alerts').innerHTML = data.Posts ? '' : ShowMessage(data, {Type: 'Oops', Content: 'This category is empty'});
     return `
     <div class="container">
         ${category}
-        ${data.Posts ? displayPosts(data) : ShowMessage(data, {Type: 'Oops', Content: 'This category is empty'})}
+        ${data.Posts ? displayPosts(data) : ''}
     </div>
     `;
 }
