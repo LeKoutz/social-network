@@ -19,9 +19,9 @@ footer.classList.add('footer');
 footer.innerHTML = renderFooter(data);
 body.append(topbar, alerts, content, footer);
 
-routeSelect(data, content);
+routeSelect();
 
 window.addEventListener('hashchange', () => {
     alerts.innerHTML = '';
-    routeSelect(data, content);
+    routeSelect();
 });

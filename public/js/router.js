@@ -10,9 +10,10 @@ import { showWelcome } from './components/welcome.js';
 import { attachCommentCreateListener, attachCommentEditListener } from './forms/comment_create.js';
 import { ShowError } from './components/error.js';
 
-export async function routeSelect(data, content) {
+export async function routeSelect() {
     const hash = window.location.hash;
     const id = parseInt(hash.split('/').at(-1)) || '';
+    const content = document.querySelector('.content');
     switch (hash) {
     case '#/user':
         content.innerHTML = ShowUserMenu();
