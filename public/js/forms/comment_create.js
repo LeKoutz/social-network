@@ -1,6 +1,4 @@
-import { showPostView, displayPost } from '../components/posts.js';
-import { ShowError } from '../components/error.js';
-
+import {commentCreateRequest, commentEditRequest} from '../fetchers/comments.js';
 
 export function showCommentCreate(post) {
     return `
@@ -17,48 +15,16 @@ export function showCommentCreate(post) {
 
 export function attachCommentCreateListener() {
     const form = document.querySelector('#create-comment');
-    const container = document.querySelector('.container');
     if (form) {
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const response = await fetch('/api/comment/create', {
-                method: 'POST',
-                body: new URLSearchParams(new FormData(e.target))
-            });
-            const data = await response.json();
-            if (data.Error && data.Error.Has) {
-                container.innerHTML = ShowError(data);
-                return;
-            }
-            container.innerHTML = await showPostView(data.postId);
-            document.querySelector(`#comment-${data.commentId}`).scrollIntoView();
-        });
+        form.addEventListener('submit', commentCreateRequest);
     }
 }
 
 export function attachCommentEditListener() {
     const forms = document.querySelectorAll('.comment-edit');
-    const container = document.querySelector('.container');
     if (forms) {
         forms.forEach(form => {
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const response = await fetch('/api/comment/edit', {
-                    method: 'POST',
-                    body: new URLSearchParams(new FormData(e.target))
-                });
-                const data = await response.json();
-                if (data.Error && data.Error.Has) {
-                    container.innerHTML = ShowError(data);
-                    return;
-                }
-                if (form.dataset.type === 'save') {
-                    container.innerHTML = await showPostView(data.Posts[0].Id);
-                } else {
-                    container.innerHTML = displayPost(data);
-                }
-                attachCommentEditListener();
-            });
+            form.addEventListener('submit', commentEditRequest);
         });
     }
 }
