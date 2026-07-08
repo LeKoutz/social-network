@@ -58,13 +58,14 @@ export async function routeSelect(data, content) {
         break;
     case '#/':
     case '':
-    case '#':
+    case '#': {
         const response = await fetch('/api/');
         const data = await response.json();
         content.innerHTML = showWelcome(data);
         document.querySelector('.topbar').innerHTML = TopBar(data);
         document.querySelector('.alerts').innerHTML = '';
         break;
+    }
     default:
         ShowError({Error:{Message:"Soft 404"}});
         content.innerHTML = showWelcome(data);
