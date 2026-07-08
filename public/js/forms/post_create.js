@@ -1,14 +1,10 @@
 import { showPostView } from '../components/posts.js';
 import { ShowError } from '../components/error.js';
+import { fetchPostCreateData } from '../fetchers/posts.js'
 
 export async function showPostCreateView(options = { editing: false, postId: null }) {
-    const url = options.editing ? `/api/post/edit/${options.postId}` : '/api/post/create';
-    const response = await fetch(url);
-    const data = await response.json();
-    if (data.Error && data.Error.Has) {
-        document.querySelector('.alerts').innerHTML = ShowError(data);
-        return '';
-    }
+    const data = options.editing ? await fetchPostCreateData(options) : await fetchPostCreateData();
+    if (!data) return '';
     const post = options.editing ? data.Posts[0] : null;
     return `
     <div class="container">
