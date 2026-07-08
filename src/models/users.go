@@ -8,7 +8,7 @@ import (
 func GetAllUsernames() ([]string, error) {
 	rows, err := db.Query(`SELECT username FROM users`)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return []string{}, err
 	}
 	defer rows.Close()
@@ -17,7 +17,7 @@ func GetAllUsernames() ([]string, error) {
 		var email string
 		err = rows.Scan(&email)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return []string{}, err
 		}
 		usernames = append(usernames, email)
@@ -28,7 +28,7 @@ func GetAllUsernames() ([]string, error) {
 func GetAllUserEmails() ([]string, error) {
 	rows, err := db.Query(`SELECT email FROM users`)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return []string{}, err
 	}
 	defer rows.Close()
@@ -37,7 +37,7 @@ func GetAllUserEmails() ([]string, error) {
 		var email string
 		err = rows.Scan(&email)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return []string{}, err
 		}
 		emails = append(emails, email)

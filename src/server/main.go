@@ -22,7 +22,7 @@ func usage(programName string, toStdErr bool) {
 }
 
 func Main(args []string) {
-	config := utils.DefaultConfiguration()
+	config := &utils.GlobalConfig
 
 	var positionalArgs []string
 
@@ -35,6 +35,8 @@ func Main(args []string) {
 			programName := filepath.Base(args[0])
 			usage(programName, false)
 			os.Exit(0)
+		case "--debug":
+			config.Debug = true
 		case "--version":
 			programName := filepath.Base(args[0])
 			version := utils.GetVersion()

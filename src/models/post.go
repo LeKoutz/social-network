@@ -41,29 +41,29 @@ func (p *Post) ValidatePost() error {
 func (p *Post) Add() (int64, error) {
 	err := p.ValidatePost()
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return 0, err
 	}
 	stmt, err := db.Prepare("INSERT INTO posts (title, body, image_path, user_id, timestamp) VALUES (?, ?, ?, ?, ?)")
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return 0, err
 	}
 	res, err := stmt.Exec(p.Title, p.Body, p.ImagePath, p.UserId, utils.GetCurrentTimestamp())
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return 0, err
 	}
 	postId, err := res.LastInsertId()
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return 0, err
 	}
 	p.Id = postId
 	for _, category := range p.Categories {
 		err = p.AddCategory(category)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return 0, err
 		}
 	}
@@ -73,12 +73,12 @@ func (p *Post) Add() (int64, error) {
 func (p *Post) AddCategory(category Category) error {
 	stmt, err := db.Prepare("INSERT INTO posts_categories (post_id, category_id) VALUES (?, ?)")
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	_, err = stmt.Exec((*p).Id, category.Id)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	return nil
@@ -92,19 +92,19 @@ func (p *Post) GetById() error {
 			err = ErrorNoRows
 			return err
 		} else {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return err
 		}
 	}
 	t, err := utils.ConvertStringToTime(ts)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	p.TimestampString = utils.ConvertTimeToString(t)
 	p.User, err = getUserById(p.UserId)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	return nil
@@ -154,7 +154,7 @@ func (p *Post) GetComments() (Comments, error) {
 			err = ErrorNoRows
 			return Comments{}, err
 		} else {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return Comments{}, err
 		}
 	}
@@ -172,12 +172,12 @@ func (p *Post) GetComments() (Comments, error) {
 			&comment.Username,
 		)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return Comments{}, err
 		}
 		t, err := utils.ConvertStringToTime(ts)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return Comments{}, err
 		}
 		comment.TimestampString = utils.ConvertTimeToString(t)
@@ -189,43 +189,43 @@ func (p *Post) GetComments() (Comments, error) {
 func (p *Post) Delete() error {
 	tx, err := db.Begin()
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	_, err = tx.Exec("DELETE FROM reactions WHERE post_id = ?", p.Id)
 	if err != nil {
 		tx.Rollback()
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	_, err = tx.Exec("DELETE FROM reactions WHERE comment_id IN (SELECT id FROM comments WHERE post_id = ?)", p.Id)
 	if err != nil {
 		tx.Rollback()
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	_, err = tx.Exec("DELETE FROM comments WHERE post_id = ?", p.Id)
 	if err != nil {
 		tx.Rollback()
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	_, err = tx.Exec("DELETE FROM posts_categories WHERE post_id = ?", p.Id)
 	if err != nil {
 		tx.Rollback()
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	_, err = tx.Exec("DELETE FROM posts WHERE id = ?", p.Id)
 	if err != nil {
 		tx.Rollback()
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	_, err = tx.Exec("DELETE FROM notifications WHERE post_id = ?", p.Id)
 	if err != nil {
 		tx.Rollback()
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	return tx.Commit()
@@ -234,23 +234,23 @@ func (p *Post) Delete() error {
 func (p *Post) Update() error {
 	err := p.ValidatePost()
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	_, err = db.Exec("UPDATE posts SET title = ?, body = ?, image_path = ? WHERE id = ?", p.Title, p.Body, p.ImagePath, p.Id)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	_, err = db.Exec("DELETE FROM posts_categories WHERE post_id = ?", p.Id)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	for _, category := range p.Categories {
 		err = p.AddCategory(category)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return err
 		}
 	}

@@ -19,7 +19,7 @@ func (c *Category) IsEmpty() bool {
 func (category *Category) GetCategoryById() error {
 	err := db.QueryRow(`SELECT name, description FROM categories WHERE id = ?`, category.Id).Scan(&category.Name, &category.Description)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	return nil

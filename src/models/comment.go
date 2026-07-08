@@ -31,7 +31,7 @@ func (c *Comment) ValidateComment() error {
 
 func (c *Comment) Add() (int64, error) {
 	if err := c.ValidateComment(); err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return 0, err
 	}
 	res, err := db.Exec(
@@ -43,7 +43,7 @@ func (c *Comment) Add() (int64, error) {
 	)
 	commentId, err := res.LastInsertId()
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return 0, err
 	}
 	return commentId, nil
@@ -82,12 +82,12 @@ func (c *Comment) GetCommentById() error {
 		FROM comments
 		WHERE id = ?`, c.Id).Scan(&c.Id, &c.PostId, &c.UserId, &c.Body, &ts)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	t, err := utils.ConvertStringToTime(ts)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	c.TimestampString = utils.ConvertTimeToString(t)
@@ -97,25 +97,25 @@ func (c *Comment) GetCommentById() error {
 func (c *Comment) Delete() error {
 	tx, err := db.Begin()
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	_, err = tx.Exec("DELETE FROM reactions WHERE comment_id = ?", c.Id)
 	if err != nil {
 		tx.Rollback()
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	_, err = tx.Exec("DELETE FROM comments WHERE id = ?", c.Id)
 	if err != nil {
 		tx.Rollback()
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	_, err = tx.Exec("DELETE FROM notifications WHERE comment_id = ?", c.Id)
 	if err != nil {
 		tx.Rollback()
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	return tx.Commit()
@@ -123,12 +123,12 @@ func (c *Comment) Delete() error {
 
 func (c *Comment) Update() error {
 	if err := c.ValidateComment(); err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	_, err := db.Exec("UPDATE comments SET body = ? WHERE id = ?", c.Body, c.Id)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	return nil
