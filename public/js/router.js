@@ -9,7 +9,6 @@ import { ShowUserMenu } from './components/user.js';
 import { showWelcome } from './components/welcome.js';
 import { attachCommentCreateListener, attachCommentEditListener } from './forms/comment_create.js';
 import { ShowError } from './components/error.js';
-import { TopBar } from './partials/topbar.js';
 
 export async function routeSelect(data, content) {
     const hash = window.location.hash;
@@ -59,16 +58,12 @@ export async function routeSelect(data, content) {
     case '#/':
     case '':
     case '#': {
-        const response = await fetch('/api/');
-        const data = await response.json();
-        content.innerHTML = showWelcome(data);
-        document.querySelector('.topbar').innerHTML = TopBar(data);
-        document.querySelector('.alerts').innerHTML = '';
+        content.innerHTML = await showWelcome();
         break;
     }
     default:
-        ShowError({Error:{Message:"Soft 404"}});
-        content.innerHTML = showWelcome(data);
+        document.querySelector('.alerts').innerHTML = ShowError({Error:{Message:"Soft 404"}});
+        content.innerHTML = await showWelcome();
         break;
     }
 }

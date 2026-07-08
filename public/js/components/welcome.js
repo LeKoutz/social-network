@@ -1,6 +1,15 @@
 import { Categories } from './categories.js';
+import { ShowError } from './error.js';
+import { TopBar } from '../partials/topbar.js';
 
-export function showWelcome(data) {
+export async function showWelcome() {
+    const response = await fetch('/api/');
+    const data = await response.json();
+    if (data.Error && data.Error.Has) {
+        document.querySelector('.alerts').innerHTML = ShowError(data);
+        return '';
+    }
+    document.querySelector('.topbar').innerHTML = TopBar(data);
     return `
         <div class="welcome">
             <h2>Welcome ${(data.User.LoggedIn)? data.User.Username:''}!</h2>
