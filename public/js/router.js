@@ -1,7 +1,7 @@
 import { showCategoryView } from './components/categories.js';
 import { showUserLogin, attachLoginListener } from './forms/user_login.js';
 import { showUserRegister, attachRegisterListener } from './forms/user_register.js';
-import { showPostCreateView, attachPostCreateListener, showPostEditView } from './forms/post_create.js';
+import { showPostCreateView, attachPostCreateListener } from './forms/post_create.js';
 import { ShowUserActivity, ShowUserLikes, ShowUserPosts } from './components/user_activities.js';
 import { userLogout } from './components/logout.js';
 import { showPostView } from './components/posts.js';
@@ -49,12 +49,12 @@ export async function routeSelect(data, content) {
         attachCommentEditListener();
         break;
     case `#/post/create`:
-        content.innerHTML = showPostCreateView(data);
+        content.innerHTML = await showPostCreateView();
         attachPostCreateListener();
         break;
     case `#/post/edit/${id}`:
-        content.innerHTML = await showPostEditView(id);
-        attachPostCreateListener({ editing: true });
+        content.innerHTML = await showPostCreateView({ editing: true, postId: id });
+        attachPostCreateListener({ editing: true, postId: id });
         break;
     case '#/':
     case '':
