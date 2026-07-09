@@ -16,19 +16,18 @@ export async function routeSelect() {
     const content = document.querySelector('.content');
     switch (hash) {
     case '#/user':
-        content.innerHTML = ShowUserMenu();
+        content.innerHTML = await ShowUserMenu();
         break;
     case '#/user/login':
-        content.innerHTML = showUserLogin();
+        content.innerHTML = await showUserLogin();
         attachLoginListener();
         break;
     case '#/user/register':
-        content.innerHTML = showUserRegister();
+        content.innerHTML = await showUserRegister();
         attachRegisterListener();
         break;
     case '#/user/logout':
         content.innerHTML = await userLogout();
-        setTimeout(() => window.location.hash = '',1000);
         break;
     case '#/user/likes':
         content.innerHTML = await ShowUserLikes();

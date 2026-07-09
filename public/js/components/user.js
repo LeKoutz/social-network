@@ -1,4 +1,12 @@
-export function ShowUserMenu() {
+import { ShowError } from '../components/error.js';
+
+export async function ShowUserMenu() {
+    const response = await fetch('/api/user');
+    const data = await response.json();
+    if (data.Error && data.Error.Has) {
+        document.querySelector('.alerts').innerHTML = ShowError(data);
+        return '';
+    }
     return `
 <div class="container">
     <div class="user-section">

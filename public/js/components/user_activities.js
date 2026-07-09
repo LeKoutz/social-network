@@ -1,5 +1,6 @@
 import {ShowActivityComment} from "./activity_comment.js";
 import {ShowActivityPost} from "./activity_post.js";
+import { ShowError } from "./error.js";
 
 function parseActivities(activities, data) {
     return activities !== null ? activities.map(activity=>parseActivity(activity, data)).join(''):'';
@@ -42,6 +43,10 @@ function parseActivity(activity, data) {
 
 export async function ShowUserActivity() {
     const data = await fetch('/api/user/activity').then(response=>response.json());
+    if (data.Error && data.Error.Has) {
+        document.querySelector('.alerts').innerHTML = ShowError(data);
+        return '';
+    }
     return `
 <div class="container">
     <div class="user-activity">
@@ -53,6 +58,10 @@ export async function ShowUserActivity() {
 
 export async function ShowUserLikes() {
     const data = await fetch('/api/user/likes').then(r=>r.json());
+    if (data.Error && data.Error.Has) {
+        document.querySelector('.alerts').innerHTML = ShowError(data);
+        return '';
+    }
     return `
 <div class="container">
     <div class="user-activity">
@@ -64,6 +73,10 @@ export async function ShowUserLikes() {
 
 export async function ShowUserPosts() {
     const data = await fetch('/api/user/posts').then(r=>r.json());
+    if (data.Error && data.Error.Has) {
+        document.querySelector('.alerts').innerHTML = ShowError(data);
+        return '';
+    }
     return `
 <div class="container">
     <div class="user-activity">

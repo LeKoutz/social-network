@@ -1,7 +1,13 @@
 import { ShowMessage } from '../components/message.js';
 import { ShowError } from '../components/error.js';
 
-export function showUserRegister() {
+export async function showUserRegister() {
+    const response = await fetch('/api/user/register');
+    const data = await response.json();
+    if (data.Error && data.Error.Has) {
+        document.querySelector('.alerts').innerHTML = ShowError(data);
+        return '';
+    }
     return `
     <div class="box">
         <form id="register" method="POST" action="/api/user/register">

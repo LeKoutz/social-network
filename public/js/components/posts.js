@@ -1,6 +1,7 @@
 import { showPostComments } from "./comments.js";
 import { showCommentCreate } from "../forms/comment_create.js";
 import { showPostCategories } from "./categories.js";
+import { ShowError } from "./error.js";
 
 export function displayPosts(data) {
     return data.Posts.map(post => `
@@ -94,5 +95,9 @@ export function displayPost(data) {
 export async function showPostView(id) {
     const response = await fetch(`/api/post/view/${id}`);
     const data = await response.json();
+    if (data.Error && data.Error.Has) {
+        document.querySelector('.alerts').innerHTML = ShowError(data);
+        return '';
+    }
     return `${displayPost(data)}`;
 }

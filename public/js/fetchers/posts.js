@@ -1,3 +1,5 @@
+import { ShowError } from "../components/error.js";
+
 export async function fetchPostCreateData(options = { editing: false, postId: null }) {
     const url = options.editing ? `/api/post/edit/${options.postId}` : '/api/post/create';
     const response = await fetch(url);
@@ -6,5 +8,5 @@ export async function fetchPostCreateData(options = { editing: false, postId: nu
         document.querySelector('.alerts').innerHTML = ShowError(data);
         return null;
     }
-    return data
+    return data;
 }

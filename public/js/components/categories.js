@@ -1,4 +1,5 @@
 import { ShowMessage } from './message.js';
+import { ShowError } from './error.js';
 import { displayPosts } from './posts.js';
 
 export function Categories(data) {
@@ -22,6 +23,10 @@ function createCategories(categories) {
 export async function showCategoryView(id) {
     const response = await fetch(`/api/category/view/${id}`);
     const data = await response.json();
+    if (data.Error && data.Error.Has) {
+        document.querySelector('.alerts').innerHTML = ShowError(data);
+        return '';
+    }
     const category = createCategories(data.Categories);
     document.querySelector('.alerts').innerHTML = data.Posts ? '' : ShowMessage(data, {Type: 'Oops', Content: 'This category is empty'});
     return `

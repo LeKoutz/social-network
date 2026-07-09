@@ -40,7 +40,7 @@ var (
 	ErrorCategoryAlreadyExists   = errors.New("Category already exists.")
 	ErrorCategoryNameEmpty       = errors.New("Category name can't be empty.")
 	ErrorCategoryNameTooLong     = errors.New("Category name is too long. Use less than 128 characters.")
-	ErrorUnauthorizedAction      = errors.New("Unauthorized action.")
+	ErrorUnauthorizedAction      = errors.New("Unauthorized action. Log in and try again.")
 	ErrorMethodNotAllowed        = errors.New("Method not allowed.")
 	ErrorBadRequest              = errors.New("Bad request.")
 	ErrorInternalServerError     = errors.New("Internal server error.")

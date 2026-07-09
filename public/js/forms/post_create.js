@@ -1,6 +1,6 @@
 import { showPostView } from '../components/posts.js';
 import { ShowError } from '../components/error.js';
-import { fetchPostCreateData } from '../fetchers/posts.js'
+import { fetchPostCreateData } from '../fetchers/posts.js';
 
 export async function showPostCreateView(options = { editing: false, postId: null }) {
     const data = options.editing ? await fetchPostCreateData(options) : await fetchPostCreateData();
