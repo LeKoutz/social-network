@@ -1,13 +1,12 @@
-import { showCategoryView } from './components/categories.js';
+import { categoryRoute } from './components/categories.js';
 import { loginRoute } from './forms/user_login.js';
 import { registerRoute } from './forms/user_register.js';
 import { showPostCreateView, attachPostCreateListener } from './forms/post_create.js';
-import { ShowUserActivity, ShowUserLikes, ShowUserPosts } from './components/user_activities.js';
+import { userActivityRoute, ShowUserLikes, ShowUserPosts } from './components/user_activities.js';
 import { logoutRoute } from './components/logout.js';
-import { showPostView } from './components/posts.js';
+import { postRoute } from './components/posts.js';
 import { userMenuRoute } from './components/user.js';
-import { showWelcome } from './components/welcome.js';
-import { attachCommentCreateListener, attachCommentEditListener } from './forms/comment_create.js';
+import { showWelcome, indexRoute } from './components/welcome.js';
 import { ShowError } from './components/error.js';
 
 export async function routeSelect() {
@@ -16,16 +15,16 @@ export async function routeSelect() {
     const content = document.querySelector('.content');
     switch (hash) {
     case '#/user':
-        userMenuRoute();
+        await userMenuRoute();
         break;
     case '#/user/login':
-        loginRoute();
+        await loginRoute();
         break;
     case '#/user/register':
-        registerRoute();
+        await registerRoute();
         break;
     case '#/user/logout':
-        logoutRoute();
+        await logoutRoute();
         break;
     case '#/user/likes':
         content.innerHTML = await ShowUserLikes();
@@ -34,16 +33,13 @@ export async function routeSelect() {
         content.innerHTML = await ShowUserPosts();
         break;
     case '#/user/activity':
-        content.innerHTML = await ShowUserActivity();
+        userActivityRoute();
         break;
     case `#/category/view/${id}`:
-        content.innerHTML = await showCategoryView(id);
-        attachCommentCreateListener();
+        await categoryRoute(id);
         break;
     case `#/post/view/${id}`:
-        content.innerHTML = await showPostView(id);
-        attachCommentCreateListener();
-        attachCommentEditListener();
+        await postRoute(id);
         break;
     case `#/post/create`:
         content.innerHTML = await showPostCreateView();
@@ -56,12 +52,12 @@ export async function routeSelect() {
     case '#/':
     case '':
     case '#': {
-        content.innerHTML = await showWelcome();
+        await indexRoute();
         break;
     }
     default:
         document.querySelector('.alerts').innerHTML = ShowError({Error:{Message:"Soft 404"}});
-        content.innerHTML = await showWelcome();
+        await indexRoute();
         break;
     }
 }

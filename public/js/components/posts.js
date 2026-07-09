@@ -1,7 +1,8 @@
 import { showPostComments } from "./comments.js";
-import { showCommentCreate } from "../forms/comment_create.js";
+import { showCommentCreate, attachCommentCreateListener, attachCommentEditListener } from "../forms/comment_create.js";
 import { showPostCategories } from "./categories.js";
 import { ShowError } from "./error.js";
+import { apiFetch } from '../fetchers/api.js';
 
 export function displayPosts(data) {
     return data.Posts.map(post => `
@@ -92,6 +93,7 @@ export function displayPost(data) {
     `;
 }
 
+// This should probably be replaced by postRoute and removed completely
 export async function showPostView(id) {
     const response = await fetch(`/api/post/view/${id}`);
     const data = await response.json();
@@ -100,4 +102,13 @@ export async function showPostView(id) {
         return '';
     }
     return `${displayPost(data)}`;
+}
+
+export async function postRoute(id) {
+    const data = await apiFetch(`/api/post/view/${id}`);
+    if (data) {
+        document.querySelector('.content').innerHTML = displayPost(data);
+        attachCommentCreateListener();
+        attachCommentEditListener();
+    }
 }

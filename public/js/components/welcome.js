@@ -1,15 +1,9 @@
 import { Categories } from './categories.js';
 import { ShowError } from './error.js';
 import { TopBar } from '../partials/topbar.js';
+import { apiFetch } from '../fetchers/api.js';
 
-export async function showWelcome() {
-    const response = await fetch('/api/');
-    const data = await response.json();
-    if (data.Error && data.Error.Has) {
-        document.querySelector('.alerts').innerHTML = ShowError(data);
-        return '';
-    }
-    document.querySelector('.topbar').innerHTML = TopBar(data);
+export function showWelcome(data) {
     return `
         <div class="welcome">
             <h2>Welcome ${(data.User.LoggedIn)? data.User.Username:''}!</h2>
@@ -26,3 +20,10 @@ export async function showWelcome() {
 `;
 }
 
+export async function indexRoute() {
+    const data = await apiFetch('/api/');
+    if (data) {
+        document.querySelector('.content').innerHTML = showWelcome(data);
+        document.querySelector('.topbar').innerHTML = TopBar(data);
+    }
+}

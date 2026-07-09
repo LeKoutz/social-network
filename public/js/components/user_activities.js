@@ -1,6 +1,7 @@
 import {ShowActivityComment} from "./activity_comment.js";
 import {ShowActivityPost} from "./activity_post.js";
 import { ShowError } from "./error.js";
+import { apiFetch } from '../fetchers/api.js';
 
 function parseActivities(activities, data) {
     return activities !== null ? activities.map(activity=>parseActivity(activity, data)).join(''):'';
@@ -41,12 +42,7 @@ function parseActivity(activity, data) {
     `;
 }
 
-export async function ShowUserActivity() {
-    const data = await fetch('/api/user/activity').then(response=>response.json());
-    if (data.Error && data.Error.Has) {
-        document.querySelector('.alerts').innerHTML = ShowError(data);
-        return '';
-    }
+export function ShowUserActivity(data) {
     return `
 <div class="container">
     <div class="user-activity">
@@ -84,4 +80,11 @@ export async function ShowUserPosts() {
         ${parseActivities(data.User.Activities, data)}
     </div>
 </div>`;
+}
+
+export async function userActivityRoute() {
+    const data = await apiFetch('/api/user/activity');
+    if (data) {
+        document.querySelector('.content').innerHTML = ShowUserActivity(data);
+    }
 }

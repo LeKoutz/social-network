@@ -1,6 +1,7 @@
 import { ShowMessage } from './message.js';
 import { ShowError } from './error.js';
 import { displayPosts } from './posts.js';
+import { apiFetch } from '../fetchers/api.js';
 
 export function Categories(data) {
     return `
@@ -20,15 +21,9 @@ function createCategories(categories) {
     `).join('');
 }
 
-export async function showCategoryView(id) {
-    const response = await fetch(`/api/category/view/${id}`);
-    const data = await response.json();
-    if (data.Error && data.Error.Has) {
-        document.querySelector('.alerts').innerHTML = ShowError(data);
-        return '';
-    }
+export function showCategoryView(data) {
     const category = createCategories(data.Categories);
-    document.querySelector('.alerts').innerHTML = data.Posts ? '' : ShowMessage(data, {Type: 'Oops', Content: 'This category is empty'});
+    if (!data.Posts) document.querySelector('.alerts').innerHTML = ShowMessage(data, {Type: 'Oops', Content: 'This category is empty'});
     return `
     <div class="container">
         ${category}
@@ -41,4 +36,12 @@ export function showPostCategories(post) {
     return post.Categories.map(category => `
         <a href="#/category/view/${category.Id}">${category.Name}</a>
     `).join('');
+}
+
+export async function categoryRoute(id) {
+    const data = await apiFetch(`/api/category/view/${id}`);
+    if (data) {
+        document.querySelector('.content').innerHTML = showCategoryView(data);
+        attachCommentCreateListener();
+    }
 }
