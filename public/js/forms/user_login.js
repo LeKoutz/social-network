@@ -1,13 +1,8 @@
 import { ShowMessage } from '../components/message.js';
 import { ShowError } from '../components/error.js';
+import { apiFetch } from '../fetchers/api.js';
 
 export async function showUserLogin() {
-    const response = await fetch ('/api/user/login');
-    const data = await response.json();
-    if (data.Error && data.Error.Has) {
-        document.querySelector('.alerts').innerHTML = ShowError(data);
-        return '';
-    }
     return `
 <div class="box">
 <form method="POST" id="login" action="/api/user/login">
@@ -57,5 +52,13 @@ export function attachLoginListener() {
             document.querySelector('.alerts').innerHTML = data.Error.Has ? ShowError(data) : ShowMessage(data);
             data.User.LoggedIn ? setTimeout(() => window.location.hash = '', 1000) : '';
         });
+    }
+}
+
+export async function loginRoute() {
+    const data = await apiFetch('/api/user/login');
+    if (data && !data.User.LoggedIn) {
+        document.querySelector('.content').innerHTML = await showUserLogin();
+        attachLoginListener();
     }
 }

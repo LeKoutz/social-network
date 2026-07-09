@@ -1,5 +1,5 @@
 import { showCategoryView } from './components/categories.js';
-import { showUserLogin, attachLoginListener } from './forms/user_login.js';
+import { loginRoute } from './forms/user_login.js';
 import { showUserRegister, attachRegisterListener } from './forms/user_register.js';
 import { showPostCreateView, attachPostCreateListener } from './forms/post_create.js';
 import { ShowUserActivity, ShowUserLikes, ShowUserPosts } from './components/user_activities.js';
@@ -19,8 +19,7 @@ export async function routeSelect() {
         content.innerHTML = await ShowUserMenu();
         break;
     case '#/user/login':
-        content.innerHTML = await showUserLogin();
-        attachLoginListener();
+        loginRoute();
         break;
     case '#/user/register':
         content.innerHTML = await showUserRegister();
