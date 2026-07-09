@@ -2,7 +2,7 @@ import { ShowMessage } from '../components/message.js';
 import { ShowError } from '../components/error.js';
 import { apiFetch } from '../fetchers/api.js';
 
-export async function showUserLogin() {
+export function showUserLogin() {
     return `
 <div class="box">
 <form method="POST" id="login" action="/api/user/login">
@@ -58,7 +58,7 @@ export function attachLoginListener() {
 export async function loginRoute() {
     const data = await apiFetch('/api/user/login');
     if (data && !data.User.LoggedIn) {
-        document.querySelector('.content').innerHTML = await showUserLogin();
+        document.querySelector('.content').innerHTML = showUserLogin();
         attachLoginListener();
     }
 }

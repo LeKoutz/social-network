@@ -1,17 +1,20 @@
 import { ShowMessage } from './message.js';
 import { ShowError } from './error.js';
+import { apiFetch } from '../fetchers/api.js';
 
-export async function userLogout() {
-    const response = await fetch('/api/user/logout');
-    const data = await response.json();
-    if (data.Error && data.Error.Has) {
-        document.querySelector('.alerts').innerHTML = ShowError(data);
-        return '';
-    }
+export function userLogout(data) {
     return `
     <div class="container">
-    ${data.Message.Has ? (() => { setTimeout(() => window.location.hash = '', 1000); return ShowMessage(data); })() : ''}
+    ${data.Message.Has ? ShowMessage(data) : ''}
     <p>See ya later!</p>
 </div>
 `;
+}
+
+export async function logoutRoute() {
+    const data = await apiFetch('/api/user/logout');
+    if (data) {
+        document.querySelector('.content').innerHTML = userLogout(data);
+        setTimeout(() => window.location.hash = '', 1000);
+    }
 }

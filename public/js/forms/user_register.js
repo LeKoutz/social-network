@@ -1,13 +1,8 @@
 import { ShowMessage } from '../components/message.js';
 import { ShowError } from '../components/error.js';
+import { apiFetch } from '../fetchers/api.js';
 
-export async function showUserRegister() {
-    const response = await fetch('/api/user/register');
-    const data = await response.json();
-    if (data.Error && data.Error.Has) {
-        document.querySelector('.alerts').innerHTML = ShowError(data);
-        return '';
-    }
+export function showUserRegister() {
     return `
     <div class="box">
         <form id="register" method="POST" action="/api/user/register">
@@ -86,5 +81,13 @@ export function attachRegisterListener() {
             document.querySelector('.alerts').innerHTML = data.Error.Has ? ShowError(data) : ShowMessage(data);
             if (!data.Error.Has) setTimeout(() => window.location.hash = '#/user/login', 1000);
         });
+    }
+}
+
+export async function registerRoute() {
+    const data = await apiFetch('/api/user/register');
+    if (data) {
+        document.querySelector('.content').innerHTML = showUserRegister();
+        attachRegisterListener();
     }
 }

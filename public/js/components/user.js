@@ -1,12 +1,7 @@
 import { ShowError } from '../components/error.js';
+import { apiFetch } from '../fetchers/api.js';
 
-export async function ShowUserMenu() {
-    const response = await fetch('/api/user');
-    const data = await response.json();
-    if (data.Error && data.Error.Has) {
-        document.querySelector('.alerts').innerHTML = ShowError(data);
-        return '';
-    }
+export function ShowUserMenu() {
     return `
 <div class="container">
     <div class="user-section">
@@ -20,4 +15,11 @@ export async function ShowUserMenu() {
         </ul>
     </div>
 </div>`;
+}
+
+export async function userMenuRoute() {
+    const data = await apiFetch('/api/user');
+    if (data && data.User.LoggedIn) {
+        document.querySelector('.content').innerHTML = ShowUserMenu();
+    }
 }
