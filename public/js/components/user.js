@@ -1,4 +1,3 @@
-import { ShowError } from '../components/error.js';
 import { apiFetch } from '../fetchers/api.js';
 
 export function ShowUserMenu() {

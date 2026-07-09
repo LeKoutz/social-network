@@ -1,7 +1,7 @@
 import { ShowMessage } from './message.js';
-import { ShowError } from './error.js';
 import { displayPosts } from './posts.js';
 import { apiFetch } from '../fetchers/api.js';
+import { attachCommentCreateListener } from '../forms/comment_create.js';
 
 export function Categories(data) {
     return `

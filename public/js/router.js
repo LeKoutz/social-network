@@ -1,12 +1,13 @@
 import { categoryRoute } from './components/categories.js';
 import { loginRoute } from './forms/user_login.js';
 import { registerRoute } from './forms/user_register.js';
-import { showPostCreateView, attachPostCreateListener } from './forms/post_create.js';
+import { postCreateRoute } from './forms/post_create.js';
+import { postEditRoute } from './forms/post_edit.js';
 import { userActivityRoute, ShowUserLikes, ShowUserPosts } from './components/user_activities.js';
 import { logoutRoute } from './components/logout.js';
 import { postRoute } from './components/posts.js';
 import { userMenuRoute } from './components/user.js';
-import { showWelcome, indexRoute } from './components/welcome.js';
+import { indexRoute } from './components/welcome.js';
 import { ShowError } from './components/error.js';
 
 export async function routeSelect() {
@@ -42,12 +43,10 @@ export async function routeSelect() {
         await postRoute(id);
         break;
     case `#/post/create`:
-        content.innerHTML = await showPostCreateView();
-        attachPostCreateListener();
+        await postCreateRoute();
         break;
     case `#/post/edit/${id}`:
-        content.innerHTML = await showPostCreateView({ editing: true, postId: id });
-        attachPostCreateListener({ editing: true, postId: id });
+        await postEditRoute(id);
         break;
     case '#/':
     case '':

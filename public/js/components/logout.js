@@ -1,5 +1,4 @@
 import { ShowMessage } from './message.js';
-import { ShowError } from './error.js';
 import { apiFetch } from '../fetchers/api.js';
 
 export function userLogout(data) {

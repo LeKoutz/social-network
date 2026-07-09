@@ -1,35 +1,38 @@
 import { ShowError } from '../components/error.js';
 import { apiFetch } from '../fetchers/api.js';
 
-export function showPostCreateView(data) {
+export function showPostEditView(data) {
+    const post = data.Posts[0];
     return `
     <div class="container">
-    <form method="POST" id="post-create" action="/api/post/create" enctype="multipart/form-data">
+    <form method="POST" id="post-edit" action="/api/post/edit/${post.Id}" enctype="multipart/form-data">
         <fieldset>
-            <legend>New post</legend>
-            <input type="text" name="title" placeholder="Your title here" value="" required/>
+            <legend>Edit Post</legend>
+                <input type="hidden" name="post-id" value="${post.Id}"/>
+                <input type="hidden" name="save-post" value="1"/>
+            <input type="text" name="title" placeholder="Your title here" value="${post.Title}" required/>
                 ${data.Categories.map(category => `
                 <div class="inline">
                     <input type="checkbox" id="category-${category.Id}" name="category-${category.Id}" ${category.Selected ? 'checked' : ''}/>
                     <label for="category-${category.Id}">${category.Name}</label>
                 </div>
                 `).join('')}
-            <textarea name="body" placeholder="Your post here" required></textarea>
+            <textarea name="body" placeholder="Your post here" required>${post.Body}</textarea>
+            ${post.ImagePath ? `<img src="/${post.ImagePath}" alt="Post image" style="max-width: 100%;"/>` : ''}
             <input type="file" name="image" accept="image/jpeg,image/png,image/gif"/>
-            <input type="submit" value="Create post"/>
+            <input type="submit" value="Save post"/>
         </fieldset>
     </form>
 </div>
 `;
 }
 
-export function attachPostCreateListener() {
-    const form = document.querySelector('#post-create');
+export function attachPostEditListener(id) {
+    const form = document.querySelector('#post-edit');
     if (form) {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const url = '/api/post/create';
-            // TODO: This pattern is repeated maybe it could be a function requestPOST(url) returns data? But it would require an option to use URLSearchParams if the fetch uses ParseForm or not if it uses ParseMultipartForm
+            const url = `/api/post/edit/${id}`;
             const response = await fetch(url, {
                 method: 'POST',
                 body: new FormData(e.target)
@@ -39,15 +42,15 @@ export function attachPostCreateListener() {
                 document.querySelector('.alerts').innerHTML = ShowError(data);
                 return;
             }
-            window.location.hash = `/post/view/${data.Posts[0].Id}`;
+            window.location.hash = `/post/view/${id}`;
         });
     }
 }
 
-export async function postCreateRoute() {
-    const data = await apiFetch(`/api/post/create`);
+export async function postEditRoute(id) {
+    const data = await apiFetch(`/api/post/edit/${id}`);
     if (data) {
-        document.querySelector('.content').innerHTML = showPostCreateView(data);
-        attachPostCreateListener();
+        document.querySelector('.content').innerHTML = showPostEditView(data);
+        attachPostEditListener(id);
     }
 }

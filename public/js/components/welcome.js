@@ -1,5 +1,4 @@
 import { Categories } from './categories.js';
-import { ShowError } from './error.js';
 import { TopBar } from '../partials/topbar.js';
 import { apiFetch } from '../fetchers/api.js';
 
