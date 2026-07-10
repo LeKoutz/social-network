@@ -1,3 +1,40 @@
 package models
 
+import (
+	"errors"
+	"forum/src/utils"
+)
+
 type ChatMessages []ChatMessage
+
+func GetChatHistory(userId1, userId2 int64) (ChatMessages, error) {
+	rows, err := db.Query(`
+	SELECT m.id, m.sender_id, m.recipient_id, m.body, m.timestamp, u.username
+	FROM messages m
+	JOIN users u ON m.sender_id = u.id
+	WHERE (sender_id = ? AND recipient_id = ?) OR (sender_id = ? AND recipient_id = ?)
+	ORDER BY timestamp DESC`, userId1, userId2, userId2, userId1)
+	if err != nil {
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return ChatMessages{}, err
+	}
+	defer rows.Close()
+	var messages ChatMessages
+	for rows.Next() {
+		var message ChatMessage
+		var ts string
+		err = rows.Scan(&message.Id, &message.SenderId, &message.RecipientId, &message.Body, &ts, &message.SenderUsername)
+		if err != nil {
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+			return ChatMessages{}, err
+		}
+		t, err := utils.ConvertStringToTime(ts)
+		if err != nil {
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+			return ChatMessages{}, err
+		}
+		message.TimestampString = utils.ConvertTimeToString(t)
+		messages = append(messages, message)
+	}
+	return messages, nil
+}

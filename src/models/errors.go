@@ -26,6 +26,7 @@ var (
 	ErrorInvalidPostId           = errors.New("Invalid post ID")
 	ErrorInvalidCommentId        = errors.New("Invalid comment ID")
 	ErrorInvalidCategoryId       = errors.New("Invalid category ID")
+	ErrorInvalidChatId		     = errors.New("Invalid chat ID")
 	ErrorPostBodyEmpty           = errors.New("Post body can't be empty.")
 	ErrorPostTitleEmpty          = errors.New("Post title can't be empty.")
 	ErrorPostHasNoCategory       = errors.New("Post category can't be empty.")

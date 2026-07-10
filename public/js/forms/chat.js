@@ -1,17 +1,27 @@
 import { apiFetch } from '../fetchers/api.js';
 import { sendWS } from '../ws.js';
 
-function showChat() {
+function showChat(data) {
     return `<div class="chat-container">
         <h2>Chat</h2>
         <div class="chat-messages">
-            <!-- Messages will be displayed here -->
+            ${showChatMessages(data)}
         </div>
         <form id="chat-message">
             <input type="text" name="body" placeholder="Type a message..." required />
             <input type="submit" value="Send"/>
         </form>
     </div>`;
+}
+
+function showChatMessages(data) {
+    return data.User.ChatMessages.map(message => `
+        <div class="chat-message">
+            <span class="sender">${message.SenderUsername}</span>
+            <p>${message.Body}</p>
+            <span class="timestamp">${message.TimestampString}</span>
+        </div>
+    `).join('');
 }
 
 function attachChatListener(id) {
@@ -27,9 +37,10 @@ function attachChatListener(id) {
 }
 
 export async function chatRoute(id) {
-    //const data = await apiFetch(`/api/chat/${id}`);
-    //if (data) {
-    document.querySelector('.content').innerHTML = showChat();
-    attachChatListener(id);
-    //}
+    const data = await apiFetch(`/api/chat/${id}`);
+    if (data) {
+        console.log(data);
+        document.querySelector('.content').innerHTML = showChat(data);
+        attachChatListener(id);
+    }
 }

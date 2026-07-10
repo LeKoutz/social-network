@@ -218,3 +218,11 @@ input[type=submit]:hover, button:hover {
     display: flex;
     flex-direction: row;
 }
+
+.chat-message {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+}
