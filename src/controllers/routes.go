@@ -53,6 +53,8 @@ var routes = Routes{
 	Route{Method: "GET", Path: "/api/user", Function: showUserView, NeedsLogin: true},
 	Route{Method: "GET", Path: "/api/user/activity", Function: showUserActivity, NeedsLogin: true},
 
+	Route{Method: "GET", Path: "/ws", Function: serveWs, NeedsLogin: true},
+
 	Route{Method: "GET", Path: "/uploads/", Prefix: true, Function: handleImages, NeedsLogin: true},
 	Route{Method: "GET", Path: "/", Prefix: true, Function: serveSPA},
 }
