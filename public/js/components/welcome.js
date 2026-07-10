@@ -3,6 +3,7 @@ import { TopBar } from '../partials/topbar.js';
 import { apiFetch } from '../fetchers/api.js';
 import { renderFooter } from '../partials/footer.js';
 import { connectWS } from '../ws.js';
+import { UsersPanel } from './users_panel.js';
 
 export function showWelcome(data) {
     return `
@@ -29,6 +30,10 @@ export async function indexRoute() {
         document.querySelector('.footer').innerHTML = renderFooter(data);
     }
     if (data && data.User.LoggedIn) {
+        const usersData = await apiFetch('/api/users');
+        if (usersData) {
+            document.querySelector('.users-panel').innerHTML = UsersPanel(usersData);
+        }
         connectWS();
     }
 }

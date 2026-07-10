@@ -47,6 +47,7 @@ export async function routeSelect() {
     case `#/post/edit/${id}`:
         await postEditRoute(id);
         break;
+    case `#/chat/${id}`:
     case '#/':
     case '':
     case '#': {
