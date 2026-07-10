@@ -8,3 +8,9 @@ export function connectWS() {
     ws.onerror = (e) => console.log('WebSocket error', e);
     ws.onmessage = (e) => console.log('Message received', e.data);
 }
+
+export function sendWS(data) {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(data);
+    }
+}

@@ -1,6 +1,10 @@
 package models
 
-import "github.com/gorilla/websocket"
+import (
+	"encoding/json"
+
+	"github.com/gorilla/websocket"
+)
 
 type Client struct {
     Hub    *Hub
@@ -9,15 +13,31 @@ type Client struct {
     UserId int64
 }
 
-func(c *Client) ReadPump() {
+func (c *Client) ReadPump() {
 	defer func() {
 		c.Hub.Unregister <- c
 		c.Conn.Close()
 	}()
+	type incomingMessage struct {
+		RecipientId int64  `json:"recipientId"`
+		Body        string `json:"body"`
+	}
 	for {
 		_, message, err := c.Conn.ReadMessage()
 		if err != nil {
 			break
+		}
+		var p incomingMessage
+		if err := json.Unmarshal(message, &p); err != nil {
+        	continue
+    	}
+		msg := ChatMessage{
+			SenderId:    c.UserId,
+			RecipientId: p.RecipientId,
+			Body:        p.Body,
+		}
+		if err := msg.Add(); err != nil {
+			continue
 		}
 		c.Hub.Broadcast <- message
 	}
