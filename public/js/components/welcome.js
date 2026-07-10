@@ -35,5 +35,7 @@ export async function indexRoute() {
             document.querySelector('.users-panel').innerHTML = UsersPanel(usersData);
         }
         connectWS();
+    } else if (data && !data.User.LoggedIn) {
+        document.querySelector('.users-panel').innerHTML = '';
     }
 }
