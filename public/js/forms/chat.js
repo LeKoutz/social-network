@@ -5,7 +5,7 @@ function showChat(data) {
     return `<div class="chat-container">
         <h2>Chat</h2>
         <div class="chat-messages">
-            ${showChatMessages(data)}
+            ${data.User.ChatMessages ? showChatMessages(data) : ''}
         </div>
         <form id="chat-message">
             <input type="text" name="body" placeholder="Type a message..." required />
