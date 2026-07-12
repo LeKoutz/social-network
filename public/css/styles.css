@@ -226,3 +226,24 @@ input[type=submit]:hover, button:hover {
     justify-content: flex-start;
     gap: 10px;
 }
+
+.users-panel {
+    position: fixed;
+    background: #1c1c1c;
+    right: 0;
+    width: 40%;
+    padding: 0 10px;
+    bottom: 0;
+}
+
+.users-panel-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#collapse-panel {
+    width: 36px;
+    height: 36px;
+}

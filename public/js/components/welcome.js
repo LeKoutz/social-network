@@ -3,7 +3,7 @@ import { TopBar } from '../partials/topbar.js';
 import { apiFetch } from '../fetchers/api.js';
 import { renderFooter } from '../partials/footer.js';
 import { connectWS } from '../ws.js';
-import { UsersPanel } from './users_panel.js';
+import { UsersPanel, addUsersPanelButtonListener } from './users_panel.js';
 
 export function showWelcome(data) {
     return `
@@ -34,6 +34,7 @@ export async function indexRoute() {
         if (usersData) {
             document.querySelector('.users-panel').innerHTML = UsersPanel(usersData);
         }
+        addUsersPanelButtonListener();
         connectWS();
     } else if (data && !data.User.LoggedIn) {
         document.querySelector('.users-panel').innerHTML = '';
