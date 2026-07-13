@@ -54,7 +54,7 @@ func (c *Client) ReadPump() {
 			continue
 		}
 		msg.TimestampString = utils.ConvertTimeToString(timestampTime)
-		c.Hub.Broadcast <- message
+		c.Hub.Transmit <- msg
 	}
 }
 
