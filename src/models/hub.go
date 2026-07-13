@@ -5,7 +5,7 @@ type OnlineQuery struct {
 }
 
 type Hub struct {
-    Clients    map[*Client]bool
+    Clients    map[int64]*Client
     Register   chan *Client
     Unregister chan *Client
     Broadcast  chan []byte
@@ -14,7 +14,7 @@ type Hub struct {
 
 func NewHub() *Hub {
     return &Hub{
-        Clients:   make(map[*Client]bool),
+        Clients:   make(map[int64]*Client),
         Register:   make(chan *Client),
         Unregister: make(chan *Client),
         Broadcast:  make(chan []byte),
@@ -26,24 +26,24 @@ func (h *Hub) Run() {
     for {
         select {
         case client := <-h.Register:
-            h.Clients[client] = true
+            h.Clients[client.UserId] = client
         case client := <-h.Unregister:
-            if _, ok := h.Clients[client]; ok {
-                delete(h.Clients, client)
+            if _, ok := h.Clients[client.UserId]; ok {
+                delete(h.Clients, client.UserId)
                 close(client.Send)
             }
         case message := <-h.Broadcast:
-            for client := range h.Clients {
+            for _, client := range h.Clients {
                 select {
                 case client.Send <- message:
                 default:
-                    delete(h.Clients, client)
+                    delete(h.Clients, client.UserId)
                     close(client.Send)
                 }
             }
         case query := <-h.Query:
             onlineUsers := make(map[int64]bool)
-            for client := range h.Clients {
+            for _, client := range h.Clients {
                 onlineUsers[client.UserId] = true
             }
             query.Response <- onlineUsers
