@@ -38,20 +38,15 @@ func (h *Hub) Run() {
         select {
         case client := <-h.Register:
             h.Clients[client.UserId] = client
+            h.signalOnlineStatusChange()
         case client := <-h.Unregister:
             if _, ok := h.Clients[client.UserId]; ok {
                 delete(h.Clients, client.UserId)
                 close(client.Send)
             }
+            h.signalOnlineStatusChange()
         case alert := <-h.Broadcast:
-            for _, client := range h.Clients {
-                select {
-                case client.Send <- alert:
-                default:
-                    delete(h.Clients, client.UserId)
-                    close(client.Send)
-                }
-            }
+            h.broadcastToAll(alert)
         case msg := <-h.Transmit:
             payload , err := json.Marshal(msg)
             if err != nil {
@@ -86,4 +81,27 @@ func (h *Hub) GetOnlineUsers() map[int64]bool {
     query := OnlineQuery{Response: make(chan map[int64]bool)}
     h.Query <- query
     return <-query.Response
+}
+
+func (h *Hub) signalOnlineStatusChange() {
+    msgBytes, err := json.Marshal(WsMessage{
+        Type:    "user_status",
+        Payload: json.RawMessage("{}"),
+    })
+    if err != nil {
+        (&Error{}).Consume(err).LogError()
+        return
+    }
+    h.broadcastToAll(msgBytes)
+}
+
+func (h *Hub) broadcastToAll(msgBytes []byte) {
+    for _, c := range h.Clients {
+        select {
+        case c.Send <- msgBytes:
+        default:
+            delete(h.Clients, c.UserId)
+            close(c.Send)
+        }
+    }
 }
