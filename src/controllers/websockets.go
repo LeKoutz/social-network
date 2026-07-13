@@ -18,7 +18,7 @@ func serveWs(data models.ResponseStruct) {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	client := &models.Client{Hub: Hub, Conn: conn, Send: make(chan []byte, 256), UserId: data.User.Id}
+	client := &models.Client{Hub: Hub, Conn: conn, Send: make(chan []byte, 256), UserId: data.User.Id, Username: data.User.Username}
 	client.Hub.Register <- client
 	go client.WritePump()
 	go client.ReadPump()

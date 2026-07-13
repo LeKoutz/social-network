@@ -12,6 +12,7 @@ type Client struct {
     Conn   *websocket.Conn
     Send   chan []byte
     UserId int64
+	Username string
 }
 
 func (c *Client) ReadPump() {
@@ -40,6 +41,7 @@ func (c *Client) ReadPump() {
 			RecipientId: p.RecipientId,
 			Body:        p.Body,
 			TimestampString: timestampString,
+			SenderUsername: c.Username,
 		}
 		msg.Id, err = msg.Add()
 		if err != nil {
