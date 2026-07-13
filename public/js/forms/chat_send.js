@@ -1,5 +1,6 @@
 import { apiFetch } from '../fetchers/api.js';
 import { sendWS } from '../ws.js';
+import { showChatMessages } from '../components/chat.js';
 
 function showChat(data) {
     return `<div class="chat-container">
@@ -12,16 +13,6 @@ function showChat(data) {
             <input type="submit" value="Send"/>
         </form>
     </div>`;
-}
-
-function showChatMessages(data) {
-    return data.User.ChatMessages.map(message => `
-        <div class="chat-message">
-            <span class="sender">${message.SenderUsername}</span>
-            <p>${message.Body}</p>
-            <span class="timestamp">${message.TimestampString}</span>
-        </div>
-    `).join('');
 }
 
 function attachChatListener(id) {
@@ -39,7 +30,6 @@ function attachChatListener(id) {
 export async function chatRoute(id) {
     const data = await apiFetch(`/api/chat/${id}`);
     if (data) {
-        console.log(data);
         document.querySelector('.content').innerHTML = showChat(data);
         attachChatListener(id);
     }
