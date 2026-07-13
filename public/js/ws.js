@@ -14,3 +14,10 @@ export function sendWS(data) {
         ws.send(data);
     }
 }
+
+export function disconnectWS() {
+    if (ws) {
+        ws.close();
+        ws = null;
+    }
+}
