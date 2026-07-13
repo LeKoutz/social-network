@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"forum/src/utils"
 
 	"github.com/gorilla/websocket"
 )
@@ -25,20 +26,32 @@ func (c *Client) ReadPump() {
 	for {
 		_, message, err := c.Conn.ReadMessage()
 		if err != nil {
+			(&Error{}).Consume(err).LogError()
 			break
 		}
 		var p incomingMessage
 		if err := json.Unmarshal(message, &p); err != nil {
+			(&Error{}).Consume(err).LogError()
         	continue
     	}
+		timestampString := utils.GetCurrentTimestamp()
 		msg := ChatMessage{
 			SenderId:    c.UserId,
 			RecipientId: p.RecipientId,
 			Body:        p.Body,
+			TimestampString: timestampString,
 		}
-		if err := msg.Add(); err != nil {
+		msg.Id, err = msg.Add()
+		if err != nil {
+			(&Error{}).Consume(err).LogError()
 			continue
 		}
+		timestampTime, err := utils.ConvertStringToTime(msg.TimestampString)
+		if err != nil {
+			(&Error{}).Consume(err).LogError()
+			continue
+		}
+		msg.TimestampString = utils.ConvertTimeToString(timestampTime)
 		c.Hub.Broadcast <- message
 	}
 }
@@ -48,6 +61,7 @@ func (c *Client) WritePump() {
 	for message := range c.Send {
 		err := c.Conn.WriteMessage(websocket.TextMessage, message)
 		if err != nil {
+			(&Error{}).Consume(err).LogError()
 			break
 		}
 	}

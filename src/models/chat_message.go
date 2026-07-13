@@ -16,16 +16,21 @@ type ChatMessage struct {
 	SenderUsername	string
 }
 
-func (msg *ChatMessage) Add() (error) {
+func (msg *ChatMessage) Add() (int64, error) {
 	stmt, err := db.Prepare("INSERT INTO messages (sender_id, recipient_id, body, timestamp) VALUES (?, ?, ?, ?)")
 	if err != nil {
 		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return 0, err
 	}
-	_, err = stmt.Exec(msg.SenderId, msg.RecipientId, msg.Body, utils.GetCurrentTimestamp())
+	res, err := stmt.Exec(msg.SenderId, msg.RecipientId, msg.Body, msg.TimestampString)
 	if err != nil {
 		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return 0, err
 	}
-	return nil
+	msgId, err := res.LastInsertId()
+	if err != nil {
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return 0, err
+	}
+	return msgId, nil
 }
