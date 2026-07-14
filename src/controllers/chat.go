@@ -7,8 +7,13 @@ import (
 )
 
 func showChatHistory(data models.ResponseStruct) {
-	id, ok := strings.CutPrefix(data.Request.RequestURI, "/api/chat/")
-	if !ok || len(id) == 0 {
+	uri, ok := strings.CutPrefix(data.Request.RequestURI, "/api/chat/")
+	if !ok {
+		(&models.Error{}).Consume(models.ErrorBadRequest).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	id, _, _ := strings.Cut(uri, "?")
+	if len(id) == 0 {
 		(&models.Error{}).Consume(models.ErrorBadRequest).LogAndRespondError(data.Response, data.User)
 		return
 	}
@@ -17,7 +22,8 @@ func showChatHistory(data models.ResponseStruct) {
 		(&models.Error{}).Consume(models.ErrorInvalidChatId).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	messages, err := models.GetChatHistory(data.User.Id, chatUserId)
+	offset, _ := utils.StringToInt64(data.Request.URL.Query().Get("offset"))
+	messages, err := models.GetChatHistory(data.User.Id, chatUserId, offset)
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return

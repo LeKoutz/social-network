@@ -1,6 +1,7 @@
 import { apiFetch } from '../fetchers/api.js';
 import { sendWS } from '../ws.js';
 import { showChatMessages } from '../components/chat.js';
+import { throttle } from '../utils/utils.js';
 
 function showChat(data) {
     return `<div class="chat-container">
@@ -27,10 +28,38 @@ function attachChatListener(id) {
     }
 }
 
-export async function chatRoute(id) {
-    const data = await apiFetch(`/api/chat/${id}`);
+export async function chatRoute(id, offset = 0) {
+    const data = await apiFetch(`/api/chat/${id}?offset=${offset}`);
     if (data) {
         document.querySelector('.content').innerHTML = showChat(data);
+        const chatMessages = document.querySelector('.chat-messages');
+        chatMessages.scrollTop = chatMessages.scrollHeight;
         attachChatListener(id);
+        attachScrollListener(id, offset);
     }
+}
+
+function attachScrollListener(id, offset) {
+    const chatMessages = document.querySelector('.chat-messages');
+    if (!chatMessages) return;
+    let currentOffset = offset;
+    const scrollHandler = throttle(async () => {
+        if (chatMessages.scrollTop > 0) return;
+        currentOffset += 10;
+        const olderMessages = await fetchOlderMessages(id, currentOffset);
+        if (olderMessages) {
+            chatMessages.insertAdjacentHTML('afterbegin', showChatMessages(olderMessages));
+        } else {
+            chatMessages.removeEventListener('scroll', scrollHandler);
+        }
+    }, 300);
+    chatMessages.addEventListener('scroll', scrollHandler);
+}
+
+async function fetchOlderMessages(id, offset) {
+    const data = await apiFetch(`/api/chat/${id}?offset=${offset}`);
+    if (data && data.User.ChatMessages && data.User.ChatMessages.length > 0) {
+        return data;
+    }
+    return null;
 }

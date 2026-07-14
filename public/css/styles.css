@@ -219,6 +219,11 @@ input[type=submit]:hover, button:hover {
     flex-direction: row;
 }
 
+.chat-messages {
+    height: 400px;
+    overflow-y: scroll;
+}
+
 .chat-message {
     display: flex;
     flex-direction: row;
