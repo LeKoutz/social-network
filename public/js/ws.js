@@ -46,5 +46,5 @@ function handleIncomingMessage(msg) {
     if (!chatMessages)  return; // TODO: Create notification if user is not in chat page or something like that
     const currentId = parseInt(window.location.hash.split('/').at(-1));
     if (msg.SenderId !== currentId && msg.RecipientId !== currentId) return;
-    chatMessages.insertAdjacentHTML('afterbegin', showChatMessages({User: { ChatMessages: [msg] }}));
+    chatMessages.insertAdjacentHTML('beforeend', showChatMessages({User: { ChatMessages: [msg] }}));
 }

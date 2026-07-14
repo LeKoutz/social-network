@@ -13,7 +13,7 @@ func GetChatHistory(userId1, userId2 int64) (ChatMessages, error) {
 	FROM messages m
 	JOIN users u ON m.sender_id = u.id
 	WHERE (sender_id = ? AND recipient_id = ?) OR (sender_id = ? AND recipient_id = ?)
-	ORDER BY timestamp DESC`, userId1, userId2, userId2, userId1)
+	ORDER BY timestamp ASC`, userId1, userId2, userId2, userId1)
 	if err != nil {
 		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return ChatMessages{}, err
