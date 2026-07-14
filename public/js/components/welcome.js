@@ -1,7 +1,6 @@
 import { Categories } from './categories.js';
 import { TopBar } from '../partials/topbar.js';
 import { apiFetch } from '../fetchers/api.js';
-import { renderFooter } from '../partials/footer.js';
 
 export function showWelcome(data) {
     return `
@@ -25,6 +24,5 @@ export async function indexRoute() {
     if (data) {
         document.querySelector('.content').innerHTML = showWelcome(data);
         document.querySelector('.topbar').innerHTML = TopBar(data);
-        document.querySelector('.footer').innerHTML = renderFooter(data);
     }
 }
