@@ -28,6 +28,21 @@ func showChatHistory(data models.ResponseStruct) {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
+	for i := range messages {
+		if messages[i].RecipientId == data.User.Id {
+			messages[i].MarkAsRead()
+		}
+	}
+	data.User.ChatMessages = messages
+	data.WriteResponse()
+}
+
+func serveUnreadMessages(data models.ResponseStruct) {
+	messages, err := models.GetUnreadMessageIds(data.User.Id)
+	if err != nil {
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		return
+	}
 	data.User.ChatMessages = messages
 	data.WriteResponse()
 }

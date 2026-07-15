@@ -55,6 +55,7 @@ var routes = Routes{
 
 	Route{Method: "GET", Path: "/ws", Function: serveWs, NeedsLogin: true},
 	Route{Method: "GET", Path: "/api/users", Function: getUsers, NeedsLogin: true},
+	Route{Method: "GET", Path: "/api/chat/unread", Function: serveUnreadMessages, NeedsLogin: true},
 	Route{Method: "GET", Path: "/api/chat/", Prefix: true, Function: showChatHistory, NeedsLogin: true},
 
 	Route{Method: "GET", Path: "/uploads/", Prefix: true, Function: handleImages, NeedsLogin: true},

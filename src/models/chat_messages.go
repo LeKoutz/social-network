@@ -42,3 +42,27 @@ func GetChatHistory(userId1, userId2, offset int64) (ChatMessages, error) {
 	}
 	return messages, nil
 }
+
+func GetUnreadMessageIds(userId int64) (ChatMessages, error) {
+	rows, err := db.Query(`
+	SELECT id, sender_id
+	FROM messages
+	WHERE recipient_id = ?
+	AND read = 0`, userId)
+	if err != nil {
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return ChatMessages{}, err
+	}
+	defer rows.Close()
+	var messages ChatMessages
+	for rows.Next() {
+		var message ChatMessage
+		err = rows.Scan(&message.Id, &message.SenderId)
+		if err != nil {
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+			return ChatMessages{}, err
+		}
+		messages = append(messages, message)
+	}
+	return messages, nil
+}

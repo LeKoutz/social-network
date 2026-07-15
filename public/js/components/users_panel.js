@@ -9,12 +9,12 @@ export function UsersPanel(data) {
     <div class="users-panel-inner">
         <h4>Online</h4>
         <ul>
-            ${onlineUsers.map(user => `${data.User.Id !== user.Id ? `<li><a href="#/chat/${user.Id}">${user.Username}</a></li>` : ''}`)
+            ${onlineUsers.map(user => `${data.User.Id !== user.Id ? `<li data-user-id="${user.Id}"><a href="#/chat/${user.Id}">${user.Username}</a></li>` : ''}`)
         .join('')}
         </ul>
         <h4>Offline</h4>
         <ul>
-            ${offlineUsers.map(user => `${data.User.Id !== user.Id ? `<li class="offline"><a href="#/chat/${user.Id}">${user.Username}</a></li>` : ''}`)
+            ${offlineUsers.map(user => `${data.User.Id !== user.Id ? `<li class="offline" data-user-id="${user.Id}"><a href="#/chat/${user.Id}">${user.Username}</a></li>` : ''}`)
         .join('')}
         </ul>
     </div>

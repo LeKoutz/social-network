@@ -20,41 +20,57 @@ func (c *Client) ReadPump() {
 		c.Hub.Unregister <- c
 		c.Conn.Close()
 	}()
-	type incomingMessage struct {
-		RecipientId int64  `json:"recipientId"`
-		Body        string `json:"body"`
-	}
 	for {
 		_, message, err := c.Conn.ReadMessage()
 		if err != nil {
 			(&Error{}).Consume(err).LogError()
 			break
 		}
-		var p incomingMessage
-		if err := json.Unmarshal(message, &p); err != nil {
+		var incoming WsMessage
+		if err := json.Unmarshal(message, &incoming); err != nil {
 			(&Error{}).Consume(err).LogError()
         	continue
     	}
-		timestampString := utils.GetCurrentTimestamp()
-		msg := ChatMessage{
-			SenderId:    c.UserId,
-			RecipientId: p.RecipientId,
-			Body:        p.Body,
-			TimestampString: timestampString,
-			SenderUsername: c.Username,
+		switch incoming.Type {
+		case "chat-message":
+			var p struct {
+				RecipientId int64  `json:"recipientId"`
+				Body        string `json:"body"`
+			}
+			if err := json.Unmarshal(incoming.Payload, &p); err != nil {
+				(&Error{}).Consume(err).LogError()
+				continue
+			}
+			timestampString := utils.GetCurrentTimestamp()
+			msg := ChatMessage{
+				SenderId:    c.UserId,
+				RecipientId: p.RecipientId,
+				Body:        p.Body,
+				TimestampString: timestampString,
+				SenderUsername: c.Username,
+			}
+			msg.Id, err = msg.Add()
+			if err != nil {
+				(&Error{}).Consume(err).LogError()
+				continue
+			}
+			timestampTime, err := utils.ConvertStringToTime(msg.TimestampString)
+			if err != nil {
+				(&Error{}).Consume(err).LogError()
+				continue
+			}
+			msg.TimestampString = utils.ConvertTimeToString(timestampTime)
+			c.Hub.Transmit <- msg
+		case "message-read":
+			message := ChatMessage{}
+			if err := json.Unmarshal(incoming.Payload, &message); err != nil {
+				(&Error{}).Consume(err).LogError()
+				continue
+			}
+			if err := message.MarkAsRead(); err != nil {
+				(&Error{}).Consume(err).LogError()
+			}
 		}
-		msg.Id, err = msg.Add()
-		if err != nil {
-			(&Error{}).Consume(err).LogError()
-			continue
-		}
-		timestampTime, err := utils.ConvertStringToTime(msg.TimestampString)
-		if err != nil {
-			(&Error{}).Consume(err).LogError()
-			continue
-		}
-		msg.TimestampString = utils.ConvertTimeToString(timestampTime)
-		c.Hub.Transmit <- msg
 	}
 }
 

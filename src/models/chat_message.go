@@ -6,7 +6,7 @@ import (
 )
 
 type ChatMessage struct {
-	Id				int64
+	Id				int64 `json:"id"`
 	SenderId		int64
 	RecipientId		int64
 	Body			string
@@ -33,4 +33,13 @@ func (msg *ChatMessage) Add() (int64, error) {
 		return 0, err
 	}
 	return msgId, nil
+}
+
+func (msg *ChatMessage) MarkAsRead() error {
+    _, err := db.Exec(`UPDATE messages SET read = 1 WHERE id = ?`, msg.Id)
+    if err != nil {
+        if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+        return err
+    }
+    return nil
 }

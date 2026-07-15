@@ -1,6 +1,6 @@
 import { apiFetch } from '../fetchers/api.js';
 import { sendWS } from '../ws.js';
-import { showChatMessages } from '../components/chat.js';
+import { markMessageAsRead, showChatMessages } from '../components/chat.js';
 import { throttle } from '../utils/utils.js';
 
 function showChat(data) {
@@ -22,7 +22,7 @@ function attachChatListener(id) {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const body = form.querySelector('[name="body"]').value;
-            sendWS(JSON.stringify({ recipientId: id, body }));
+            sendWS(JSON.stringify({ type: "chat-message", payload: { recipientId: id, body: body }}));
             form.reset();
         });
     }
@@ -34,6 +34,9 @@ export async function chatRoute(id, offset = 0) {
         document.querySelector('.content').innerHTML = showChat(data);
         const chatMessages = document.querySelector('.chat-messages');
         chatMessages.scrollTop = chatMessages.scrollHeight;
+        data.User.ChatMessages.forEach(message => {
+            markMessageAsRead(message);
+        });
         attachChatListener(id);
         attachScrollListener(id, offset);
     }
@@ -48,6 +51,9 @@ function attachScrollListener(id, offset) {
         currentOffset += 10;
         const olderMessages = await fetchOlderMessages(id, currentOffset);
         if (olderMessages) {
+            olderMessages.User.ChatMessages.forEach(message => {
+                markMessageAsRead(message);
+            });
             chatMessages.insertAdjacentHTML('afterbegin', showChatMessages(olderMessages));
         } else {
             chatMessages.removeEventListener('scroll', scrollHandler);
