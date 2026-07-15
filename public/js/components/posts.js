@@ -105,7 +105,7 @@ export async function showPostView(id) {
     return `${displayPost(data)}`;
 }
 
-export async function postRoute(id) {
+export async function postRoute(id, arg) {
     const data = await apiFetch(`/api/post/view/${id}`);
     if (data) {
         document.querySelector('.content').innerHTML = displayPost(data);
@@ -113,5 +113,17 @@ export async function postRoute(id) {
         attachCommentEditListener();
         attachCommentDeleteListener();
         attachPostDeleteListener();
+        if (arg !== undefined) {
+            const args = arg.split('-');
+            if ( args.length === 2 ) {
+                if ( args[0] === 'comment' ) {
+                    const r = /^\d*$/;
+                    if ( r.test(args[1]) ) {
+                        console.log(arg);
+                        document.querySelector(`#${arg}`).scrollIntoView();
+                    }
+                }
+            }
+        }
     }
 }

@@ -1,3 +1,4 @@
+import {commentReactForm} from '../forms/comment_react.js';
 export function showPostComments(data) {
     const post = data.Posts[0];
     return post.Comments.map(comment => `
@@ -31,26 +32,7 @@ export function showPostComments(data) {
         :
         `<pre>${comment.Body}</pre>`
 }
-            <div class="reactions">
-                <form method="POST" action="/api/comment/react">
-                    <input type="hidden" name="post-id" value="${post.Id}"/>
-                    <input type="hidden" name="comment-id" value="${comment.Id}"/>
-                    <button type="submit"
-                            name="action"
-                            value="like"
-                            ${!data.User.LoggedIn ? 'disabled' : '' }
-                            >${comment.Likes} ${comment.Liked ? '👍' : '👍🏻' }</button>
-                </form>
-                <form method="POST" action="/api/comment/react">
-                    <input type="hidden" name="post-id" value="${post.Id}"/>
-                    <input type="hidden" name="comment-id" value="${comment.Id}"/>
-                    <button type="submit"
-                            name="action"
-                            value="dislike"
-                            ${!data.User.LoggedIn ? 'disabled' : '' }
-                            >${comment.Dislikes} ${comment.Disliked ? '👎' : '👎🏻' }</button>
-                </form>
-            </div>
+        ${commentReactForm(post.Id, comment, data.User.LoggedIn)}
         </div>
     `).join('');
 }

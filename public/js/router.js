@@ -12,48 +12,55 @@ import { ShowError } from './components/error.js';
 import { chatRoute } from './forms/chat_send.js';
 
 export async function routeSelect() {
-    const hash = window.location.hash;
-    const id = parseInt(hash.split('/').at(-1)) || '';
-    switch (hash) {
-    case '#/user':
+    const hash = window.location.hash?.split('#');
+    if (hash.length < 2) {
+        await indexRoute();
+        return;
+    }
+    const id = parseInt(hash[1].split('/').at(-1)) || '';
+    const content = document.querySelector('.content');
+    switch (hash[1]) {
+    case '/user':
         await userMenuRoute();
         break;
-    case '#/user/login':
+    case '/user/login':
         await loginRoute();
         break;
-    case '#/user/register':
+    case '/user/register':
         await registerRoute();
         break;
-    case '#/user/logout':
+    case '/user/logout':
         await logoutRoute();
         break;
-    case '#/user/likes':
-        await userLikesRoute();
+    case '/user/likes':
+        content.innerHTML = await ShowUserLikes();
         break;
-    case '#/user/posts':
-        await userPostsRoute();
+    case '/user/posts':
+        content.innerHTML = await ShowUserPosts();
         break;
-    case '#/user/activity':
-        await userActivityRoute();
+    case '/user/activity':
+        userActivityRoute();
         break;
-    case `#/category/view/${id}`:
+    case `/category/view/${id}`:
         await categoryRoute(id);
         break;
-    case `#/post/view/${id}`:
+    case `/post/view/${id}`:
+        if ( hash.length === 3 ) {
+            await postRoute(id, hash[2]);
+        }
         await postRoute(id);
         break;
-    case `#/post/create`:
+    case `/post/create`:
         await postCreateRoute();
         break;
-    case `#/post/edit/${id}`:
+    case `/post/edit/${id}`:
         await postEditRoute(id);
         break;
-    case `#/chat/${id}`:
+    case `/chat/${id}`:
         await chatRoute(id);
         break;
-    case '#/':
-    case '':
-    case '#': {
+    case '/':
+    case '': {
         await indexRoute();
         break;
     }

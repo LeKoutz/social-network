@@ -36,3 +36,23 @@ export async function commentEditRequest(e) {
     }
     attachCommentEditListener();
 }
+
+export async function commentReactRequest(e) {
+    e.preventDefault();
+    const content = document.querySelector('.content');
+    const response = await fetch('/api/comment/react', {
+        method: 'POST',
+        body: new URLSearchParams(new FormData(e.target))
+    });
+    const data = await response.json();
+    if (data.Error && data.Error.Has) {
+        content.innerHTML = ShowError(data);
+        return;
+    }
+    if (form.dataset.type === 'save') {
+        content.innerHTML = await showPostView(data.Posts[0].Id);
+    } else {
+        content.innerHTML = displayPost(data);
+    }
+    attachCommentReactListener();
+}

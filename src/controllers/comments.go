@@ -90,7 +90,7 @@ func handleCommentReaction(data models.ResponseStruct) {
 			(&models.Error{}).Consume(err).LogError()
 		}
 	}
-	redirectURL := fmt.Sprintf("/post/view/%d#comment-%d", comment.PostId, comment.Id)
+	redirectURL := fmt.Sprintf("/#/post/view/%d#comment-%d", comment.PostId, comment.Id)
 	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
 }
 

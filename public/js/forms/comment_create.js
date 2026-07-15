@@ -3,7 +3,7 @@ import {ShowError} from '../components/error.js';
 
 export function showCommentCreate(post) {
     return `
-<form method="POST" id=create-comment action="/api/comment/create">
+<form method="POST" id="create-comment" action="/api/comment/create">
     <fieldset>
         <legend>Leave a comment</legend>
         <textarea type="text" name="comment" placeholder="Enter your comment" required></textarea>

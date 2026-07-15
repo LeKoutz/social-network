@@ -237,7 +237,7 @@ func handlePostReaction(data models.ResponseStruct) {
 		}
 		err = post.CreateReactionNotification(data.User.Id, "like")
 		if err != nil {
-		(&models.Error{}).Consume(err).LogError()
+			(&models.Error{}).Consume(err).LogError()
 		}
 	}
 	if data.Request.FormValue("action") == "dislike" {
@@ -248,10 +248,11 @@ func handlePostReaction(data models.ResponseStruct) {
 		}
 		err = post.CreateReactionNotification(data.User.Id, "dislike")
 		if err != nil {
-		(&models.Error{}).Consume(err).LogError()
+			(&models.Error{}).Consume(err).LogError()
 		}		
 	}
-	redirectURL := fmt.Sprintf("/post/view/%d", post.Id)
+	views.PostView(&data)
+	redirectURL := fmt.Sprintf("/#/post/view/%d", post.Id)
 	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
 }
 
