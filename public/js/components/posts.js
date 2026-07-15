@@ -4,6 +4,7 @@ import { showPostCategories } from "./categories.js";
 import { ShowError } from "./error.js";
 import { apiFetch } from '../fetchers/api.js';
 import { postDeleteForm, attachPostDeleteListener } from '../forms/post_delete.js';
+import { postReactionForm } from "../forms/post_react.js";
 
 export function displayPosts(data) {
     return data.Posts ? data.Posts.map(post => `
