@@ -1,6 +1,16 @@
 export function UsersPanel(data) {
-    const onlineUsers = data.Users.filter(user => user.LoggedIn);
-    const offlineUsers = data.Users.filter(user => !user.LoggedIn);
+    // The spread operator creates a new array containing the same users.
+    // This is important because sort() changes the array on which it runs;
+    // copying data.Users prevents us from changing the original API data.
+    // localeCompare() compares the Username strings alphabetically.
+    const sortedUsers = [...data.Users].sort((a, b) =>
+        a.Username.localeCompare(b.Username)
+    );
+    // Keep the logged-in users from the alphabetically sorted array.
+    const onlineUsers = sortedUsers.filter(user => user.LoggedIn);
+    // Keep the logged-out users from the same alphabetically sorted array.
+    // The ! operator changes false to true, selecting offline users only.
+    const offlineUsers = sortedUsers.filter(user => !user.LoggedIn);
     return `
     <div class="users-panel-header">
         <h3>Users</h3>
