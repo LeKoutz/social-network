@@ -1,4 +1,5 @@
 import { ShowMessage } from '../components/message.js';
+import {SetAlertsInner} from '../partials/alerts.js';
 import { ShowError } from '../components/error.js';
 import { apiFetch } from '../fetchers/api.js';
 
@@ -78,7 +79,7 @@ export function attachRegisterListener() {
                 body: new URLSearchParams(new FormData(e.target))
             });
             const data = await response.json();
-            document.querySelector('.alerts').innerHTML = data.Error.Has ? ShowError(data) : ShowMessage(data);
+            SetAlertsInner(data.Error.Has ? ShowError(data) : ShowMessage(data));
             if (!data.Error.Has) setTimeout(() => window.location.hash = '#/user/login', 1000);
         });
     }

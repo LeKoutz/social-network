@@ -1,4 +1,5 @@
 import { ShowError } from '../components/error.js';
+import {SetAlertsInner} from '../partials/alerts.js';
 import { apiFetch } from '../fetchers/api.js';
 
 export function showPostEditView(data) {
@@ -39,7 +40,7 @@ export function attachPostEditListener(id) {
             });
             const data = await response.json();
             if (data.Error && data.Error.Has) {
-                document.querySelector('.alerts').innerHTML = ShowError(data);
+                SetAlertsInner(ShowError(data));
                 return;
             }
             window.location.hash = `/post/view/${id}`;

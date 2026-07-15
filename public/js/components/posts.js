@@ -1,5 +1,6 @@
 import { showPostComments } from "./comments.js";
 import { showCommentCreate, attachCommentCreateListener, attachCommentEditListener, attachCommentDeleteListener } from "../forms/comment_create.js";
+import { SetAlertsInner } from '../partials/alerts.js';
 import { showPostCategories } from "./categories.js";
 import { ShowError } from "./error.js";
 import { apiFetch } from '../fetchers/api.js';
@@ -63,7 +64,7 @@ export async function showPostView(id) {
     const response = await fetch(`/api/post/view/${id}`);
     const data = await response.json();
     if (data.Error && data.Error.Has) {
-        document.querySelector('.alerts').innerHTML = ShowError(data);
+        SetAlertsInner(ShowError(data));
         return '';
     }
     return `${displayPost(data)}`;

@@ -1,4 +1,5 @@
 import { ShowMessage } from './message.js';
+import {SetAlertsInner} from '../partials/alerts.js';
 import { displayPosts } from './posts.js';
 import { apiFetch } from '../fetchers/api.js';
 import { attachCommentCreateListener } from '../forms/comment_create.js';
@@ -23,7 +24,12 @@ function createCategories(categories) {
 
 export function showCategoryView(data) {
     const category = createCategories(data.Categories);
-    if (!data.Posts) document.querySelector('.alerts').innerHTML = ShowMessage(data, {Type: 'Oops', Content: 'This category is empty'});
+    if (!data.Posts) {
+        SetAlertsInner(ShowMessage(data, {
+            Type: 'Oops',
+            Content: 'This category is empty'
+        }));
+    }
     return `
     <div class="container">
         ${category}

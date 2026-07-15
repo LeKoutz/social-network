@@ -1,4 +1,5 @@
 import { ShowMessage } from '../components/message.js';
+import {SetAlertsInner} from '../partials/alerts.js';
 import { ShowError } from '../components/error.js';
 import { apiFetch } from '../fetchers/api.js';
 import { TopBar } from '../partials/topbar.js';
@@ -57,6 +58,8 @@ export function attachLoginListener() {
                 connectWS(data.User.Id);
                 window.location.hash = '';
             }, 1000) : '';
+            SetAlertsInner(data.Error.Has ? ShowError(data) : ShowMessage(data));
+            data.User.LoggedIn ? setTimeout(() => window.location.hash = '', 1000) : '';
         });
     }
 }

@@ -4,6 +4,7 @@ import { routeSelect } from './router.js';
 import { connectWS } from './ws.js';
 import { UsersPanel, addUsersPanelButtonListener } from './components/users_panel.js';
 import { apiFetch } from './fetchers/api.js';
+import {SetAlertsInner} from './partials/alerts.js';
 
 function buildDOM() {
     const body = document.querySelector('body');
@@ -39,8 +40,8 @@ async function init() {
     document.querySelector('.topbar').innerHTML = TopBar(data);
     document.querySelector('.footer').innerHTML = renderFooter(data);
     if (data.User.LoggedIn) await initUserFeatures(data);
-    routeSelect();
     window.addEventListener('hashchange', () => {
+        SetAlertsInner('');
         document.querySelector('.alerts').innerHTML = '';
         routeSelect();
     });
