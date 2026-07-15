@@ -3,7 +3,7 @@ import { showCommentCreate, attachCommentCreateListener, attachCommentEditListen
 import { showPostCategories } from "./categories.js";
 import { ShowError } from "./error.js";
 import { apiFetch } from '../fetchers/api.js';
-import { attachPostDeleteListener } from '../forms/post_delete.js';
+import { postDeleteForm, attachPostDeleteListener } from '../forms/post_delete.js';
 
 export function displayPosts(data) {
     return data.Posts ? data.Posts.map(post => `
@@ -12,24 +12,7 @@ export function displayPosts(data) {
         <p>Posted on <em>${post.TimestampString}</em>.</p>
         <pre>${post.Body}</pre>
         ${post.ImagePath ? `<img src="/${post.ImagePath}" alt="Post image" style="max-width: max-content;"/>` : ''}
-        <div class="reactions">
-            <form method="POST" action="/api/post/react">
-                <input type="hidden" name="post-id" value="${post.Id}"/>
-                <button type="submit"
-                        name="action"
-                        value="like"
-                        ${data.User.LoggedIn ? '' : 'disabled'}
-                        >${post.Likes} ${post.Liked ? '👍': '👍🏻'}</button>
-            </form>
-            <form method="POST" action="/api/post/react">
-                <input type="hidden" name="post-id" value="${post.Id}"/>
-                <button type="submit"
-                        name="action"
-                        value="dislike"
-                        ${data.User.LoggedIn ? '' : 'disabled'}
-                        >${post.Dislikes} ${post.Disliked ? '👎' : '👎🏻' }</button>
-            </form>
-        </div>
+        ${postReactionForm(post,data.User.LoggedIn)}
         <div class="comments">
         ${data.User.LoggedIn ? showCommentCreate(post) : ''}
         </div>
@@ -53,10 +36,7 @@ export function displayPost(data) {
             <div class=manage-post>
                 ${data.User.Id === post.User.Id ? `
                 <a href="#/post/edit/${post.Id}"><button type="button">Edit Post</button></a>
-                <form id="post-delete" method="POST" action="/api/post/delete">
-                    <input type="hidden" name="post-id" value="${post.Id}"/>
-                    <button type="submit">Delete Post</button>
-                </form>
+                ${postDeleteForm(post.Id)}
                 `
         :
         ''
@@ -66,24 +46,7 @@ export function displayPost(data) {
             ${post.ImagePath ? `<img src="/${post.ImagePath}" alt="Post image" style="max-width: 100%;"/>` : '' }
             <div class="manage-post">
         </div>
-        <div class="reactions">
-            <form method="POST" action="/api/post/react">
-                <input type="hidden" name="post-id" value="${post.Id}"/>
-                <button type="submit"
-                        name="action"
-                        value="like"
-                        ${!data.User.LoggedIn ? 'disabled' : '' }
-                        >${post.Likes} ${post.Liked ? '👍' : '👍🏻' }</button>
-            </form>
-            <form method="POST" action="/api/post/react">
-                <input type="hidden" name="post-id" value="${post.Id}"/>
-                <button type="submit"
-                        name="action"
-                        value="dislike"
-                        ${!data.User.LoggedIn ? 'disabled' : '' }
-                        >${post.Dislikes} ${post.Disliked ? '👎' : '👎🏻' }</button>
-            </form>
-        </div>
+        ${postReactionForm(post,data.User.LoggedIn)}
         <div class="comments">
             ${data.User.LoggedIn ? showCommentCreate(post) : ''}
             ${post.Comments ? showPostComments(data) : ''}
