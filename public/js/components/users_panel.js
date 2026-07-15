@@ -1,7 +1,7 @@
 export function UsersPanel(data) {
     // The spread operator creates a new array containing the same users.
     // This is important because sort() changes the array on which it runs;
-    // copying data.Users prevents us from changing the original API data.
+    // copying data.Users prevents us from changing the original API data. 
     // localeCompare() compares the Username strings alphabetically.
     const sortedUsers = [...data.Users].sort((a, b) =>
         a.Username.localeCompare(b.Username)
