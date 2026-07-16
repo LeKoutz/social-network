@@ -36,18 +36,17 @@ export async function chatRoute(id, offset = 0) {
         chatMessages.scrollTop = chatMessages.scrollHeight;
         if (data.User.ChatMessages) data.User.ChatMessages.forEach(message => markMessageAsRead(message));
         attachChatListener(id);
-        attachScrollListener(id, offset);
+        attachScrollListener(id);
     }
 }
 
-function attachScrollListener(id, offset) {
+function attachScrollListener(id) {
     const chatMessages = document.querySelector('.chat-messages');
     if (!chatMessages) return;
-    let currentOffset = offset;
     const scrollHandler = throttle(async () => {
         if (chatMessages.scrollTop > 0) return;
-        currentOffset += 10;
         const lastViewedMessage = chatMessages.firstElementChild;
+        const currentOffset = chatMessages.children.length;
         const olderMessages = await fetchOlderMessages(id, currentOffset);
         if (olderMessages) {
             olderMessages.User.ChatMessages.forEach(message => {
