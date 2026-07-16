@@ -21,8 +21,7 @@ export function connectWS(userId) {
         switch (envelope.type) {
         case 'chat_message': {
             const msg = envelope.payload;
-            handleIncomingMessage(msg);
-            if (msg.RecipientId === userId) playNotificationTone();
+            handleIncomingMessage(userId, msg);
             break;
         }
         case 'user_status': {
@@ -51,16 +50,17 @@ export function disconnectWS() {
     }
 }
 
-function handleIncomingMessage(msg) {
+function handleIncomingMessage(userId, msg) {
     const chatMessages = document.querySelector('.chat-messages');
     const currentId = parseInt(window.location.hash.split('/').at(-1));
     if (!chatMessages || (msg.SenderId !== currentId && msg.RecipientId !== currentId)) {
         cacheUnreadMessage(msg);
         updateUnreadMessageBadges();
+        playNotificationTone();
         return;
     };
     chatMessages.insertAdjacentHTML('beforeend', showChatMessages({User: { ChatMessages: [msg] }}));
     const insertedMessage = chatMessages.lastElementChild;
     if (insertedMessage) insertedMessage.scrollIntoView();
-    notifyMessageRead(msg);
+    if (userId === msg.RecipientId) notifyMessageRead(msg);
 }

@@ -49,5 +49,5 @@ export function playNotificationTone() {
 }
 
 export function notifyMessageRead(msg) {
-    sendWS(JSON.stringify({ type: "message-read", payload: { id: msg.id }}));
+    sendWS(JSON.stringify({ type: "message-read", payload: { Id: msg.Id }}));
 }
