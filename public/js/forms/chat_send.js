@@ -49,12 +49,14 @@ function attachScrollListener(id, offset) {
     const scrollHandler = throttle(async () => {
         if (chatMessages.scrollTop > 0) return;
         currentOffset += 10;
+        const lastViewedMessage = chatMessages.firstElementChild;
         const olderMessages = await fetchOlderMessages(id, currentOffset);
         if (olderMessages) {
             olderMessages.User.ChatMessages.forEach(message => {
                 markMessageAsRead(message);
             });
             chatMessages.insertAdjacentHTML('afterbegin', showChatMessages(olderMessages));
+            lastViewedMessage.scrollIntoView();
         } else {
             chatMessages.removeEventListener('scroll', scrollHandler);
         }
