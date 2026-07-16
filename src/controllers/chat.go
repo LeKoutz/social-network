@@ -22,6 +22,10 @@ func showChatHistory(data models.ResponseStruct) {
 		(&models.Error{}).Consume(models.ErrorInvalidChatId).LogAndRespondError(data.Response, data.User)
 		return
 	}
+	if chatUserId == data.User.Id {
+		(&models.Error{}).Consume(models.ErrorNotFound).LogAndRespondError(data.Response, data.User)
+		return
+	}
 	offset, _ := utils.StringToInt64(data.Request.URL.Query().Get("offset"))
 	messages, err := models.GetChatHistory(data.User.Id, chatUserId, offset)
 	if err != nil {
