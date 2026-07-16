@@ -34,9 +34,7 @@ export async function chatRoute(id, offset = 0) {
         document.querySelector('.content').innerHTML = showChat(data);
         const chatMessages = document.querySelector('.chat-messages');
         chatMessages.scrollTop = chatMessages.scrollHeight;
-        data.User.ChatMessages.forEach(message => {
-            markMessageAsRead(message);
-        });
+        if (data.User.ChatMessages) data.User.ChatMessages.forEach(message => markMessageAsRead(message));
         attachChatListener(id);
         attachScrollListener(id, offset);
     }
