@@ -1,30 +1,49 @@
 import { TopBar } from './partials/topbar.js';
 import { renderFooter } from './partials/footer.js';
 import { routeSelect } from './router.js';
+import { connectWS } from './ws.js';
+import { UsersPanel, addUsersPanelButtonListener } from './components/users_panel.js';
+import { apiFetch } from './fetchers/api.js';
 
-const response = await fetch('/api/');
-const data = await response.json();
-const body = document.querySelector('body');
-const topbar = document.createElement('div');
-topbar.classList.add('topbar');
-topbar.innerHTML = TopBar(data);
-const alerts = document.createElement('div');
-alerts.classList.add('alerts');
-const container = document.createElement('div');
-container.classList.add('container');
-const content = document.createElement('div');
-content.classList.add('content');
-const usersPanel = document.createElement('div');
-usersPanel.classList.add('users-panel');
-container.append(content, usersPanel);
-const footer = document.createElement('div');
-footer.classList.add('footer');
-footer.innerHTML = renderFooter(data);
-body.append(topbar, alerts, container, footer);
+function buildDOM() {
+    const body = document.querySelector('body');
+    const topbar = document.createElement('div');
+    topbar.classList.add('topbar');
+    const alerts = document.createElement('div');
+    alerts.classList.add('alerts');
+    const content = document.createElement('div');
+    content.classList.add('content');
+    const usersPanel = document.createElement('div');
+    usersPanel.classList.add('users-panel');
+    const container = document.createElement('div');
+    container.classList.add('container');
+    container.append(content, usersPanel);
+    const footer = document.createElement('div');
+    footer.classList.add('footer');
+    body.append(topbar, alerts, container, footer);
+}
 
-routeSelect();
+async function initUserFeatures(data) {
+    connectWS(data.User.Id);
+    const usersData = await apiFetch('/api/users');
+    if (usersData) {
+        document.querySelector('.users-panel').innerHTML = UsersPanel(usersData);
+        addUsersPanelButtonListener();
+    }
+}
 
-window.addEventListener('hashchange', () => {
-    alerts.innerHTML = '';
+async function init() {
+    const data = await apiFetch('/api/');
+    if (!data) return;
+    buildDOM();
+    document.querySelector('.topbar').innerHTML = TopBar(data);
+    document.querySelector('.footer').innerHTML = renderFooter(data);
+    if (data.User.LoggedIn) await initUserFeatures(data);
     routeSelect();
-});
+    window.addEventListener('hashchange', () => {
+        document.querySelector('.alerts').innerHTML = '';
+        routeSelect();
+    });
+}
+
+init();

@@ -5,9 +5,11 @@ import { showChatMessages, cacheUnreadMessage, updateUnreadMessageBadges, playNo
 let ws = null;
 
 export function connectWS(userId) {
+    if (ws) disconnectWS();
     ws = new WebSocket(`ws://${window.location.host}/ws`);
     // debug prints for testing
     ws.onopen = async () => {
+        console.log('WS connected');
         const data = await apiFetch('/api/chat/unread');
         if (data && data.User.ChatMessages) {
             data.User.ChatMessages.forEach(message => cacheUnreadMessage(message));

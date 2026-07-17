@@ -1,9 +1,5 @@
 import { Categories } from './categories.js';
-import { TopBar } from '../partials/topbar.js';
 import { apiFetch } from '../fetchers/api.js';
-import { renderFooter } from '../partials/footer.js';
-import { connectWS } from '../ws.js';
-import { UsersPanel, addUsersPanelButtonListener } from './users_panel.js';
 
 export function showWelcome(data) {
     return `
@@ -24,19 +20,5 @@ export function showWelcome(data) {
 
 export async function indexRoute() {
     const data = await apiFetch('/api/');
-    if (data) {
-        document.querySelector('.content').innerHTML = showWelcome(data);
-        document.querySelector('.topbar').innerHTML = TopBar(data);
-        document.querySelector('.footer').innerHTML = renderFooter(data);
-    }
-    if (data && data.User.LoggedIn) {
-        const usersData = await apiFetch('/api/users');
-        if (usersData) {
-            document.querySelector('.users-panel').innerHTML = UsersPanel(usersData);
-        }
-        addUsersPanelButtonListener();
-        connectWS(data.User.Id);
-    } else if (data && !data.User.LoggedIn) {
-        document.querySelector('.users-panel').innerHTML = '';
-    }
+    if (data) document.querySelector('.content').innerHTML = showWelcome(data);
 }
