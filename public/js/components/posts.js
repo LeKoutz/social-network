@@ -5,7 +5,7 @@ import { ShowError } from "./error.js";
 import { apiFetch } from '../fetchers/api.js';
 
 export function displayPosts(data) {
-    return data.Posts.map(post => `
+    return data.Posts ? data.Posts.map(post => `
     <div class="post" id="${post.Id}">
         <a href="#/post/view/${post.Id}"><h3>${post.Title}</h3></a>
         <p>Posted on <em>${post.TimestampString}</em>.</p>
@@ -33,7 +33,7 @@ export function displayPosts(data) {
         ${data.User.LoggedIn ? showCommentCreate(post) : ''}
         </div>
     </div>
-    `).join('');
+    `).join('') : '';
 }
 
 export function displayPost(data) {
