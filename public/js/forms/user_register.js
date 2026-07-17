@@ -2,6 +2,7 @@ import { ShowMessage } from '../components/message.js';
 import {SetAlertsInner} from '../partials/alerts.js';
 import { ShowError } from '../components/error.js';
 import { apiFetch } from '../fetchers/api.js';
+import { attachGoogleAuthListener, attachGithubAuthListener } from '../fetchers/oauth.js';
 
 export function showUserRegister() {
     return `
@@ -61,8 +62,8 @@ export function showUserRegister() {
             </fieldset>
         </form>
         <div class="oauth-buttons">
-            <a href="/auth/google">Continue with Google</a>
-            <a href="/auth/github">Continue with GitHub</a>
+            <a id="google-auth" href="/auth/google">Continue with Google</a>
+            <a id="github-auth" href="/auth/github">Continue with GitHub</a>
         </div>
         <p>Already have an account? <a href="#/user/login">Login!</a></p>
     </div>
@@ -90,5 +91,7 @@ export async function registerRoute() {
     if (data) {
         document.querySelector('.content').innerHTML = showUserRegister();
         attachRegisterListener();
+        attachGoogleAuthListener();
+        attachGithubAuthListener();
     }
 }

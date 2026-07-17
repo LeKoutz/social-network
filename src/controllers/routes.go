@@ -31,10 +31,10 @@ var routes = Routes{
 	Route{Method: "POST", Path: "/api/comment/edit", Function: handleCommentEdit, NeedsLogin: true},
 	Route{Method: "POST", Path: "/api/comment/delete", Function: handleCommentDelete, NeedsLogin: true},
 
-	Route{Method: "GET", Path: "/api/auth/google/callback", Prefix: true, Function: handleGoogleCallback},
-	Route{Method: "GET", Path: "/api/auth/google", Prefix: true, Function: handleOAuthLoginGoogle},
-	Route{Method: "GET", Path: "/api/auth/github/callback", Prefix: true, Function: handleGitHubCallback},
-	Route{Method: "GET", Path: "/api/auth/github", Prefix: true, Function: handleOAuthLoginGithub},
+	Route{Method: "GET", Path: "/auth/google/callback", Prefix: true, Function: handleGoogleCallback},
+	Route{Method: "GET", Path: "/auth/google", Prefix: true, Function: handleOAuthLoginGoogle},
+	Route{Method: "GET", Path: "/auth/github/callback", Prefix: true, Function: handleGitHubCallback},
+	Route{Method: "GET", Path: "/auth/github", Prefix: true, Function: handleOAuthLoginGithub},
 
 	Route{Method: "GET", Path: "/api/posts", Function: showPosts, NeedsLogin: true},
 	Route{Method: "*", Path: "/api/post/create", Function: handlePostCreate, NeedsLogin: true},
