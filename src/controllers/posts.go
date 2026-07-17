@@ -251,7 +251,7 @@ func handlePostReaction(data models.ResponseStruct) {
 			(&models.Error{}).Consume(err).LogError()
 		}		
 	}
-	views.PostView(&data)
+	// views.PostView(&data)
 	redirectURL := fmt.Sprintf("/#/post/view/%d", post.Id)
 	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
 }

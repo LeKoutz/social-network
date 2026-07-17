@@ -1,3 +1,5 @@
+import { postReactRequest } from '../fetchers/posts.js';
+
 export function postReactionForm(post, logged_in) {
     return `
         <div class="reactions">
@@ -19,4 +21,13 @@ export function postReactionForm(post, logged_in) {
             </form>
         </div>
         `;
+}
+
+export function attachPostReactionListener() {
+    const forms = document.querySelector('.reactions')?.querySelectorAll('form');
+    if (forms) {
+        forms.forEach(form => {
+            form.addEventListener('submit', postReactRequest);
+        });
+    }
 }

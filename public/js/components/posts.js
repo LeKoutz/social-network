@@ -5,7 +5,7 @@ import { showPostCategories } from "./categories.js";
 import { ShowError } from "./error.js";
 import { apiFetch } from '../fetchers/api.js';
 import { postDeleteForm, attachPostDeleteListener } from '../forms/post_delete.js';
-import { postReactionForm } from "../forms/post_react.js";
+import {attachPostReactionListener, postReactionForm} from "../forms/post_react.js";
 
 export function displayPosts(data) {
     return data.Posts ? data.Posts.map(post => `
@@ -23,6 +23,7 @@ export function displayPosts(data) {
 }
 
 export function displayPost(data) {
+    console.log(data);
     const post = data.Posts[0];
     return `
     <div class="container">
@@ -74,6 +75,7 @@ export async function postRoute(id, arg) {
     const data = await apiFetch(`/api/post/view/${id}`);
     if (data) {
         document.querySelector('.content').innerHTML = displayPost(data);
+        attachPostReactionListener();
         attachCommentCreateListener();
         attachCommentEditListener();
         attachCommentDeleteListener();
