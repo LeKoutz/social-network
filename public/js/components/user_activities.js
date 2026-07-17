@@ -2,6 +2,7 @@ import {ShowActivityComment} from "./activity_comment.js";
 import {ShowActivityPost} from "./activity_post.js";
 import { ShowError } from "./error.js";
 import { apiFetch } from '../fetchers/api.js';
+import { displayPosts } from "./posts.js";
 
 function parseActivities(activities, data) {
     return activities !== null ? activities.map(activity=>parseActivity(activity, data)).join(''):'';
@@ -67,17 +68,12 @@ export async function ShowUserLikes() {
 </div>`;
 }
 
-export async function ShowUserPosts() {
-    const data = await fetch('/api/user/posts').then(r=>r.json());
-    if (data.Error && data.Error.Has) {
-        document.querySelector('.alerts').innerHTML = ShowError(data);
-        return '';
-    }
-    return `
+function ShowUserPosts(data) {
+    return`
 <div class="container">
     <div class="user-activity">
         <h2>My Posts</h2>
-        ${parseActivities(data.User.Activities, data)}
+        ${displayPosts(data)}
     </div>
 </div>`;
 }
@@ -86,5 +82,12 @@ export async function userActivityRoute() {
     const data = await apiFetch('/api/user/activity');
     if (data) {
         document.querySelector('.content').innerHTML = ShowUserActivity(data);
+    }
+}
+
+export async function userPostsRoute() {
+    const data = await apiFetch('/api/user/posts');
+    if (data) {
+        document.querySelector('.content').innerHTML = ShowUserPosts(data);
     }
 }

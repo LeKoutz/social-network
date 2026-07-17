@@ -258,7 +258,7 @@ func showUserPosts(data models.ResponseStruct) {
 		}
 	}
 	data.Posts = posts
-	views.PostsView(&data)
+	data.WriteResponse()
 }
 
 func showUserLikedPosts(data models.ResponseStruct) {
