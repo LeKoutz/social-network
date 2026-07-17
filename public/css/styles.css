@@ -122,6 +122,11 @@ input[type=submit]:hover, button:hover {
     flex-direction: row;
 }
 
+.container {
+    display: flex;
+    flex-direction: column;
+}
+
 .content {
     display: flex;
     flex-direction: column;
@@ -212,4 +217,38 @@ input[type=submit]:hover, button:hover {
 .manage-comment, .manage-post {
     display: flex;
     flex-direction: row;
+}
+
+.chat-messages {
+    height: 400px;
+    overflow-y: scroll;
+}
+
+.chat-message {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+}
+
+.users-panel {
+    position: fixed;
+    background: #1c1c1c;
+    right: 0;
+    width: 40%;
+    padding: 0 10px;
+    bottom: 0;
+}
+
+.users-panel-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#collapse-panel {
+    width: 36px;
+    height: 36px;
 }

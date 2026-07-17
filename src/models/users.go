@@ -44,3 +44,23 @@ func GetAllUserEmails() ([]string, error) {
 	}
 	return emails, nil
 }
+
+func GetAllUsers() ([]User, error) {
+	rows, err := db.Query(`SELECT id, username FROM users`)
+	if err != nil {
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return []User{}, err
+	}
+	defer rows.Close()
+	var users []User
+	for rows.Next() {
+		var user User
+		err = rows.Scan(&user.Id, &user.Username)
+		if err != nil {
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+			return []User{}, err
+		}
+		users = append(users, user)
+	}
+	return users, nil
+}

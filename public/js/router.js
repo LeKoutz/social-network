@@ -9,6 +9,7 @@ import { postRoute } from './components/posts.js';
 import { userMenuRoute } from './components/user.js';
 import { indexRoute } from './components/welcome.js';
 import { ShowError } from './components/error.js';
+import { chatRoute } from './forms/chat_send.js';
 
 export async function routeSelect() {
     const hash = window.location.hash;
@@ -46,6 +47,9 @@ export async function routeSelect() {
         break;
     case `#/post/edit/${id}`:
         await postEditRoute(id);
+        break;
+    case `#/chat/${id}`:
+        await chatRoute(id);
         break;
     case '#/':
     case '':

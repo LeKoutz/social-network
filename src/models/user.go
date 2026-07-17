@@ -24,6 +24,7 @@ type User struct {
 	Notifications            Notifications
 	UnreadNotificationsCount int
 	Activities               Activities
+	ChatMessages			 ChatMessages
 }
 
 func GetGuestUser() User {

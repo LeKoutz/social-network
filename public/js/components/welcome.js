@@ -1,5 +1,4 @@
 import { Categories } from './categories.js';
-import { TopBar } from '../partials/topbar.js';
 import { apiFetch } from '../fetchers/api.js';
 
 export function showWelcome(data) {
@@ -21,8 +20,5 @@ export function showWelcome(data) {
 
 export async function indexRoute() {
     const data = await apiFetch('/api/');
-    if (data) {
-        document.querySelector('.content').innerHTML = showWelcome(data);
-        document.querySelector('.topbar').innerHTML = TopBar(data);
-    }
+    if (data) document.querySelector('.content').innerHTML = showWelcome(data);
 }

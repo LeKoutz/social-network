@@ -1,6 +1,8 @@
 import { ShowMessage } from '../components/message.js';
 import { ShowError } from '../components/error.js';
 import { apiFetch } from '../fetchers/api.js';
+import { TopBar } from '../partials/topbar.js';
+import { connectWS } from '../ws.js';
 
 export function showUserLogin() {
     return `
@@ -50,7 +52,11 @@ export function attachLoginListener() {
             });
             const data = await response.json();
             document.querySelector('.alerts').innerHTML = data.Error.Has ? ShowError(data) : ShowMessage(data);
-            data.User.LoggedIn ? setTimeout(() => window.location.hash = '', 1000) : '';
+            data.User.LoggedIn ? setTimeout(() => {
+                document.querySelector('.topbar').innerHTML = TopBar(data);
+                connectWS(data.User.Id);
+                window.location.hash = '';
+            }, 1000) : '';
         });
     }
 }

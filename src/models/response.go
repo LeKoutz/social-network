@@ -17,6 +17,7 @@ type ResponseStruct struct {
 	WebsiteName string
 	View        string
 	User        User
+	Users	    []User
 	Posts       Posts
 	Categories  Categories
 	EditPost      bool
