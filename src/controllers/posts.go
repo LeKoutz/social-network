@@ -277,7 +277,7 @@ func handlePostDelete(data models.ResponseStruct) {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	http.Redirect(data.Response, data.Request, "/posts", http.StatusSeeOther)
+	data.WriteResponse()
 }
 
 func handlePostEdit(data models.ResponseStruct){

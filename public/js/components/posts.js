@@ -1,8 +1,9 @@
 import { showPostComments } from "./comments.js";
-import { showCommentCreate, attachCommentCreateListener, attachCommentEditListener } from "../forms/comment_create.js";
+import { showCommentCreate, attachCommentCreateListener, attachCommentEditListener, attachCommentDeleteListener } from "../forms/comment_create.js";
 import { showPostCategories } from "./categories.js";
 import { ShowError } from "./error.js";
 import { apiFetch } from '../fetchers/api.js';
+import { attachPostDeleteListener } from '../forms/post_delete.js';
 
 export function displayPosts(data) {
     return data.Posts ? data.Posts.map(post => `
@@ -52,7 +53,7 @@ export function displayPost(data) {
             <div class=manage-post>
                 ${data.User.Id === post.User.Id ? `
                 <a href="#/post/edit/${post.Id}"><button type="button">Edit Post</button></a>
-                <form method="POST" action="/api/post/delete">
+                <form id="post-delete" method="POST" action="/api/post/delete">
                     <input type="hidden" name="post-id" value="${post.Id}"/>
                     <button type="submit">Delete Post</button>
                 </form>
@@ -110,5 +111,7 @@ export async function postRoute(id) {
         document.querySelector('.content').innerHTML = displayPost(data);
         attachCommentCreateListener();
         attachCommentEditListener();
+        attachCommentDeleteListener();
+        attachPostDeleteListener();
     }
 }

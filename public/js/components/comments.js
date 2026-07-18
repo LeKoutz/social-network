@@ -10,7 +10,7 @@ export function showPostComments(data) {
                     <input type="hidden" name="comment-id" value="${comment.Id}"/>
                     <button type="submit">Edit Comment</button>
                 </form>
-                <form method="POST" action="/api/comment/delete">
+                <form method="POST" class="comment-delete" action="/api/comment/delete">
                     <input type="hidden" name="post-id" value="${post.Id}"/>
                     <input type="hidden" name="comment-id" value="${comment.Id}"/>
                     <button type="submit">Delete Comment</button>

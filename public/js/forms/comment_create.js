@@ -1,4 +1,5 @@
 import {commentCreateRequest, commentEditRequest} from '../fetchers/comments.js';
+import {ShowError} from '../components/error.js';
 
 export function showCommentCreate(post) {
     return `
@@ -25,6 +26,29 @@ export function attachCommentEditListener() {
     if (forms) {
         forms.forEach(form => {
             form.addEventListener('submit', commentEditRequest);
+        });
+    }
+}
+
+export function attachCommentDeleteListener() {
+    const forms = document.querySelectorAll('.comment-delete');
+    if (forms) {
+        forms.forEach(form => {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const commentId = e.target.querySelector('[name="comment-id"]').value;
+                const url = `/api/comment/delete`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: new URLSearchParams(new FormData(e.target))
+                });
+                const data = await response.json();
+                if (data.Error && data.Error.Has) {
+                    document.querySelector('.alerts').innerHTML = ShowError(data);
+                    return;
+                }
+                document.querySelector(`#comment-${commentId}`).remove();
+            });
         });
     }
 }

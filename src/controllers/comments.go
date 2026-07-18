@@ -116,8 +116,7 @@ func handleCommentDelete(data models.ResponseStruct) {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	redirectURL := fmt.Sprintf("/post/view/%d", comment.PostId)
-	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
+	data.WriteResponse()
 }
 
 func handleCommentEdit(data models.ResponseStruct) {
