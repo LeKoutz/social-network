@@ -45,6 +45,7 @@ async function init() {
         document.querySelector('.alerts').innerHTML = '';
         routeSelect();
     });
+    routeSelect();
 }
 
 init();
