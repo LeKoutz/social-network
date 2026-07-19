@@ -14,7 +14,7 @@ export function showWelcome(data) {
                 <p>In case you don't have an account, you can create one by clicking
                 <a href="#/user/register">here</a>  or via menu at the top of the page.</p>`:''}
         </div>
-        ${Categories(data)}
+        ${data.User.LoggedIn ? Categories(data) : ''}
 `;
 }
 
