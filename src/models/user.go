@@ -17,7 +17,7 @@ type User struct {
 	LastName				 string
 	Age						 int64
 	Gender					 string
-	Hash                     string
+	Hash                     string `json:"-"`
 	Email                    string
 	LoggedIn                 bool
 	OAuthProvider            string
