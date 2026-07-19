@@ -1,4 +1,6 @@
-export function TopBar(data) {
+import { expandNotificationsPanel, attachNotificationsButtonListener } from '../components/notifications.js';
+
+function TopBar(data) {
     return `
 <div class="title">
     <a href="/#"><h1>${data.WebsiteName}</h1></a>
@@ -16,8 +18,8 @@ export function TopBar(data) {
                 <li><a href="#/user/posts">My posts</a></li>
                 <li><a href="#/user/likes">My likes</a></li>
                 <li><details>
-                    <summary>Notifications 🔔 ${data.User.UnreadNotificationsCount > 0 ? `(${data.User.unreadNotificationsCount})` : ''}</summary>
-                    ${data.User.Notifications && data.User.Notifications.length > 0 ? '' /*TODO NotificationsList(data.User.Notifications) */ : ''}
+                    <summary>Notifications 🔔 ${data.User.UnreadNotificationsCount ? `(${data.User.UnreadNotificationsCount})` : ''}</summary>
+                    ${data.User.Notifications && data.User.Notifications.length > 0 ? `${expandNotificationsPanel(data)}` : ''}
                 </details></li>
                 <li><a href="#/user/logout">Log out</a></li>
             </ul>
@@ -29,4 +31,9 @@ export function TopBar(data) {
     </ul>
 </div>
 `;
+}
+
+export function renderTopBar(data) {
+    document.querySelector('.topbar').innerHTML = TopBar(data);
+    attachNotificationsButtonListener();
 }

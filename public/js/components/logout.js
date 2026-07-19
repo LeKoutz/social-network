@@ -1,7 +1,7 @@
 import { ShowMessage } from './message.js';
 import { apiFetch } from '../fetchers/api.js';
 import { disconnectWS } from '../ws.js';
-import { TopBar } from '../partials/topbar.js';
+import { renderTopBar } from '../partials/topbar.js';
 
 export function userLogout(data) {
     return `
@@ -18,7 +18,7 @@ export async function logoutRoute() {
         document.querySelector('.content').innerHTML = userLogout(data);
         disconnectWS();
         setTimeout(() => {
-            document.querySelector('.topbar').innerHTML = TopBar(data);
+            renderTopBar(data);
             document.querySelector('.users-panel').innerHTML = '';
             window.location.hash = '';
         }, 1000);

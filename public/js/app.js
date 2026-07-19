@@ -1,4 +1,4 @@
-import { TopBar } from './partials/topbar.js';
+import { renderTopBar } from './partials/topbar.js';
 import { renderFooter } from './partials/footer.js';
 import { routeSelect } from './router.js';
 import { connectWS } from './ws.js';
@@ -37,7 +37,7 @@ async function init() {
     const data = await apiFetch('/api/');
     if (!data) return;
     buildDOM();
-    document.querySelector('.topbar').innerHTML = TopBar(data);
+    renderTopBar(data);
     document.querySelector('.footer').innerHTML = renderFooter(data);
     if (data.User.LoggedIn) await initUserFeatures(data);
     window.addEventListener('hashchange', () => {
