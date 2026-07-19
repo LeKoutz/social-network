@@ -3,6 +3,33 @@ import { UsersPanel, addUsersPanelButtonListener } from './components/users_pane
 import { showChatMessages, cacheUnreadMessage, updateUnreadMessageBadges, playNotificationTone, notifyMessageRead } from './components/chat.js';
 
 let ws = null;
+// Function to refresh the users panel by fetching the latest user data and updating the panel's HTML
+async function refreshUsersPanel() {
+    const panel = document.querySelector('.users-panel');
+
+    if (!panel) return;
+
+    // Θυμόμαστε αν το panel ήταν κλειστό.
+    const wasCollapsed =
+        panel.querySelector('.users-panel-inner')?.hidden ?? false;
+
+    const usersData = await apiFetch('/api/users');
+
+    if (!usersData) return;
+
+    // Αντικαθιστούμε μόνο το users panel, όχι ολόκληρη τη σελίδα.
+    panel.innerHTML = UsersPanel(usersData);
+
+    const panelInner = panel.querySelector('.users-panel-inner');
+
+    if (panelInner) {
+        panelInner.hidden = wasCollapsed;
+    }
+
+    // Επαναφέρουμε badges και click listener επειδή δημιουργήθηκε νέο HTML.
+    updateUnreadMessageBadges();
+    addUsersPanelButtonListener();
+}
 
 export function connectWS(userId) {
     if (ws) disconnectWS();
@@ -21,20 +48,18 @@ export function connectWS(userId) {
     ws.onmessage = async (e) => {
         const envelope = JSON.parse(e.data);
         switch (envelope.type) {
-        case 'chat_message': {
-            const msg = envelope.payload;
-            handleIncomingMessage(userId, msg);
-            break;
-        }
-        case 'user_status': {
-            const usersData = await apiFetch('/api/users');
-            if (usersData) {
-                document.querySelector('.users-panel').innerHTML = UsersPanel(usersData);
-                updateUnreadMessageBadges();
+            case 'chat_message': {
+                const msg = envelope.payload;
+                handleIncomingMessage(userId, msg);
+                
+                // Refresh the users panel to reflect the latest message timestamps and user statuses
+                await refreshUsersPanel();
+                break;
             }
-            addUsersPanelButtonListener();
-            break;
-        }
+            case 'user_status': {
+                await refreshUsersPanel();
+                break;
+            }
         }
     };
 }
