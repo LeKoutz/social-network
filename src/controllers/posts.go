@@ -251,9 +251,13 @@ func handlePostReaction(data models.ResponseStruct) {
 			(&models.Error{}).Consume(err).LogError()
 		}		
 	}
-	// views.PostView(&data)
-	redirectURL := fmt.Sprintf("/#/post/view/%d", post.Id)
-	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
+	data.SetPosts(models.Posts{post})
+	err = getPostDataById(&data)
+	if err != nil {
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	data.WriteResponse()
 }
 
 func handlePostDelete(data models.ResponseStruct) {
