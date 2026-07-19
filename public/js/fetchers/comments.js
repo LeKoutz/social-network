@@ -1,5 +1,6 @@
 import { ShowError } from '../components/error.js';
 import { displayPost, showPostView } from '../components/posts.js';
+import { attachCommentEditListener } from '../forms/comment_create.js';
 
 export async function commentCreateRequest(e) {
     e.preventDefault();
@@ -29,7 +30,7 @@ export async function commentEditRequest(e) {
         content.innerHTML = ShowError(data);
         return;
     }
-    if (form.dataset.type === 'save') {
+    if (e.target.dataset.type === 'save') {
         content.innerHTML = await showPostView(data.Posts[0].Id);
     } else {
         content.innerHTML = displayPost(data);
