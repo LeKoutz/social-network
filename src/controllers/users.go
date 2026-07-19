@@ -3,9 +3,10 @@ package controllers
 import (
 	"forum/src/models"
 )
-
+// GetUsersForPanel retrieves all users for the panel, excluding the current user
 func getUsers(data models.ResponseStruct) {
-	users, err := models.GetAllUsers()
+	// Get all users for the panel
+	users, err := models.GetUsersForPanel(data.User.Id)
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return

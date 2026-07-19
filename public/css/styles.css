@@ -247,7 +247,24 @@ input[type=submit]:hover, button:hover {
     justify-content: space-between;
     align-items: center;
 }
+.users-panel-inner > ul{
+    list-style: none;
+    padding: 0 0 0 10px;
+}
 
+.users-panel-inner li {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.last-message-time {
+    color: lightgreen;
+    font-size: 0.8rem;
+    opacity: 0.75;
+    white-space: nowrap;
+}
 #collapse-panel {
     width: 36px;
     height: 36px;
