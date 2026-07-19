@@ -22,11 +22,7 @@ a {
     flex-direction: column;
     gap: 5px;
 }
-@media (min-width: 1200px) {
-  .container, .navbar-static-top .container, .navbar-fixed-top .container, .navbar-fixed-bottom .container {
-    width: 1170px;
-  }
-}
+
 .categories * {
     margin: 0px;
     padding: 0px;
@@ -127,8 +123,8 @@ input[type=submit]:hover, button:hover {
 }
 
 .container {
-    margin-right: auto;
-    margin-left: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .content {

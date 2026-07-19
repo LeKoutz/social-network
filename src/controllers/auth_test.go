@@ -45,7 +45,6 @@ func TestAuth(t *testing.T) {
 				hash, _ := utils.HashPassword(tt.password)
 				user := models.User{
 					Username: "tester",
-					Gender:   "other",
 					Email:    tt.email,
 					Hash:     hash,
 				}
