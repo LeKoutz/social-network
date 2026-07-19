@@ -3,9 +3,9 @@ import { sendWS } from '../ws.js';
 import { markMessageAsRead, showChatMessages } from '../components/chat.js';
 import { throttle } from '../utils/utils.js';
 
-function showChat(data) {
+function showChat(data, recipientUsername) {
     return `<div class="chat-container">
-        <h2>Chat</h2>
+        <h2>Chat with <span>${recipientUsername}</span></h2>
         <div class="chat-messages">
             ${data.User.ChatMessages ? showChatMessages(data) : ''}
         </div>
@@ -14,6 +14,11 @@ function showChat(data) {
             <input type="submit" value="Send"/>
         </form>
     </div>`;
+}
+
+function getChatUsername(id) {
+    const userLink = document.querySelector('.users-panel [data-user-id="' + id + '"] a');
+    return userLink ? userLink.textContent.trim() : 'user';
 }
 
 function attachChatListener(id) {
@@ -31,7 +36,7 @@ function attachChatListener(id) {
 export async function chatRoute(id, offset = 0) {
     const data = await apiFetch(`/api/chat/${id}?offset=${offset}`);
     if (data) {
-        document.querySelector('.content').innerHTML = showChat(data);
+        document.querySelector('.content').innerHTML = showChat(data, getChatUsername(id));
         const chatMessages = document.querySelector('.chat-messages');
         chatMessages.scrollTop = chatMessages.scrollHeight;
         if (data.User.ChatMessages) data.User.ChatMessages.forEach(message => markMessageAsRead(message));

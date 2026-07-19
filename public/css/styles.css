@@ -531,7 +531,9 @@ legend {
 .chat-container h2 {
     margin-bottom: 18px;
 }
-
+.chat-container h2 > span{
+    color: var(--accent);
+}
 .chat-messages {
     height: min(58vh, 570px);
     min-height: 300px;
@@ -544,7 +546,6 @@ legend {
 }
 
 .chat-message {
-    width: min(82%, 720px);
     padding: 11px 13px;
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
