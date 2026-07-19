@@ -4,6 +4,7 @@ import { attachCommentEditListener } from '../forms/comment_create.js';
 
 export async function commentCreateRequest(e) {
     e.preventDefault();
+    const postId = e.target.querySelector('[name="post-id"]').value;
     const content = document.querySelector('.content');
     const response = await fetch('/api/comment/create', {
         method: 'POST',
@@ -14,8 +15,7 @@ export async function commentCreateRequest(e) {
         content.innerHTML = ShowError(data);
         return;
     }
-    content.innerHTML = await showPostView(data.postId);
-    document.querySelector(`#comment-${data.commentId}`).scrollIntoView();
+    window.location.hash = `/post/view/${postId}#comment-${data.commentId}`;
 }
 
 export async function commentEditRequest(e) {
