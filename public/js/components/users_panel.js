@@ -1,6 +1,13 @@
 export function UsersPanel(data) {
-    const onlineUsers = data.Users.filter(user => user.LoggedIn);
-    const offlineUsers = data.Users.filter(user => !user.LoggedIn);
+
+    //create a new array of users sorted by username
+    const sortedUsers = [...data.Users].sort((a, b) =>
+        a.Username.localeCompare(b.Username)
+    );
+    //filter the users into online and offline arrays
+    const onlineUsers = sortedUsers.filter(user => user.LoggedIn);
+    const offlineUsers = sortedUsers.filter(user => !user.LoggedIn);
+
     return `
     <div class="users-panel-header">
         <h3>Users</h3>
