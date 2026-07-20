@@ -22,7 +22,7 @@ export function attachPostDeleteListener() {
 
 export function postDeleteForm(post_id) {
     return `
-        <form method="POST" action="/api/post/delete">
+        <form id="post-delete" method="POST" action="/api/post/delete">
             <input type="hidden" name="post-id" value="${post_id}"/>
             <button type="submit">Delete Post</button>
         </form>
