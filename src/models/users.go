@@ -8,9 +8,7 @@ import (
 func GetAllUsernames() ([]string, error) {
 	rows, err := db.Query(`SELECT username FROM users`)
 	if err != nil {
-		if config.Debug {
-			err = errors.Join(utils.GetFunctionName(), err)
-		}
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return []string{}, err
 	}
 	defer rows.Close()
@@ -19,9 +17,7 @@ func GetAllUsernames() ([]string, error) {
 		var email string
 		err = rows.Scan(&email)
 		if err != nil {
-			if config.Debug {
-				err = errors.Join(utils.GetFunctionName(), err)
-			}
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return []string{}, err
 		}
 		usernames = append(usernames, email)
@@ -32,9 +28,7 @@ func GetAllUsernames() ([]string, error) {
 func GetAllUserEmails() ([]string, error) {
 	rows, err := db.Query(`SELECT email FROM users`)
 	if err != nil {
-		if config.Debug {
-			err = errors.Join(utils.GetFunctionName(), err)
-		}
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return []string{}, err
 	}
 	defer rows.Close()
@@ -43,9 +37,7 @@ func GetAllUserEmails() ([]string, error) {
 		var email string
 		err = rows.Scan(&email)
 		if err != nil {
-			if config.Debug {
-				err = errors.Join(utils.GetFunctionName(), err)
-			}
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return []string{}, err
 		}
 		emails = append(emails, email)
@@ -56,9 +48,7 @@ func GetAllUserEmails() ([]string, error) {
 func GetAllUsers() ([]User, error) {
 	rows, err := db.Query(`SELECT id, username FROM users`)
 	if err != nil {
-		if config.Debug {
-			err = errors.Join(utils.GetFunctionName(), err)
-		}
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return []User{}, err
 	}
 	defer rows.Close()
@@ -67,9 +57,7 @@ func GetAllUsers() ([]User, error) {
 		var user User
 		err = rows.Scan(&user.Id, &user.Username)
 		if err != nil {
-			if config.Debug {
-				err = errors.Join(utils.GetFunctionName(), err)
-			}
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return []User{}, err
 		}
 		users = append(users, user)
