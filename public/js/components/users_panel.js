@@ -7,7 +7,6 @@ function formatLastMessageTimestamp(timestamp) {
     const year = String(date.getFullYear()).slice(-2);
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
-
     return `${day}-${month}-${year}, ${hours}:${minutes}`;
 }
 
@@ -25,40 +24,28 @@ function renderUser(user, currentUserId, offline = false) {
         ${lastMessageLabel}
     </li>`;
 }
-export function UsersPanel(data) {
 
-    //create a new array of users sorted by username
+export function UsersPanel(data) {
     const sortedUsers = [...data.Users].sort((a, b) => {
         const aHasMessages = a.LastMessageTimestamp > 0;
         const bHasMessages = b.LastMessageTimestamp > 0;
-
-        // Αν έχουν και οι δύο μηνύματα, το πιο πρόσφατο έρχεται πρώτο.
         if (aHasMessages && bHasMessages) {
             const timestampDifference =
                 b.LastMessageTimestamp - a.LastMessageTimestamp;
-
-            // Αν τα timestamps διαφέρουν, έχουμε ήδη τη σειρά.
             if (timestampDifference !== 0) {
                 return timestampDifference;
             }
         }
-
-        // Ο χρήστης που έχει ιστορικό μηνυμάτων προηγείται.
         if (aHasMessages && !bHasMessages) {
             return -1;
         }
-
         if (!aHasMessages && bHasMessages) {
             return 1;
         }
-
-        // Χωρίς μηνύματα ή με ίδιο timestamp: αλφαβητικά.
         return a.Username.localeCompare(b.Username);
     });
-    //filter the users into online and offline arrays
     const onlineUsers = sortedUsers.filter(user => user.LoggedIn);
     const offlineUsers = sortedUsers.filter(user => !user.LoggedIn);
-
     return `
     <div class="users-panel-header">
         <h3>Users</h3>
@@ -80,7 +67,6 @@ export function UsersPanel(data) {
 export function addUsersPanelButtonListener() {
     const collapse_button = document.querySelector('#collapse-panel');
     const upi = document.querySelector('.users-panel-inner');
-
     collapse_button.addEventListener("click", ()=>{
         upi.hidden = !upi.hidden;
     });

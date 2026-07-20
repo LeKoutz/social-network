@@ -25,8 +25,7 @@ type User struct {
 	UnreadNotificationsCount int
 	Activities               Activities
 	ChatMessages             ChatMessages
-	// LastMessageTimestamp is the timestamp of the last message sent or received by the user
-	LastMessageTimestamp int64
+	LastMessageTimestamp 	 int64
 }
 
 func GetGuestUser() User {

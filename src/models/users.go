@@ -77,9 +77,9 @@ func GetAllUsers() ([]User, error) {
 	return users, nil
 }
 
-// GetUsersForPanel retrieves all users from the database, excluding the current user, and returns them as a slice of User structs. It also retrieves the timestamp of the last message sent or received by each user.
+// GetUsersForPanel retrieves all users from the database, excluding the current user, and returns them as a slice of User structs.
+// It also retrieves the timestamp of the last message sent or received by each user.
 func GetUsersForPanel(currentUserId int64) ([]User, error) {
-	// Query to retrieve all users excluding the current user, along with the timestamp of the last message sent or received by each user
 	rows, err := db.Query(`
 	SELECT
 		u.id,
@@ -93,21 +93,16 @@ func GetUsersForPanel(currentUserId int64) ([]User, error) {
 	WHERE u.id != ?
 	GROUP BY u.id, u.username
 	`, currentUserId, currentUserId, currentUserId)
-	// Check for errors in the query execution
 	if err != nil {
 		if config.Debug {
 			err = errors.Join(utils.GetFunctionName(), err)
 		}
-		// Return an empty slice and the error if the query fails
 		return []User{}, err
 	}
 	defer rows.Close()
-	// Initialize a slice to hold the retrieved users
 	var users []User
-	// Iterate through the rows returned by the query
 	for rows.Next() {
 		var user User
-		// Scan the row into the user struct fields
 		err = rows.Scan(
 			&user.Id,
 			&user.Username,
@@ -119,9 +114,7 @@ func GetUsersForPanel(currentUserId int64) ([]User, error) {
 			}
 			return []User{}, err
 		}
-		// Append the user to the users slice
 		users = append(users, user)
 	}
-	// Return the slice of users and nil error if successful
 	return users, nil
 }
