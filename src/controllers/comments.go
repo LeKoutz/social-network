@@ -90,9 +90,20 @@ func handleCommentReaction(data models.ResponseStruct) {
 			(&models.Error{}).Consume(err).LogError()
 		}
 	}
+	err = comment.GetReactions()
+	if err != nil {
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	err = comment.GetReactionsByUserId(data.User.Id)
+	if err != nil {
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	post := models.Post{Id: comment.PostId}
+	post.Comments = models.Comments{comment}
+	data.SetPosts(models.Posts{post})
 	data.WriteResponse()
-	// redirectURL := fmt.Sprintf("/#/post/view/%d#comment-%d", comment.PostId, comment.Id)
-	// http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
 }
 
 func handleCommentDelete(data models.ResponseStruct) {

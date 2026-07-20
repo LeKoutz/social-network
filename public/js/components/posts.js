@@ -6,6 +6,7 @@ import { ShowError } from "./error.js";
 import { apiFetch } from '../fetchers/api.js';
 import { postDeleteForm, attachPostDeleteListener } from '../forms/post_delete.js';
 import {attachPostReactionListener, postReactionForm} from "../forms/post_react.js";
+import {attachCommentReactionListener} from '../forms/comment_react.js'
 
 export function displayPosts(data) {
     return data.Posts ? data.Posts.map(post => `
@@ -83,6 +84,7 @@ export async function postRoute(id, arg) {
         attachCommentCreateListener();
         attachCommentEditListener();
         attachCommentDeleteListener();
+        attachCommentReactionListener();
         attachPostDeleteListener();
         if (arg !== undefined) {
             const args = arg.split('-');

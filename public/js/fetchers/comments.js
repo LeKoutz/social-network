@@ -1,7 +1,8 @@
 import { ShowError } from '../components/error.js';
 import { displayPost, showPostView } from '../components/posts.js';
 import { attachCommentEditListener } from '../forms/comment_create.js';
-import {attachCommentReactionListener} from '../forms/comment_react.js';
+import {commentReactForm, attachCommentReactionListener} from '../forms/comment_react.js';
+import {SetAlertsInner} from '../partials/alerts.js';
 
 export async function commentCreateRequest(e) {
     e.preventDefault();
@@ -41,21 +42,18 @@ export async function commentEditRequest(e) {
 
 export async function commentReactRequest(e) {
     e.preventDefault();
-    const content = document.querySelector('.content');
+    const commentId = e.target.querySelector('[name="comment-id"]').value
+    const content = document.querySelector(`[id="comment-${commentId}"] .reactions`);
     const response = await fetch('/api/comment/react', {
         method: 'POST',
         body: new URLSearchParams(new FormData(e.target))
     });
     const data = await response.json();
+    console.log(data)
     if (data.Error && data.Error.Has) {
-        content.innerHTML = ShowError(data);
+        SetAlertsInner(ShowError(data));
         return;
     }
-    e.target.parentElement.innerHTML = commentReactForm(data.Posts[0], data.User.LoggedIn);
-    // if (form.dataset.type === 'save') {
-    //     content.innerHTML = await showPostView(data.Posts[0].Id);
-    // } else {
-    //     content.innerHTML = displayPost(data);
-    // }
+    content.innerHTML = commentReactForm(data.Posts[0].Id, data.Posts[0].Comments[0], data.User.LoggedIn);
     attachCommentReactionListener();
 }
