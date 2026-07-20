@@ -26,7 +26,7 @@ function renderUser(user, currentUserId, offline = false) {
 }
 
 export function UsersPanel(data) {
-    const sortedUsers = [...data.Users].sort((a, b) => {
+    const sortedUsers = [...(data.Users || [])].sort((a, b) => {
         const aHasMessages = a.LastMessageTimestamp > 0;
         const bHasMessages = b.LastMessageTimestamp > 0;
         if (aHasMessages && bHasMessages) {
