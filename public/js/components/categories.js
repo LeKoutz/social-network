@@ -3,6 +3,7 @@ import {SetAlertsInner} from '../partials/alerts.js';
 import { displayPosts } from './posts.js';
 import { apiFetch } from '../fetchers/api.js';
 import { attachCommentCreateListener } from '../forms/comment_create.js';
+import {attachPostReactionListener} from '../forms/post_react.js';
 
 export function Categories(data) {
     return `
@@ -48,6 +49,7 @@ export async function categoryRoute(id) {
     const data = await apiFetch(`/api/category/view/${id}`);
     if (data) {
         document.querySelector('.content').innerHTML = showCategoryView(data);
+        attachPostReactionListener();
         attachCommentCreateListener();
     }
 }

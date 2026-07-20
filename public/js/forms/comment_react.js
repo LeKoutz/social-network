@@ -1,7 +1,8 @@
+import { commentReactRequest } from '../fetchers/comments.js';
+
 export function commentReactForm(post_id, comment, logged_in){
     return `
-            <div class="reactions">
-                <form method="POST" action="/api/comment/react">
+                <form method="POST">
                     <input type="hidden" name="post-id" value="${post_id}"/>
                     <input type="hidden" name="comment-id" value="${comment.Id}"/>
                     <button type="submit"
@@ -10,7 +11,7 @@ export function commentReactForm(post_id, comment, logged_in){
                             ${!logged_in ? 'disabled' : '' }
                             >${comment.Likes} ${comment.Liked ? '👍' : '👍🏻' }</button>
                 </form>
-                <form method="POST" action="/api/comment/react">
+                <form method="POST">
                     <input type="hidden" name="post-id" value="${post_id}"/>
                     <input type="hidden" name="comment-id" value="${comment.Id}"/>
                     <button type="submit"
@@ -24,7 +25,9 @@ export function commentReactForm(post_id, comment, logged_in){
 }
 
 export function attachCommentReactionListener() {
-    const forms = document.querySelector('.reactions')?.querySelector('form');
+    const forms = document.querySelector('.comment').querySelector('.reactions').querySelector('form');
+    console.log("jc");
+    console.log(forms);
     if (forms) {
         forms.forEach(form => {
             form.addEventListener('submit', commentReactRequest);

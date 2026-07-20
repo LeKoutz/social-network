@@ -14,9 +14,11 @@ export function displayPosts(data) {
         <p>Posted on <em>${post.TimestampString}</em>.</p>
         <pre>${post.Body}</pre>
         ${post.ImagePath ? `<img src="/${post.ImagePath}" alt="Post image" style="max-width: max-content;"/>` : ''}
-        ${postReactionForm(post,data.User.LoggedIn)}
+        <div class="reactions">
+            ${postReactionForm(post,data.User.LoggedIn)}
+        </div>
         <div class="comments">
-        ${data.User.LoggedIn ? showCommentCreate(post) : ''}
+            ${data.User.LoggedIn ? showCommentCreate(post) : ''}
         </div>
     </div>
     `).join('') : '';
@@ -36,7 +38,7 @@ export function displayPost(data) {
                 </p>
                 <p>Posted by <strong>${post.User.Username}</strong> on <em>(${post.TimestampString})</em></p>
             </div>
-            <div class=manage-post>
+            <div class="manage-post">
                 ${data.User.Id === post.User.Id ? `
                 <a href="#/post/edit/${post.Id}"><button type="button">Edit Post</button></a>
                 ${postDeleteForm(post.Id)}
@@ -49,7 +51,9 @@ export function displayPost(data) {
             ${post.ImagePath ? `<img src="/${post.ImagePath}" alt="Post image" style="max-width: 100%;"/>` : '' }
             <div class="manage-post">
         </div>
+        <div class="reactions">
         ${postReactionForm(post,data.User.LoggedIn)}
+        </div>
         <div class="comments">
             ${data.User.LoggedIn ? showCommentCreate(post) : ''}
             ${post.Comments ? showPostComments(data) : ''}

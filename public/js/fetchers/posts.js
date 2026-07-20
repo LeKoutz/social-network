@@ -1,6 +1,6 @@
 import {ShowError} from "../components/error.js";
-import {displayPost, showPostView} from "../components/posts.js";
-import {attachPostReactionListener} from "../forms/post_react.js";
+// import {displayPost, showPostView} from "../components/posts.js";
+import {attachPostReactionListener, postReactionForm} from "../forms/post_react.js";
 
 export async function postReactRequest(e) {
     e.preventDefault();
@@ -14,11 +14,7 @@ export async function postReactRequest(e) {
         content.innerHTML = ShowError(data);
         return;
     }
-    if (e.target.dataset.type === 'save') {
-        content.innerHTML = await showPostView(data.Posts[0].Id);
-    } else {
-        content.innerHTML = displayPost(data);
-    }
+    e.target.parentElement.innerHTML = postReactionForm(data.Posts[0], data.User.LoggedIn);
     attachPostReactionListener();
 }
 

@@ -1,6 +1,7 @@
 import { ShowError } from '../components/error.js';
 import { displayPost, showPostView } from '../components/posts.js';
 import { attachCommentEditListener } from '../forms/comment_create.js';
+import {attachCommentReactionListener} from '../forms/comment_react.js';
 
 export async function commentCreateRequest(e) {
     e.preventDefault();
@@ -50,10 +51,11 @@ export async function commentReactRequest(e) {
         content.innerHTML = ShowError(data);
         return;
     }
-    if (form.dataset.type === 'save') {
-        content.innerHTML = await showPostView(data.Posts[0].Id);
-    } else {
-        content.innerHTML = displayPost(data);
-    }
-    attachCommentReactListener();
+    e.target.parentElement.innerHTML = commentReactForm(data.Posts[0], data.User.LoggedIn);
+    // if (form.dataset.type === 'save') {
+    //     content.innerHTML = await showPostView(data.Posts[0].Id);
+    // } else {
+    //     content.innerHTML = displayPost(data);
+    // }
+    attachCommentReactionListener();
 }

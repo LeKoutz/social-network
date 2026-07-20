@@ -2,11 +2,11 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
+	// "fmt"
 	"forum/src/models"
 	"forum/src/utils"
 	"forum/src/views"
-	"net/http"
+	// "net/http"
 )
 
 func parseCommentId(data models.ResponseStruct) (int64, error) {
@@ -90,8 +90,9 @@ func handleCommentReaction(data models.ResponseStruct) {
 			(&models.Error{}).Consume(err).LogError()
 		}
 	}
-	redirectURL := fmt.Sprintf("/#/post/view/%d#comment-%d", comment.PostId, comment.Id)
-	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
+	data.WriteResponse()
+	// redirectURL := fmt.Sprintf("/#/post/view/%d#comment-%d", comment.PostId, comment.Id)
+	// http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
 }
 
 func handleCommentDelete(data models.ResponseStruct) {
