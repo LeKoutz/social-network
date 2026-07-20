@@ -1,5 +1,5 @@
 import { ShowError } from '../components/error.js'
-import { TopBar } from '../partials/topbar.js'
+import { renderTopBar } from '../partials/topbar.js'
 import { initUserFeatures } from '../app.js'
 
 function handleOAuthPopup(url) {
@@ -20,7 +20,7 @@ function handleOAuthPopup(url) {
                 document.querySelector('.alerts').innerHTML = ShowError(data)
                 return
             }
-            document.querySelector('.topbar').innerHTML = TopBar(data)
+            renderTopBar(data)
             initUserFeatures(data)
             window.location.hash = ''
         } catch (e) {}
