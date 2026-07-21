@@ -6,7 +6,7 @@ import { ShowError } from "./error.js";
 import { apiFetch } from '../fetchers/api.js';
 import { postDeleteForm, attachPostDeleteListener } from '../forms/post_delete.js';
 import {attachPostReactionListener, postReactionForm} from "../forms/post_react.js";
-import {attachCommentReactionListener} from '../forms/comment_react.js'
+import {attachCommentReactionListener} from '../forms/comment_react.js';
 
 export function displayPosts(data) {
     return data.Posts ? data.Posts.map(post => `
@@ -86,8 +86,8 @@ export async function postRoute(id, arg) {
                 if ( args[0] === 'comment' ) {
                     const r = /^\d*$/;
                     if ( r.test(args[1]) ) {
-                        const element = document.querySelector(`#${arg}`)
-                        element ? element.scrollIntoView() : SetAlertsInner(ShowError({Error: {Message:"Content does not exist or has been deleted"}}))
+                        const element = document.querySelector(`#${arg}`);
+                        element ? element.scrollIntoView() : SetAlertsInner(ShowError({Error: {Message:"Content does not exist or has been deleted"}}));
                     }
                 }
             }

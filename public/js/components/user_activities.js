@@ -1,9 +1,8 @@
 import {ShowActivityComment} from "./activity_comment.js";
-import {SetAlertsInner} from '../partials/alerts.js';
 import {ShowActivityPost} from "./activity_post.js";
 import { apiFetch } from '../fetchers/api.js';
 import { displayPosts } from "./posts.js";
-import { attachPostReactionListener } from '../forms/post_react.js'
+import { attachPostReactionListener } from '../forms/post_react.js';
 
 function parseActivities(activities, data) {
     return activities !== null ? activities.map(activity=>parseActivity(activity, data)).join(''):'';

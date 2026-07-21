@@ -43,14 +43,13 @@ export async function commentEditRequest(e) {
 
 export async function commentReactRequest(e) {
     e.preventDefault();
-    const commentId = e.target.querySelector('[name="comment-id"]').value
+    const commentId = e.target.querySelector('[name="comment-id"]').value;
     const content = document.querySelector(`[id="comment-${commentId}"] .reactions`);
     const response = await fetch('/api/comment/react', {
         method: 'POST',
         body: new URLSearchParams(new FormData(e.target))
     });
     const data = await response.json();
-    console.log(data)
     if (data.Error && data.Error.Has) {
         SetAlertsInner(ShowError(data));
         return;

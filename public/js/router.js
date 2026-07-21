@@ -18,7 +18,6 @@ export async function routeSelect() {
         return;
     }
     const id = parseInt(hash[1].split('/').at(-1)) || '';
-    const content = document.querySelector('.content');
     switch (hash[1]) {
     case '/user':
         await userMenuRoute();

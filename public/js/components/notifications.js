@@ -1,5 +1,4 @@
 import { ShowError } from '../components/error.js';
-import { apiFetch } from '../fetchers/api.js';
 import { renderTopBar } from '../partials/topbar.js';
 
 export function expandNotificationsPanel(data) {
