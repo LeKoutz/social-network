@@ -42,26 +42,20 @@ export function displayPost(data) {
             <div class="manage-post">
                 ${data.User.Id === post.User.Id ? `
                 <a href="#/post/edit/${post.Id}"><button type="button">Edit Post</button></a>
-                ${postDeleteForm(post.Id)}
-                `
-        :
-        ''
-}
+                ${postDeleteForm(post.Id)}`:''}
             </div>
             <pre>${post.Body}</pre>
             ${post.ImagePath ? `<img src="/${post.ImagePath}" alt="Post image" style="max-width: 100%;"/>` : '' }
-            <div class="manage-post">
-        </div>
-        <div class="reactions">
-        ${postReactionForm(post,data.User.LoggedIn)}
-        </div>
-        <div class="comments">
-            ${data.User.LoggedIn ? showCommentCreate(post) : ''}
-            ${post.Comments ? showPostComments(data) : ''}
+            <div class="reactions">
+                ${postReactionForm(post,data.User.LoggedIn)}
+            </div>
+            <div class="comments">
+                ${data.User.LoggedIn ? showCommentCreate(post) : ''}
+                ${post.Comments ? showPostComments(data) : ''}
+            </div>
         </div>
     </div>
-</div>
-</div>
+    </div>
     `;
 }
 
