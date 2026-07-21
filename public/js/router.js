@@ -3,7 +3,7 @@ import { loginRoute } from './forms/user_login.js';
 import { registerRoute } from './forms/user_register.js';
 import { postCreateRoute } from './forms/post_create.js';
 import { postEditRoute } from './forms/post_edit.js';
-import { userActivityRoute, ShowUserLikes, ShowUserPosts } from './components/user_activities.js';
+import { userActivityRoute, userLikesRoute, userPostsRoute } from './components/user_activities.js';
 import { logoutRoute } from './components/logout.js';
 import { postRoute } from './components/posts.js';
 import { userMenuRoute } from './components/user.js';
@@ -33,13 +33,13 @@ export async function routeSelect() {
         await logoutRoute();
         break;
     case '/user/likes':
-        content.innerHTML = await ShowUserLikes();
+        await userLikesRoute();
         break;
     case '/user/posts':
-        content.innerHTML = await ShowUserPosts();
+        await userPostsRoute();
         break;
     case '/user/activity':
-        userActivityRoute();
+        await userActivityRoute();
         break;
     case `/category/view/${id}`:
         await categoryRoute(id);
