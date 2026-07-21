@@ -1,6 +1,6 @@
 import { ShowError } from '../components/error.js';
 import { displayPost, showPostView } from '../components/posts.js';
-import { attachCommentEditListener } from '../forms/comment_create.js';
+import { attachCommentEditListener, attachCommentDeleteListener } from '../forms/comment_create.js';
 import {commentReactForm, attachCommentReactionListener} from '../forms/comment_react.js';
 import {SetAlertsInner} from '../partials/alerts.js';
 
@@ -38,6 +38,7 @@ export async function commentEditRequest(e) {
         content.innerHTML = displayPost(data);
     }
     attachCommentEditListener();
+    attachCommentDeleteListener();
 }
 
 export async function commentReactRequest(e) {

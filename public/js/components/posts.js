@@ -92,8 +92,8 @@ export async function postRoute(id, arg) {
                 if ( args[0] === 'comment' ) {
                     const r = /^\d*$/;
                     if ( r.test(args[1]) ) {
-                        console.log(arg);
-                        document.querySelector(`#${arg}`).scrollIntoView();
+                        const element = document.querySelector(`#${arg}`)
+                        element ? element.scrollIntoView() : SetAlertsInner(ShowError({Error: {Message:"Content does not exist or has been deleted"}}))
                     }
                 }
             }
