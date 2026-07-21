@@ -385,19 +385,23 @@ func (u *User) GetPostsActivity() error {
 	posts, err := u.GetPosts()
 	if err != nil {
 		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	for _, post := range posts {
 		err := post.GetById()
 		if err != nil {
 			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+			return err
 		}
 		err = post.GetReactions()
 		if err != nil {
 			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+			return err
 		}
 		err = post.GetReactionsByUserId(u.Id)
 		if err != nil {
 			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+			return err
 		}
 		var activity Activity
 		activity.TimestampString = post.TimestampString
