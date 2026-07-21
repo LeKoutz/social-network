@@ -3,6 +3,7 @@ import {SetAlertsInner} from '../partials/alerts.js';
 import {ShowActivityPost} from "./activity_post.js";
 import { apiFetch } from '../fetchers/api.js';
 import { displayPosts } from "./posts.js";
+import { attachPostReactionListener } from '../forms/post_react.js'
 
 function parseActivities(activities, data) {
     return activities !== null ? activities.map(activity=>parseActivity(activity, data)).join(''):'';
@@ -84,6 +85,7 @@ export async function userPostsRoute() {
     const data = await apiFetch('/api/user/posts');
     if (data) {
         document.querySelector('.content').innerHTML = ShowUserPosts(data);
+        attachPostReactionListener();
     }
 }
 
@@ -91,5 +93,6 @@ export async function userLikesRoute() {
     const data = await apiFetch('/api/user/likes');
     if (data) {
         document.querySelector('.content').innerHTML = ShowUserLikes(data);
+        attachPostReactionListener();
     }
 }
