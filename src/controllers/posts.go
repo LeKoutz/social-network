@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"forum/src/models"
 	"forum/src/utils"
-	"forum/src/views"
 	"net/http"
 	"strings"
 )
@@ -113,7 +112,7 @@ func showPost(data models.ResponseStruct) {
 		return
 	}
 	data.User.MarkAsReadPost(post)
-	views.PostView(&data)
+	data.WriteResponse()
 }
 
 func showPosts(data models.ResponseStruct) {
@@ -136,25 +135,23 @@ func showPosts(data models.ResponseStruct) {
 		}
 	}
 	data.SetPosts(posts)
-	views.PostsView(&data)
+	data.WriteResponse()
 }
 
 func createPost(data models.ResponseStruct) {
 	post, err := parseCreatePostRequest(data)
 	if err != nil {
-		data.Error.Consume(err)
-		views.PostCreate(&data)
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
 	postId, err := post.Add()
 	if err != nil {
-		data.Error.Consume(err)
-		views.PostCreate(&data)
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
 	post.Id = postId
 	data.Posts = models.Posts{post}
-	views.PostView(&data)
+	data.WriteResponse()
 }
 
 func parseCreatePostRequest(data models.ResponseStruct) (models.Post, error) {
@@ -200,7 +197,7 @@ func handlePostCreate(data models.ResponseStruct) {
 				return
 			}
 			data.SetCategories(categories)
-			views.PostCreate(&data)
+			data.WriteResponse()
 			return
 		case http.MethodPost:
 			err := data.Request.ParseMultipartForm(models.MaxImageSize)
@@ -316,14 +313,14 @@ func handlePostEdit(data models.ResponseStruct){
 			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
 		}
-		views.PostCreate(&data)
+		data.WriteResponse()
 	case http.MethodPost:
 		err = updatePost(&data)
 		if err != nil {
 			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
 		}
-		views.PostView(&data)
+		data.WriteResponse()
 	default:
 		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
 	}
@@ -331,7 +328,6 @@ func handlePostEdit(data models.ResponseStruct){
 
 func verifyUserPostAssociation(data *models.ResponseStruct) error {
 	post := &data.Posts[0]
-	// Check your priviledge
 	if post.UserId != data.User.Id {
 		return models.ErrorCommentPermissionDenied
 	}

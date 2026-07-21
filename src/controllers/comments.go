@@ -5,7 +5,6 @@ import (
 	// "fmt"
 	"forum/src/models"
 	"forum/src/utils"
-	"forum/src/views"
 	// "net/http"
 )
 
@@ -155,7 +154,7 @@ func handleCommentEdit(data models.ResponseStruct) {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	views.PostView(&data)
+	data.WriteResponse()
 }
 
 func validateFormCommentEdit(data *models.ResponseStruct) error {

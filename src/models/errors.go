@@ -121,7 +121,7 @@ func (e *Error) RespondError(res http.ResponseWriter, user User) {
 	data := ResponseStruct{}
 	data.Init().SetResponse(res)
 	data.Response.Header().Add("Content-Type", "application/json")
-	data.SetError(*e).SetUser(user).SetView("error_view").WriteResponse()
+	data.SetError(*e).SetUser(user).WriteResponse()
 }
 
 // Logs *Error to terminal and responds to user with error_view template

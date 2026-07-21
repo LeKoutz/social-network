@@ -3,7 +3,6 @@ package controllers
 import (
 	"forum/src/models"
 	"forum/src/utils"
-	"forum/src/views"
 	"strings"
 )
 
@@ -26,7 +25,7 @@ func showCategories(data models.ResponseStruct) {
 		return
 	}
 	data.SetCategories(categories)
-	views.Categories(&data)
+	data.WriteResponse()
 }
 
 func showCategory(data models.ResponseStruct) {
@@ -62,5 +61,5 @@ func showCategory(data models.ResponseStruct) {
 	}
 	data.Posts = posts
 	data.SetPosts(posts)
-	views.Category(&data)
+	data.WriteResponse()
 }

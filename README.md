@@ -1,4 +1,4 @@
-# forum
+# Real time forum
 
 This project can be used to host a forum on the web.
 

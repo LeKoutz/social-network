@@ -15,7 +15,6 @@ var (
 
 type ResponseStruct struct {
 	WebsiteName string
-	View        string
 	User        User
 	Users	    []User
 	Posts       Posts
@@ -49,11 +48,6 @@ func (r *ResponseStruct) Init() *ResponseStruct {
 
 func (r *ResponseStruct) SetWebsiteName(websiteName string) *ResponseStruct {
 	r.WebsiteName = websiteName
-	return r
-}
-
-func (r *ResponseStruct) SetView(viewname string) *ResponseStruct {
-	r.View = viewname
 	return r
 }
 
