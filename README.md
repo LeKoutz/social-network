@@ -1,7 +1,12 @@
 # forum
 
-This project can be used to host a forum on the web. It serves via the HTTP
-protocol and uses a sqlite3 database to store information.
+This project can be used to host a forum on the web.
+
+It is built as a Single Page Application (SPA):
+The frontend is rendered entirely in the browser using vanilla JavaScript,
+communicating with a Go backend via a JSON API and WebSockets for real-time features.
+
+It serves via the HTTP protocol and uses a sqlite3 database to store information.
 
 It supports:
 
@@ -13,7 +18,8 @@ It supports:
 - user can login with Google and Github OAuth,
 - notifications per comment to post and/or reactions to post/comment,
 - log of all user activities,
-- edit or remove posts/comments.
+- edit or remove posts/comments,
+- private chat messaging between users with live notifications.
 
 ## Build
 
