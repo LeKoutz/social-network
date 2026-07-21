@@ -5,7 +5,7 @@ import (
 )
 
 func getUsers(data models.ResponseStruct) {
-	users, err := models.GetAllUsers()
+	users, err := models.GetUsersForPanel(data.User.Id)
 	if err != nil {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
@@ -15,5 +15,5 @@ func getUsers(data models.ResponseStruct) {
 		users[i].LoggedIn = onlineUsers[users[i].Id]
 	}
 	data.Users = users
-	data.WriteResponse() // no view necessary
+	data.WriteResponse()
 }

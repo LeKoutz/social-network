@@ -4,10 +4,25 @@ import { showChatMessages, cacheUnreadMessage, updateUnreadMessageBadges, playNo
 
 let ws = null;
 
+async function refreshUsersPanel() {
+    const panel = document.querySelector('.users-panel');
+    if (!panel) return;
+    const wasCollapsed =
+        panel.querySelector('.users-panel-inner')?.hidden ?? false;
+    const usersData = await apiFetch('/api/users');
+    if (!usersData) return;
+    panel.innerHTML = UsersPanel(usersData);
+    const panelInner = panel.querySelector('.users-panel-inner');
+    if (panelInner) {
+        panelInner.hidden = wasCollapsed;
+    }
+    updateUnreadMessageBadges();
+    addUsersPanelButtonListener();
+}
+
 export function connectWS(userId) {
     if (ws) disconnectWS();
     ws = new WebSocket(`ws://${window.location.host}/ws`);
-    // debug prints for testing
     ws.onopen = async () => {
         console.log('WS connected');
         const data = await apiFetch('/api/chat/unread');
@@ -21,20 +36,16 @@ export function connectWS(userId) {
     ws.onmessage = async (e) => {
         const envelope = JSON.parse(e.data);
         switch (envelope.type) {
-        case 'chat_message': {
-            const msg = envelope.payload;
-            handleIncomingMessage(userId, msg);
-            break;
-        }
-        case 'user_status': {
-            const usersData = await apiFetch('/api/users');
-            if (usersData) {
-                document.querySelector('.users-panel').innerHTML = UsersPanel(usersData);
-                updateUnreadMessageBadges();
+            case 'chat_message': {
+                const msg = envelope.payload;
+                handleIncomingMessage(userId, msg);
+                await refreshUsersPanel();
+                break;
             }
-            addUsersPanelButtonListener();
-            break;
-        }
+            case 'user_status': {
+                await refreshUsersPanel();
+                break;
+            }
         }
     };
 }

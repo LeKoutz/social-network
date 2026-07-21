@@ -24,7 +24,8 @@ type User struct {
 	Notifications            Notifications
 	UnreadNotificationsCount int
 	Activities               Activities
-	ChatMessages			 ChatMessages
+	ChatMessages             ChatMessages
+	LastMessageTimestamp 	 int64
 }
 
 func GetGuestUser() User {
