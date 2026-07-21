@@ -6,9 +6,9 @@ const message_notification = new Audio('/sounds/message_notification.mp3');
 export function showChatMessages(data) {
     return data.User.ChatMessages.map(message => `
         <div class="chat-message">
-            <span class="sender">${message.SenderUsername}</span>
-            <p>${message.Body}</p>
             <span class="timestamp">${message.TimestampString}</span>
+            <span class="sender">&lt;${message.SenderUsername}&gt;</span>
+            <p>${message.Body}</p>
         </div>
     `).join('');
 }
