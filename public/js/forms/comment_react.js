@@ -18,7 +18,6 @@ export function commentReactForm(post_id, comment, logged_in){
                             ${!logged_in ? 'disabled' : '' }
                             >${comment.Dislikes} ${comment.Disliked ? '👎' : '👎🏻' }</button>
                 </form>
-            </div>
 `;
 }
 
