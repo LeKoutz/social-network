@@ -66,11 +66,6 @@ func Main(args []string) {
 		os.Exit(1)
 	}
 
-	if err := models.InitTemplates(); err != nil {
-		fmt.Printf("Error initializing templates: %s\n", err.Error())
-		os.Exit(1)
-	}
-
 	log.Printf("http://%s:%s/", config.Ip, config.Port)
 
 	if err := startServer(config.Ip, config.Port); err != nil {

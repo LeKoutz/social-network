@@ -3,14 +3,8 @@ package models
 import (
 	"encoding/json"
 	"forum/src/utils"
-	"html/template"
 	"net/http"
 	"sort"
-)
-
-var (
-	templatesDir = "templates"
-	tmpl         *template.Template
 )
 
 type ResponseStruct struct {
@@ -29,7 +23,6 @@ type ResponseStruct struct {
 }
 
 type ResponseStruct4ViewsIface interface {
-	SetView(string) *ResponseStruct
 	WriteResponse()
 }
 
@@ -91,12 +84,6 @@ func (r *ResponseStruct) SetResponse(res http.ResponseWriter) *ResponseStruct {
 
 func (r *ResponseStruct) GetResponse(res http.ResponseWriter) http.ResponseWriter {
 	return r.Response
-}
-
-func InitTemplates() error {
-	var err error
-	tmpl, err = template.ParseGlob(templatesDir + "/*.html")
-	return err
 }
 
 func respondView(data ResponseStruct) {
