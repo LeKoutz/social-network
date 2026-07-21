@@ -1,34 +1,28 @@
 package models
 
 import (
+	"encoding/json"
 	"forum/src/utils"
-	"html/template"
 	"net/http"
 	"sort"
 )
 
-var (
-	templatesDir = "templates"
-	tmpl         *template.Template
-)
-
 type ResponseStruct struct {
 	WebsiteName string
-	View        string
 	User        User
+	Users	    []User
 	Posts       Posts
 	Categories  Categories
 	EditPost      bool
 	EditCommentId int64
 	Error       Error
-	Request     *http.Request
-	Response    http.ResponseWriter
+	Request     *http.Request `json:"-"`
+	Response    http.ResponseWriter `json:"-"`
 	Message     Message
 	Version     string
 }
 
 type ResponseStruct4ViewsIface interface {
-	SetView(string) *ResponseStruct
 	WriteResponse()
 }
 
@@ -47,11 +41,6 @@ func (r *ResponseStruct) Init() *ResponseStruct {
 
 func (r *ResponseStruct) SetWebsiteName(websiteName string) *ResponseStruct {
 	r.WebsiteName = websiteName
-	return r
-}
-
-func (r *ResponseStruct) SetView(viewname string) *ResponseStruct {
-	r.View = viewname
 	return r
 }
 
@@ -97,14 +86,13 @@ func (r *ResponseStruct) GetResponse(res http.ResponseWriter) http.ResponseWrite
 	return r.Response
 }
 
-func InitTemplates() error {
-	var err error
-	tmpl, err = template.ParseGlob(templatesDir + "/*.html")
-	return err
-}
-
 func respondView(data ResponseStruct) {
-	err := tmpl.ExecuteTemplate(data.Response, data.View, data)
+	bs, err := json.Marshal(data)
+	if err != nil {
+		(&Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+	}
+	data.Response.Header().Add("Content-Type", "application/json")
+	_, err = data.Response.Write(bs)
 	if err != nil {
 		(&Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return

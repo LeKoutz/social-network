@@ -35,13 +35,13 @@ func isValidImageType(buf []byte) bool {
 func SaveImage(file multipart.File) (string, error) {
 	_, err := file.Seek(0, io.SeekStart)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return "", err
 	}
 
 	fileBytes, err := io.ReadAll(file)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return "", err
 	}
 
@@ -59,21 +59,21 @@ func SaveImage(file multipart.File) (string, error) {
 	dir := filepath.Join("uploads", "images")
 	err = os.MkdirAll(dir, 0755)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return "", err
 	}
 
 	dst := filepath.Join(dir, filename)
 	out, err := os.Create(dst)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return "", err
 	}
 	defer out.Close()
 
 	_, err = out.Write(fileBytes)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return "", err
 	}
 

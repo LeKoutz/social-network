@@ -15,7 +15,7 @@ func GetPostLikesByUserId(id int64) (Reactions, error) {
 	WHERE user_id = ? AND value=1 AND post_id IS NOT NULL
 	`, id)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return Reactions{}, err
 	}
 	defer rows.Close()
@@ -24,12 +24,12 @@ func GetPostLikesByUserId(id int64) (Reactions, error) {
 		var ts string
 		err = rows.Scan(&reaction.Id, &reaction.PostId, &reaction.UserId, &ts)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return Reactions{}, err
 		}
 		t, err := utils.ConvertStringToTime(ts)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return Reactions{}, err
 		}
 		reaction.TimestampString = utils.ConvertTimeToString(t)
@@ -46,7 +46,7 @@ func GetPostDislikesByUserId(id int64) (Reactions, error) {
 	WHERE user_id = ? AND value=2 AND post_id IS NOT NULL
 	`, id)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return Reactions{}, err
 	}
 	defer rows.Close()
@@ -55,12 +55,12 @@ func GetPostDislikesByUserId(id int64) (Reactions, error) {
 		var ts string
 		err = rows.Scan(&reaction.Id, &reaction.PostId, &reaction.UserId, &ts)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return Reactions{}, err
 		}
 		t, err := utils.ConvertStringToTime(ts)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return Reactions{}, err
 		}
 		reaction.TimestampString = utils.ConvertTimeToString(t)
@@ -77,7 +77,7 @@ func GetCommentLikesByUserId(id int64) (Reactions, error) {
 	WHERE user_id = ? AND value=1 AND comment_id IS NOT NULL
 	`, id)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return Reactions{}, err
 	}
 	defer rows.Close()
@@ -86,12 +86,12 @@ func GetCommentLikesByUserId(id int64) (Reactions, error) {
 		var ts string
 		err = rows.Scan(&reaction.Id, &reaction.CommentId, &reaction.UserId, &ts)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return Reactions{}, err
 		}
 		t, err := utils.ConvertStringToTime(ts)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return Reactions{}, err
 		}
 		reaction.TimestampString = utils.ConvertTimeToString(t)
@@ -108,7 +108,7 @@ func GetCommentDisikesByUserId(id int64) (Reactions, error) {
 	WHERE user_id = ? AND value=2 AND comment_id IS NOT NULL
 	`, id)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return Reactions{}, err
 	}
 	defer rows.Close()
@@ -117,12 +117,12 @@ func GetCommentDisikesByUserId(id int64) (Reactions, error) {
 		var ts string
 		err = rows.Scan(&reaction.Id, &reaction.CommentId, &reaction.UserId, &ts)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return Reactions{}, err
 		}
 		t, err := utils.ConvertStringToTime(ts)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return Reactions{}, err
 		}
 		reaction.TimestampString = utils.ConvertTimeToString(t)

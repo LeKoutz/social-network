@@ -22,7 +22,7 @@ func usage(programName string, toStdErr bool) {
 }
 
 func Main(args []string) {
-	config := utils.DefaultConfiguration()
+	config := &utils.GlobalConfig
 
 	var positionalArgs []string
 
@@ -35,6 +35,8 @@ func Main(args []string) {
 			programName := filepath.Base(args[0])
 			usage(programName, false)
 			os.Exit(0)
+		case "--debug":
+			config.Debug = true
 		case "--version":
 			programName := filepath.Base(args[0])
 			version := utils.GetVersion()
@@ -61,11 +63,6 @@ func Main(args []string) {
 
 	if err := models.InitDB(config.DbPath); err != nil {
 		fmt.Printf("Error: %s\n", err.Error())
-		os.Exit(1)
-	}
-
-	if err := models.InitTemplates(); err != nil {
-		fmt.Printf("Error initializing templates: %s\n", err.Error())
 		os.Exit(1)
 	}
 

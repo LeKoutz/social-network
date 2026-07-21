@@ -13,7 +13,7 @@ func getDislikesCountByCommentId(commentId int64) (int64, error) {
         WHERE comment_id = ? AND value = 2
     `, commentId).Scan(&dislikes)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return 0, err
 	}
 	return dislikes, nil
@@ -27,7 +27,7 @@ func getDislikesCountByPostId(postId int64) (int, error) {
         WHERE post_id = ? AND value = 2
     `, postId).Scan(&dislikes)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return 0, err
 	}
 	return dislikes, nil

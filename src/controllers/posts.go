@@ -3,7 +3,6 @@ package controllers
 import (
 	"fmt"
 	"forum/src/models"
-	"forum/src/views"
 	"forum/src/utils"
 	"net/http"
 	"strings"
@@ -12,7 +11,7 @@ import (
 func parsePostId(data models.ResponseStruct) (int64, error) {
 	postIdStr := data.Request.FormValue("post-id")
 	if len(postIdStr) == 0 {
-		postIdStr = strings.TrimPrefix(data.Request.RequestURI, "/post/edit/")
+		postIdStr = strings.TrimPrefix(data.Request.RequestURI, "/api/post/edit/")
 	}
 	if len(postIdStr) == 0 {
 		return 0, models.ErrorPostEmptyId
@@ -87,7 +86,7 @@ func getPostDataById(data *models.ResponseStruct) error {
 func validateViewPostByIdRequest(data models.ResponseStruct) (models.Post, error) {
 	var post models.Post
 	var err error
-	id, ok := strings.CutPrefix(data.Request.RequestURI, "/post/view/")
+	id, ok := strings.CutPrefix(data.Request.RequestURI, "/api/post/view/")
 	if !ok || len(id) == 0 {
 		return post, models.ErrorPostEmptyId
 	}
@@ -113,7 +112,7 @@ func showPost(data models.ResponseStruct) {
 		return
 	}
 	data.User.MarkAsReadPost(post)
-	views.PostView(&data)
+	data.WriteResponse()
 }
 
 func showPosts(data models.ResponseStruct) {
@@ -136,24 +135,23 @@ func showPosts(data models.ResponseStruct) {
 		}
 	}
 	data.SetPosts(posts)
-	views.PostsView(&data)
+	data.WriteResponse()
 }
 
 func createPost(data models.ResponseStruct) {
 	post, err := parseCreatePostRequest(data)
 	if err != nil {
-		data.Error.Consume(err)
-		views.PostCreate(&data)
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
 	postId, err := post.Add()
 	if err != nil {
-		data.Error.Consume(err)
-		views.PostCreate(&data)
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	redirectURL := fmt.Sprintf("/post/view/%d", postId)
-	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
+	post.Id = postId
+	data.Posts = models.Posts{post}
+	data.WriteResponse()
 }
 
 func parseCreatePostRequest(data models.ResponseStruct) (models.Post, error) {
@@ -190,7 +188,7 @@ func parseCreatePostRequest(data models.ResponseStruct) (models.Post, error) {
 
 func handlePostCreate(data models.ResponseStruct) {
 	switch {
-	case strings.Compare(data.Request.RequestURI, "/post/create") == 0:
+	case strings.Compare(data.Request.RequestURI, "/api/post/create") == 0:
 		switch data.Request.Method {
 		case http.MethodGet:
 			categories, err := models.GetAllCategories()
@@ -199,7 +197,7 @@ func handlePostCreate(data models.ResponseStruct) {
 				return
 			}
 			data.SetCategories(categories)
-			views.PostCreate(&data)
+			data.WriteResponse()
 			return
 		case http.MethodPost:
 			err := data.Request.ParseMultipartForm(models.MaxImageSize)
@@ -236,7 +234,7 @@ func handlePostReaction(data models.ResponseStruct) {
 		}
 		err = post.CreateReactionNotification(data.User.Id, "like")
 		if err != nil {
-		(&models.Error{}).Consume(err).LogError()
+			(&models.Error{}).Consume(err).LogError()
 		}
 	}
 	if data.Request.FormValue("action") == "dislike" {
@@ -247,11 +245,16 @@ func handlePostReaction(data models.ResponseStruct) {
 		}
 		err = post.CreateReactionNotification(data.User.Id, "dislike")
 		if err != nil {
-		(&models.Error{}).Consume(err).LogError()
+			(&models.Error{}).Consume(err).LogError()
 		}		
 	}
-	redirectURL := fmt.Sprintf("/post/view/%d", post.Id)
-	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
+	data.SetPosts(models.Posts{post})
+	err = getPostDataById(&data)
+	if err != nil {
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	data.WriteResponse()
 }
 
 func handlePostDelete(data models.ResponseStruct) {
@@ -276,7 +279,7 @@ func handlePostDelete(data models.ResponseStruct) {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	http.Redirect(data.Response, data.Request, "/posts", http.StatusSeeOther)
+	data.WriteResponse()
 }
 
 func handlePostEdit(data models.ResponseStruct){
@@ -310,14 +313,14 @@ func handlePostEdit(data models.ResponseStruct){
 			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
 		}
-		views.PostCreate(&data)
+		data.WriteResponse()
 	case http.MethodPost:
 		err = updatePost(&data)
 		if err != nil {
 			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 			return
 		}
-		http.Redirect(data.Response, data.Request, fmt.Sprintf("/post/view/%d", post.Id), http.StatusSeeOther)
+		data.WriteResponse()
 	default:
 		(&models.Error{}).Consume(models.ErrorMethodNotAllowed).LogAndRespondError(data.Response, data.User)
 	}
@@ -325,7 +328,6 @@ func handlePostEdit(data models.ResponseStruct){
 
 func verifyUserPostAssociation(data *models.ResponseStruct) error {
 	post := &data.Posts[0]
-	// Check your priviledge
 	if post.UserId != data.User.Id {
 		return models.ErrorCommentPermissionDenied
 	}

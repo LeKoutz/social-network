@@ -1,0 +1,23 @@
+{
+  "name": "real-time-forum",
+  "version": "1.0.0",
+  "description": "This project can be used to host a forum on the web. It serves via the HTTP protocol and uses a sqlite3 database to store information.",
+  "main": "eslint.config.js",
+  "type": "module",
+  "scripts": {
+    "lint": "npx eslint .",
+    "lint-fix": "npx eslint --fix .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://platform.zone01.gr/git/gkoutzos/real-time-forum"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.6.0",
+    "globals": "^17.7.0"
+  }
+}

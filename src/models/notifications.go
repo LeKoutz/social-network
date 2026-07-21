@@ -17,7 +17,7 @@ func GetNotificationsByUserId(userId int64) (Notifications, error) {
 	ORDER BY n.timestamp DESC
 	`, userId)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return Notifications{}, err
 	}
 	defer rows.Close()
@@ -33,7 +33,7 @@ func GetNotificationsByUserId(userId int64) (Notifications, error) {
 			&notification.Read,
 			&notification.Actor.Username)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return Notifications{}, err
 		}
 		notifications = append(notifications, notification)

@@ -13,7 +13,7 @@ func getLikesCountByPostId(postId int64) (int, error) {
         WHERE post_id = ? AND value = 1
     `, postId).Scan(&likes)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return 0, err
 	}
 	return likes, nil
@@ -27,7 +27,7 @@ func getLikesCountByCommentId(commentId int64) (int64, error) {
         WHERE comment_id = ? AND value = 1
     `, commentId).Scan(&likes)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return 0, err
 	}
 	return likes, nil

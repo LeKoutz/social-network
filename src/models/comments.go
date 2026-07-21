@@ -14,7 +14,7 @@ func GetCommentsByUserId(id int64) (Comments, error) {
 	FROM comments
 	WHERE user_id = ?`, id)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return Comments{}, err
 	}
 	for rows.Next() {
@@ -22,12 +22,12 @@ func GetCommentsByUserId(id int64) (Comments, error) {
 		var ts string
 		err = rows.Scan(&comment.Id, &comment.PostId, &comment.Body, &ts, &comment.UserId)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return Comments{}, err
 		}
 		t, err := utils.ConvertStringToTime(ts)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return Comments{}, err
 		}
 		comment.TimestampString = utils.ConvertTimeToString(t)

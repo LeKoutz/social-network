@@ -3,12 +3,11 @@ package controllers
 import (
 	"forum/src/models"
 	"forum/src/utils"
-	"forum/src/views"
 	"strings"
 )
 
 func parseCategoryId(data models.ResponseStruct) (int64, error) {
-	id, ok := strings.CutPrefix(data.Request.RequestURI, "/category/view/")
+	id, ok := strings.CutPrefix(data.Request.RequestURI, "/api/category/view/")
 	if !ok || len(id) == 0 {
 		return 0, models.ErrorCategoryEmptyId
 	}
@@ -26,7 +25,7 @@ func showCategories(data models.ResponseStruct) {
 		return
 	}
 	data.SetCategories(categories)
-	views.Categories(&data)
+	data.WriteResponse()
 }
 
 func showCategory(data models.ResponseStruct) {
@@ -62,5 +61,5 @@ func showCategory(data models.ResponseStruct) {
 	}
 	data.Posts = posts
 	data.SetPosts(posts)
-	views.Category(&data)
+	data.WriteResponse()
 }

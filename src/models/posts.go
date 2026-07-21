@@ -10,7 +10,7 @@ type Posts []Post
 func GetAllPosts() (Posts, error) {
 	rows, err := db.Query(`SELECT id, title, body, timestamp, image_path FROM posts`)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return Posts{}, err
 	}
 	defer rows.Close()
@@ -20,12 +20,12 @@ func GetAllPosts() (Posts, error) {
 		var ts string
 		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts, &post.ImagePath)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return Posts{}, err
 		}
 		t, err := utils.ConvertStringToTime(ts)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return Posts{}, err
 		}
 		post.TimestampString = utils.ConvertTimeToString(t)
@@ -43,7 +43,7 @@ func GetPostsByCategoryId(id int64) (Posts, error) {
 	JOIN categories ON pc.category_id = categories.id
 	WHERE pc.category_id = ?`, id)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return Posts{}, err
 	}
 	defer rows.Close()
@@ -52,12 +52,12 @@ func GetPostsByCategoryId(id int64) (Posts, error) {
 		var ts string
 		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts, &post.ImagePath)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return Posts{}, err
 		}
 		t, err := utils.ConvertStringToTime(ts)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return Posts{}, err
 		}
 		post.TimestampString = utils.ConvertTimeToString(t)

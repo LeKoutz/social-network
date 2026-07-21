@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"forum/src/models"
-	"net/http"
 )
 
 func markAllNotificationsAsRead(data models.ResponseStruct) {
@@ -14,9 +13,6 @@ func markAllNotificationsAsRead(data models.ResponseStruct) {
 	for i := range data.User.Notifications {
 		data.User.Notifications[i].Read = true
 	}
-	previousURL := data.Request.Referer()
-	if previousURL == "" {
-		previousURL = "/"
-	}
-	http.Redirect(data.Response, data.Request, previousURL, http.StatusSeeOther)
+	data.User.UnreadNotificationsCount = 0
+	data.WriteResponse()
 }

@@ -1,11 +1,11 @@
 package controllers
 
 import (
-	"fmt"
+	"encoding/json"
+	// "fmt"
 	"forum/src/models"
 	"forum/src/utils"
-	"forum/src/views"
-	"net/http"
+	// "net/http"
 )
 
 func parseCommentId(data models.ResponseStruct) (int64, error) {
@@ -47,8 +47,11 @@ func handleCommentCreate(data models.ResponseStruct) {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	redirectURL := fmt.Sprintf("/post/view/%d#comment-%d", post.Id, comment.Id)
-	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
+	data.Response.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(data.Response).Encode(map[string]int64{
+		"postId":    post.Id,
+		"commentId": comment.Id,
+	})
 }
 
 func handleCommentReaction(data models.ResponseStruct) {
@@ -86,8 +89,20 @@ func handleCommentReaction(data models.ResponseStruct) {
 			(&models.Error{}).Consume(err).LogError()
 		}
 	}
-	redirectURL := fmt.Sprintf("/post/view/%d#comment-%d", comment.PostId, comment.Id)
-	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
+	err = comment.GetReactions()
+	if err != nil {
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	err = comment.GetReactionsByUserId(data.User.Id)
+	if err != nil {
+		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		return
+	}
+	post := models.Post{Id: comment.PostId}
+	post.Comments = models.Comments{comment}
+	data.SetPosts(models.Posts{post})
+	data.WriteResponse()
 }
 
 func handleCommentDelete(data models.ResponseStruct) {
@@ -112,8 +127,7 @@ func handleCommentDelete(data models.ResponseStruct) {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	redirectURL := fmt.Sprintf("/post/view/%d", comment.PostId)
-	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
+	data.WriteResponse()
 }
 
 func handleCommentEdit(data models.ResponseStruct) {
@@ -140,7 +154,7 @@ func handleCommentEdit(data models.ResponseStruct) {
 		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
 		return
 	}
-	views.PostView(&data)
+	data.WriteResponse()
 }
 
 func validateFormCommentEdit(data *models.ResponseStruct) error {
@@ -194,7 +208,5 @@ func updateCommentFromForm(data *models.ResponseStruct) error {
 	if err != nil {
 		return err
 	}
-	redirectURL := fmt.Sprintf("/post/view/%d#comment-%d", comment.PostId, comment.Id)
-	http.Redirect(data.Response, data.Request, redirectURL, http.StatusSeeOther)
 	return nil
 }

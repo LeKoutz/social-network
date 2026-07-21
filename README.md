@@ -1,7 +1,12 @@
-# forum
+# Real time forum
 
-This project can be used to host a forum on the web. It serves via the HTTP
-protocol and uses a sqlite3 database to store information.
+This project can be used to host a forum on the web.
+
+It is built as a Single Page Application (SPA):
+The frontend is rendered entirely in the browser using vanilla JavaScript,
+communicating with a Go backend via a JSON API and WebSockets for real-time features.
+
+It serves via the HTTP protocol and uses a sqlite3 database to store information.
 
 It supports:
 
@@ -13,7 +18,8 @@ It supports:
 - user can login with Google and Github OAuth,
 - notifications per comment to post and/or reactions to post/comment,
 - log of all user activities,
-- edit or remove posts/comments.
+- edit or remove posts/comments,
+- private chat messaging between users with live notifications.
 
 ## Build
 
@@ -132,4 +138,25 @@ or
 
 ```
 make test
+```
+
+## Contributing
+
+We make use of eslint for linting our JS part of the codebase. To make use of it
+after cloning, run:
+
+```bash
+npm install
+```
+
+To run the linter, use:
+
+```bash
+npm run lint
+```
+
+If you see errors about identation or semicolons, you can use the following so
+eslint can try to fix them:
+```bash
+npm run lint-fix
 ```

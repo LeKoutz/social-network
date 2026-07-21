@@ -10,7 +10,7 @@ type Categories []Category
 func GetAllCategories() (Categories, error) {
 	rows, err := db.Query(`SELECT id, name, description FROM categories`)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return []Category{}, err
 	}
 	defer rows.Close()
@@ -19,7 +19,7 @@ func GetAllCategories() (Categories, error) {
 		var category Category
 		err = rows.Scan(&category.Id, &category.Name, &category.Description)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return []Category{}, err
 		}
 		categories = append(categories, category)
@@ -34,6 +34,9 @@ func (c *Categories) IsEmpty() bool {
 	if c == (&Categories{}) {
 		return true
 	}
+	if len(*c) == 0 {
+		return true
+	}
 	return false
 }
 
@@ -46,7 +49,7 @@ func GetCategoriesByPostId(post_id int64) (Categories, error) {
 	WHERE pc.post_id = ?
 	`, post_id)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return Categories{}, err
 	}
 	defer rows.Close()
@@ -54,7 +57,7 @@ func GetCategoriesByPostId(post_id int64) (Categories, error) {
 		var category Category
 		err = rows.Scan(&category.Id, &category.Name, &category.Description)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return []Category{}, err
 		}
 		categories = append(categories, category)
