@@ -34,6 +34,9 @@ func (c *Categories) IsEmpty() bool {
 	if c == (&Categories{}) {
 		return true
 	}
+	if len(*c) == 0 {
+		return true
+	}
 	return false
 }
 
