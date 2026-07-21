@@ -36,16 +36,16 @@ export function connectWS(userId) {
     ws.onmessage = async (e) => {
         const envelope = JSON.parse(e.data);
         switch (envelope.type) {
-            case 'chat_message': {
-                const msg = envelope.payload;
-                handleIncomingMessage(userId, msg);
-                await refreshUsersPanel();
-                break;
-            }
-            case 'user_status': {
-                await refreshUsersPanel();
-                break;
-            }
+        case 'chat_message': {
+            const msg = envelope.payload;
+            handleIncomingMessage(userId, msg);
+            await refreshUsersPanel();
+            break;
+        }
+        case 'user_status': {
+            await refreshUsersPanel();
+            break;
+        }
         }
     };
 }
