@@ -268,12 +268,5 @@ func createOrLoginUser(data models.ResponseStruct, provider, email, username str
 		SameSite: http.SameSite(http.SameSiteStrictMode),
 	}
 	http.SetCookie(data.Response, cookie)
-
-	// Because if we redirect, it somehow doesn't read the cookie after the
-	// redirect. The cookie is set, though. It just doesn't leave the browser at
-	// this point. So, instead, we return them to the Index() controller without
-	// redirection... The difference with internal auth attemptLogin() where we
-	// do redirection successfully is because we are doing it from the same
-	// origin. Here, we land from external page.
-	Index(data)
+	data.WriteResponse()
 }

@@ -24,7 +24,7 @@ function buildDOM() {
     body.append(topbar, alerts, container, footer);
 }
 
-async function initUserFeatures(data) {
+export async function initUserFeatures(data) {
     connectWS(data.User.Id);
     const usersData = await apiFetch('/api/users');
     if (usersData) {
