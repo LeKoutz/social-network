@@ -1,6 +1,6 @@
 package utils
 
 func GetVersion() string {
-    return "v1.3.0"
+    return "v2.0.0"
 }
 
