@@ -1,18 +1,20 @@
 package controllers
 
 import (
-	"forum/src/models"
+	"errors"
+	"forum/src/state"
+	"forum/src/utils"
 )
 
-func markAllNotificationsAsRead(data models.ResponseStruct) {
-	err := data.User.MarkAllNotificationsAsRead()
+func MarkAllNotificationsAsRead(data state.StateController) error {
+	err := data.EditUser().MarkAllNotificationsAsRead()
 	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
+		return errors.Join(utils.GetFunctionName(), err)
 	}
-	for i := range data.User.Notifications {
-		data.User.Notifications[i].Read = true
+	for i := range data.GetUser().Notifications {
+		data.EditUser().Notifications[i].Read = true
 	}
-	data.User.UnreadNotificationsCount = 0
+	data.EditUser().UnreadNotificationsCount = 0
 	data.WriteResponse()
+	return nil
 }

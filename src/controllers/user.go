@@ -2,8 +2,9 @@ package controllers
 
 import (
 	"errors"
-	"fmt"
+	"forum/src/ferror"
 	"forum/src/models"
+	"forum/src/state"
 	"forum/src/utils"
 	"net/http"
 	"regexp"
@@ -12,116 +13,130 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-func userLogin(data models.ResponseStruct) {
-	if data.User.LoggedIn {
-		Index(*data.SetErrorConsume(models.ErrorAlreadyLoggedIn))
-		return
+func UserLogout(data state.StateController) error {
+	var err error
+	GuestUser := models.GetGuestUser()
+	cookie, err := data.GetRequest().Cookie("__Host-FRMSessionID")
+	if err != nil {
+		if errors.Is(err, http.ErrNoCookie) {
+			return ferror.ErrorAlreadyLoggedOut
+		}
+		return errors.Join(utils.GetFunctionName(), err)
 	}
-	switch data.Request.Method {
-	case http.MethodPost:
-		attemptLogin(data)
-	case http.MethodGet:
-		data.WriteResponse()
-	default:
-		data.SetErrorConsume(models.ErrorMethodNotAllowed).WriteResponse()
+	data.EditUser().SessionId = cookie.Value
+	err = data.EditUser().GetUserBySession()
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
 	}
+	err = data.EditUser().SetUserSession("")
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	http.SetCookie(*data.EditResponse(), UnsetCookie())
+	data.SetUser(GuestUser)
+	data.SetMessage(models.Message{Has: true, Type: "Success", Content: "Logout successful"})
+	return nil
 }
 
-func userLogout(data models.ResponseStruct) {
-	GuestUser := models.GetGuestUser()
-	cookie, err := data.Request.Cookie("__Host-FRMSessionID")
-	if errors.Is(err, http.ErrNoCookie) {
-		data.SetUser(GuestUser).SetErrorConsume(models.ErrorAlreadyLoggedOut)
+func AttemptRegister(data state.StateController) {
+	var err error
+	if err = data.EditUser().ValidateUser(); err != nil {
+		data.SetUser(data.GetUser()).SetErrorConsume(err)
 		data.WriteResponse()
 		return
 	}
-	user, err := models.GetUserBySession(cookie.Value)
+	if models.IsEmailRegistered(data.GetUser().Email) {
+		data.SetUser(data.GetUser()).SetErrorConsume(ferror.ErrorEmailIsRegistered)
+		data.WriteResponse()
+		return
+	}
+	if !models.IsUniqueUsername(data.GetUser().Username) {
+		data.SetUser(data.GetUser()).SetErrorConsume(ferror.ErrorUsernameTaken)
+		data.WriteResponse()
+		return
+	}
+	if !CompareRegistrationPasswords(data.GetRequest().FormValue("password1"), data.GetRequest().FormValue("password2")) {
+		data.SetUser(data.GetUser()).SetErrorConsume(ferror.ErrorPasswordMismatch)
+		data.WriteResponse()
+		return
+	}
+	password := data.GetRequest().FormValue("password1")
+	if err = ValidatePasswordStrength(password); err != nil {
+		data.SetUser(data.GetUser()).SetErrorConsume(err)
+		data.WriteResponse()
+		return
+	}
+	data.EditUser().Hash, err = utils.HashPassword(password)
 	if err != nil {
-		data.SetUser(user)
-		data.SetErrorConsume(err)
+		data.SetUser(data.GetUser()).SetErrorConsume(err)
 		data.WriteResponse()
 		return
 	}
-	err = user.SetUserSession("")
+	data.EditUser().FirstName = data.GetRequest().FormValue("first_name")
+	data.EditUser().LastName = data.GetRequest().FormValue("last_name")
+	age, err := utils.StringToInt64(data.GetRequest().FormValue("age"))
 	if err != nil {
-		data.SetUser(user)
-		data.SetErrorConsume(err)
+		data.SetUser(data.GetUser()).SetErrorConsume(err)
 		data.WriteResponse()
 		return
 	}
-	http.SetCookie(data.Response, nullifyCookie(cookie))
-	data.SetUser(GuestUser)
-	data.Message.Has = true
-	data.Message.Type = "Success"
-	data.Message.Content = "Logout successful"
+	data.EditUser().Age = age
+	data.EditUser().Gender = data.GetRequest().FormValue("gender")
+	if err = data.EditUser().Add(); err != nil {
+		data.SetUser(data.GetUser()).SetErrorConsume(ferror.ErrorInvalidUser)
+		data.WriteResponse()
+		return
+	}
+	data.SetUser(models.GetGuestUser())
+	data.SetMessage(models.Message{
+		Content: "Registration was successful",
+		Type:    "Success",
+		Has:     true,
+	})
 	data.WriteResponse()
 }
 
-func nullifyCookie(cookie *http.Cookie) *http.Cookie {
-	cookie = &http.Cookie{
-		Name:     "__Host-FRMSessionID",
-		Value:    "",
-		Path:     "/",
-		Expires:  time.Unix(0, 0),
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSite(http.SameSiteStrictMode),
-	}
-	return cookie
-}
-
-func attemptLogin(data models.ResponseStruct) {
+func AttemptLogin(data state.StateController) error {
 	var identifier string
 	var password string
 	var err error
-	if len(data.Request.Form.Get("identifier")) != 0 {
-		identifier = data.Request.Form.Get("identifier")
+	if len(data.GetRequest().Form.Get("identifier")) != 0 {
+		identifier = data.GetRequest().Form.Get("identifier")
 	} else {
-		data.SetErrorConsume(models.ErrorEmailFieldEmpty)
-		data.WriteResponse()
-		return
+		return ferror.ErrorEmailFieldEmpty
 	}
-	if len(data.Request.Form.Get("password")) != 0 {
-		password = data.Request.Form.Get("password")
+	if len(data.GetRequest().Form.Get("password")) != 0 {
+		password = data.GetRequest().Form.Get("password")
 	} else {
-		data.SetErrorConsume(models.ErrorPasswordFieldEmpty)
-		data.WriteResponse()
-		return
+		return ferror.ErrorPasswordFieldEmpty
 	}
 	err = Auth(identifier, password)
 	if err != nil {
-		data.User = models.GetGuestUser()
-		if !errors.Is(err, models.ErrorWrongPassword) && !errors.Is(err, models.ErrorNotRegistered) {
-			(&models.Error{}).Consume(err).LogError()
-			data.SetErrorConsume(models.ErrorInternalServerError)
-			data.WriteResponse()
-			return
+		data.SetUser(models.GetGuestUser())
+		if !errors.Is(err, ferror.ErrorWrongPassword) && !errors.Is(err, ferror.ErrorNotRegistered) {
+			return ferror.ErrorInternalServerError
 		}
-		data.SetErrorConsume(err)
-		data.WriteResponse()
-		return
+		return errors.Join(utils.GetFunctionName(), err)
 	}
 	sessionValue, err := uuid.NewV4()
 	if err != nil {
-		data.User = models.GetGuestUser()
-		data.SetErrorConsume(err)
-		data.WriteResponse()
-		return
+		data.SetUser(models.GetGuestUser())
+		return errors.Join(utils.GetFunctionName(), err)
 	}
-	data.User, err = models.GetUserByIdentifier(identifier)
+	data.EditUser().SessionId = sessionValue.String()
+	data.EditUser().Identifier = identifier
+	err = data.EditUser().GetUserByIdentifier(data.EditUser().Identifier)
 	if err != nil {
-		data.User = models.GetGuestUser()
-		data.SetErrorConsume(err)
-		data.WriteResponse()
-		return
+		data.SetUser(models.GetGuestUser())
+		return errors.Join(utils.GetFunctionName(), err)
 	}
-	data.User.LoggedIn = true
-	err = data.User.SetUserSession(sessionValue.String())
+	data.EditUser().LoggedIn = true
+	err = data.EditUser().SetUserSession(sessionValue.String())
 	if err != nil {
-		data.User = models.GetGuestUser()
+		data.SetUser(models.GetGuestUser())
 		data.SetErrorConsume(err)
 		data.WriteResponse()
-		return
+		return err
 	}
 	cookie := &http.Cookie{
 		Name:     "__Host-FRMSessionID",
@@ -132,166 +147,69 @@ func attemptLogin(data models.ResponseStruct) {
 		HttpOnly: true,
 		SameSite: http.SameSite(http.SameSiteStrictMode),
 	}
-	http.SetCookie(data.Response, cookie)
-	data.Message.Has = true
-	data.Message.Type = "Success"
-	data.Message.Content = "Login successful"
-	data.WriteResponse()
-}
-
-func userRegister(data models.ResponseStruct) {
-	if data.User.LoggedIn {
-		Index(*data.SetErrorConsume(models.ErrorAlreadyLoggedIn))
-		return
-	}
-	switch data.Request.Method {
-	case http.MethodGet:
-		data.WriteResponse()
-		return
-	case http.MethodPost:
-		attemptRegister(data)
-		return
-	default:
-		data.SetErrorConsume(models.ErrorMethodNotAllowed).WriteResponse()
-	}
-}
-
-func attemptRegister(data models.ResponseStruct) {
-	var err error
-	if len(data.Request.FormValue("username")) == 0 ||
-		len(data.Request.FormValue("email")) == 0 ||
-		len(data.Request.FormValue("first_name")) == 0 ||
-		len(data.Request.FormValue("last_name")) == 0 ||
-		len(data.Request.FormValue("age")) == 0 ||
-		len(data.Request.FormValue("gender")) == 0 ||
-		len(data.Request.FormValue("password1")) == 0 ||
-		len(data.Request.FormValue("password2")) == 0 {
-		data.SetErrorConsume(models.ErrorBadRequest)
-		data.WriteResponse()
-		return
-	}
-	data.User.Username = data.Request.FormValue("username")
-	data.User.Email = data.Request.FormValue("email")
-	if err = data.User.ValidateUser(); err != nil {
-		data.SetUser(data.User).SetErrorConsume(err)
-		data.WriteResponse()
-		return
-	}
-	if models.IsEmailRegistered(data.User.Email) {
-		data.SetUser(data.User).SetErrorConsume(models.ErrorEmailIsRegistered)
-		data.WriteResponse()
-		return
-	}
-	if !models.IsUniqueUsername(data.User.Username) {
-		data.SetUser(data.User).SetErrorConsume(models.ErrorUsernameTaken)
-		data.WriteResponse()
-		return
-	}
-	if !CompareRegistrationPasswords(data.Request.FormValue("password1"), data.Request.FormValue("password2")) {
-		data.SetUser(data.User).SetErrorConsume(models.ErrorPasswordMismatch)
-		data.WriteResponse()
-		return
-	}
-	password := data.Request.FormValue("password1")
-	if err = validatePasswordStrength(password); err != nil {
-		data.SetUser(data.User).SetErrorConsume(err)
-		data.WriteResponse()
-		return
-	}
-	data.User.Hash, err = utils.HashPassword(password)
-	if err != nil {
-		data.SetUser(data.User).SetErrorConsume(err)
-		data.WriteResponse()
-		return
-	}
-	data.User.FirstName = data.Request.FormValue("first_name")
-	data.User.LastName = data.Request.FormValue("last_name")
-	age, err := utils.StringToInt64(data.Request.FormValue("age"))
-	if err != nil {
-		data.SetUser(data.User).SetErrorConsume(err)
-		data.WriteResponse()
-		return
-	}
-	data.User.Age = age
-	data.User.Gender = data.Request.FormValue("gender")
-	fmt.Println(data.User.Gender)
-	if err = data.User.Add(); err != nil {
-		data.SetUser(data.User).SetErrorConsume(models.ErrorInvalidUser)
-		data.WriteResponse()
-		return
-	}
-	data.SetUser(models.GetGuestUser())
-	data.Message.Content = "Registration was successful"
-	data.Message.Type = "Success"
-	data.Message.Has = true
-	data.WriteResponse()
+	http.SetCookie(*data.EditResponse(), cookie)
+	data.SetMessage(
+		models.Message{
+			Has:     true,
+			Type:    "Success",
+			Content: "Login successful",
+		},
+	)
+	return nil
 }
 
 // Strong password validation. Makes sure the password is in between 10-16
 // characters and includes letters, numbers and/or punctuation symbols
-func validatePasswordStrength(password string) error {
+func ValidatePasswordStrength(password string) error {
 	unameMask := regexp.MustCompile(`^[[:punct:][:alnum:]]{10,16}$`)
 	if !unameMask.MatchString(password) {
-		return models.ErrorWeakPassword
+		return ferror.ErrorWeakPassword
 	}
 	return nil
 }
 
-func showUserPosts(data models.ResponseStruct) {
-	posts, err := data.User.GetPosts()
+func GetUserPosts(data state.StateController) error {
+	posts, err := data.EditUser().GetPosts()
 	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
+		return errors.Join(utils.GetFunctionName(), err)
 	}
 	for i := range posts {
 		err = posts[i].GetReactions()
 		if err != nil {
-			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-			return
+			return errors.Join(utils.GetFunctionName(), err)
 		}
-		err = posts[i].GetReactionsByUserId(data.User.Id)
+		err = posts[i].GetReactionsByUserId(data.GetUser().Id)
 		if err != nil {
-			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-			return
+			return errors.Join(utils.GetFunctionName(), err)
 		}
 	}
-	data.Posts = posts
-	data.WriteResponse()
+	// data.Posts = posts
+	// data.WriteResponse()
+	data.SetPosts(posts)
+	return nil
 }
 
-func showUserLikedPosts(data models.ResponseStruct) {
+func GetUserLikedPosts(data state.StateController) error {
 	var err error
-	var posts models.Posts
-	posts, err = data.User.GetLikedPosts()
+	var posts models.PostsType
+	posts, err = data.EditUser().GetLikedPosts()
 	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
+		return errors.Join(utils.GetFunctionName(), err)
 	}
 	for i := range posts {
 		err = posts[i].GetReactions()
 		if err != nil {
-			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-			return
+			return errors.Join(utils.GetFunctionName(), err)
 		}
-		err = posts[i].GetReactionsByUserId(data.User.Id)
+		err = posts[i].GetReactionsByUserId(data.GetUser().Id)
 		if err != nil {
-			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-			return
+			return errors.Join(utils.GetFunctionName(), err)
 		}
 	}
-	data.Posts = posts
-	data.WriteResponse()
+	data.SetPosts(posts)
+	return nil
 }
 
-func showUserView(data models.ResponseStruct) {
-	data.WriteResponse()
-}
-
-func showUserActivity(data models.ResponseStruct) {
-	err := data.User.GetActivity()
-	if err != nil {
-		(&models.Error{}).Consume(models.ErrorInternalServerError).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	data.WriteResponse()
+func GetUserActivity(data state.StateController) error {
+	return data.EditUser().GetActivity()
 }

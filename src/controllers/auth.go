@@ -2,7 +2,9 @@ package controllers
 
 import (
 	"errors"
+	"forum/src/ferror"
 	"forum/src/models"
+	"forum/src/utils"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -14,19 +16,19 @@ func CompareRegistrationPasswords(pass1, pass2 string) bool {
 func Auth(identifier, password string) error {
 	var err error
 	if !models.IsEmailRegistered(identifier) && !models.IsUsernameRegistered(identifier) {
-		return models.ErrorNotRegistered
+		return ferror.ErrorNotRegistered
 	}
-	var user models.User
-	user, err = models.GetUserPasswordByIdentifier(identifier)
+	var user models.UserType
+	err = user.GetUserPasswordByIdentifier(identifier)
 	if err != nil {
-		return err
+		return errors.Join(utils.GetFunctionName(), err)
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(user.Hash), []byte(password))
 	if err != nil {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
-			return models.ErrorWrongPassword
+			return ferror.ErrorWrongPassword
 		}
-		return err
+		return errors.Join(utils.GetFunctionName(), err)
 	}
 	return nil
 }

@@ -1,10 +1,13 @@
 package controllers
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
-	"context"
+	"forum/src/ferror"
 	"forum/src/models"
+	"forum/src/state"
+	"forum/src/utils"
 	"net/http"
 	"net/url"
 	"os"
@@ -16,7 +19,7 @@ import (
 
 type oauthConfig struct {
 	ClientID, ClientSecret, RedirectURL, AuthURL, TokenURL string
-	Scopes []string
+	Scopes                                                 []string
 }
 
 type tokenResponse struct {
@@ -51,7 +54,7 @@ func (c *oauthConfig) Exchange(ctx context.Context, code string) (string, error)
 	if err != nil {
 		return "", err
 	}
-	
+
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("Accept", "application/json")
 
@@ -66,14 +69,14 @@ func (c *oauthConfig) Exchange(ctx context.Context, code string) (string, error)
 		return "", err
 	}
 	if tr.AccessToken == "" {
-		return "", models.ErrorAccessToken
+		return "", ferror.ErrorAccessToken
 	}
 
 	return tr.AccessToken, nil
 }
 
 func (b *BearerTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	req.Header.Set("Authorization", "Bearer " + b.Token)
+	req.Header.Set("Authorization", "Bearer "+b.Token)
 	req.Header.Set("Accept", "application/json")
 	return http.DefaultTransport.RoundTrip(req)
 }
@@ -88,7 +91,7 @@ var (
 	googleOAuthConf = &oauthConfig{
 		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
 		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
-		RedirectURL:  os.Getenv("BASE_URL")+"auth/google/callback",
+		RedirectURL:  os.Getenv("BASE_URL") + "auth/google/callback",
 		Scopes:       []string{"email", "profile"},
 		AuthURL:      "https://accounts.google.com/o/oauth2/v2/auth",
 		TokenURL:     "https://oauth2.googleapis.com/token",
@@ -96,22 +99,14 @@ var (
 	githubOAuthConf = &oauthConfig{
 		ClientID:     os.Getenv("GITHUB_CLIENT_ID"),
 		ClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
-		RedirectURL:  os.Getenv("BASE_URL")+"auth/github/callback",
+		RedirectURL:  os.Getenv("BASE_URL") + "auth/github/callback",
 		Scopes:       []string{"user:email", "read:user"},
 		AuthURL:      "https://github.com/login/oauth/authorize",
-		TokenURL:	  "https://github.com/login/oauth/access_token",
+		TokenURL:     "https://github.com/login/oauth/access_token",
 	}
 )
 
-func handleOAuthLoginGoogle(data models.ResponseStruct) {
-	handleOAuthLogin(data, "google")
-}
-
-func handleOAuthLoginGithub(data models.ResponseStruct) {
-	handleOAuthLogin(data, "github")
-}
-
-func handleOAuthLogin(data models.ResponseStruct, provider string) {
+func HandleOAuthLogin(data state.StateController, provider string) {
 	state, _ := uuid.NewV4()
 
 	cookie := &http.Cookie{
@@ -122,8 +117,8 @@ func handleOAuthLogin(data models.ResponseStruct, provider string) {
 		Secure:   true,
 		HttpOnly: true,
 	}
-	http.SetCookie(data.Response, cookie)
-	
+	http.SetCookie(*data.EditResponse(), cookie)
+
 	var url string
 	switch provider {
 	case "google":
@@ -131,29 +126,17 @@ func handleOAuthLogin(data models.ResponseStruct, provider string) {
 	case "github":
 		url = githubOAuthConf.AuthCodeURL(state.String()) + "&prompt=consent"
 	}
-	http.Redirect(data.Response, data.Request, url, http.StatusTemporaryRedirect)
+	http.Redirect(*data.EditResponse(), data.GetRequest(), url, http.StatusTemporaryRedirect)
 }
 
-func handleGoogleCallback(data models.ResponseStruct) {
-	cookieState, err := data.Request.Cookie("__Host-FRMState")
+func OAuthGoogleCallback(data state.StateController) error {
+	token, err := googleOAuthConf.Exchange(data.GetRequest().Context(), data.GetRequest().URL.Query().Get("code"))
 	if err != nil {
-		data.Error.Consume(models.ErrorCookieNotFound).LogAndRespondError(data.Response, data.User)
-		return
+		return errors.Join(utils.GetFunctionName(), err)
 	}
-	urlState := data.Request.URL.Query().Get("state")
-	if cookieState.Value != urlState {
-		data.Error.Consume(models.ErrorInvalidOAuthState).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	token, err := googleOAuthConf.Exchange(data.Request.Context(), data.Request.URL.Query().Get("code"))
-	if err != nil {
-		data.Error.Consume(err).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	resp, err := googleOAuthConf.Client(data.Request.Context(), token).Get("https://www.googleapis.com/oauth2/v2/userinfo")
+	resp, err := googleOAuthConf.Client(data.GetRequest().Context(), token).Get("https://www.googleapis.com/oauth2/v2/userinfo")
 	if err != nil || resp == nil {
-		data.Error.Consume(err).LogAndRespondError(data.Response, data.User)
-		return
+		return errors.Join(utils.GetFunctionName(), err)
 	}
 	defer resp.Body.Close()
 
@@ -165,29 +148,17 @@ func handleGoogleCallback(data models.ResponseStruct) {
 	json.NewDecoder(resp.Body).Decode(&info)
 
 	username := strings.ReplaceAll(info.Name, " ", "_")
-	createOrLoginUser(data, "google", info.Email, username)
+	return createOrLoginUser(data, "google", info.Email, username)
 }
 
-func handleGitHubCallback(data models.ResponseStruct) {
-	cookieState, err := data.Request.Cookie("__Host-FRMState")
+func OAuthGitHubCallback(data state.StateController) error {
+	token, err := githubOAuthConf.Exchange(data.GetRequest().Context(), data.GetRequest().URL.Query().Get("code"))
 	if err != nil {
-		data.Error.Consume(models.ErrorCookieNotFound).LogAndRespondError(data.Response, data.User)
-		return
+		return errors.Join(utils.GetFunctionName(), err)
 	}
-	urlState := data.Request.URL.Query().Get("state")
-	if cookieState.Value != urlState {
-		data.Error.Consume(models.ErrorInvalidOAuthState).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	token, err := githubOAuthConf.Exchange(data.Request.Context(), data.Request.URL.Query().Get("code"))
-	if err != nil {
-		data.Error.Consume(err).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	resp, err := githubOAuthConf.Client(data.Request.Context(), token).Get("https://api.github.com/user")
+	resp, err := githubOAuthConf.Client(data.GetRequest().Context(), token).Get("https://api.github.com/user")
 	if err != nil || resp == nil {
-		data.Error.Consume(err).LogAndRespondError(data.Response, data.User)
-		return
+		return errors.Join(utils.GetFunctionName(), err)
 	}
 	defer resp.Body.Close()
 
@@ -197,7 +168,7 @@ func handleGitHubCallback(data models.ResponseStruct) {
 	}
 	json.NewDecoder(resp.Body).Decode(&info)
 
-	emailResp, _ := githubOAuthConf.Client(data.Request.Context(), token).Get("https://api.github.com/user/emails")
+	emailResp, _ := githubOAuthConf.Client(data.GetRequest().Context(), token).Get("https://api.github.com/user/emails")
 	var email string
 	if emailResp != nil {
 		defer emailResp.Body.Close()
@@ -215,48 +186,45 @@ func handleGitHubCallback(data models.ResponseStruct) {
 	}
 
 	username := strings.ReplaceAll(info.Login, " ", "_")
-	createOrLoginUser(data, "github", email, username)
+	return createOrLoginUser(data, "github", email, username)
 }
 
-func createOrLoginUser(data models.ResponseStruct, provider, email, username string) {
-	var user models.User
+func createOrLoginUser(data state.StateController, provider, email, username string) error {
 	var err error
 	if !models.IsEmailRegistered(email) {
-		user.Username = username
-		user.Email = email
-		user.OAuthProvider = provider
-		err := user.AddOAuth()
+		data.EditUser().Username = username
+		data.EditUser().Email = email
+		data.EditUser().OAuthProvider = provider
+		err := data.EditUser().AddOAuth()
 		if err != nil {
-			data.Error.Consume(err).LogAndRespondError(data.Response, data.User)
-			return
+			return errors.Join(utils.GetFunctionName(), err)
 		}
+	} else {
+		data.EditUser().Email = email
+		data.EditUser().OAuthProvider = provider
 	}
 	sessionValue, err := uuid.NewV4()
 	if err != nil {
-		data.User = models.GetGuestUser()
-		data.Error.Consume(err).LogAndRespondError(data.Response, data.User)
-		return
+		data.SetUser(models.GetGuestUser())
+		return errors.Join(utils.GetFunctionName(), err)
 	}
-	data.User, err = models.GetUserByOAuthProviderAndEmail(provider, email)
+	err = data.EditUser().GetUserByOAuthProviderAndEmail()
 	if err != nil {
-		data.User = models.GetGuestUser()
-		if errors.Is(err, models.ErrorNoRows){
-			data.Error.Consume(models.ErrorEmailNotFoundForOAuth).LogAndRespondError(data.Response, data.User)
-			return
+		data.SetUser(models.GetGuestUser())
+		if errors.Is(err, ferror.ErrorNoRows) {
+			return ferror.ErrorEmailNotFoundForOAuth
 		}
-		data.Error.Consume(err).LogAndRespondError(data.Response, data.User)
-		return
+		return errors.Join(utils.GetFunctionName(), err)
 	}
-	data.User.LoggedIn = true
-	err = data.User.SetUserSession(sessionValue.String())
+	data.EditUser().LoggedIn = true
+	err = data.EditUser().SetUserSession(sessionValue.String())
 	if err != nil {
-		data.User = models.GetGuestUser()
-		data.Error.Consume(err).LogAndRespondError(data.Response, data.User)
-		return
+		data.SetUser(models.GetGuestUser())
+		return errors.Join(utils.GetFunctionName(), err)
 	}
-	err = data.User.GetNotifications()
+	err = data.EditUser().GetNotifications()
 	if err != nil {
-		(&models.Error{}).Consume(err).LogError()
+		return errors.Join(utils.GetFunctionName(), err)
 	}
 	cookie := &http.Cookie{
 		Name:     "__Host-FRMSessionID",
@@ -267,6 +235,15 @@ func createOrLoginUser(data models.ResponseStruct, provider, email, username str
 		HttpOnly: true,
 		SameSite: http.SameSite(http.SameSiteStrictMode),
 	}
-	http.SetCookie(data.Response, cookie)
+	http.SetCookie(*data.EditResponse(), cookie)
 	data.WriteResponse()
+
+	// Because if we redirect, it somehow doesn't read the cookie after the
+	// redirect. The cookie is set, though. It just doesn't leave the browser at
+	// this point. So, instead, we return them to the Index() controller without
+	// redirection... The difference with internal auth attemptLogin() where we
+	// do redirection successfully is because we are doing it from the same
+	// origin. Here, we land from external page.
+	Index(data)
+	return nil
 }

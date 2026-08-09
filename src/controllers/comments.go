@@ -1,212 +1,184 @@
 package controllers
 
 import (
-	"encoding/json"
-	// "fmt"
-	"forum/src/models"
+	"errors"
+	"forum/src/ferror"
+	"forum/src/state"
 	"forum/src/utils"
-	// "net/http"
 )
 
-func parseCommentId(data models.ResponseStruct) (int64, error) {
-	commentIdStr := data.Request.FormValue("comment-id")
+func ParseCommentId(data state.StateController) (int64, error) {
+	commentIdStr := data.GetRequest().FormValue("comment-id")
 	if len(commentIdStr) == 0 {
-		return 0, models.ErrorCommentEmptyId
+		return 0, ferror.ErrorCommentEmptyId
 	}
 	commentId, err := utils.StringToInt64(commentIdStr)
 	if err != nil {
-		return 0, models.ErrorInvalidCommentId
+		return 0, ferror.ErrorInvalidCommentId
 	}
 	return commentId, nil
 }
 
-func handleCommentCreate(data models.ResponseStruct) {
-	var comment models.Comment
+func CommentCreate(data state.StateController) error {
 	var err error
-	body := data.Request.FormValue("comment")
-	comment.PostId, err = parsePostId(data)
+	data.EditComment().UserId = data.GetUser().Id
+	data.EditComment().Body = data.GetRequest().FormValue("comment")
+	data.EditComment().PostId, err = ParsePostId(data)
 	if err != nil {
-		(&models.Error{}).Consume(models.ErrorInvalidPostId).LogAndRespondError(data.Response, data.User)
-		return
+		return ferror.ErrorInvalidPostId
 	}
-	post := models.Post{Id: comment.PostId}
-	err = post.GetById()
+	data.EditPost().Id = data.GetComment().PostId
+	err = data.EditPost().SelectPostById()
 	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
+		return errors.Join(utils.GetFunctionName(), err)
 	}
-	comment.Body = body
-	comment.UserId = data.User.Id
-	comment.Id, err = comment.Add()
+	err = data.EditComment().Add()
 	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
+		return errors.Join(utils.GetFunctionName(), err)
 	}
-	err = comment.CreateCommentNotification(post)
+	data.SetRedirect(GetRedirectLinkToCommentOfPost(data))
+	err = data.EditComment().CreateCommentNotification(data.GetPost())
 	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
+		return errors.Join(utils.GetFunctionName(), err)
 	}
-	data.Response.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(data.Response).Encode(map[string]int64{
-		"postId":    post.Id,
-		"commentId": comment.Id,
-	})
-}
-
-func handleCommentReaction(data models.ResponseStruct) {
-	var comment models.Comment
-	var err error
-	comment.Id, err = parseCommentId(data)
-	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	err = comment.GetCommentById()
-	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	if data.Request.FormValue("action") == "like" {
-		err = data.User.LikeComment(comment.Id)
-		if err != nil {
-			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-			return
-		}
-		err = comment.CreateReactionNotification(data.User.Id, "commentLike")
-		if err != nil {
-			(&models.Error{}).Consume(err).LogError()
-		}
-	}
-	if data.Request.FormValue("action") == "dislike" {
-		err = data.User.DislikeComment(comment.Id)
-		if err != nil {
-			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-			return
-		}
-		err = comment.CreateReactionNotification(data.User.Id, "commentDislike")
-		if err != nil {
-			(&models.Error{}).Consume(err).LogError()
-		}
-	}
-	err = comment.GetReactions()
-	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	err = comment.GetReactionsByUserId(data.User.Id)
-	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	post := models.Post{Id: comment.PostId}
-	post.Comments = models.Comments{comment}
-	data.SetPosts(models.Posts{post})
-	data.WriteResponse()
-}
-
-func handleCommentDelete(data models.ResponseStruct) {
-	commentId, err := parseCommentId(data)
-	if err != nil {
-		err = models.ErrorInvalidCommentId
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	comment := models.Comment{Id: commentId}
-	err = comment.GetCommentById()
-	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	if comment.UserId != data.User.Id {
-		(&models.Error{}).Consume(models.ErrorCommentPermissionDenied).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	err = comment.Delete()
-	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	data.WriteResponse()
-}
-
-func handleCommentEdit(data models.ResponseStruct) {
-	var err error
-	err = validateFormCommentEdit(&data)
-	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	err = verifyCommentOwnership(&data)
-	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	if data.Request.FormValue("save-comment") == "1" {
-		err = updateCommentFromForm(&data)
-		if err != nil {
-			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-			return
-		}
-	}
-	err = showEditComment(&data)
-	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
-	}
-	data.WriteResponse()
-}
-
-func validateFormCommentEdit(data *models.ResponseStruct) error {
-	var err error
-	var post models.Post
-	var comment models.Comment
-	commentId, err := parseCommentId(*data)
-	if err != nil {
-		return models.ErrorInvalidCommentId
-	}
-	post.Id, err = parsePostId(*data)
-	if err != nil {
-		return models.ErrorInvalidPostId
-	}
-	comment = models.Comment{Id: commentId}
-	post.Comments = models.Comments{comment}
-	data.Posts = models.Posts{post}
+	// TODO Look at this
+	// data.SetResponse().Header().Set("Content-Type", "application/json")
+	// json.NewEncoder(data.Response).Encode(map[string]int64{
+	// 	"postId":    post.Id,
+	// 	"commentId": comment.Id,
+	// })
 	return nil
 }
 
-func verifyCommentOwnership(data *models.ResponseStruct) error {
+func CommentReaction(data state.StateController) error {
 	var err error
-	comment := &data.Posts[0].Comments[0]
-	err = comment.GetCommentById()
+	data.EditComment().Id, err = ParseCommentId(data)
 	if err != nil {
-		return err
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	data.EditComment().PostId, err = ParsePostId(data)
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	data.EditPost().Id = data.EditComment().PostId
+	err = data.EditComment().SelectCommentById()
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	switch data.GetRequest().FormValue("action") {
+	case "like":
+		err = data.EditUser().LikeComment(data.EditComment().Id)
+		if err != nil {
+			return errors.Join(utils.GetFunctionName(), err)
+		}
+		err = data.EditComment().CreateReactionNotification(data.GetUser().Id, "commentLike")
+		if err != nil {
+			(&ferror.Error{}).Consume(err).LogError()
+		}
+	case "dislike":
+		err = data.EditUser().DislikeComment(data.EditComment().Id)
+		if err != nil {
+			return errors.Join(utils.GetFunctionName(), err)
+		}
+		err = data.EditComment().CreateReactionNotification(data.GetUser().Id, "commentDislike")
+		if err != nil {
+			(&ferror.Error{}).Consume(err).LogError()
+		}
+	default:
+		return ferror.ErrorUnknownAction
+	}
+	data.SetRedirect(GetRedirectLinkToCommentOfPost(data))
+	return nil
+}
+
+func CommentDelete(data state.StateController) error {
+	var err error
+	data.EditComment().Id, err = ParseCommentId(data)
+	if err != nil {
+		return ferror.ErrorInvalidCommentId
+	}
+	data.EditPost().Id, err = ParsePostId(data)
+	if err != nil {
+		return ferror.ErrorInvalidCommentId
+	}
+	err = data.EditComment().SelectCommentById()
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	if data.EditComment().UserId != data.GetUser().Id {
+		return ferror.ErrorCommentPermissionDenied
+	}
+	err = data.EditComment().DeleteCommentById()
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	data.SetRedirect(GetRedirectLinkToPost(data))
+	return nil
+}
+
+func commonCommentEditPrework(data state.StateController) error {
+	var err error
+	err = ValidateFormCommentEdit(data)
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	return VerifyCommentOwnership(data)
+}
+
+func CommentEdit(data state.StateController) error {
+	var err error
+	err = commonCommentEditPrework(data)
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	if data.GetRequest().FormValue("save-comment") == "1" {
+		err = UpdateCommentFromForm(data)
+		if err != nil {
+			return errors.Join(utils.GetFunctionName(), err)
+		}
+		return nil
+	}
+	return ShowEditComment(data)
+}
+
+func ValidateFormCommentEdit(data state.StateController) error {
+	var err error
+	data.EditComment().Id, err = ParseCommentId(data)
+	if err != nil {
+		return ferror.ErrorInvalidCommentId
+	}
+	data.EditPost().Id, err = ParsePostId(data)
+	if err != nil {
+		return ferror.ErrorInvalidPostId
+	}
+	data.EditComment().PostId = data.GetPost().Id
+	return nil
+}
+
+func VerifyCommentOwnership(data state.StateController) error {
+	var err error
+	err = data.EditComment().SelectCommentById()
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
 	}
 	// Check your priviledge
-	if comment.UserId != data.User.Id {
-		return models.ErrorCommentPermissionDenied
+	if data.GetComment().UserId != data.GetUser().Id {
+		return ferror.ErrorCommentPermissionDenied
 	}
 	return nil
 }
 
-func showEditComment(data *models.ResponseStruct) error {
+func ShowEditComment(data state.StateController) error {
 	var err error
-	comment := data.Posts[0].Comments[0]
 	err = getPostDataById(data)
 	if err != nil {
-		return err
+		return errors.Join(utils.GetFunctionName(), err)
 	}
-	data.EditCommentId = comment.Id
+	data.SetEditCommentId(data.GetComment().Id)
 	return nil
 }
 
-func updateCommentFromForm(data *models.ResponseStruct) error {
-	var err error
-	comment := &data.Posts[0].Comments[0]
-	comment.Body = data.Request.FormValue("comment")
-	err = comment.Update()
-	if err != nil {
-		return err
-	}
-	return nil
+func UpdateCommentFromForm(data state.StateController) error {
+	data.EditComment().Body = data.GetRequest().FormValue("comment")
+	return data.EditComment().Update()
 }

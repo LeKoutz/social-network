@@ -2,18 +2,22 @@ package controllers
 
 import (
 	"forum/src/models"
+	"forum/src/state"
 )
 
-func getUsers(data models.ResponseStruct) {
-	users, err := models.GetUsersForPanel(data.User.Id)
+func GetUsersForPanel(data state.StateController) error {
+	err := data.EditUsers().GetUsersForPanel(data.GetUser().Id)
 	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-		return
+		return err
 	}
-	onlineUsers := Hub.GetOnlineUsers()
+	return nil
+}
+
+func HubOnlineUsers(data state.StateController) {
+	onlineUsers := models.MainHub.GetOnlineUsers()
+	users := data.GetUsers()
 	for i := range users {
 		users[i].LoggedIn = onlineUsers[users[i].Id]
 	}
-	data.Users = users
-	data.WriteResponse()
+	data.SetUsers(users)
 }

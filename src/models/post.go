@@ -1,256 +1,169 @@
 package models
 
 import (
-	"database/sql"
 	"errors"
+	"forum/src/db"
+	"forum/src/ferror"
 	"forum/src/utils"
 )
 
-type Post struct {
-	Id              int64
-	Title           string
-	Body            string
-	ImagePath       string
-	UserId          int64
-	User            User
-	Timestamp       int64
-	TimestampString string
-	Likes           int
-	Liked           bool
-	Dislikes        int
-	Disliked        bool
-	Category        Category
-	Categories      Categories
-	Comments        Comments
+type PostType struct {
+	db.PostRowType
+
+	User       UserType
+	Timestamp  int64
+	Likes      int64
+	Liked      bool
+	Dislikes   int64
+	Disliked   bool
+	Category   CategoryType
+	Categories CategoriesType
+	Comments   CommentsType
 }
 
-func (p *Post) ValidatePost() error {
+func (p *PostType) FromPostRowType(pr *db.PostRowType) {
+	p.Id = pr.Id
+	p.Title = pr.Title
+	p.Body = pr.Body
+	p.ImagePath = pr.ImagePath
+	p.UserId = pr.UserId
+	p.TimestampString = pr.TimestampString
+}
+
+func (p *PostType) ValidatePost() error {
 	if len(p.Title) == 0 {
-		return ErrorPostTitleEmpty
+		return ferror.ErrorPostTitleEmpty
 	}
 	if len(p.Body) == 0 {
-		return ErrorPostBodyEmpty
+		return ferror.ErrorPostBodyEmpty
 	}
 	if p.Categories.IsEmpty() {
-		return ErrorPostHasNoCategory
+		return ferror.ErrorPostHasNoCategory
 	}
 	return nil
 }
 
 // Adds a Post in the database. Returns its id or error
-func (p *Post) Add() (int64, error) {
+func (p *PostType) Add() error {
 	err := p.ValidatePost()
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return 0, err
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
+		return err
 	}
-	stmt, err := db.Prepare("INSERT INTO posts (title, body, image_path, user_id, timestamp) VALUES (?, ?, ?, ?, ?)")
+	err = p.InsertPost()
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return 0, err
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
+		return err
 	}
-	res, err := stmt.Exec(p.Title, p.Body, p.ImagePath, p.UserId, utils.GetCurrentTimestamp())
-	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return 0, err
-	}
-	postId, err := res.LastInsertId()
-	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return 0, err
-	}
-	p.Id = postId
 	for _, category := range p.Categories {
-		err = p.AddCategory(category)
+		err = db.AddPostCategory(db.PostCategoryRow{
+			PostId:     p.Id,
+			CategoryId: category.Id,
+		})
 		if err != nil {
-			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return 0, err
+			err = errors.Join(utils.GetFunctionName(), err)
+			return errors.Join(utils.GetFunctionName(), err)
 		}
-	}
-	return postId, nil
-}
-
-func (p *Post) AddCategory(category Category) error {
-	stmt, err := db.Prepare("INSERT INTO posts_categories (post_id, category_id) VALUES (?, ?)")
-	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
-	}
-	_, err = stmt.Exec((*p).Id, category.Id)
-	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
 	}
 	return nil
 }
 
-func (p *Post) GetById() error {
-	var ts string
-	err := db.QueryRow(`SELECT title, body, image_path, timestamp, user_id FROM posts WHERE id = ?`, p.Id).Scan(&p.Title, &p.Body, &p.ImagePath, &ts, &p.UserId)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			err = ErrorNoRows
-			return err
-		} else {
-			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return err
-		}
-	}
-	t, err := utils.ConvertStringToTime(ts)
-	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
-	}
-	p.TimestampString = utils.ConvertTimeToString(t)
-	p.User, err = getUserById(p.UserId)
-	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
-	}
-	return nil
-}
-
-func (p *Post) GetReactions() error {
+func (p *PostType) GetReactions() error {
 	var err error
-	(*p).Likes, err = getLikesCountByPostId((*p).Id)
+	p.Likes, err = db.GetLikesCountByPostId(p.Id)
 	if err != nil {
-		return err
+		return errors.Join(utils.GetFunctionName(), err)
 	}
-	(*p).Dislikes, err = getDislikesCountByPostId((*p).Id)
+	p.Dislikes, err = db.GetDislikesCountByPostId(p.Id)
 	if err != nil {
-		return err
+		return errors.Join(utils.GetFunctionName(), err)
 	}
 	return nil
 }
 
-func (p *Post) GetReactionsByUserId(user_id int64) error {
+func (p *PostType) GetReactionsByUserId(user_id int64) error {
 	var err error
-	(*p).Liked, err = HasUserLikedPost(user_id, (*p).Id)
+	p.Liked, err = HasUserLikedPost(user_id, p.Id)
 	if err != nil {
-		return err
+		return errors.Join(utils.GetFunctionName(), err)
 	}
-	(*p).Disliked, err = HasUserDislikedPost(user_id, (*p).Id)
+	p.Disliked, err = HasUserDislikedPost(user_id, p.Id)
 	if err != nil {
-		return err
+		return errors.Join(utils.GetFunctionName(), err)
 	}
 	return nil
 }
 
-func (p *Post) GetComments() (Comments, error) {
-	rows, err := db.Query(`
-	SELECT
-	c.id,
-	c.post_id,
-	c.user_id,
-	c.body,
-	c.timestamp,
-	u.username
-	FROM comments c
-	JOIN users u ON c.user_id = u.id
-	WHERE c.post_id = ?
-	ORDER BY c.timestamp ASC`, p.Id)
+func (p *PostType) GetComments() error {
+	comment_rows, err := p.SelectCommentsAndUsernameByPostId()
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			err = ErrorNoRows
-			return Comments{}, err
-		} else {
-			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return Comments{}, err
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
 		}
+		return err
 	}
-	defer rows.Close()
-	var comments Comments
-	for rows.Next() {
-		var comment Comment
-		var ts string
-		err = rows.Scan(
-			&comment.Id,
-			&comment.PostId,
-			&comment.UserId,
-			&comment.Body,
-			&ts,
-			&comment.Username,
-		)
+	for _, comment_row := range comment_rows {
+		var comment CommentType
+		comment.FromCommentRowType(comment_row)
+		t, err := utils.ConvertStringToTime(comment_row.TimestampString)
 		if err != nil {
-			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return Comments{}, err
-		}
-		t, err := utils.ConvertStringToTime(ts)
-		if err != nil {
-			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return Comments{}, err
+			if config.Debug {
+				err = errors.Join(utils.GetFunctionName(), err)
+			}
+			return err
 		}
 		comment.TimestampString = utils.ConvertTimeToString(t)
-		comments = append(comments, comment)
+		p.Comments = append(p.Comments, comment)
 	}
-	return comments, nil
+	return nil
 }
 
-func (p *Post) Delete() error {
-	tx, err := db.Begin()
+func (p *PostType) Delete() error {
+	err := p.DeletePostById()
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
 		return err
 	}
-	_, err = tx.Exec("DELETE FROM reactions WHERE post_id = ?", p.Id)
-	if err != nil {
-		tx.Rollback()
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
-	}
-	_, err = tx.Exec("DELETE FROM reactions WHERE comment_id IN (SELECT id FROM comments WHERE post_id = ?)", p.Id)
-	if err != nil {
-		tx.Rollback()
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
-	}
-	_, err = tx.Exec("DELETE FROM comments WHERE post_id = ?", p.Id)
-	if err != nil {
-		tx.Rollback()
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
-	}
-	_, err = tx.Exec("DELETE FROM posts_categories WHERE post_id = ?", p.Id)
-	if err != nil {
-		tx.Rollback()
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
-	}
-	_, err = tx.Exec("DELETE FROM posts WHERE id = ?", p.Id)
-	if err != nil {
-		tx.Rollback()
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
-	}
-	_, err = tx.Exec("DELETE FROM notifications WHERE post_id = ?", p.Id)
-	if err != nil {
-		tx.Rollback()
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
-	}
-	return tx.Commit()
+	return nil
 }
 
-func (p *Post) Update() error {
+func (p *PostType) Update() error {
 	err := p.ValidatePost()
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
 		return err
 	}
-	_, err = db.Exec("UPDATE posts SET title = ?, body = ?, image_path = ? WHERE id = ?", p.Title, p.Body, p.ImagePath, p.Id)
+	err = p.UpdatePost()
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
 		return err
 	}
-	_, err = db.Exec("DELETE FROM posts_categories WHERE post_id = ?", p.Id)
+	err = db.DeletePostCategoryByPostId(p.Id)
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
 		return err
 	}
 	for _, category := range p.Categories {
-		err = p.AddCategory(category)
+		err = db.AddPostCategory(db.PostCategoryRow{
+			PostId:     p.Id,
+			CategoryId: category.Id,
+		})
 		if err != nil {
-			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+			if config.Debug {
+				err = errors.Join(utils.GetFunctionName(), err)
+			}
 			return err
 		}
 	}

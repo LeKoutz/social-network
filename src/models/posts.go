@@ -2,66 +2,44 @@ package models
 
 import (
 	"errors"
+	"forum/src/db"
 	"forum/src/utils"
 )
 
-type Posts []Post
+type PostsType []PostType
 
-func GetAllPosts() (Posts, error) {
-	rows, err := db.Query(`SELECT id, title, body, timestamp, image_path FROM posts`)
+func (p *PostsType) GetPostsByCategoryId(id int64) error {
+	var err error
+	var post_rows *db.PostRowsType = &db.PostRowsType{}
+	err = post_rows.SelectPostsByCategoryId(id)
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return Posts{}, err
-	}
-	defer rows.Close()
-	var posts Posts
-	for rows.Next() {
-		var post Post
-		var ts string
-		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts, &post.ImagePath)
-		if err != nil {
-			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return Posts{}, err
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
 		}
-		t, err := utils.ConvertStringToTime(ts)
-		if err != nil {
-			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return Posts{}, err
-		}
-		post.TimestampString = utils.ConvertTimeToString(t)
-		posts = append(posts, post)
+		return err
 	}
-	return posts, nil
+	for _, i := range *post_rows {
+		var post PostType
+		post.FromPostRowType(&i)
+		*p = append(*p, post)
+	}
+	return nil
 }
 
-func GetPostsByCategoryId(id int64) (Posts, error) {
-	var posts Posts
-	rows, err := db.Query(`
-	SELECT posts.id, posts.title, posts.body, posts.timestamp, posts.image_path
-	FROM posts
-	JOIN posts_categories pc ON posts.id = pc.post_id
-	JOIN categories ON pc.category_id = categories.id
-	WHERE pc.category_id = ?`, id)
+func (p *PostsType) GetPosts() error {
+	var err error
+	var post_rows *db.PostRowsType = &db.PostRowsType{}
+	err = post_rows.SelectAllPosts()
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return Posts{}, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var post Post
-		var ts string
-		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts, &post.ImagePath)
-		if err != nil {
-			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return Posts{}, err
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
 		}
-		t, err := utils.ConvertStringToTime(ts)
-		if err != nil {
-			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return Posts{}, err
-		}
-		post.TimestampString = utils.ConvertTimeToString(t)
-		posts = append(posts, post)
+		return err
 	}
-	return posts, nil
+	for _, i := range *post_rows {
+		var post PostType
+		post.FromPostRowType(&i)
+		*p = append(*p, post)
+	}
+	return nil
 }

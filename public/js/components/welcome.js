@@ -20,7 +20,7 @@ export function showWelcome(data) {
 }
 
 export async function indexRoute() {
-    const data = await apiFetch('/api/');
+    const data = await apiFetch('/api');
     if (data) {
         document.querySelector('.content').innerHTML = showWelcome(data);
         renderTopBar(data);

@@ -1,4 +1,4 @@
-package models
+package ferror
 
 import (
 	"errors"
@@ -13,7 +13,7 @@ var (
 	ErrorEmailFieldEmpty         = errors.New("Email field can't be empty")
 	ErrorPasswordFieldEmpty      = errors.New("Password field can't be empty")
 	ErrorInvalidUsername         = errors.New("Username is invalid")
-	ErrorInvalidGender			 = errors.New("Gender is invalid")
+	ErrorInvalidGender           = errors.New("Gender is invalid")
 	ErrorUsernameTaken           = errors.New("Username is taken")
 	ErrorInvalidUser             = errors.New("Invalid user")
 	ErrorWrongPassword           = errors.New("Wrong password")
@@ -26,7 +26,7 @@ var (
 	ErrorInvalidPostId           = errors.New("Invalid post ID")
 	ErrorInvalidCommentId        = errors.New("Invalid comment ID")
 	ErrorInvalidCategoryId       = errors.New("Invalid category ID")
-	ErrorInvalidChatId		     = errors.New("Invalid chat ID")
+	ErrorInvalidChatId           = errors.New("Invalid chat ID")
 	ErrorPostBodyEmpty           = errors.New("Post body can't be empty.")
 	ErrorPostTitleEmpty          = errors.New("Post title can't be empty.")
 	ErrorPostHasNoCategory       = errors.New("Post category can't be empty.")
@@ -114,18 +114,4 @@ func (e *Error) Consume(err error) *Error {
 // Logs *Error to terminal
 func (e *Error) LogError() {
 	log.Printf("Error: %s", e.Message)
-}
-
-// Responds *Error to user with the error_view template
-func (e *Error) RespondError(res http.ResponseWriter, user User) {
-	data := ResponseStruct{}
-	data.Init().SetResponse(res)
-	data.Response.Header().Add("Content-Type", "application/json")
-	data.SetError(*e).SetUser(user).WriteResponse()
-}
-
-// Logs *Error to terminal and responds to user with error_view template
-func (e *Error) LogAndRespondError(res http.ResponseWriter, user User) {
-	e.LogError()
-	e.RespondError(res, user)
 }

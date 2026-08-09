@@ -1,17 +1,11 @@
 package controllers
 
-import (
-	"forum/src/models"
-)
+import "forum/src/state"
 
-func Index(data models.ResponseStruct) {
-	if data.User.LoggedIn {
-		categories, err := models.GetAllCategories()
-		if err != nil {
-			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-			return
-		}
-		data.SetCategories(categories)
+func Index(data state.StateController) error {
+	if data.GetUser().LoggedIn {
+		return data.EditCategories().GetAll()
 	}
 	data.WriteResponse()
+	return nil
 }

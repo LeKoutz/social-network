@@ -1,29 +1,26 @@
 package controllers
 
 import (
-	"forum/src/models"
-	"os"
 	"errors"
+	"forum/src/ferror"
+	"forum/src/state"
+	"os"
 	"path/filepath"
 	"strings"
-	"net/http"
 )
 
-func handleImages(data models.ResponseStruct) {
-	if strings.HasSuffix(data.Request.URL.Path, "/") {
-		(&models.Error{}).Consume(models.ErrorNotFound).LogAndRespondError(data.Response, data.User)
-		return
+func HandleImages(data state.StateController) (string, error) {
+	if strings.HasSuffix(data.GetRequest().URL.Path, "/") {
+		return "", ferror.ErrorNotFound
 	}
-	imgURL := filepath.Base(data.Request.URL.Path)
+	imgURL := filepath.Base(data.GetRequest().URL.Path)
 	_, err := os.Stat("./uploads/images/" + imgURL)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			(&models.Error{}).Consume(models.ErrorNotFound).LogAndRespondError(data.Response, data.User)
-			return
+			return "", ferror.ErrorNotFound
 		} else {
-			(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
-			return
+			return "", err
 		}
 	}
-	http.ServeFile(data.Response, data.Request, "./uploads/images/"+imgURL)
+	return imgURL, nil
 }

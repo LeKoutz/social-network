@@ -2,133 +2,117 @@ package models
 
 import (
 	"errors"
+	"forum/src/db"
+	"forum/src/ferror"
 	"forum/src/utils"
 )
 
-type Comment struct {
-	Id              int64
-	PostId          int64
-	UserId          int64
-	Body            string
-	Timestamp       int64
-	TimestampString string
-	Likes           int64
-	Liked           bool
-	Dislikes        int64
-	Disliked        bool
-	Username        string
+type CommentType struct {
+	db.CommentRowType
+	Timestamp int64
+	Likes     int64
+	Liked     bool
+	Dislikes  int64
+	Disliked  bool
 }
 
-func (c *Comment) ValidateComment() error {
+func (ct *CommentType) FromCommentRowType(crt db.CommentRowType) {
+	ct.Body = crt.Body
+	ct.TimestampString = crt.TimestampString
+	ct.Id = crt.Id
+	ct.PostId = crt.PostId
+	ct.UserId = crt.UserId
+}
+
+func (c *CommentType) ValidateComment() error {
 	if len(c.Body) == 0 {
-		return ErrorCommentEmpty
+		return ferror.ErrorCommentEmpty
 	}
 	if len(c.Body) > 1000 {
-		return ErrorCommentTooLong
+		return ferror.ErrorCommentTooLong
 	}
 	return nil
 }
 
-func (c *Comment) Add() (int64, error) {
-	if err := c.ValidateComment(); err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return 0, err
-	}
-	res, err := db.Exec(
-		"INSERT INTO comments (post_id, user_id, body, timestamp) VALUES (?, ?, ?, ?)",
-		c.PostId,
-		c.UserId,
-		c.Body,
-		utils.GetCurrentTimestamp(),
-	)
-	commentId, err := res.LastInsertId()
-	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return 0, err
-	}
-	return commentId, nil
-}
-
-func (c *Comment) GetReactions() error {
+func (c *CommentType) Add() error {
 	var err error
-	(*c).Likes, err = getLikesCountByCommentId((*c).Id)
+	err = c.ValidateComment()
 	if err != nil {
-		return err
+		return errors.Join(utils.GetFunctionName(), err)
 	}
-	(*c).Dislikes, err = getDislikesCountByCommentId((*c).Id)
+	err = c.InsertComment()
 	if err != nil {
-		return err
+		return errors.Join(utils.GetFunctionName(), err)
 	}
 	return nil
 }
 
-func (c *Comment) GetReactionsByUserId(user_id int64) error {
+func (c *CommentType) GetReactions() error {
 	var err error
-	(*c).Liked, err = HasUserLikedComment(user_id, (*c).Id)
+	c.Likes, err = db.GetLikesCountByCommentId(c.Id)
 	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	c.Dislikes, err = db.GetDislikesCountByCommentId(c.Id)
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	return nil
+}
+
+func (c *CommentType) GetReactionsByUserId(user_id int64) error {
+	var err error
+	c.Liked, err = HasUserLikedComment(user_id, c.Id)
+	if err != nil {
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
 		return err
 	}
-	(*c).Disliked, err = HasUserDislikedComment(user_id, (*c).Id)
+	c.Disliked, err = HasUserDislikedComment(user_id, c.Id)
 	if err != nil {
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
 		return err
 	}
 	return nil
 }
 
-func (c *Comment) GetCommentById() error {
-	var ts string
-	err := db.QueryRow(
-		`SELECT id, post_id, user_id, body, timestamp
-		FROM comments
-		WHERE id = ?`, c.Id).Scan(&c.Id, &c.PostId, &c.UserId, &c.Body, &ts)
+func (c *CommentType) GetById() error {
+	var err error
+	err = c.SelectCommentById()
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
 		return err
 	}
-	t, err := utils.ConvertStringToTime(ts)
+	t, err := utils.ConvertStringToTime(c.TimestampString)
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
 		return err
 	}
 	c.TimestampString = utils.ConvertTimeToString(t)
 	return nil
 }
 
-func (c *Comment) Delete() error {
-	tx, err := db.Begin()
+func (c *CommentType) Update() error {
+	var err error
+	err = c.ValidateComment()
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
 		return err
 	}
-	_, err = tx.Exec("DELETE FROM reactions WHERE comment_id = ?", c.Id)
+	err = c.UpdateCommentById()
 	if err != nil {
-		tx.Rollback()
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
-	}
-	_, err = tx.Exec("DELETE FROM comments WHERE id = ?", c.Id)
-	if err != nil {
-		tx.Rollback()
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
-	}
-	_, err = tx.Exec("DELETE FROM notifications WHERE comment_id = ?", c.Id)
-	if err != nil {
-		tx.Rollback()
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
-	}
-	return tx.Commit()
-}
-
-func (c *Comment) Update() error {
-	if err := c.ValidateComment(); err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
-	}
-	_, err := db.Exec("UPDATE comments SET body = ? WHERE id = ?", c.Body, c.Id)
-	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
 		return err
 	}
 	return nil

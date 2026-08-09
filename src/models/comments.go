@@ -2,33 +2,31 @@ package models
 
 import (
 	"errors"
+	"forum/src/db"
 	"forum/src/utils"
 )
 
-type Comments []Comment
+type CommentsType []CommentType
 
-func GetCommentsByUserId(id int64) (Comments, error) {
-	var comments Comments
-	rows, err := db.Query(`
-	SELECT id, post_id, body, timestamp, user_id
-	FROM comments
-	WHERE user_id = ?`, id)
+func (u *UserType) GetCommentsByUserId() (CommentsType, error) {
+	var comments CommentsType
+	var err error
+	comment_rows, err := db.GetCommentsByUserId(u.Id)
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return Comments{}, err
-	}
-	for rows.Next() {
-		var comment Comment
-		var ts string
-		err = rows.Scan(&comment.Id, &comment.PostId, &comment.Body, &ts, &comment.UserId)
-		if err != nil {
-			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return Comments{}, err
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
 		}
-		t, err := utils.ConvertStringToTime(ts)
+		return CommentsType{}, err
+	}
+	for _, comment_row := range comment_rows {
+		var comment CommentType
+		comment.FromCommentRowType(comment_row)
+		t, err := utils.ConvertStringToTime(comment.TimestampString)
 		if err != nil {
-			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return Comments{}, err
+			if config.Debug {
+				err = errors.Join(utils.GetFunctionName(), err)
+			}
+			return CommentsType{}, err
 		}
 		comment.TimestampString = utils.ConvertTimeToString(t)
 		comments = append(comments, comment)

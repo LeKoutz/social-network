@@ -1,45 +1,46 @@
 package models
 
-import (
-	"errors"
-	"forum/src/utils"
-)
+import "forum/src/db"
 
-type ChatMessage struct {
-	Id				int64 `json:"Id"`
-	SenderId		int64
-	RecipientId		int64
-	Body			string
-	Timestamp		int64
-	TimestampString	string
-	Read			bool
-	SenderUsername	string
+type ChatMessageType struct {
+	Id              int64 `json:"Id"`
+	SenderId        int64
+	RecipientId     int64
+	Body            string
+	Timestamp       int64
+	TimestampString string
+	Read            bool
+	SenderUsername  string
 }
 
-func (msg *ChatMessage) Add() (int64, error) {
-	stmt, err := db.Prepare("INSERT INTO messages (sender_id, recipient_id, body, timestamp) VALUES (?, ?, ?, ?)")
-	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return 0, err
-	}
-	res, err := stmt.Exec(msg.SenderId, msg.RecipientId, msg.Body, msg.TimestampString)
-	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return 0, err
-	}
-	msgId, err := res.LastInsertId()
-	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return 0, err
-	}
-	return msgId, nil
+func (m *ChatMessageType) ConvertToRow() *db.ChatMessageRowType {
+	t := &db.ChatMessageRowType{}
+	t.Id = m.Id
+	t.SenderId = m.SenderId
+	t.RecipientId = m.RecipientId
+	t.Body = m.Body
+	t.Timestamp = m.Timestamp
+	t.TimestampString = m.TimestampString
+	t.Read = m.Read
+	t.SenderUsername = m.SenderUsername
+	return t
 }
 
-func (msg *ChatMessage) MarkAsRead() error {
-    _, err := db.Exec(`UPDATE messages SET read = 1 WHERE id = ?`, msg.Id)
-    if err != nil {
-        if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-        return err
-    }
-    return nil
+func (m *ChatMessageType) ConvertFromRow(t *db.ChatMessageRowType) {
+	m.Id = t.Id
+	m.SenderId = t.SenderId
+	m.RecipientId = t.RecipientId
+	m.Body = t.Body
+	m.Timestamp = t.Timestamp
+	m.TimestampString = t.TimestampString
+	m.Read = t.Read
+	m.SenderUsername = t.SenderUsername
+}
+
+func (m *ChatMessageType) Add() (int64, error) {
+	return m.ConvertToRow().Add()
+}
+
+func (m *ChatMessageType) MarkAsRead() error {
+	return m.ConvertToRow().MarkAsRead()
 }

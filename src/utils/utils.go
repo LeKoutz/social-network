@@ -76,5 +76,5 @@ func StringToInt64(str string) (int64, error) {
 	if err != nil {
 		return n, err
 	}
-	return n, err
+	return n, nil
 }

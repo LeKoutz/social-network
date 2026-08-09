@@ -2,16 +2,17 @@ package models
 
 import (
 	"encoding/json"
+	"forum/src/ferror"
 	"forum/src/utils"
 
 	"github.com/gorilla/websocket"
 )
 
 type Client struct {
-    Hub    *Hub
-    Conn   *websocket.Conn
-    Send   chan []byte
-    UserId int64
+	Hub      *Hub
+	Conn     *websocket.Conn
+	Send     chan []byte
+	UserId   int64
 	Username string
 }
 
@@ -23,14 +24,14 @@ func (c *Client) ReadPump() {
 	for {
 		_, message, err := c.Conn.ReadMessage()
 		if err != nil {
-			(&Error{}).Consume(err).LogError()
+			(&ferror.Error{}).Consume(err).LogError()
 			break
 		}
 		var incoming WsMessage
 		if err := json.Unmarshal(message, &incoming); err != nil {
-			(&Error{}).Consume(err).LogError()
-        	continue
-    	}
+			(&ferror.Error{}).Consume(err).LogError()
+			continue
+		}
 		switch incoming.Type {
 		case "chat-message":
 			var p struct {
@@ -38,37 +39,37 @@ func (c *Client) ReadPump() {
 				Body        string `json:"body"`
 			}
 			if err := json.Unmarshal(incoming.Payload, &p); err != nil {
-				(&Error{}).Consume(err).LogError()
+				(&ferror.Error{}).Consume(err).LogError()
 				continue
 			}
 			timestampString := utils.GetCurrentTimestamp()
-			msg := ChatMessage{
-				SenderId:    c.UserId,
-				RecipientId: p.RecipientId,
-				Body:        p.Body,
+			msg := ChatMessageType{
+				SenderId:        c.UserId,
+				RecipientId:     p.RecipientId,
+				Body:            p.Body,
 				TimestampString: timestampString,
-				SenderUsername: c.Username,
+				SenderUsername:  c.Username,
 			}
 			msg.Id, err = msg.Add()
 			if err != nil {
-				(&Error{}).Consume(err).LogError()
+				(&ferror.Error{}).Consume(err).LogError()
 				continue
 			}
 			timestampTime, err := utils.ConvertStringToTime(msg.TimestampString)
 			if err != nil {
-				(&Error{}).Consume(err).LogError()
+				(&ferror.Error{}).Consume(err).LogError()
 				continue
 			}
 			msg.TimestampString = utils.ConvertTimeToString(timestampTime)
 			c.Hub.Transmit <- msg
 		case "message-read":
-			message := ChatMessage{}
+			message := ChatMessageType{}
 			if err := json.Unmarshal(incoming.Payload, &message); err != nil {
-				(&Error{}).Consume(err).LogError()
+				(&ferror.Error{}).Consume(err).LogError()
 				continue
 			}
 			if err := message.MarkAsRead(); err != nil {
-				(&Error{}).Consume(err).LogError()
+				(&ferror.Error{}).Consume(err).LogError()
 			}
 		}
 	}
@@ -79,10 +80,9 @@ func (c *Client) WritePump() {
 	for message := range c.Send {
 		err := c.Conn.WriteMessage(websocket.TextMessage, message)
 		if err != nil {
-			(&Error{}).Consume(err).LogError()
+			(&ferror.Error{}).Consume(err).LogError()
 			break
 		}
 	}
 	c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
 }
-	

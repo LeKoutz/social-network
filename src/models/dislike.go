@@ -1,43 +1,49 @@
 package models
 
-func (user *User) DislikePost(postId int64) error {
-	dislikeId, err := CheckIfUserDislikedPost(user.Id, postId)
+import (
+	"errors"
+	"forum/src/db"
+	"forum/src/utils"
+)
+
+func (user *UserType) DislikePost(postId int64) error {
+	dislikeId, err := db.CheckIfUserDislikedPost(user.Id, postId)
 	if err != nil {
-		return err
+		return errors.Join(utils.GetFunctionName(), err)
 	}
 	if dislikeId != 0 {
-		return RemoveDislikeFromPost(dislikeId)
+		return db.RemoveDislikeFromPost(dislikeId)
 	}
-	existingLikeId, err := CheckIfUserLikedPost(user.Id, postId)
+	existingLikeId, err := db.CheckIfUserLikedPost(user.Id, postId)
 	if err != nil {
-		return err
+		return errors.Join(utils.GetFunctionName(), err)
 	}
 	if existingLikeId != 0 {
-		err = RemoveLikeFromPost(user.Id, postId)
+		err = db.RemoveLikeFromPost(user.Id, postId)
 		if err != nil {
-			return err
+			return errors.Join(utils.GetFunctionName(), err)
 		}
 	}
-	return AddDislikeToPost(user.Id, postId)
+	return db.AddDislikeToPost(user.Id, postId)
 }
 
-func (user *User) DislikeComment(commentId int64) error {
-	dislikeId, err := CheckIfUserDislikedComment(user.Id, commentId)
+func (user *UserType) DislikeComment(commentId int64) error {
+	dislikeId, err := db.CheckIfUserDislikedComment(user.Id, commentId)
 	if err != nil {
-		return err
+		return errors.Join(utils.GetFunctionName(), err)
 	}
 	if dislikeId != 0 {
-		return RemoveReaction(dislikeId)
+		return db.RemoveReaction(dislikeId)
 	}
-	existingLikeId, err := CheckIfUserLikedComment(user.Id, commentId)
+	existingLikeId, err := db.CheckIfUserLikedComment(user.Id, commentId)
 	if err != nil {
-		return err
+		return errors.Join(utils.GetFunctionName(), err)
 	}
 	if existingLikeId != 0 {
-		err = RemoveReaction(existingLikeId)
+		err = db.RemoveReaction(existingLikeId)
 		if err != nil {
-			return err
+			return errors.Join(utils.GetFunctionName(), err)
 		}
 	}
-	return AddDislikeToComment(user.Id, commentId)
+	return db.AddDislikeToComment(user.Id, commentId)
 }

@@ -1,0 +1,243 @@
+package controllers
+
+import (
+	"errors"
+	"fmt"
+	"forum/src/ferror"
+	"forum/src/models"
+	"forum/src/state"
+	"forum/src/utils"
+)
+
+func GetPost(data state.StateController) error {
+	var err error
+	data.EditPost().Id, err = ParsePostId(data)
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	err = getPostDataById(data)
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	return data.EditUser().MarkAsReadPost(data.GetPost())
+}
+
+func CreatePost(data state.StateController) error {
+	err := ParseCreatePostRequest(data)
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	err = data.EditPost().InsertPost()
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	categories := data.EditPost().Categories
+	for _, category := range categories {
+		var post_cat models.PostCategory
+		post_cat.PostCategoryRow.PostId = data.GetPost().Id
+		post_cat.PostCategoryRow.CategoryId = category.Id
+		post_cat.Add()
+		if err != nil {
+			return errors.Join(utils.GetFunctionName(), err)
+		}
+	}
+	data.SetRedirect(fmt.Sprintf("/post/view/%d", data.GetPost().Id))
+	return nil
+}
+
+func getPostDataById(data state.StateController) error {
+	var err error
+	err = data.EditPost().SelectPostById()
+	if err != nil {
+		if err == ferror.ErrorNoRows {
+			return ferror.ErrorContentNotFound
+		}
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	data.EditPost().User.Id = data.GetPost().UserId
+	err = data.EditPost().User.SelectUserById()
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	err = data.EditPost().GetComments()
+	if err != nil {
+		if err == ferror.ErrorNoRows {
+			return ferror.ErrorContentNotFound
+		}
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	for i := range data.GetPost().Comments {
+		err = data.EditPost().Comments[i].GetReactions()
+		if err != nil {
+			return errors.Join(utils.GetFunctionName(), err)
+		}
+		err = data.EditPost().Comments[i].GetReactionsByUserId(data.GetUser().Id)
+		if err != nil {
+			return errors.Join(utils.GetFunctionName(), err)
+		}
+	}
+	err = data.EditPost().GetCategories()
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	err = data.EditPost().GetReactions()
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	err = data.EditPost().GetReactionsByUserId(data.GetUser().Id)
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	return nil
+}
+
+func ShowEditPost(data state.StateController) error {
+	var err error
+	err = commonPostEditPrework(data)
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	categories := data.GetCategories()
+	err = data.EditPost().GetCategories()
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	data.SetCategories(markSelectedCategories(categories, data.GetPost().Categories))
+	data.SetEditPost(true)
+	return nil
+}
+
+func ParseCreatePostRequest(data state.StateController) error {
+	var categories models.CategoriesType
+	data.EditPost().UserId = data.EditUser().Id
+	data.EditPost().Title = data.GetRequest().FormValue("title")
+	data.EditPost().Body = data.GetRequest().FormValue("body")
+	err := categories.GetAll()
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	for _, category := range categories {
+		cc := fmt.Sprintf("category-%d", category.Id)
+		if data.GetRequest().FormValue(cc) == "on" {
+			data.EditPost().Categories = append(data.EditPost().Categories, category)
+		}
+	}
+	imageFile, _, err := data.GetRequest().FormFile("image")
+	if err == nil {
+		defer imageFile.Close()
+		data.EditPost().ImagePath, err = models.SaveImage(imageFile)
+		if err != nil {
+			return errors.Join(utils.GetFunctionName(), err)
+		}
+	}
+	return nil
+}
+
+func commonPostEditPrework(data state.StateController) error {
+	var err error
+	data.EditPost().Id, err = ParsePostId(data)
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	err = data.EditPost().SelectPostById()
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	err = data.EditCategories().GetAll()
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	return verifyUserPostAssociation(data)
+}
+
+func verifyUserPostAssociation(data state.StateController) error {
+	// Check your priviledge
+	if data.GetPost().UserId != data.GetUser().Id {
+		return ferror.ErrorCommentPermissionDenied
+	}
+	return nil
+}
+
+func UpdatePost(data state.StateController) error {
+	var err error
+	err = commonPostEditPrework(data)
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	post_image_path := data.GetPost().ImagePath
+	err = data.GetRequest().ParseMultipartForm(models.MaxImageSize)
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	err = ParseCreatePostRequest(data)
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	if data.GetPost().ImagePath == "" {
+		data.EditPost().ImagePath = post_image_path
+	}
+	err = data.EditPost().Update()
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	data.SetEditPost(false)
+	data.SetRedirect(fmt.Sprintf("/post/view/%d", data.GetPost().Id))
+	return nil
+}
+
+func LikePost(data state.StateController) error {
+	var err error
+	err = data.EditUser().LikePost(data.GetPost().Id)
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	utils.LogDebug(data.GetPost().Id)
+	data.SetRedirect(fmt.Sprintf("/post/view/%d", data.GetPost().Id))
+	return data.EditPost().CreateReactionNotification(data.GetUser().Id, "like")
+}
+
+func DislikePost(data state.StateController) error {
+	var err error
+	err = data.EditUser().DislikePost(data.GetPost().Id)
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	data.SetRedirect(fmt.Sprintf("/post/view/%d", data.GetPost().Id))
+	return data.EditPost().CreateReactionNotification(data.GetUser().Id, "dislike")
+}
+
+func PostReaction(data state.StateController) error {
+	var err error
+	data.EditPost().Id, err = ParsePostId(data)
+	if err != nil {
+		return ferror.ErrorInvalidPostId
+	}
+	err = data.EditPost().SelectPostById()
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	switch data.GetRequest().FormValue("action") {
+	case "like":
+		return LikePost(data)
+	case "dislike":
+		return DislikePost(data)
+	default:
+		return ferror.ErrorUnknownAction
+	}
+}
+
+func RemovePost(data state.StateController) error {
+	var err error
+	err = data.EditPost().SelectPostById()
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	if data.GetPost().UserId != data.GetUser().Id {
+		return ferror.ErrorPostPermissionDenied
+	}
+	err = data.EditPost().Delete()
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	return nil
+}

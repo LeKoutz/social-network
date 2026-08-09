@@ -1,6 +1,7 @@
 package models
 
 import (
+	"forum/src/db"
 	"testing"
 )
 
@@ -14,7 +15,7 @@ func TestInit(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := InitDB(":memory:")
+			err := db.InitDB(":memory:")
 			if err != nil {
 				t.Errorf("InitDB failed: %v", err)
 			}

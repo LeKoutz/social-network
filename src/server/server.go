@@ -1,15 +1,12 @@
 package server
 
 import (
-	"forum/src/controllers"
-	"forum/src/models"
+	"forum/src/router"
 	"net/http"
 )
 
 func startServer(ip, port string) error {
-	controllers.Hub = models.NewHub()
-	go controllers.Hub.Run()
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", controllers.RoutesHandler)
+	mux.HandleFunc("/", router.RoutesHandler)
 	return http.ListenAndServe(ip+":"+port, mux)
 }

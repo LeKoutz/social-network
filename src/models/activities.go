@@ -1,3 +1,3 @@
 package models
 
-type Activities []Activity
+type ActivitiesType []ActivityType

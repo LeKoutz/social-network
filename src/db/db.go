@@ -1,8 +1,9 @@
-package models
+package db
 
 import (
 	"database/sql"
 	"errors"
+	"forum/src/ferror"
 	"forum/src/utils"
 	"os"
 	"path"
@@ -15,6 +16,7 @@ import (
 const migrations_dir = "migrations"
 
 var db *sql.DB
+var config *utils.Configuration = &utils.GlobalConfig
 
 type MigrationsEnabled map[string]bool
 
@@ -22,23 +24,31 @@ func InitDB(dbPath string) error {
 	var err error
 	db, err = sql.Open("sqlite3", dbPath)
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
 		return err
 	}
 	_, err = db.Exec("PRAGMA journal_mode=WAL;")
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
 		return err
 	}
 	db.SetMaxOpenConns(1)
 	err = createMigrationsTable(db)
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
 		return err
 	}
 	err = runMigrations(db)
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
 		return err
 	}
 	return nil
@@ -50,7 +60,9 @@ func createMigrationsTable(db *sql.DB) error {
 		"timestamp"	TEXT NOT NULL DEFAULT current_timestamp
 	)`)
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
 		return err
 	}
 	return nil
@@ -61,7 +73,9 @@ func selectMigrations(db *sql.DB) (MigrationsEnabled, error) {
 	var err error
 	rows, err := db.Query("SELECT version FROM schema_migrations")
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
 		return applied, err
 	}
 	defer rows.Close()
@@ -77,38 +91,48 @@ func runMigrations(db *sql.DB) error {
 	applied := MigrationsEnabled{}
 	_, x, _, ok := runtime.Caller(0)
 	if !ok {
-		return ErrorFailedToGetCaller
+		return ferror.ErrorFailedToGetCaller
 	}
 	migrations_dir := path.Join(path.Dir(x), "..", "..", migrations_dir)
 	utils.LogDebug(x)
 	migrations_found, err := os.ReadDir(migrations_dir)
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
 		return err
 	}
 	applied, err = selectMigrations(db)
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
 		return err
 	}
 	for _, file := range migrations_found {
 		if !applied[file.Name()] {
 			bytes, err := os.ReadFile(path.Join(migrations_dir, file.Name()))
 			if err != nil {
-				if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+				if config.Debug {
+					err = errors.Join(utils.GetFunctionName(), err)
+				}
 				return err
 			}
 			if strings.HasSuffix(file.Name(), ".sql") {
-				utils.LogInfo("Running migration file: "+file.Name())
+				utils.LogInfo("Running migration file: " + file.Name())
 				query := string(bytes)
 				_, err = db.Exec(query)
 				if err != nil {
-					if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+					if config.Debug {
+						err = errors.Join(utils.GetFunctionName(), err)
+					}
 					return err
 				}
 				_, err = db.Exec("INSERT INTO schema_migrations(version) VALUES (?)", file.Name())
 				if err != nil {
-					if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+					if config.Debug {
+						err = errors.Join(utils.GetFunctionName(), err)
+					}
 					return err
 				}
 			}

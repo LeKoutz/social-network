@@ -1,30 +1,36 @@
 package main
 
 import (
+	"errors"
 	"os"
 
+	"forum/src/db"
 	"forum/src/models"
 	"forum/src/utils"
 )
 
 // mockGen generates mock data for the database
 func mockGen(dbPath string) error {
-	if err := models.InitDB(dbPath); err != nil {
-		return err
+	if err := db.InitDB(dbPath); err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
 	}
 
 	// Create some mock categories
-	categories := []models.Category{
-		{Name: "General", Description: "General discussions"},
-		{Name: "Tech", Description: "Technology related discussions"},
-		{Name: "Random", Description: "Random topics"},
-	}
+	var general models.CategoryType
+	general.Name = "General"
+	general.Description = "General discussions"
+	var tech models.CategoryType
+	tech.Name = "Tech"
+	tech.Description = "Technology related discussions"
+	var random models.CategoryType
+	random.Name = "Random"
+	random.Description = "Random topics"
+
+	var categories models.CategoriesType = models.CategoriesType{general, tech, random}
 
 	for _, cat := range categories {
-		if !cat.DoesCategoryExist() {
-			if err := models.AddCategory(cat); err != nil {
-				utils.LogDebug(err)
-			}
+		if err := cat.Add(); err != nil {
+			utils.LogDebug(err)
 		}
 	}
 

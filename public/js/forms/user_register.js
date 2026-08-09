@@ -87,11 +87,11 @@ export function attachRegisterListener() {
 }
 
 export async function registerRoute() {
-    const data = await apiFetch('/api/user/register');
-    if (data) {
+    // const data = await apiFetch('/api/user/register');
+    // if (data) {
         document.querySelector('.content').innerHTML = showUserRegister();
         attachRegisterListener();
         attachGoogleAuthListener();
         attachGithubAuthListener();
-    }
+    // }
 }

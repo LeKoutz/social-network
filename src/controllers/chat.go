@@ -1,52 +1,65 @@
 package controllers
 
 import (
+	"forum/src/db"
+	"forum/src/ferror"
 	"forum/src/models"
+	"forum/src/state"
 	"forum/src/utils"
 	"strings"
 )
 
-func showChatHistory(data models.ResponseStruct) {
-	uri, ok := strings.CutPrefix(data.Request.RequestURI, "/api/chat/")
+func showChatHistory(data state.StateHandler) {
+	uri, ok := strings.CutPrefix(data.GetRequest().RequestURI, "/api/chat/")
 	if !ok {
-		(&models.Error{}).Consume(models.ErrorBadRequest).LogAndRespondError(data.Response, data.User)
+		data.SetErrorConsume(ferror.ErrorBadRequest)
+		data.(state.StateController).WriteResponse()
 		return
 	}
 	id, _, _ := strings.Cut(uri, "?")
 	if len(id) == 0 {
-		(&models.Error{}).Consume(models.ErrorBadRequest).LogAndRespondError(data.Response, data.User)
+		data.SetErrorConsume(ferror.ErrorBadRequest)
+		data.(state.StateController).WriteResponse()
 		return
 	}
 	chatUserId, err := utils.StringToInt64(id)
 	if err != nil {
-		(&models.Error{}).Consume(models.ErrorInvalidChatId).LogAndRespondError(data.Response, data.User)
+		data.SetErrorConsume(ferror.ErrorInvalidChatId)
+		data.(state.StateController).WriteResponse()
 		return
 	}
-	if chatUserId == data.User.Id {
-		(&models.Error{}).Consume(models.ErrorNotFound).LogAndRespondError(data.Response, data.User)
+	if chatUserId == data.GetUser().Id {
+		data.SetErrorConsume(ferror.ErrorNotFound)
+		data.(state.StateController).WriteResponse()
 		return
 	}
-	offset, _ := utils.StringToInt64(data.Request.URL.Query().Get("offset"))
-	messages, err := models.GetChatHistory(data.User.Id, chatUserId, offset)
+	offset, _ := utils.StringToInt64(data.GetRequest().URL.Query().Get("offset"))
+	messages, err := db.GetChatHistory(data.GetUser().Id, chatUserId, offset)
 	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		data.SetErrorConsume(err)
+		data.(state.StateController).WriteResponse()
 		return
 	}
 	for i := range messages {
-		if messages[i].RecipientId == data.User.Id {
+		if messages[i].RecipientId == data.GetUser().Id {
 			messages[i].MarkAsRead()
 		}
 	}
-	data.User.ChatMessages = messages
-	data.WriteResponse()
+	var m models.ChatMessagesType
+	m.ConvertFromRow(&messages)
+	data.EditUser().ChatMessages = m
+	data.(state.StateController).WriteResponse()
 }
 
-func serveUnreadMessages(data models.ResponseStruct) {
-	messages, err := models.GetUnreadMessageIds(data.User.Id)
+func serveUnreadMessages(data state.StateHandler) {
+	messages, err := db.GetUnreadMessageIds(data.GetUser().Id)
 	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		data.SetErrorConsume(err)
+		data.(state.StateController).WriteResponse()
 		return
 	}
-	data.User.ChatMessages = messages
-	data.WriteResponse()
+	var m models.ChatMessagesType
+	m.ConvertFromRow(&messages)
+	data.EditUser().ChatMessages = m
+	data.(state.StateController).WriteResponse()
 }

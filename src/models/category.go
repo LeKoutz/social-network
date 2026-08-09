@@ -2,49 +2,42 @@ package models
 
 import (
 	"errors"
+	"forum/src/db"
+	"forum/src/ferror"
 	"forum/src/utils"
 )
 
-type Category struct {
-	Id          int64
-	Name        string
-	Description string
-	Selected    bool
+type CategoryType struct {
+	db.CategoryRowType
+	Selected bool
 }
 
-func (c *Category) IsEmpty() bool {
-	return c == nil || *c == Category{}
+func (c *CategoryType) IsEmpty() bool {
+	return c == nil || *c == CategoryType{}
 }
 
-func (category *Category) GetCategoryById() error {
-	err := db.QueryRow(`SELECT name, description FROM categories WHERE id = ?`, category.Id).Scan(&category.Name, &category.Description)
-	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+func (c *CategoryType) ValidateCategory() error {
+	var err error
+	if len(c.Name) == 0 {
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), ferror.ErrorCategoryNameEmpty)
+		}
+		return err
+	}
+	if len(c.Name) >= 128 {
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), ferror.ErrorCategoryNameTooLong)
+		}
 		return err
 	}
 	return nil
 }
 
-func (c *Category) ValidateCategory() error {
-	if len((*c).Name) == 0 {
-		return ErrorCategoryNameEmpty
-	}
-	if len((*c).Name) >= 128 {
-		return ErrorCategoryNameTooLong
-	}
-	return nil
-}
-
-func (c *Category) DoesCategoryExist() bool {
-	categories, err := GetAllCategories()
+func (c *CategoryType) Add() error {
+	var err error
+	err = c.ValidateCategory()
 	if err != nil {
-		(&Error{}).Consume(err).LogError()
-		return false
+		return errors.Join(utils.GetFunctionName(), err)
 	}
-	for _, category := range categories {
-		if category.Name == (*c).Name {
-			return true
-		}
-	}
-	return false
+	return c.InsertCategory()
 }

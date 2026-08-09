@@ -2,81 +2,53 @@ package models
 
 import (
 	"errors"
+
+	"forum/src/db"
 	"forum/src/utils"
 )
 
-type Categories []Category
+type CategoriesType []CategoryType
 
-func GetAllCategories() (Categories, error) {
-	rows, err := db.Query(`SELECT id, name, description FROM categories`)
-	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return []Category{}, err
-	}
-	defer rows.Close()
-	var categories Categories
-	for rows.Next() {
-		var category Category
-		err = rows.Scan(&category.Id, &category.Name, &category.Description)
-		if err != nil {
-			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return []Category{}, err
-		}
-		categories = append(categories, category)
-	}
-	return categories, nil
+func (ct *CategoryType) FromCategoriesRowsType(crt db.CategoryRowType) {
+	ct.CategoryRowType.Id = crt.Id
+	ct.CategoryRowType.Description = crt.Description
+	ct.CategoryRowType.Name = crt.Name
 }
 
-func (c *Categories) IsEmpty() bool {
+func (categories *CategoriesType) GetAll() error {
+	var err error
+	var categories_rows db.CategoriesRowsType
+	categories_rows, err = db.GetAllCategories()
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	for _, item := range categories_rows {
+		var category CategoryType
+		category.FromCategoriesRowsType(item)
+		*categories = append(*categories, category)
+	}
+	return nil
+}
+
+func (c *CategoriesType) IsEmpty() bool {
 	if c == nil {
 		return true
 	}
-	if c == (&Categories{}) {
-		return true
-	}
-	if len(*c) == 0 {
-		return true
-	}
-	return false
+	return len(*c) == 0
 }
 
-func GetCategoriesByPostId(post_id int64) (Categories, error) {
-	var categories Categories
-	rows, err := db.Query(`
-	SELECT c.id, c.name, c.description
-	FROM categories c
-	JOIN posts_categories pc ON c.id = pc.category_id
-	WHERE pc.post_id = ?
-	`, post_id)
+func (p *PostType) GetCategories() error {
+	categories_rows, err := db.GetCategoriesByPostId(p.PostRowType.Id)
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return Categories{}, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var category Category
-		err = rows.Scan(&category.Id, &category.Name, &category.Description)
-		if err != nil {
-			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return []Category{}, err
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
 		}
-		categories = append(categories, category)
-	}
-	return categories, nil
-}
-
-func AddCategory(category Category) error {
-	err := category.ValidateCategory()
-	if err != nil {
 		return err
 	}
-	if (&category).DoesCategoryExist() {
-		return ErrorCategoryAlreadyExists
+	for _, item := range categories_rows {
+		var category CategoryType
+		category.FromCategoriesRowsType(item)
+		p.Categories = append(p.Categories, category)
 	}
-	stmt, err := db.Prepare("INSERT INTO categories (name, description) VALUES (?, ?)")
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(category.Name, category.Description)
-	return err
+	return nil
 }

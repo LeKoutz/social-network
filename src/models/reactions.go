@@ -2,35 +2,56 @@ package models
 
 import (
 	"errors"
+	"forum/src/db"
 	"forum/src/utils"
 )
 
-type Reactions []Reaction
+type ReactionsType []ReactionType
 
-func GetPostLikesByUserId(id int64) (Reactions, error) {
-	var reactions Reactions
-	rows, err := db.Query(`
-	SELECT id, post_id, user_id, timestamp
-	FROM reactions
-	WHERE user_id = ? AND value=1 AND post_id IS NOT NULL
-	`, id)
+func (reactions *ReactionsType) GetPostLikesByUserId(id int64) error {
+	var err error
+	var reaction_rows db.ReactionRowsType
+	err = reaction_rows.SelectPostLikesByUserId(id)
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return Reactions{}, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var reaction Reaction
-		var ts string
-		err = rows.Scan(&reaction.Id, &reaction.PostId, &reaction.UserId, &ts)
-		if err != nil {
-			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return Reactions{}, err
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
 		}
-		t, err := utils.ConvertStringToTime(ts)
+		return err
+	}
+	for _, reaction_row := range reaction_rows {
+		var reaction ReactionType
+		reaction.FromReactionRowType(reaction_row)
+		t, err := utils.ConvertStringToTime(reaction.TimestampString)
 		if err != nil {
-			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return Reactions{}, err
+			if config.Debug {
+				err = errors.Join(utils.GetFunctionName(), err)
+			}
+			return err
+		}
+		reaction.TimestampString = utils.ConvertTimeToString(t)
+		*reactions = append(*reactions, reaction)
+	}
+	return nil
+}
+
+func GetPostDislikesByUserId(id int64) (ReactionsType, error) {
+	var reactions ReactionsType
+	reaction_rows, err := db.SelectPostDislikesByUserId(id)
+	if err != nil {
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
+		return ReactionsType{}, err
+	}
+	for _, reaction_row := range reaction_rows {
+		var reaction ReactionType
+		reaction.FromReactionRowType(reaction_row)
+		t, err := utils.ConvertStringToTime(reaction.TimestampString)
+		if err != nil {
+			if config.Debug {
+				err = errors.Join(utils.GetFunctionName(), err)
+			}
+			return ReactionsType{}, err
 		}
 		reaction.TimestampString = utils.ConvertTimeToString(t)
 		reactions = append(reactions, reaction)
@@ -38,30 +59,24 @@ func GetPostLikesByUserId(id int64) (Reactions, error) {
 	return reactions, nil
 }
 
-func GetPostDislikesByUserId(id int64) (Reactions, error) {
-	var reactions Reactions
-	rows, err := db.Query(`
-	SELECT id, post_id, user_id, timestamp
-	FROM reactions
-	WHERE user_id = ? AND value=2 AND post_id IS NOT NULL
-	`, id)
+func GetCommentLikesByUserId(id int64) (ReactionsType, error) {
+	var reactions ReactionsType
+	reaction_rows, err := db.SelectCommentLikesByUserId(id)
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return Reactions{}, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var reaction Reaction
-		var ts string
-		err = rows.Scan(&reaction.Id, &reaction.PostId, &reaction.UserId, &ts)
-		if err != nil {
-			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return Reactions{}, err
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
 		}
-		t, err := utils.ConvertStringToTime(ts)
+		return ReactionsType{}, err
+	}
+	for _, reaction_row := range reaction_rows {
+		var reaction ReactionType
+		reaction.FromReactionRowType(reaction_row)
+		t, err := utils.ConvertStringToTime(reaction.TimestampString)
 		if err != nil {
-			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return Reactions{}, err
+			if config.Debug {
+				err = errors.Join(utils.GetFunctionName(), err)
+			}
+			return ReactionsType{}, err
 		}
 		reaction.TimestampString = utils.ConvertTimeToString(t)
 		reactions = append(reactions, reaction)
@@ -69,61 +84,24 @@ func GetPostDislikesByUserId(id int64) (Reactions, error) {
 	return reactions, nil
 }
 
-func GetCommentLikesByUserId(id int64) (Reactions, error) {
-	var reactions Reactions
-	rows, err := db.Query(`
-	SELECT id, comment_id, user_id, timestamp
-	FROM reactions
-	WHERE user_id = ? AND value=1 AND comment_id IS NOT NULL
-	`, id)
+func GetCommentDisikesByUserId(id int64) (ReactionsType, error) {
+	var reactions ReactionsType
+	reaction_rows, err := db.SelectCommentDislikesByUserId(id)
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return Reactions{}, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var reaction Reaction
-		var ts string
-		err = rows.Scan(&reaction.Id, &reaction.CommentId, &reaction.UserId, &ts)
-		if err != nil {
-			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return Reactions{}, err
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
 		}
-		t, err := utils.ConvertStringToTime(ts)
-		if err != nil {
-			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return Reactions{}, err
-		}
-		reaction.TimestampString = utils.ConvertTimeToString(t)
-		reactions = append(reactions, reaction)
+		return ReactionsType{}, errors.Join(utils.GetFunctionName(), err)
 	}
-	return reactions, nil
-}
-
-func GetCommentDisikesByUserId(id int64) (Reactions, error) {
-	var reactions Reactions
-	rows, err := db.Query(`
-	SELECT id, comment_id, user_id, timestamp
-	FROM reactions
-	WHERE user_id = ? AND value=2 AND comment_id IS NOT NULL
-	`, id)
-	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return Reactions{}, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var reaction Reaction
-		var ts string
-		err = rows.Scan(&reaction.Id, &reaction.CommentId, &reaction.UserId, &ts)
+	for _, reaction_row := range reaction_rows {
+		var reaction ReactionType
+		reaction.FromReactionRowType(reaction_row)
+		t, err := utils.ConvertStringToTime(reaction.TimestampString)
 		if err != nil {
-			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return Reactions{}, err
-		}
-		t, err := utils.ConvertStringToTime(ts)
-		if err != nil {
-			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return Reactions{}, err
+			if config.Debug {
+				err = errors.Join(utils.GetFunctionName(), err)
+			}
+			return ReactionsType{}, err
 		}
 		reaction.TimestampString = utils.ConvertTimeToString(t)
 		reactions = append(reactions, reaction)

@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"forum/src/ferror"
 	"forum/src/utils"
 
 	"github.com/gofrs/uuid"
@@ -35,22 +36,26 @@ func isValidImageType(buf []byte) bool {
 func SaveImage(file multipart.File) (string, error) {
 	_, err := file.Seek(0, io.SeekStart)
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
 		return "", err
 	}
 
 	fileBytes, err := io.ReadAll(file)
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
 		return "", err
 	}
 
 	if len(fileBytes) > MaxImageSize {
-		return "", ErrorImageTooBig
+		return "", ferror.ErrorImageTooBig
 	}
 
 	if !isValidImageType(fileBytes[:512]) {
-		return "", ErrorInvalidImageType
+		return "", ferror.ErrorInvalidImageType
 	}
 
 	ext := getImageExtension(fileBytes)
@@ -59,21 +64,27 @@ func SaveImage(file multipart.File) (string, error) {
 	dir := filepath.Join("uploads", "images")
 	err = os.MkdirAll(dir, 0755)
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
 		return "", err
 	}
 
 	dst := filepath.Join(dir, filename)
 	out, err := os.Create(dst)
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
 		return "", err
 	}
 	defer out.Close()
 
 	_, err = out.Write(fileBytes)
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		if config.Debug {
+			err = errors.Join(utils.GetFunctionName(), err)
+		}
 		return "", err
 	}
 

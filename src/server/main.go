@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"forum/src/db"
 	"forum/src/models"
 	"forum/src/utils"
 	"log"
@@ -40,7 +41,7 @@ func Main(args []string) {
 		case "--version":
 			programName := filepath.Base(args[0])
 			version := utils.GetVersion()
-			fmt.Println(programName+"-"+version)
+			fmt.Println(programName + "-" + version)
 			os.Exit(0)
 		default:
 			positionalArgs = append(positionalArgs, args[i])
@@ -61,12 +62,15 @@ func Main(args []string) {
 		os.Exit(1)
 	}
 
-	if err := models.InitDB(config.DbPath); err != nil {
+	if err := db.InitDB(config.DbPath); err != nil {
 		fmt.Printf("Error: %s\n", err.Error())
 		os.Exit(1)
 	}
 
 	log.Printf("http://%s:%s/", config.Ip, config.Port)
+
+	models.MainHub = models.NewHub()
+	go models.MainHub.Run()
 
 	if err := startServer(config.Ip, config.Port); err != nil {
 		fmt.Printf("Error: %s\n", err.Error())

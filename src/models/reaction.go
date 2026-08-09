@@ -1,20 +1,33 @@
 package models
 
-type Reaction struct {
-	Id int64
-	UserId int64
-	PostId int64
-	CommentId int64
+import (
+	"forum/src/db"
+	"forum/src/utils"
+)
+
+type ReactionType struct {
+	db.ReactionRowType
 	Timestamp int64
-	TimestampString string
-	Post Post
-	Comment Comment
+	Post      PostType
+	Comment   CommentType
 }
 
-func RemoveReaction(reactionId int64) error {
-	_, err := db.Exec(`
-		DELETE FROM reactions
-		WHERE id = ?
-		`, reactionId)
-	return err
+func (r *ReactionType) ToReactionRowType() *db.ReactionRowType {
+	return &db.ReactionRowType{
+		Id:              r.Id,
+		UserId:          r.UserId,
+		PostId:          r.PostId,
+		CommentId:       r.CommentId,
+		TimestampString: r.TimestampString,
+	}
+}
+
+func (r *ReactionType) FromReactionRowType(rr db.ReactionRowType) {
+	utils.LogDebug(rr)
+	r.Id = rr.Id
+	r.UserId = rr.UserId
+	r.PostId = rr.PostId
+	r.CommentId = rr.CommentId
+	r.TimestampString = rr.TimestampString
+	utils.LogDebug(*r)
 }

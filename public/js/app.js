@@ -34,7 +34,7 @@ export async function initUserFeatures(data) {
 }
 
 async function init() {
-    const data = await apiFetch('/api/');
+    const data = await apiFetch('/api');
     if (!data) return;
     buildDOM();
     renderTopBar(data);

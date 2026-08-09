@@ -2,23 +2,30 @@ package controllers
 
 import (
 	"forum/src/models"
+	"forum/src/state"
+
 	"github.com/gorilla/websocket"
 )
-
-var Hub *models.Hub
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 }
 
-func serveWs(data models.ResponseStruct) {
-	conn, err := upgrader.Upgrade(data.Response, data.Request, nil)
+func ServeWs(data state.StateController) {
+	conn, err := upgrader.Upgrade(*data.EditResponse(), data.GetRequest(), nil)
 	if err != nil {
-		(&models.Error{}).Consume(err).LogAndRespondError(data.Response, data.User)
+		data.SetErrorConsume(err)
+		data.WriteResponse()
 		return
 	}
-	client := &models.Client{Hub: Hub, Conn: conn, Send: make(chan []byte, 256), UserId: data.User.Id, Username: data.User.Username}
+	client := &models.Client{
+		Hub:      models.MainHub,
+		Conn:     conn,
+		Send:     make(chan []byte, 256),
+		UserId:   data.GetUser().Id,
+		Username: data.GetUser().Username,
+	}
 	client.Hub.Register <- client
 	go client.WritePump()
 	go client.ReadPump()

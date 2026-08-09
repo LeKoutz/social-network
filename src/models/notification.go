@@ -1,41 +1,57 @@
 package models
 
-import "forum/src/utils"
+import (
+	"errors"
+	"forum/src/db"
+	"forum/src/utils"
+)
 
-type Notification struct {
-	Id        int64
-	UserId    int64
-	ActorId   int64
-	Actor     User
-	Type      string
-	Post      Post
-	PostId    int64
-	Comment	  Comment
-	CommentId int64
-	TimestampString string
-	Read      bool
+type NotificationType struct {
+	db.NotificationRowType
+	Actor   UserType
+	Post    PostType
+	Comment CommentType
 }
 
-func (n *Notification) Add() error {
-	query := `INSERT INTO notifications (user_id, actor_id, type, post_id, comment_id, timestamp) VALUES (?, ?, ?, ?, ?, ?)`
-	_, err := db.Exec(query, n.UserId, n.ActorId, n.Type, n.PostId, n.CommentId, n.TimestampString)
-	return err
+// func (n *NotificationType) ToNotificationRowType() *db.NotificationRowType {
+// 	return &db.NotificationRowType{
+// 		UserId:          n.UserId,
+// 		ActorId:         n.ActorId,
+// 		Type:            n.Type,
+// 		PostId:          n.PostId,
+// 		CommentId:       n.CommentId,
+// 		TimestampString: n.TimestampString,
+// 	}
+// }
+
+func (n *NotificationType) FromNotificationRowType(nr *db.NotificationRowType) {
+	n.Id = nr.Id
+	n.UserId = nr.UserId
+	n.ActorId = nr.ActorId
+	n.Type = nr.Type
+	n.PostId = nr.PostId
+	n.CommentId = nr.CommentId
+	n.Read = nr.Read
+	var user UserType
+	user.Username = nr.Username
+	n.Actor = user
+	n.TimestampString = nr.TimestampString
 }
 
-func CreateNotification(notification Notification) error {
+func CreateNotification(notification NotificationType) error {
 	if notification.ActorId == notification.UserId {
 		return nil
 	}
 	notification.TimestampString = utils.GetCurrentTimestamp()
-	return notification.Add()
+	return notification.InsertNotification()
 }
 
-func (user *User) MarkAsReadPost(post Post) error {
+func (user *UserType) MarkAsReadPost(post PostType) error {
 	for i, notification := range user.Notifications {
 		if notification.PostId == post.Id && !notification.Read {
-			err := user.MarkNotificationAsRead(notification.Id)
+			err := user.UpdateNotificationAsRead(notification.Id)
 			if err != nil {
-				return err
+				return errors.Join(utils.GetFunctionName(), err)
 			}
 			user.Notifications[i].Read = true
 			user.UnreadNotificationsCount--
@@ -44,46 +60,31 @@ func (user *User) MarkAsReadPost(post Post) error {
 	return nil
 }
 
-func (comment *Comment) CreateCommentNotification(post Post) error {
-	notification := Notification{
-		UserId:    post.User.Id,
-		ActorId:   comment.UserId,
-		Type:      "comment",
-		PostId:	   comment.PostId,
-		CommentId: comment.Id,
-	}
-	err := CreateNotification(notification)
-	if err != nil {
-		return err
-	}
-	return nil
+func (comment *CommentType) CreateCommentNotification(post PostType) error {
+	var notification NotificationType
+	notification.UserId = post.User.Id
+	notification.ActorId = comment.UserId
+	notification.Type = "comment"
+	notification.PostId = comment.PostId
+	notification.CommentId = comment.Id
+	return CreateNotification(notification)
 }
 
-func (comment *Comment) CreateReactionNotification(userId int64, t string) error {
-	notification := Notification{
-		UserId:    comment.UserId,
-		ActorId:   userId,
-		CommentId: comment.Id,
-		PostId:    comment.PostId,
-		Type: t,
-	}
-	err := CreateNotification(notification)
-	if err != nil {
-		return err
-	}
-	return nil
+func (comment *CommentType) CreateReactionNotification(userId int64, t string) error {
+	var notification NotificationType
+	notification.UserId = comment.UserId
+	notification.ActorId = userId
+	notification.CommentId = comment.Id
+	notification.PostId = comment.PostId
+	notification.Type = t
+	return CreateNotification(notification)
 }
 
-func (post *Post) CreateReactionNotification(userId int64, t string) error {
-	notification := Notification{
-		UserId:  post.User.Id,
-		ActorId: userId,
-		Type: t,
-		PostId: post.Id,
-	}
-	err := CreateNotification(notification)
-	if err != nil {
-		return err
-	}
-	return nil
+func (post *PostType) CreateReactionNotification(userId int64, t string) error {
+	var notification NotificationType
+	notification.UserId = post.User.Id
+	notification.ActorId = userId
+	notification.Type = t
+	notification.PostId = post.Id
+	return CreateNotification(notification)
 }
