@@ -6,6 +6,5 @@ func Index(data state.StateController) error {
 	if data.GetUser().LoggedIn {
 		return data.EditCategories().GetAll()
 	}
-	data.WriteResponse()
 	return nil
 }
