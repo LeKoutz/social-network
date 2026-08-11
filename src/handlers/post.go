@@ -111,6 +111,7 @@ func HandlePostDelete(data state.StateHandler) {
 		data.(state.StateController).WriteResponse()
 		return
 	}
+	data.(state.StateController).SetPost(post)
 	err = controllers.RemovePost(data.(state.StateController))
 	if err != nil {
 		data.SetErrorConsume(err)
