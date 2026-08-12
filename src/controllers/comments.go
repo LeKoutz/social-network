@@ -7,18 +7,6 @@ import (
 	"forum/src/utils"
 )
 
-func ParseCommentId(data state.StateController) (int64, error) {
-	commentIdStr := data.GetRequest().FormValue("comment-id")
-	if len(commentIdStr) == 0 {
-		return 0, ferror.ErrorCommentEmptyId
-	}
-	commentId, err := utils.StringToInt64(commentIdStr)
-	if err != nil {
-		return 0, ferror.ErrorInvalidCommentId
-	}
-	return commentId, nil
-}
-
 func CommentCreate(data state.StateController) error {
 	var err error
 	data.EditComment().UserId = data.GetUser().Id
