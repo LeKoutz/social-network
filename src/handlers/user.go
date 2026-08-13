@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"errors"
 	"forum/src/controllers"
 	"forum/src/ferror"
 	"forum/src/state"
+	"forum/src/utils"
 	"net/http"
 )
 
@@ -17,6 +19,7 @@ func HandleUserLogin(data state.StateHandler) {
 	case http.MethodPost:
 		err := controllers.AttemptLogin(data.(state.StateController))
 		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
 			data.SetErrorConsume(err)
 			data.(state.StateController).WriteResponse()
 			return
@@ -38,6 +41,7 @@ func HandleUserLogout(data state.StateHandler) {
 	var err error
 	err = controllers.UserLogout(data.(state.StateController))
 	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
 		data.SetErrorConsume(err)
 		data.(state.StateController).WriteResponse()
 		return
@@ -49,6 +53,7 @@ func HandleShowUserPosts(data state.StateHandler) {
 	var err error
 	err = controllers.GetUserPosts(data.(state.StateController))
 	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
 		data.SetErrorConsume(err)
 		data.(state.StateController).WriteResponse()
 		return
@@ -60,6 +65,7 @@ func HandleShowUserLikedPosts(data state.StateHandler) {
 	var err error
 	err = controllers.GetUserLikedPosts(data.(state.StateController))
 	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
 		data.SetErrorConsume(err)
 		data.(state.StateController).WriteResponse()
 		return
@@ -74,6 +80,7 @@ func HandleShowUserView(data state.StateHandler) {
 func HandleShowUserActivity(data state.StateHandler) {
 	err := controllers.GetUserActivity(data.(state.StateController))
 	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
 		data.SetErrorConsume(ferror.ErrorInternalServerError)
 		data.(state.StateController).WriteResponse()
 		return
@@ -115,6 +122,7 @@ func HandleGetUsers(data state.StateHandler) {
 	var err error
 	err = controllers.GetUsersForPanel(data.(state.StateController))
 	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
 		data.SetErrorConsume(err)
 		data.(state.StateController).WriteResponse()
 		return

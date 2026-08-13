@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"errors"
 	"forum/src/controllers"
 	"forum/src/ferror"
 	"forum/src/models"
+	"forum/src/parsers"
 	"forum/src/state"
 	"forum/src/utils"
 	"net/http"
@@ -11,8 +13,16 @@ import (
 
 func HandleShowPost(data state.StateHandler) {
 	var err error
+	data.EditPost().Id, err = parsers.ParsePostId(data)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		data.SetErrorConsume(err)
+		data.(state.StateController).WriteResponse()
+		return
+	}
 	err = controllers.GetPost(data.(state.StateController))
 	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
 		data.SetErrorConsume(err)
 		data.(state.StateController).WriteResponse()
 		return
@@ -23,6 +33,7 @@ func HandleShowPost(data state.StateHandler) {
 func HandlePostCreateGet(data state.StateHandler) {
 	err := (data.(state.StateController)).EditCategories().GetAll()
 	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
 		data.SetErrorConsume(err)
 		data.(state.StateController).WriteResponse()
 		return
@@ -32,14 +43,23 @@ func HandlePostCreateGet(data state.StateHandler) {
 
 func HandlePostCreatePost(data state.StateHandler) {
 	var err error
+	err = parsers.ParseCreatePostRequest(data)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		data.SetErrorConsume(err)
+		data.(state.StateController).WriteResponse()
+		return
+	}
 	err = data.GetRequest().ParseMultipartForm(models.MaxImageSize)
 	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
 		data.SetErrorConsume(err)
 		data.(state.StateController).WriteResponse()
 		return
 	}
 	err = controllers.CreatePost(data.(state.StateController))
 	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
 		data.SetErrorConsume(err)
 		data.(state.StateController).WriteResponse()
 		return
@@ -65,10 +85,18 @@ func HandlePostCreate(data state.StateHandler) {
 
 func HandlePostEdit(data state.StateHandler) {
 	var err error
+	data.EditPost().Id, err = parsers.ParsePostId(data)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		data.SetErrorConsume(err)
+		data.(state.StateController).WriteResponse()
+		return
+	}
 	switch data.GetRequest().Method {
 	case http.MethodGet:
 		err = controllers.ShowEditPost(data.(state.StateController))
 		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
 			data.SetErrorConsume(err)
 			data.(state.StateController).WriteResponse()
 			return
@@ -76,8 +104,16 @@ func HandlePostEdit(data state.StateHandler) {
 		data.(state.StateController).WriteResponse()
 		return
 	case http.MethodPost:
+		err = parsers.ParseCreatePostRequest(data)
+		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
+			data.SetErrorConsume(err)
+			data.(state.StateController).WriteResponse()
+			return
+		}
 		err = controllers.UpdatePost(data.(state.StateController))
 		if err != nil {
+			err = errors.Join(utils.GetFunctionName(), err)
 			data.SetErrorConsume(err)
 			data.(state.StateController).WriteResponse()
 			return
@@ -93,8 +129,16 @@ func HandlePostEdit(data state.StateHandler) {
 
 func HandlePostReaction(data state.StateHandler) {
 	var err error
+	data.EditPost().Id, err = parsers.ParsePostId(data)
+	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
+		data.SetErrorConsume(err)
+		data.(state.StateController).WriteResponse()
+		return
+	}
 	err = controllers.PostReaction(data.(state.StateController))
 	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
 		data.SetErrorConsume(err)
 		data.(state.StateController).WriteResponse()
 		return
@@ -105,8 +149,9 @@ func HandlePostReaction(data state.StateHandler) {
 func HandlePostDelete(data state.StateHandler) {
 	var err error
 	var post models.PostType
-	post.Id, err = controllers.ParsePostId(data.(state.StateController))
+	post.Id, err = parsers.ParsePostId(data)
 	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
 		data.SetErrorConsume(ferror.ErrorInvalidPostId)
 		data.(state.StateController).WriteResponse()
 		return
@@ -114,6 +159,7 @@ func HandlePostDelete(data state.StateHandler) {
 	data.(state.StateController).SetPost(post)
 	err = controllers.RemovePost(data.(state.StateController))
 	if err != nil {
+		err = errors.Join(utils.GetFunctionName(), err)
 		data.SetErrorConsume(err)
 		data.(state.StateController).WriteResponse()
 		return

@@ -11,10 +11,6 @@ import (
 
 func GetPost(data state.StateController) error {
 	var err error
-	data.EditPost().Id, err = ParsePostId(data)
-	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
-	}
 	err = getPostDataById(data)
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
@@ -23,10 +19,7 @@ func GetPost(data state.StateController) error {
 }
 
 func CreatePost(data state.StateController) error {
-	err := ParseCreatePostRequest(data)
-	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
-	}
+	var err error
 	err = data.EditPost().InsertPost()
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
@@ -93,7 +86,14 @@ func getPostDataById(data state.StateController) error {
 
 func ShowEditPost(data state.StateController) error {
 	var err error
-	err = commonPostEditPrework(data)
+	err = data.EditPost().SelectPostById()
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	if err = verifyUserPostAssociation(data); err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	err = data.EditCategories().GetAll()
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}
@@ -107,49 +107,6 @@ func ShowEditPost(data state.StateController) error {
 	return nil
 }
 
-func ParseCreatePostRequest(data state.StateController) error {
-	var categories models.CategoriesType
-	data.EditPost().UserId = data.EditUser().Id
-	data.EditPost().Title = data.GetRequest().FormValue("title")
-	data.EditPost().Body = data.GetRequest().FormValue("body")
-	err := categories.GetAll()
-	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
-	}
-	for _, category := range categories {
-		cc := fmt.Sprintf("category-%d", category.Id)
-		if data.GetRequest().FormValue(cc) == "on" {
-			data.EditPost().Categories = append(data.EditPost().Categories, category)
-		}
-	}
-	imageFile, _, err := data.GetRequest().FormFile("image")
-	if err == nil {
-		defer imageFile.Close()
-		data.EditPost().ImagePath, err = models.SaveImage(imageFile)
-		if err != nil {
-			return errors.Join(utils.GetFunctionName(), err)
-		}
-	}
-	return nil
-}
-
-func commonPostEditPrework(data state.StateController) error {
-	var err error
-	data.EditPost().Id, err = ParsePostId(data)
-	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
-	}
-	err = data.EditPost().SelectPostById()
-	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
-	}
-	err = data.EditCategories().GetAll()
-	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
-	}
-	return verifyUserPostAssociation(data)
-}
-
 func verifyUserPostAssociation(data state.StateController) error {
 	// Check your priviledge
 	if data.GetPost().UserId != data.GetUser().Id {
@@ -160,21 +117,9 @@ func verifyUserPostAssociation(data state.StateController) error {
 
 func UpdatePost(data state.StateController) error {
 	var err error
-	err = commonPostEditPrework(data)
+	err = verifyUserPostAssociation(data)
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
-	}
-	post_image_path := data.GetPost().ImagePath
-	err = data.GetRequest().ParseMultipartForm(models.MaxImageSize)
-	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
-	}
-	err = ParseCreatePostRequest(data)
-	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
-	}
-	if data.GetPost().ImagePath == "" {
-		data.EditPost().ImagePath = post_image_path
 	}
 	err = data.EditPost().Update()
 	if err != nil {
@@ -208,10 +153,6 @@ func DislikePost(data state.StateController) error {
 
 func PostReaction(data state.StateController) error {
 	var err error
-	data.EditPost().Id, err = ParsePostId(data)
-	if err != nil {
-		return ferror.ErrorInvalidPostId
-	}
 	err = data.EditPost().SelectPostById()
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)

@@ -7,32 +7,13 @@ import (
 	"forum/src/utils"
 )
 
-func ParseCommentId(data state.StateController) (int64, error) {
-	commentIdStr := data.GetRequest().FormValue("comment-id")
-	if len(commentIdStr) == 0 {
-		return 0, ferror.ErrorCommentEmptyId
-	}
-	commentId, err := utils.StringToInt64(commentIdStr)
-	if err != nil {
-		return 0, ferror.ErrorInvalidCommentId
-	}
-	return commentId, nil
-}
-
 func CommentCreate(data state.StateController) error {
 	var err error
-	data.EditComment().UserId = data.GetUser().Id
-	data.EditComment().Body = data.GetRequest().FormValue("comment")
-	data.EditComment().PostId, err = ParsePostId(data)
-	if err != nil {
-		return ferror.ErrorInvalidPostId
-	}
-	data.EditPost().Id = data.GetComment().PostId
-	err = data.EditPost().SelectPostById()
+	err = data.EditComment().Add()
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}
-	err = data.EditComment().Add()
+	err = data.EditPost().SelectPostById()
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}
@@ -52,19 +33,11 @@ func CommentCreate(data state.StateController) error {
 
 func CommentReaction(data state.StateController) error {
 	var err error
-	data.EditComment().Id, err = ParseCommentId(data)
-	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
-	}
-	data.EditComment().PostId, err = ParsePostId(data)
-	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
-	}
-	data.EditPost().Id = data.EditComment().PostId
 	err = data.EditComment().SelectCommentById()
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}
+	data.EditPost().Id = data.GetComment().PostId
 	switch data.GetRequest().FormValue("action") {
 	case "like":
 		err = data.EditUser().LikeComment(data.EditComment().Id)
@@ -93,14 +66,6 @@ func CommentReaction(data state.StateController) error {
 
 func CommentDelete(data state.StateController) error {
 	var err error
-	data.EditComment().Id, err = ParseCommentId(data)
-	if err != nil {
-		return ferror.ErrorInvalidCommentId
-	}
-	data.EditPost().Id, err = ParsePostId(data)
-	if err != nil {
-		return ferror.ErrorInvalidCommentId
-	}
 	err = data.EditComment().SelectCommentById()
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
@@ -108,6 +73,7 @@ func CommentDelete(data state.StateController) error {
 	if data.EditComment().UserId != data.GetUser().Id {
 		return ferror.ErrorCommentPermissionDenied
 	}
+	data.EditPost().Id = data.GetComment().PostId
 	err = data.EditComment().DeleteCommentById()
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
@@ -116,18 +82,9 @@ func CommentDelete(data state.StateController) error {
 	return nil
 }
 
-func commonCommentEditPrework(data state.StateController) error {
-	var err error
-	err = ValidateFormCommentEdit(data)
-	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
-	}
-	return VerifyCommentOwnership(data)
-}
-
 func CommentEdit(data state.StateController) error {
 	var err error
-	err = commonCommentEditPrework(data)
+	err = VerifyCommentOwnership(data)
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}
@@ -139,20 +96,6 @@ func CommentEdit(data state.StateController) error {
 		return nil
 	}
 	return ShowEditComment(data)
-}
-
-func ValidateFormCommentEdit(data state.StateController) error {
-	var err error
-	data.EditComment().Id, err = ParseCommentId(data)
-	if err != nil {
-		return ferror.ErrorInvalidCommentId
-	}
-	data.EditPost().Id, err = ParsePostId(data)
-	if err != nil {
-		return ferror.ErrorInvalidPostId
-	}
-	data.EditComment().PostId = data.GetPost().Id
-	return nil
 }
 
 func VerifyCommentOwnership(data state.StateController) error {
@@ -170,6 +113,7 @@ func VerifyCommentOwnership(data state.StateController) error {
 
 func ShowEditComment(data state.StateController) error {
 	var err error
+	data.EditPost().Id = data.GetComment().PostId
 	err = getPostDataById(data)
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
