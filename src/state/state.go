@@ -87,6 +87,7 @@ type StateHandler interface {
 	EditCategory() *models.CategoryType
 	EditComment() *models.CommentType
 	EditPost() *models.PostType
+	GetPost() models.PostType
 	EditPosts() *models.PostsType
 	EditChatMessages() *models.ChatMessagesType
 	EditChatMessage(index int64) *models.ChatMessageType

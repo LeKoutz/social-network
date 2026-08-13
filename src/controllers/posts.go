@@ -2,11 +2,9 @@ package controllers
 
 import (
 	"errors"
-	"forum/src/ferror"
 	"forum/src/models"
 	"forum/src/state"
 	"forum/src/utils"
-	"strings"
 )
 
 func markSelectedCategories(categories models.CategoriesType, selected models.CategoriesType) models.CategoriesType {
@@ -22,10 +20,6 @@ func markSelectedCategories(categories models.CategoriesType, selected models.Ca
 
 func ShowPosts(data state.StateController) error {
 	var err error
-	data.EditPost().Id, err = ParsePostId(data)
-	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
-	}
 	err = data.EditPosts().GetPosts()
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)

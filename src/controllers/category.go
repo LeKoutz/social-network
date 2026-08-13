@@ -8,10 +8,6 @@ import (
 
 func ShowCategory(data state.StateController) error {
 	var err error
-	data.EditCategory().Id, err = ParseCategoryId(data)
-	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
-	}
 	err = data.EditCategory().SelectCategoryById()
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
@@ -30,6 +26,5 @@ func ShowCategory(data state.StateController) error {
 			return errors.Join(utils.GetFunctionName(), err)
 		}
 	}
-	// data.SetPosts(posts)
 	return nil
 }

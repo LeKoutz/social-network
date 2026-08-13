@@ -70,6 +70,10 @@ func ParseCategoryId(data state.StateHandler) (int64, error) {
 func ParseCreatePostRequest(data state.StateHandler) error {
 	var err error
 	var categories models.CategoriesType
+	err = data.GetRequest().ParseMultipartForm(models.MaxImageSize)
+	if err != nil {
+		return errors.Join(utils.GetFunctionName(), err)
+	}
 	data.EditPost().UserId = data.EditUser().Id
 	data.EditPost().Title = data.GetRequest().FormValue("title")
 	data.EditPost().Body = data.GetRequest().FormValue("body")
@@ -95,6 +99,18 @@ func ParseCreatePostRequest(data state.StateHandler) error {
 	return nil
 }
 
+func ParseCreateCommentRequest(data state.StateHandler) error {
+	var err error
+	data.EditComment().UserId = data.GetUser().Id
+	data.EditComment().Body = data.GetRequest().FormValue("comment")
+	data.EditPost().Id, err = ParsePostId(data)
+	if err != nil {
+		return ferror.ErrorInvalidPostId
+	}
+	data.EditComment().PostId = data.GetPost().Id
+	return nil
+}
+
 func ParseChatId(data state.StateHandler) (id, offset int64, err error) {
 	uri, ok := strings.CutPrefix(data.GetRequest().RequestURI, "/api/chat/")
 	if !ok {
@@ -107,9 +123,6 @@ func ParseChatId(data state.StateHandler) (id, offset int64, err error) {
 	id, err = utils.StringToInt64(idStr)
 	if err != nil {
 		return 0, 0, ferror.ErrorInvalidChatId
-	}
-	if id == data.GetUser().Id {
-		return 0, 0, ferror.ErrorNotFound
 	}
 	offset, err = utils.StringToInt64(offsetStr)
 	if err != nil {
