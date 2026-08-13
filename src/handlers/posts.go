@@ -11,9 +11,8 @@ func HandleShowPosts(data state.StateHandler) {
 	err := controllers.ShowPosts(data.(state.StateController))
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
-		data.SetErrorConsume(err)
-		data.(state.StateController).WriteResponse()
+		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
-	data.(state.StateController).WriteResponse()
+	data.WriteResponse()
 }

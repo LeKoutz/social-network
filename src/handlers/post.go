@@ -16,29 +16,26 @@ func HandleShowPost(data state.StateHandler) {
 	data.EditPost().Id, err = parsers.ParsePostId(data)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
-		data.SetErrorConsume(err)
-		data.(state.StateController).WriteResponse()
+		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
 	err = controllers.GetPost(data.(state.StateController))
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
-		data.SetErrorConsume(err)
-		data.(state.StateController).WriteResponse()
+		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
-	data.(state.StateController).WriteResponse()
+	data.WriteResponse()
 }
 
 func HandlePostCreateGet(data state.StateHandler) {
 	err := (data.(state.StateController)).EditCategories().GetAll()
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
-		data.SetErrorConsume(err)
-		data.(state.StateController).WriteResponse()
+		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
-	data.(state.StateController).WriteResponse()
+	data.WriteResponse()
 }
 
 func HandlePostCreatePost(data state.StateHandler) {
@@ -46,25 +43,22 @@ func HandlePostCreatePost(data state.StateHandler) {
 	err = parsers.ParseCreatePostRequest(data)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
-		data.SetErrorConsume(err)
-		data.(state.StateController).WriteResponse()
+		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
 	err = data.GetRequest().ParseMultipartForm(models.MaxImageSize)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
-		data.SetErrorConsume(err)
-		data.(state.StateController).WriteResponse()
+		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
 	err = controllers.CreatePost(data.(state.StateController))
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
-		data.SetErrorConsume(err)
-		data.(state.StateController).WriteResponse()
+		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
-	data.(state.StateController).WriteResponse()
+	data.WriteResponse()
 	// http.Redirect(*data.EditResponse(), data.GetRequest(), data.GetRedirect(), http.StatusSeeOther)
 }
 
@@ -78,7 +72,7 @@ func HandlePostCreate(data state.StateHandler) {
 		return
 	default:
 		data.SetErrorConsume(ferror.ErrorMethodNotAllowed)
-		data.(state.StateController).WriteResponse()
+		data.WriteResponse()
 		return
 	}
 }
@@ -88,8 +82,7 @@ func HandlePostEdit(data state.StateHandler) {
 	data.EditPost().Id, err = parsers.ParsePostId(data)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
-		data.SetErrorConsume(err)
-		data.(state.StateController).WriteResponse()
+		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
 	switch data.GetRequest().Method {
@@ -97,33 +90,29 @@ func HandlePostEdit(data state.StateHandler) {
 		err = controllers.ShowEditPost(data.(state.StateController))
 		if err != nil {
 			err = errors.Join(utils.GetFunctionName(), err)
-			data.SetErrorConsume(err)
-			data.(state.StateController).WriteResponse()
+			data.SetErrorConsume(err).WriteResponse()
 			return
 		}
-		data.(state.StateController).WriteResponse()
+		data.WriteResponse()
 		return
 	case http.MethodPost:
 		err = parsers.ParseCreatePostRequest(data)
 		if err != nil {
 			err = errors.Join(utils.GetFunctionName(), err)
-			data.SetErrorConsume(err)
-			data.(state.StateController).WriteResponse()
+			data.SetErrorConsume(err).WriteResponse()
 			return
 		}
 		err = controllers.UpdatePost(data.(state.StateController))
 		if err != nil {
 			err = errors.Join(utils.GetFunctionName(), err)
-			data.SetErrorConsume(err)
-			data.(state.StateController).WriteResponse()
+			data.SetErrorConsume(err).WriteResponse()
 			return
 		}
 		utils.LogDebug(data)
 		http.Redirect(*data.EditResponse(), data.GetRequest(), data.GetRedirect(), http.StatusSeeOther)
 		return
 	default:
-		data.SetErrorConsume(ferror.ErrorMethodNotAllowed)
-		data.(state.StateController).WriteResponse()
+		data.SetErrorConsume(ferror.ErrorMethodNotAllowed).WriteResponse()
 	}
 }
 
@@ -132,15 +121,13 @@ func HandlePostReaction(data state.StateHandler) {
 	data.EditPost().Id, err = parsers.ParsePostId(data)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
-		data.SetErrorConsume(err)
-		data.(state.StateController).WriteResponse()
+		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
 	err = controllers.PostReaction(data.(state.StateController))
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
-		data.SetErrorConsume(err)
-		data.(state.StateController).WriteResponse()
+		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
 	HandleShowPost(data)
@@ -152,16 +139,14 @@ func HandlePostDelete(data state.StateHandler) {
 	post.Id, err = parsers.ParsePostId(data)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
-		data.SetErrorConsume(ferror.ErrorInvalidPostId)
-		data.(state.StateController).WriteResponse()
+		data.SetErrorConsume(ferror.ErrorInvalidPostId).WriteResponse()
 		return
 	}
 	data.(state.StateController).SetPost(post)
 	err = controllers.RemovePost(data.(state.StateController))
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
-		data.SetErrorConsume(err)
-		data.(state.StateController).WriteResponse()
+		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
 	http.Redirect(*data.EditResponse(), data.GetRequest(), data.GetRedirect(), http.StatusSeeOther)

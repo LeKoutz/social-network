@@ -21,19 +21,16 @@ func HandleServeSPA(data state.StateHandler) {
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			err = errors.Join(utils.GetFunctionName(), ferror.ErrorNotFound)
-			data.SetErrorConsume(err)
-			data.(state.StateController).WriteResponse()
+			data.SetErrorConsume(err).WriteResponse()
 			return
 		}
 		err = errors.Join(utils.GetFunctionName(), err)
-		data.SetErrorConsume(err)
-		data.(state.StateController).WriteResponse()
+		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
 	if stat.IsDir() {
 		err = errors.Join(utils.GetFunctionName(), ferror.ErrorCommentPermissionDenied)
-		data.SetErrorConsume(err)
-		data.(state.StateController).WriteResponse()
+		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
 	http.ServeFile(*data.EditResponse(), data.GetRequest(), "./public/"+fileURL)

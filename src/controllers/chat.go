@@ -20,7 +20,10 @@ func ShowChatHistory(data state.StateController) error {
 	}
 	for i := range data.GetChatMessages() {
 		if data.GetChatMessage(int64(i)).RecipientId == data.GetUser().Id {
-			data.EditChatMessage(int64(i)).MarkAsRead()
+			if err := data.EditChatMessage(int64(i)).MarkAsRead(); err != nil {
+				data.SetErrorConsume(err)
+				return err
+			}
 		}
 	}
 	return nil

@@ -21,6 +21,7 @@ type UserType struct {
 	ChatMessages             ChatMessagesType
 	// LastMessageTimestamp     int64
 	Identifier               string
+	Password				 string
 }
 
 // func (u *UserType) ToUserRowType() *db.UserRowType {
@@ -62,8 +63,17 @@ func (u *UserType) ValidateUser() error {
 	if err = u.ValidateUsername(); err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}
+	if !IsUniqueUsername(u.Username) {
+		return ferror.ErrorUsernameTaken
+	}
 	if err = u.ValidateEmail(); err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
+	}
+	if IsEmailRegistered(u.Email) {
+		return ferror.ErrorEmailIsRegistered
+	}
+	if !u.isValidGender() {
+		return ferror.ErrorInvalidGender
 	}
 	return nil
 }
@@ -79,12 +89,6 @@ func (u *UserType) Add() error {
 	err := u.ValidateUser()
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
-	}
-	if IsEmailRegistered(u.Email) {
-		return ferror.ErrorEmailIsRegistered
-	}
-	if !u.isValidGender() {
-		return ferror.ErrorInvalidGender
 	}
 	return u.InsertUserWithHash()
 }
@@ -142,8 +146,8 @@ func (u *UserType) GetUserBySession() error {
 	return nil
 }
 
-func (u *UserType) GetUserByEmail() error {
-	err := u.SelectUserByEmail()
+func (u *UserType) GetUserByIdentifier() error {
+	err := u.SelectUserByIdentifier(u.Identifier)
 	if err != nil {
 		if config.Debug {
 			err = errors.Join(utils.GetFunctionName(), err)
@@ -153,8 +157,8 @@ func (u *UserType) GetUserByEmail() error {
 	return nil
 }
 
-func (u *UserType) GetUserPasswordByEmail() error {
-	err := u.SelectUserPasswordByEmail()
+func (u *UserType) GetUserPasswordByIdentifier() error {
+	err := u.SelectUserPasswordByIdentifier(u.Identifier)
 	if err != nil {
 		if config.Debug {
 			err = errors.Join(utils.GetFunctionName(), err)

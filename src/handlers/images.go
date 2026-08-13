@@ -13,8 +13,7 @@ func HandleImages(data state.StateHandler) {
 	imgURL, err := controllers.HandleImages(data.(state.StateController))
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
-		data.SetErrorConsume(ferror.ErrorNotFound)
-		data.(state.StateController).WriteResponse()
+		data.SetErrorConsume(ferror.ErrorNotFound).WriteResponse()
 		return
 	}
 	http.ServeFile(*data.EditResponse(), data.GetRequest(), "./uploads/images/"+imgURL)

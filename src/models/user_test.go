@@ -180,8 +180,8 @@ func TestUserGetByEmail(t *testing.T) {
 	createTestUser(t, "emailuser", "email@test.com", "pass123456!")
 
 	u := &UserType{}
-	u.Email = "email@test.com"
-	err := u.GetUserByEmail()
+	u.Identifier = "email@test.com"
+	err := u.GetUserByIdentifier()
 	if err != nil {
 		t.Fatalf("GetUserByEmail() error: %v", err)
 	}
@@ -190,8 +190,8 @@ func TestUserGetByEmail(t *testing.T) {
 	}
 
 	u2 := &UserType{}
-	u2.Email = "nonexistent@test.com"
-	err = u2.GetUserByEmail()
+	u2.Identifier = "nonexistent@test.com"
+	err = u2.GetUserByIdentifier()
 	if err == nil {
 		t.Error("GetUserByEmail() should fail for nonexistent email")
 	}
@@ -202,8 +202,8 @@ func TestUserGetPasswordByEmail(t *testing.T) {
 	createTestUser(t, "passuser", "pass@test.com", "mypassword123!")
 
 	u := &UserType{}
-	u.Email = "pass@test.com"
-	err := u.GetUserPasswordByEmail()
+	u.Identifier = "pass@test.com"
+	err := u.GetUserPasswordByIdentifier()
 	if err != nil {
 		t.Fatalf("GetUserPasswordByEmail() error: %v", err)
 	}
@@ -212,8 +212,8 @@ func TestUserGetPasswordByEmail(t *testing.T) {
 	}
 
 	u2 := &UserType{}
-	u2.Email = "nouser@test.com"
-	err = u2.GetUserPasswordByEmail()
+	u2.Identifier = "nouser@test.com"
+	err = u2.GetUserPasswordByIdentifier()
 	if err == nil {
 		t.Error("GetUserPasswordByEmail() should fail for nonexistent email")
 	}

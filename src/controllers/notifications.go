@@ -15,6 +15,5 @@ func MarkAllNotificationsAsRead(data state.StateController) error {
 		data.EditUser().Notifications[i].Read = true
 	}
 	data.EditUser().UnreadNotificationsCount = 0
-	data.WriteResponse()
 	return nil
 }

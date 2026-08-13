@@ -10,6 +10,54 @@ import (
 	"strings"
 )
 
+func ParseRegistrationForm(data state.StateHandler) error {
+	var err error
+	formData := map[string]string{
+		"username":   data.GetRequest().FormValue("username"),
+		"email":      data.GetRequest().FormValue("email"),
+		"first_name": data.GetRequest().FormValue("first_name"),
+		"last_name":  data.GetRequest().FormValue("last_name"),
+		"age":        data.GetRequest().FormValue("age"),
+		"gender":     data.GetRequest().FormValue("gender"),
+		"password1":  data.GetRequest().FormValue("password1"),
+		"password2":  data.GetRequest().FormValue("password2"),
+	}
+	for _, value := range formData {
+		if len(value) == 0 {
+			return ferror.ErrorBadRequest
+		}
+	}
+	if formData["password1"] != formData["password2"] {
+		return ferror.ErrorPasswordMismatch
+	}
+	data.EditUser().Username = formData["username"]
+	data.EditUser().Email = formData["email"]
+	data.EditUser().Password = formData["password1"]
+	data.EditUser().FirstName = formData["first_name"]
+	data.EditUser().LastName = formData["last_name"]
+	age, err := utils.StringToInt64(formData["age"])
+	if err != nil {
+		return err
+	}
+	data.EditUser().Age = age
+	data.EditUser().Gender = formData["gender"]
+	return nil
+}
+
+func ParseLoginForm(data state.StateHandler) error {
+	identifier := data.GetRequest().FormValue("identifier")
+	if len(identifier) == 0 {
+		return ferror.ErrorEmailFieldEmpty
+	}
+	password := data.GetRequest().FormValue("password")
+	if len(password) == 0 {
+		return ferror.ErrorPasswordFieldEmpty
+	}
+	data.EditUser().Identifier = identifier
+	data.EditUser().Password = password
+	return nil
+}
+
 func ParsePostId(data state.StateHandler) (int64, error) {
 	var postIdStr string
 	var postId int64

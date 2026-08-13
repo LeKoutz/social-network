@@ -10,7 +10,7 @@ import (
 
 type State struct {
 	WebsiteName   string
-	View          string
+	View          string // TODO: Remove
 	User          models.UserType
 	Users         models.UsersType
 	Posts         models.PostsType
@@ -70,9 +70,8 @@ type StateController interface {
 	GetChatMessage(index int64) models.ChatMessageType
 
 	SetMessage(models.Message) *State
-	SetView(string) *State
+	SetView(string) *State // TODO: Remove
 	SetErrorConsume(error) *State
-	WriteResponse()
 }
 
 type StateHandler interface {
@@ -97,6 +96,8 @@ type StateHandler interface {
 	EditResponse() *http.ResponseWriter
 
 	GetRedirect() string
+
+	WriteResponse()
 }
 
 type StateRoute interface {
@@ -108,7 +109,7 @@ type StateRoute interface {
 	GetRequest() *http.Request
 	SetRequest(req *http.Request) *State
 
-	SetView(string) *State
+	SetView(string) *State // TODO: Remove
 
 	GetUser() models.UserType
 	SetUser(models.UserType) *State
@@ -171,6 +172,7 @@ func (r *State) SetWebsiteName(websiteName string) *State {
 	return r
 }
 
+// TODO: Remove
 func (r *State) SetView(viewname string) *State {
 	r.View = viewname
 	return r

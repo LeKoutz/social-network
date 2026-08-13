@@ -9,17 +9,13 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func CompareRegistrationPasswords(pass1, pass2 string) bool {
-	return pass1 == pass2
-}
-
 func Auth(identifier, password string) error {
 	var err error
 	if !models.IsEmailRegistered(identifier) && !models.IsUsernameRegistered(identifier) {
 		return ferror.ErrorNotRegistered
 	}
 	var user models.UserType
-	err = user.GetUserPasswordByIdentifier(identifier)
+	err = user.SelectUserPasswordByIdentifier(identifier)
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}

@@ -16,7 +16,6 @@ func ServeWs(data state.StateController) {
 	conn, err := upgrader.Upgrade(*data.EditResponse(), data.GetRequest(), nil)
 	if err != nil {
 		data.SetErrorConsume(err)
-		data.WriteResponse()
 		return
 	}
 	client := &models.Client{

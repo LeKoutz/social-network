@@ -12,8 +12,7 @@ func HandleMarkAllNotificationsAsRead(data state.StateHandler) {
 	err := controllers.MarkAllNotificationsAsRead(data.(state.StateController))
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
-		data.SetErrorConsume(err)
-		data.(state.StateController).WriteResponse()
+		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
 	previousURL := data.GetRequest().Referer()
