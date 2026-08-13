@@ -17,6 +17,7 @@ type State struct {
 	Categories    models.CategoriesType
 	EditingPost   bool
 	EditCommentId int64
+	ChatOffset	  int64
 	Error         ferror.Error
 	Request       *http.Request       `json:"-"`
 	Response      http.ResponseWriter `json:"-"`
@@ -61,6 +62,13 @@ type StateController interface {
 
 	SetRedirect(string) *State
 
+	GetChatOffset() int64
+
+	EditChatMessages() *models.ChatMessagesType
+	GetChatMessages() models.ChatMessagesType
+	EditChatMessage(index int64) *models.ChatMessageType
+	GetChatMessage(index int64) models.ChatMessageType
+
 	SetMessage(models.Message) *State
 	SetView(string) *State
 	SetErrorConsume(error) *State
@@ -80,6 +88,9 @@ type StateHandler interface {
 	EditComment() *models.CommentType
 	EditPost() *models.PostType
 	EditPosts() *models.PostsType
+	EditChatMessages() *models.ChatMessagesType
+	EditChatMessage(index int64) *models.ChatMessageType
+	SetChatOffset(int64) *State
 
 	GetRequest() *http.Request
 	EditResponse() *http.ResponseWriter
@@ -103,6 +114,15 @@ type StateRoute interface {
 	EditUser() *models.UserType
 
 	WriteResponse()
+}
+
+func (r *State) SetChatOffset(offset int64) *State {
+	r.ChatOffset = offset
+	return r
+}
+
+func (r *State) GetChatOffset() int64 {
+	return r.ChatOffset
 }
 
 func (r State) EditResponse() *http.ResponseWriter {

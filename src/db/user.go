@@ -18,6 +18,7 @@ type UserRowType struct {
 	LastName      string
 	Age           int64
 	Gender        string
+	LastMessageTimestamp	int64
 }
 
 // Returns ONLY the `User.Hash` field for comparison against the given password

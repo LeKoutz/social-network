@@ -7,7 +7,7 @@ import (
 
 type ChatMessagesRowType []ChatMessageRowType
 
-func GetChatHistory(userId1, userId2, offset int64) (ChatMessagesRowType, error) {
+func SelectChatHistory(userId1, userId2, offset int64) (ChatMessagesRowType, error) {
 	rows, err := db.Query(`
 	SELECT * FROM (
     SELECT m.id, m.sender_id, m.recipient_id, m.body, m.timestamp, u.username
@@ -49,7 +49,7 @@ func GetChatHistory(userId1, userId2, offset int64) (ChatMessagesRowType, error)
 	return messages, nil
 }
 
-func GetUnreadMessageIds(userId int64) (ChatMessagesRowType, error) {
+func SelectUnreadMessageIds(userId int64) (ChatMessagesRowType, error) {
 	rows, err := db.Query(`
 	SELECT id, sender_id
 	FROM messages

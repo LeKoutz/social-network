@@ -66,7 +66,7 @@ type Error struct {
 
 type ErrorIface interface {
 	LogError()
-	RespondError(http.ResponseWriter)
+	RespondError(http.ResponseWriter) // TODO: Remove
 	Consume(error) Error
 }
 

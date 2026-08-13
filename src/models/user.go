@@ -19,7 +19,7 @@ type UserType struct {
 	UnreadNotificationsCount int
 	Activities               ActivitiesType
 	ChatMessages             ChatMessagesType
-	LastMessageTimestamp     int64
+	// LastMessageTimestamp     int64
 	Identifier               string
 }
 

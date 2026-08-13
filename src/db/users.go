@@ -106,8 +106,7 @@ func GetUsersForPanel(currentUserId int64) ([]UserRowType, error) {
 		err = rows.Scan(
 			&user.Id,
 			&user.Username,
-			// TODO
-			// &user.LastMessageTimestamp,
+			&user.LastMessageTimestamp, // TODO: Currently inconsistent. Should be in UserType
 		)
 		if err != nil {
 			if config.Debug {

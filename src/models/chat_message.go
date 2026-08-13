@@ -14,27 +14,27 @@ type ChatMessageType struct {
 }
 
 func (m *ChatMessageType) ConvertToRow() *db.ChatMessageRowType {
-	t := &db.ChatMessageRowType{}
-	t.Id = m.Id
-	t.SenderId = m.SenderId
-	t.RecipientId = m.RecipientId
-	t.Body = m.Body
-	t.Timestamp = m.Timestamp
-	t.TimestampString = m.TimestampString
-	t.Read = m.Read
-	t.SenderUsername = m.SenderUsername
-	return t
+	row := &db.ChatMessageRowType{}
+	row.Id = m.Id
+	row.SenderId = m.SenderId
+	row.RecipientId = m.RecipientId
+	row.Body = m.Body
+	row.Timestamp = m.Timestamp
+	row.TimestampString = m.TimestampString
+	row.Read = m.Read
+	row.SenderUsername = m.SenderUsername
+	return row
 }
 
-func (m *ChatMessageType) ConvertFromRow(t *db.ChatMessageRowType) {
-	m.Id = t.Id
-	m.SenderId = t.SenderId
-	m.RecipientId = t.RecipientId
-	m.Body = t.Body
-	m.Timestamp = t.Timestamp
-	m.TimestampString = t.TimestampString
-	m.Read = t.Read
-	m.SenderUsername = t.SenderUsername
+func (m *ChatMessageType) ConvertFromRow(row *db.ChatMessageRowType) {
+	m.Id = row.Id
+	m.SenderId = row.SenderId
+	m.RecipientId = row.RecipientId
+	m.Body = row.Body
+	m.Timestamp = row.Timestamp
+	m.TimestampString = row.TimestampString
+	m.Read = row.Read
+	m.SenderUsername = row.SenderUsername
 }
 
 func (m *ChatMessageType) Add() (int64, error) {
