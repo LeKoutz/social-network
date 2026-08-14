@@ -236,7 +236,6 @@ func createOrLoginUser(data state.StateController, provider, email, username str
 		SameSite: http.SameSite(http.SameSiteStrictMode),
 	}
 	http.SetCookie(*data.EditResponse(), cookie)
-	data.WriteResponse()
 
 	// Because if we redirect, it somehow doesn't read the cookie after the
 	// redirect. The cookie is set, though. It just doesn't leave the browser at

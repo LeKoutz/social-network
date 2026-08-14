@@ -12,12 +12,10 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-func ServeWs(data state.StateController) {
+func ServeWs(data state.StateController) error {
 	conn, err := upgrader.Upgrade(*data.EditResponse(), data.GetRequest(), nil)
 	if err != nil {
-		data.SetErrorConsume(err)
-		data.WriteResponse()
-		return
+		return err
 	}
 	client := &models.Client{
 		Hub:      models.MainHub,
@@ -29,4 +27,5 @@ func ServeWs(data state.StateController) {
 	client.Hub.Register <- client
 	go client.WritePump()
 	go client.ReadPump()
+	return nil
 }

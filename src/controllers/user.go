@@ -38,54 +38,20 @@ func UserLogout(data state.StateController) error {
 	return nil
 }
 
-func AttemptRegister(data state.StateController) {
+func AttemptRegister(data state.StateController) error {
 	var err error
-	if err = data.EditUser().ValidateUser(); err != nil {
-		data.SetUser(data.GetUser()).SetErrorConsume(err)
-		data.WriteResponse()
-		return
+	if data.GetUser().LoggedIn {
+		return ferror.ErrorAlreadyLoggedIn
 	}
-	if models.IsEmailRegistered(data.GetUser().Email) {
-		data.SetUser(data.GetUser()).SetErrorConsume(ferror.ErrorEmailIsRegistered)
-		data.WriteResponse()
-		return
+	if err = validatePasswordStrength(data.GetUser().Password); err != nil {
+		return err
 	}
-	if !models.IsUniqueUsername(data.GetUser().Username) {
-		data.SetUser(data.GetUser()).SetErrorConsume(ferror.ErrorUsernameTaken)
-		data.WriteResponse()
-		return
+	if data.EditUser().Hash, err = utils.HashPassword(data.GetUser().Password); err != nil {
+		return err
 	}
-	if !CompareRegistrationPasswords(data.GetRequest().FormValue("password1"), data.GetRequest().FormValue("password2")) {
-		data.SetUser(data.GetUser()).SetErrorConsume(ferror.ErrorPasswordMismatch)
-		data.WriteResponse()
-		return
-	}
-	password := data.GetRequest().FormValue("password1")
-	if err = ValidatePasswordStrength(password); err != nil {
-		data.SetUser(data.GetUser()).SetErrorConsume(err)
-		data.WriteResponse()
-		return
-	}
-	data.EditUser().Hash, err = utils.HashPassword(password)
-	if err != nil {
-		data.SetUser(data.GetUser()).SetErrorConsume(err)
-		data.WriteResponse()
-		return
-	}
-	data.EditUser().FirstName = data.GetRequest().FormValue("first_name")
-	data.EditUser().LastName = data.GetRequest().FormValue("last_name")
-	age, err := utils.StringToInt64(data.GetRequest().FormValue("age"))
-	if err != nil {
-		data.SetUser(data.GetUser()).SetErrorConsume(err)
-		data.WriteResponse()
-		return
-	}
-	data.EditUser().Age = age
-	data.EditUser().Gender = data.GetRequest().FormValue("gender")
+	data.EditUser().Password = ""
 	if err = data.EditUser().Add(); err != nil {
-		data.SetUser(data.GetUser()).SetErrorConsume(ferror.ErrorInvalidUser)
-		data.WriteResponse()
-		return
+		return err
 	}
 	data.SetUser(models.GetGuestUser())
 	data.SetMessage(models.Message{
@@ -93,61 +59,21 @@ func AttemptRegister(data state.StateController) {
 		Type:    "Success",
 		Has:     true,
 	})
-	data.WriteResponse()
+	return nil
 }
 
 func AttemptLogin(data state.StateController) error {
-	var identifier string
-	var password string
-	var err error
-	if len(data.GetRequest().Form.Get("identifier")) != 0 {
-		identifier = data.GetRequest().Form.Get("identifier")
-	} else {
-		return ferror.ErrorEmailFieldEmpty
+	if data.GetUser().LoggedIn {
+		return ferror.ErrorAlreadyLoggedIn
 	}
-	if len(data.GetRequest().Form.Get("password")) != 0 {
-		password = data.GetRequest().Form.Get("password")
-	} else {
-		return ferror.ErrorPasswordFieldEmpty
-	}
-	err = Auth(identifier, password)
-	if err != nil {
-		data.SetUser(models.GetGuestUser())
-		if !errors.Is(err, ferror.ErrorWrongPassword) && !errors.Is(err, ferror.ErrorNotRegistered) {
-			return ferror.ErrorInternalServerError
-		}
-		return errors.Join(utils.GetFunctionName(), err)
-	}
-	sessionValue, err := uuid.NewV4()
-	if err != nil {
-		data.SetUser(models.GetGuestUser())
-		return errors.Join(utils.GetFunctionName(), err)
-	}
-	data.EditUser().SessionId = sessionValue.String()
-	data.EditUser().Identifier = identifier
-	err = data.EditUser().GetUserByIdentifier(data.EditUser().Identifier)
-	if err != nil {
-		data.SetUser(models.GetGuestUser())
-		return errors.Join(utils.GetFunctionName(), err)
-	}
-	data.EditUser().LoggedIn = true
-	err = data.EditUser().SetUserSession(sessionValue.String())
-	if err != nil {
-		data.SetUser(models.GetGuestUser())
-		data.SetErrorConsume(err)
-		data.WriteResponse()
+	if err := authenticateUser(data); err != nil {
 		return err
 	}
-	cookie := &http.Cookie{
-		Name:     "__Host-FRMSessionID",
-		Value:    sessionValue.String(),
-		Path:     "/",
-		Expires:  time.Now().Add(24 * time.Hour),
-		Secure:   true,
-		HttpOnly: true,
-		SameSite: http.SameSite(http.SameSiteStrictMode),
+	sessionValue, err := createUserSession(data)
+	if err != nil {
+		return err
 	}
-	http.SetCookie(*data.EditResponse(), cookie)
+	setSessionCookie(data, sessionValue)
 	data.SetMessage(
 		models.Message{
 			Has:     true,
@@ -158,9 +84,57 @@ func AttemptLogin(data state.StateController) error {
 	return nil
 }
 
+func authenticateUser(data state.StateController) error {
+	err := Auth(data.EditUser().Identifier, data.EditUser().Password)
+	if err != nil {
+		data.SetUser(models.GetGuestUser())
+		if !errors.Is(err, ferror.ErrorWrongPassword) && !errors.Is(err, ferror.ErrorNotRegistered) {
+			return errors.Join(utils.GetFunctionName(), ferror.ErrorInternalServerError)
+		}
+		return errors.Join(utils.GetFunctionName(), err)
+	}
+	data.EditUser().Password = ""
+	return nil
+}
+
+func createUserSession(data state.StateController) (string, error) {
+	sessionValue, err := uuid.NewV4()
+	if err != nil {
+		data.SetUser(models.GetGuestUser())
+		return "", errors.Join(utils.GetFunctionName(), err)
+	}
+	data.EditUser().SessionId = sessionValue.String()
+	err = data.EditUser().GetUserByIdentifier()
+	if err != nil {
+		data.SetUser(models.GetGuestUser())
+		return "", errors.Join(utils.GetFunctionName(), err)
+	}
+	data.EditUser().Identifier = ""
+	data.EditUser().LoggedIn = true
+	err = data.EditUser().SetUserSession(sessionValue.String())
+	if err != nil {
+		data.SetUser(models.GetGuestUser())
+		return "", err
+	}
+	return sessionValue.String(), nil
+}
+
+func setSessionCookie(data state.StateController, sessionValue string) {
+	cookie := &http.Cookie{
+		Name:     "__Host-FRMSessionID",
+		Value:    sessionValue,
+		Path:     "/",
+		Expires:  time.Now().Add(24 * time.Hour),
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: http.SameSite(http.SameSiteStrictMode),
+	}
+	http.SetCookie(*data.EditResponse(), cookie)
+}
+
 // Strong password validation. Makes sure the password is in between 10-16
 // characters and includes letters, numbers and/or punctuation symbols
-func ValidatePasswordStrength(password string) error {
+func validatePasswordStrength(password string) error {
 	unameMask := regexp.MustCompile(`^[[:punct:][:alnum:]]{10,16}$`)
 	if !unameMask.MatchString(password) {
 		return ferror.ErrorWeakPassword

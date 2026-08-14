@@ -22,15 +22,7 @@ type UserRowType struct {
 }
 
 // Returns ONLY the `User.Hash` field for comparison against the given password
-func (user *UserRowType) SelectUserPasswordByEmail() error {
-	err := db.QueryRow(`SELECT hash FROM users WHERE email = ?`, user.Email).Scan(&user.Hash)
-	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
-	}
-	return nil
-}
-
-func (user *UserRowType) GetUserPasswordByIdentifier(identifier string) error {
+func (user *UserRowType) SelectUserPasswordByIdentifier(identifier string) error {
 	err := db.QueryRow(`SELECT hash FROM users WHERE email = ? OR username = ?`, identifier, identifier).Scan(&user.Hash)
 	if err != nil {
 		if config.Debug {
@@ -41,21 +33,13 @@ func (user *UserRowType) GetUserPasswordByIdentifier(identifier string) error {
 	return nil
 }
 
-func (user *UserRowType) GetUserByIdentifier(identifier string) error {
+func (user *UserRowType) SelectUserByIdentifier(identifier string) error {
 	err := db.QueryRow(`SELECT id, email, username FROM users WHERE email = ? OR username = ?`, identifier, identifier).Scan(&user.Id, &user.Email, &user.Username)
 	if err != nil {
 		if config.Debug {
 			err = errors.Join(utils.GetFunctionName(), err)
 		}
 		return err
-	}
-	return nil
-}
-
-func (user *UserRowType) SelectUserByEmail() error {
-	err := db.QueryRow(`SELECT id, email, username FROM users WHERE email = ?`, user.Email).Scan(&user.Id, &user.Email, &user.Username)
-	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
 	}
 	return nil
 }
