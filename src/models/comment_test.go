@@ -255,31 +255,6 @@ func TestCommentDeleteById(t *testing.T) {
 	}
 }
 
-func TestCommentFromCommentRowType(t *testing.T) {
-	row := db.CommentRowType{
-		Id:              10,
-		PostId:          5,
-		UserId:          3,
-		Body:            "Row body",
-		TimestampString: "1700000000",
-		Username:        "testuser",
-	}
-	c := &CommentType{}
-	c.FromCommentRowType(row)
-	if c.Id != 10 {
-		t.Errorf("FromCommentRowType() Id = %d, want 10", c.Id)
-	}
-	if c.PostId != 5 {
-		t.Errorf("FromCommentRowType() PostId = %d, want 5", c.PostId)
-	}
-	if c.UserId != 3 {
-		t.Errorf("FromCommentRowType() UserId = %d, want 3", c.UserId)
-	}
-	if c.Body != "Row body" {
-		t.Errorf("FromCommentRowType() Body = %q, want %q", c.Body, "Row body")
-	}
-}
-
 func TestCommentSelectCommentById(t *testing.T) {
 	user, post := setupTestCommentDB(t)
 

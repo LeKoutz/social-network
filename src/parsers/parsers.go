@@ -129,13 +129,14 @@ func ParseCreatePostRequest(data state.StateHandler) error {
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}
+	var post_cat models.CategoriesType
 	for _, category := range categories {
 		cc := fmt.Sprintf("category-%d", category.Id)
 		if data.GetRequest().FormValue(cc) == "on" {
-			data.EditPost().Categories = append(data.EditPost().Categories, category)
+			post_cat = append(post_cat, category)
 		}
 	}
-	utils.LogDebug(data.EditPost().GetCategories())
+	data.EditPost().Categories = post_cat
 	imageFile, _, err := data.GetRequest().FormFile("image")
 	if err == nil {
 		defer imageFile.Close()

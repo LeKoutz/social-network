@@ -21,15 +21,6 @@ type PostType struct {
 	Comments   CommentsType
 }
 
-func (p *PostType) FromPostRowType(pr *db.PostRowType) {
-	p.Id = pr.Id
-	p.Title = pr.Title
-	p.Body = pr.Body
-	p.ImagePath = pr.ImagePath
-	p.UserId = pr.UserId
-	p.TimestampString = pr.TimestampString
-}
-
 func (p *PostType) ValidatePost() error {
 	if len(p.Title) == 0 {
 		return ferror.ErrorPostTitleEmpty
@@ -99,17 +90,17 @@ func (p *PostType) GetReactionsByUserId(user_id int64) error {
 }
 
 func (p *PostType) GetComments() error {
-	comment_rows, err := p.SelectCommentsAndUsernameByPostId()
+	rows, err := p.SelectCommentsAndUsernameByPostId()
 	if err != nil {
 		if config.Debug {
 			err = errors.Join(utils.GetFunctionName(), err)
 		}
 		return err
 	}
-	for _, comment_row := range comment_rows {
+	for _, row := range rows {
 		var comment CommentType
-		comment.FromCommentRowType(comment_row)
-		t, err := utils.ConvertStringToTime(comment_row.TimestampString)
+		comment.CommentRowType = row
+		t, err := utils.ConvertStringToTime(row.TimestampString)
 		if err != nil {
 			if config.Debug {
 				err = errors.Join(utils.GetFunctionName(), err)

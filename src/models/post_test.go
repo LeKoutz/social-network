@@ -294,34 +294,6 @@ func TestPostUpdate(t *testing.T) {
 	}
 }
 
-func TestPostFromPostRowType(t *testing.T) {
-	row := &db.PostRowType{
-		Id:              42,
-		Title:           "Row Title",
-		Body:            "Row Body",
-		ImagePath:       "/images/test.jpg",
-		UserId:          7,
-		TimestampString: "1700000000",
-	}
-	p := &PostType{}
-	p.FromPostRowType(row)
-	if p.Id != 42 {
-		t.Errorf("FromPostRowType() Id = %d, want 42", p.Id)
-	}
-	if p.Title != "Row Title" {
-		t.Errorf("FromPostRowType() Title = %q, want %q", p.Title, "Row Title")
-	}
-	if p.Body != "Row Body" {
-		t.Errorf("FromPostRowType() Body = %q, want %q", p.Body, "Row Body")
-	}
-	if p.ImagePath != "/images/test.jpg" {
-		t.Errorf("FromPostRowType() ImagePath = %q, want %q", p.ImagePath, "/images/test.jpg")
-	}
-	if p.UserId != 7 {
-		t.Errorf("FromPostRowType() UserId = %d, want 7", p.UserId)
-	}
-}
-
 func TestPostsGetPosts(t *testing.T) {
 	user := setupTestPostDB(t)
 	cat := CategoriesType{createTestCategory(t, "allcat")}

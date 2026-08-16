@@ -13,31 +13,6 @@ type NotificationType struct {
 	Comment CommentType
 }
 
-// func (n *NotificationType) ToNotificationRowType() *db.NotificationRowType {
-// 	return &db.NotificationRowType{
-// 		UserId:          n.UserId,
-// 		ActorId:         n.ActorId,
-// 		Type:            n.Type,
-// 		PostId:          n.PostId,
-// 		CommentId:       n.CommentId,
-// 		TimestampString: n.TimestampString,
-// 	}
-// }
-
-func (n *NotificationType) FromNotificationRowType(nr *db.NotificationRowType) {
-	n.Id = nr.Id
-	n.UserId = nr.UserId
-	n.ActorId = nr.ActorId
-	n.Type = nr.Type
-	n.PostId = nr.PostId
-	n.CommentId = nr.CommentId
-	n.Read = nr.Read
-	var user UserType
-	user.Username = nr.Username
-	n.Actor = user
-	n.TimestampString = nr.TimestampString
-}
-
 func CreateNotification(notification NotificationType) error {
 	if notification.ActorId == notification.UserId {
 		return nil

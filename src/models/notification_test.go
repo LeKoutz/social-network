@@ -82,39 +82,6 @@ func TestCreateNotificationSelfAction(t *testing.T) {
 	}
 }
 
-func TestFromNotificationRowType(t *testing.T) {
-	row := &db.NotificationRowType{
-		Id:              1,
-		UserId:          10,
-		ActorId:         20,
-		Type:            "like",
-		PostId:          30,
-		CommentId:       40,
-		TimestampString: "1700000000",
-		Username:        "testactor",
-	}
-	n := &NotificationType{}
-	n.FromNotificationRowType(row)
-	if n.UserId != 10 {
-		t.Errorf("FromNotificationRowType() UserId = %d, want 10", n.UserId)
-	}
-	if n.ActorId != 20 {
-		t.Errorf("FromNotificationRowType() ActorId = %d, want 20", n.ActorId)
-	}
-	if n.Type != "like" {
-		t.Errorf("FromNotificationRowType() Type = %q, want %q", n.Type, "like")
-	}
-	if n.PostId != 30 {
-		t.Errorf("FromNotificationRowType() PostId = %d, want 30", n.PostId)
-	}
-	if n.CommentId != 40 {
-		t.Errorf("FromNotificationRowType() CommentId = %d, want 40", n.CommentId)
-	}
-	if n.Actor.Username != "testactor" {
-		t.Errorf("FromNotificationRowType() Actor.Username = %q, want %q", n.Actor.Username, "testactor")
-	}
-}
-
 func TestCreateCommentNotification(t *testing.T) {
 	owner, actor, post := setupTestNotificationDB(t)
 	post.User = owner

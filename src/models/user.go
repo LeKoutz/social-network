@@ -24,17 +24,6 @@ type UserType struct {
 	Password				 string
 }
 
-// func (u *UserType) ToUserRowType() *db.UserRowType {
-// 	return &db.UserRowType{
-// 		Id: u.Id,
-// 		Username: u.Username,
-// 		Hash: u.Hash,
-// 		Email: u.Email,
-// 		OAuthProvider: u.OAuthProvider,
-// 		SessionId: u.SessionId,
-// 	}
-// }
-
 func GetGuestUser() UserType {
 	var u UserType
 	u.Username = "guest"
@@ -108,15 +97,14 @@ func (u *UserType) AddOAuth() error {
 
 func (u *UserType) GetPosts() (PostsType, error) {
 	var posts PostsType
-	var post_rows db.PostRowsType
-	var err error
-	post_rows, err = u.SelectPosts()
+	rows, err := u.SelectPosts()
 	if err != nil {
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return posts, err
 	}
-	for _, post_row := range post_rows {
+	for _, row := range rows {
 		var post PostType
-		post.FromPostRowType(&post_row)
+		post.PostRowType = row
 		posts = append(posts, post)
 	}
 	return posts, err
@@ -124,15 +112,14 @@ func (u *UserType) GetPosts() (PostsType, error) {
 
 func (u *UserType) GetLikedPosts() (PostsType, error) {
 	var posts PostsType
-	var post_rows db.PostRowsType
-	var err error
-	post_rows, err = u.SelectLikedPosts()
+	rows, err := u.SelectLikedPosts()
 	if err != nil {
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return posts, err
 	}
-	for _, post_row := range post_rows {
+	for _, row := range rows {
 		var post PostType
-		post.FromPostRowType(&post_row)
+		post.PostRowType = row
 		posts = append(posts, post)
 	}
 	return posts, err
@@ -255,16 +242,16 @@ func HasUserDislikedComment(userId, commentId int64) (bool, error) {
 }
 
 func (u *UserType) GetNotifications() error {
-	notifications, err := db.GetNotificationsByUserId(u.Id)
+	rows, err := db.GetNotificationsByUserId(u.Id)
 	if err != nil {
 		if config.Debug {
 			err = errors.Join(utils.GetFunctionName(), err)
 		}
 		return err
 	}
-	for _, notification_row := range notifications {
+	for _, row := range rows {
 		var notification NotificationType
-		notification.FromNotificationRowType(&notification_row)
+		notification.NotificationRowType = row
 		u.Notifications = append(u.Notifications, notification)
 	}
 	u.CountUnreadNotifications()
@@ -382,39 +369,31 @@ func (u *UserType) GetPostsActivity() error {
 }
 
 func (u *UserType) GetCommentsActivity() error {
-	comment_rows, err := db.GetCommentsByUserId(u.Id)
+	rows, err := db.GetCommentsByUserId(u.Id)
 	if err != nil {
-		if config.Debug {
-			err = errors.Join(utils.GetFunctionName(), err)
-		}
+		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
-	for _, comment_row := range comment_rows {
+	for _, row := range rows {
 		var activity ActivityType
 		var post PostType
 		var comment CommentType
-		comment.FromCommentRowType(comment_row)
-		// post.Id = comment.PostId
+		comment.CommentRowType = row
+		post.Id = comment.PostId
 
 		err = post.SelectPostById()
 		if err != nil {
-			if config.Debug {
-				err = errors.Join(utils.GetFunctionName(), err)
-			}
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return err
 		}
 		err = comment.GetReactions()
 		if err != nil {
-			if config.Debug {
-				err = errors.Join(utils.GetFunctionName(), err)
-			}
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return err
 		}
 		err = comment.GetReactionsByUserId(u.Id)
 		if err != nil {
-			if config.Debug {
-				err = errors.Join(utils.GetFunctionName(), err)
-			}
+			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return err
 		}
 		activity.Type = "comment"

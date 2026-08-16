@@ -29,7 +29,7 @@ func CreatePost(data state.StateController) error {
 		var post_cat models.PostCategory
 		post_cat.PostCategoryRow.PostId = data.GetPost().Id
 		post_cat.PostCategoryRow.CategoryId = category.Id
-		post_cat.Add()
+		err = post_cat.Add()
 		if err != nil {
 			return errors.Join(utils.GetFunctionName(), err)
 		}

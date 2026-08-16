@@ -40,53 +40,6 @@ func setupTestReactionDB(t *testing.T) (UserType, PostType, CommentType) {
 	return user, post, comment
 }
 
-func TestReactionTypeFromReactionRowType(t *testing.T) {
-	row := db.ReactionRowType{
-		Id:              1,
-		UserId:          10,
-		PostId:          20,
-		CommentId:       0,
-		TimestampString: "1700000000",
-	}
-	r := &ReactionType{}
-	r.FromReactionRowType(row)
-	if r.Id != 1 {
-		t.Errorf("FromReactionRowType() Id = %d, want 1", r.Id)
-	}
-	if r.UserId != 10 {
-		t.Errorf("FromReactionRowType() UserId = %d, want 10", r.UserId)
-	}
-	if r.PostId != 20 {
-		t.Errorf("FromReactionRowType() PostId = %d, want 20", r.PostId)
-	}
-	if r.TimestampString != "1700000000" {
-		t.Errorf("FromReactionRowType() TimestampString = %q, want %q", r.TimestampString, "1700000000")
-	}
-}
-
-func TestReactionTypeToReactionRowType(t *testing.T) {
-	r := &ReactionType{}
-	r.Id = 5
-	r.UserId = 15
-	r.PostId = 25
-	r.CommentId = 35
-	r.TimestampString = "1700000000"
-
-	row := r.ToReactionRowType()
-	if row.Id != 5 {
-		t.Errorf("ToReactionRowType() Id = %d, want 5", row.Id)
-	}
-	if row.UserId != 15 {
-		t.Errorf("ToReactionRowType() UserId = %d, want 15", row.UserId)
-	}
-	if row.PostId != 25 {
-		t.Errorf("ToReactionRowType() PostId = %d, want 25", row.PostId)
-	}
-	if row.CommentId != 35 {
-		t.Errorf("ToReactionRowType() CommentId = %d, want 35", row.CommentId)
-	}
-}
-
 func TestGetPostLikesByUserId(t *testing.T) {
 	user, post, _ := setupTestReactionDB(t)
 

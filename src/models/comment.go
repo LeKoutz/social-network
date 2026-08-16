@@ -16,14 +16,6 @@ type CommentType struct {
 	Disliked  bool
 }
 
-func (ct *CommentType) FromCommentRowType(crt db.CommentRowType) {
-	ct.Body = crt.Body
-	ct.TimestampString = crt.TimestampString
-	ct.Id = crt.Id
-	ct.PostId = crt.PostId
-	ct.UserId = crt.UserId
-}
-
 func (c *CommentType) ValidateComment() error {
 	if len(c.Body) == 0 {
 		return ferror.ErrorCommentEmpty

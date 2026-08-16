@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"forum/src/db"
 	"forum/src/ferror"
 	"forum/src/utils"
 
@@ -44,11 +45,13 @@ func (c *Client) ReadPump() {
 			}
 			timestampString := utils.GetCurrentTimestamp()
 			msg := ChatMessageType{
-				SenderId:        c.UserId,
-				RecipientId:     p.RecipientId,
-				Body:            p.Body,
-				TimestampString: timestampString,
-				SenderUsername:  c.Username,
+				ChatMessageRowType: db.ChatMessageRowType{
+					SenderId:        c.UserId,
+					RecipientId:     p.RecipientId,
+					Body:            p.Body,
+					TimestampString: timestampString,
+					SenderUsername:  c.Username,
+				},
 			}
 			msg.Id, err = msg.Add()
 			if err != nil {
