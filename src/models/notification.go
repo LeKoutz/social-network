@@ -43,7 +43,7 @@ func (user *UserType) MarkAsReadPost(post PostType) error {
 
 func (comment *CommentType) CreateCommentNotification(post PostType) error {
 	var notification NotificationType
-	notification.UserId = post.User.Id
+	notification.UserId = post.UserId
 	notification.ActorId = comment.UserId
 	notification.Type = "comment"
 	notification.PostId = comment.PostId
@@ -63,7 +63,7 @@ func (comment *CommentType) CreateReactionNotification(userId int64, t string) e
 
 func (post *PostType) CreateReactionNotification(userId int64, t string) error {
 	var notification NotificationType
-	notification.UserId = post.User.Id
+	notification.UserId = post.UserId
 	notification.ActorId = userId
 	notification.Type = t
 	notification.PostId = post.Id
