@@ -41,11 +41,11 @@ func (c *CommentType) Add() error {
 
 func (c *CommentType) GetReactions() error {
 	var err error
-	c.Likes, err = db.GetLikesCountByCommentId(c.Id)
+	c.Likes, err = db.SelectLikesCountByCommentId(c.Id)
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}
-	c.Dislikes, err = db.GetDislikesCountByCommentId(c.Id)
+	c.Dislikes, err = db.SelectDislikesCountByCommentId(c.Id)
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}

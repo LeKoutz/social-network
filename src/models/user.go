@@ -180,7 +180,7 @@ func (u *UserType) SetUserSession(session_key string) error {
 }
 
 func IsUniqueUsername(username string) bool {
-	usernames, err := db.GetAllUsernames()
+	usernames, err := db.SelectAllUsernames()
 	if err != nil {
 		(&ferror.Error{}).Consume(err).LogError()
 		return false
@@ -189,7 +189,7 @@ func IsUniqueUsername(username string) bool {
 }
 
 func IsUniqueEmail(email string) bool {
-	emails, err := db.GetAllUserEmails()
+	emails, err := db.SelectAllUserEmails()
 	if err != nil {
 		(&ferror.Error{}).Consume(err).LogError()
 		return false
@@ -207,7 +207,7 @@ func IsUsernameRegistered(username string) bool {
 
 // Check if user already liked this post
 func HasUserLikedPost(userId, postId int64) (bool, error) {
-	reactionId, err := db.CheckIfUserLikedPost(userId, postId)
+	reactionId, err := db.SelectUserLikeFromPost(userId, postId)
 	if err != nil {
 		return false, err
 	}
@@ -216,7 +216,7 @@ func HasUserLikedPost(userId, postId int64) (bool, error) {
 
 // Check if user already disliked this post
 func HasUserDislikedPost(userId, postId int64) (bool, error) {
-	reactionId, err := db.CheckIfUserDislikedPost(userId, postId)
+	reactionId, err := db.SelectUserDislikeFromPost(userId, postId)
 	if err != nil {
 		return false, err
 	}
@@ -225,7 +225,7 @@ func HasUserDislikedPost(userId, postId int64) (bool, error) {
 
 // Check if user already liked this comment
 func HasUserLikedComment(userId, commentId int64) (bool, error) {
-	reactionId, err := db.CheckIfUserLikedComment(userId, commentId)
+	reactionId, err := db.SelectUserLikeFromComment(userId, commentId)
 	if err != nil {
 		return false, err
 	}
@@ -234,7 +234,7 @@ func HasUserLikedComment(userId, commentId int64) (bool, error) {
 
 // Check if user already disliked this comment
 func HasUserDislikedComment(userId, commentId int64) (bool, error) {
-	reactionId, err := db.CheckIfUserDislikedComment(userId, commentId)
+	reactionId, err := db.SelectUserDislikeFromComment(userId, commentId)
 	if err != nil {
 		return false, err
 	}
@@ -242,7 +242,7 @@ func HasUserDislikedComment(userId, commentId int64) (bool, error) {
 }
 
 func (u *UserType) GetNotifications() error {
-	rows, err := db.GetNotificationsByUserId(u.Id)
+	rows, err := db.SelectNotificationsByUserId(u.Id)
 	if err != nil {
 		if config.Debug {
 			err = errors.Join(utils.GetFunctionName(), err)
@@ -369,7 +369,7 @@ func (u *UserType) GetPostsActivity() error {
 }
 
 func (u *UserType) GetCommentsActivity() error {
-	rows, err := db.GetCommentsByUserId(u.Id)
+	rows, err := db.SelectCommentsByUserId(u.Id)
 	if err != nil {
 		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err

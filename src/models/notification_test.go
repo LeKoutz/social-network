@@ -17,6 +17,7 @@ func setupTestNotificationDB(t *testing.T) (UserType, UserType, PostType) {
 	owner.Username = "notifowner"
 	owner.Email = "owner@test.com"
 	owner.Hash = hash
+	owner.Gender = "male"
 	if err := owner.Add(); err != nil {
 		t.Fatalf("Failed to create owner user: %v", err)
 	}
@@ -25,6 +26,7 @@ func setupTestNotificationDB(t *testing.T) (UserType, UserType, PostType) {
 	actor.Username = "notifactor"
 	actor.Email = "actor@test.com"
 	actor.Hash = hash
+	actor.Gender = "male"
 	if err := actor.Add(); err != nil {
 		t.Fatalf("Failed to create actor user: %v", err)
 	}
@@ -71,7 +73,7 @@ func TestCreateNotificationSelfAction(t *testing.T) {
 		t.Errorf("CreateNotification() should not error for self-action, got: %v", err)
 	}
 
-	notifications, err := db.GetNotificationsByUserId(owner.Id)
+	notifications, err := db.SelectNotificationsByUserId(owner.Id)
 	if err != nil {
 		t.Fatalf("GetNotificationsByUserId() error: %v", err)
 	}
@@ -97,7 +99,7 @@ func TestCreateCommentNotification(t *testing.T) {
 		t.Fatalf("CreateCommentNotification() error: %v", err)
 	}
 
-	notifications, err := db.GetNotificationsByUserId(owner.Id)
+	notifications, err := db.SelectNotificationsByUserId(owner.Id)
 	if err != nil {
 		t.Fatalf("GetNotificationsByUserId() error: %v", err)
 	}
@@ -118,7 +120,7 @@ func TestCreateReactionNotificationPost(t *testing.T) {
 		t.Fatalf("CreateReactionNotification() error: %v", err)
 	}
 
-	notifications, err := db.GetNotificationsByUserId(owner.Id)
+	notifications, err := db.SelectNotificationsByUserId(owner.Id)
 	if err != nil {
 		t.Fatalf("GetNotificationsByUserId() error: %v", err)
 	}
@@ -145,7 +147,7 @@ func TestCreateReactionNotificationComment(t *testing.T) {
 		t.Fatalf("CreateReactionNotification() error: %v", err)
 	}
 
-	notifications, err := db.GetNotificationsByUserId(owner.Id)
+	notifications, err := db.SelectNotificationsByUserId(owner.Id)
 	if err != nil {
 		t.Fatalf("GetNotificationsByUserId() error: %v", err)
 	}

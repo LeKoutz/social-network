@@ -7,7 +7,7 @@ import (
 
 type CategoriesRowsType []CategoryRowType
 
-func GetAllCategories() (CategoriesRowsType, error) {
+func SelectAllCategories() (CategoriesRowsType, error) {
 	rows, err := db.Query(`SELECT id, name, description FROM categories`)
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)
@@ -27,7 +27,7 @@ func GetAllCategories() (CategoriesRowsType, error) {
 	return categories, nil
 }
 
-func GetCategoriesByPostId(post_id int64) (CategoriesRowsType, error) {
+func SelectCategoriesByPostId(post_id int64) (CategoriesRowsType, error) {
 	var categories CategoriesRowsType
 	var err error
 	rows, err := db.Query(`

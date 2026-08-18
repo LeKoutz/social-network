@@ -18,6 +18,7 @@ func setupTestCommentDB(t *testing.T) (UserType, PostType) {
 	user.Username = "commentauthor"
 	user.Email = "comment@test.com"
 	user.Hash = hash
+	user.Gender = "male"
 	if err := user.Add(); err != nil {
 		t.Fatalf("Failed to create test user: %v", err)
 	}
@@ -110,9 +111,9 @@ func TestCommentGetReactions(t *testing.T) {
 		t.Errorf("GetReactions() Dislikes = %d, want 0", c.Dislikes)
 	}
 
-	db.AddLikeToComment(user.Id, c.Id)
-	db.AddLikeToComment(99, c.Id)
-	db.AddDislikeToComment(user.Id, c.Id)
+	db.InsertLikeToComment(user.Id, c.Id)
+	db.InsertLikeToComment(99, c.Id)
+	db.InsertDislikeToComment(user.Id, c.Id)
 
 	c.Likes = 0
 	c.Dislikes = 0
@@ -145,7 +146,7 @@ func TestCommentGetReactionsByUserId(t *testing.T) {
 		t.Error("GetReactionsByUserId() should return false before any reactions")
 	}
 
-	db.AddLikeToComment(user.Id, c.Id)
+	db.InsertLikeToComment(user.Id, c.Id)
 	c.Liked = false
 	c.Disliked = false
 	err = c.GetReactionsByUserId(user.Id)
@@ -156,8 +157,8 @@ func TestCommentGetReactionsByUserId(t *testing.T) {
 		t.Error("GetReactionsByUserId() should return true for Liked")
 	}
 
-	db.RemoveReaction(c.Id)
-	db.AddDislikeToComment(user.Id, c.Id)
+	db.DeleteReactionById(c.Id)
+	db.InsertDislikeToComment(user.Id, c.Id)
 	c.Liked = false
 	c.Disliked = false
 	err = c.GetReactionsByUserId(user.Id)

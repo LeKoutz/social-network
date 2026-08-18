@@ -10,7 +10,7 @@ type PostCategoryRow struct {
 	CategoryId int64
 }
 
-func AddPostCategory(pc PostCategoryRow) error {
+func InsertPostCategory(pc PostCategoryRow) error {
 	stmt, err := db.Prepare("INSERT INTO posts_categories (post_id, category_id) VALUES (?, ?)")
 	if err != nil {
 		err = errors.Join(utils.GetFunctionName(), err)

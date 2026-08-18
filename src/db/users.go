@@ -79,7 +79,7 @@ func GetAllUsers() ([]UserRowType, error) {
 
 // GetUsersForPanel retrieves all users from the database, excluding the current user, and returns them as a slice of User structs.
 // It also retrieves the timestamp of the last message sent or received by each user.
-func GetUsersForPanel(currentUserId int64) ([]UserRowType, error) {
+func SelectUsersForPanel(currentUserId int64) ([]UserRowType, error) {
 	rows, err := db.Query(`
 	SELECT
 		u.id,

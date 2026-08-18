@@ -7,7 +7,7 @@ import (
 
 type NotificationRowsType []NotificationRowType
 
-func GetNotificationsByUserId(userId int64) (NotificationRowsType, error) {
+func SelectNotificationsByUserId(userId int64) (NotificationRowsType, error) {
 	var notifications NotificationRowsType
 	rows, err := db.Query(`
 	SELECT n.id, n.user_id, n.actor_id, n.type, n.post_id, comment_id, n.timestamp, n."read", u.username

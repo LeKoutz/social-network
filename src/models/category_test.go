@@ -204,9 +204,9 @@ func TestCategoryGetCategoriesByPostId(t *testing.T) {
 	}
 	post.Add()
 
-	db.AddPostCategory(db.PostCategoryRow{PostId: post.Id, CategoryId: cat2.Id})
+	db.InsertPostCategory(db.PostCategoryRow{PostId: post.Id, CategoryId: cat2.Id})
 
-	categories, err := db.GetCategoriesByPostId(post.Id)
+	categories, err := db.SelectCategoriesByPostId(post.Id)
 	if err != nil {
 		t.Fatalf("GetCategoriesByPostId() error: %v", err)
 	}

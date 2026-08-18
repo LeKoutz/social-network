@@ -6,7 +6,7 @@ import (
 	"forum/src/utils"
 )
 
-func CheckIfUserLikedPost(userId, postId int64) (int64, error) {
+func SelectUserLikeFromPost(userId, postId int64) (int64, error) {
 	var existingReactionId int64
 	err := db.QueryRow(`
 		SELECT id FROM reactions
@@ -19,7 +19,7 @@ func CheckIfUserLikedPost(userId, postId int64) (int64, error) {
 	return existingReactionId, nil
 }
 
-func AddLikeToPost(userId, postId int64) error {
+func InsertLikeToPost(userId, postId int64) error {
 	_, err := db.Exec(`
 		INSERT INTO reactions (user_id, post_id, value, timestamp)
 		VALUES (?, ?, 1, ?)
@@ -30,18 +30,7 @@ func AddLikeToPost(userId, postId int64) error {
 	return nil
 }
 
-func RemoveLikeFromPost(userId, postId int64) error {
-	_, err := db.Exec(`
-		DELETE FROM reactions
-		WHERE user_id = ? AND post_id = ? AND value = 1
-		`, userId, postId)
-	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
-	}
-	return nil
-}
-
-func CheckIfUserLikedComment(userId, commentId int64) (int64, error) {
+func SelectUserLikeFromComment(userId, commentId int64) (int64, error) {
 	var existingReactionId int64
 	err := db.QueryRow(`
 		SELECT id FROM reactions
@@ -54,7 +43,7 @@ func CheckIfUserLikedComment(userId, commentId int64) (int64, error) {
 	return existingReactionId, nil
 }
 
-func AddLikeToComment(userId, commentId int64) error {
+func InsertLikeToComment(userId, commentId int64) error {
 	_, err := db.Exec(`
 		INSERT INTO reactions (user_id, comment_id, value, timestamp)
 		VALUES (?, ?, 1, ?)

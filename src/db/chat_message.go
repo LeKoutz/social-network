@@ -16,7 +16,7 @@ type ChatMessageRowType struct {
 	SenderUsername  string
 }
 
-func (msg *ChatMessageRowType) Add() (int64, error) {
+func (msg *ChatMessageRowType) InsertMessage() (int64, error) {
 	stmt, err := db.Prepare("INSERT INTO messages (sender_id, recipient_id, body, timestamp) VALUES (?, ?, ?, ?)")
 	if err != nil {
 		if config.Debug {
@@ -41,7 +41,7 @@ func (msg *ChatMessageRowType) Add() (int64, error) {
 	return msgId, nil
 }
 
-func (msg *ChatMessageRowType) MarkAsRead() error {
+func (msg *ChatMessageRowType) UpdateMessageAsRead() error {
 	_, err := db.Exec(`UPDATE messages SET read = 1 WHERE id = ?`, msg.Id)
 	if err != nil {
 		if config.Debug {
