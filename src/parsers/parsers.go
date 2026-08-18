@@ -146,8 +146,20 @@ func ParseCreatePostRequest(data state.StateHandler) error {
 		return err
 	}
 	data.EditPost().UserId = data.EditUser().Id
-	data.EditPost().Title = data.GetRequest().FormValue("title")
-	data.EditPost().Body = data.GetRequest().FormValue("body")
+	title := data.GetRequest().FormValue("title")
+	if len(title) == 0 {
+		err = ferror.ErrorPostTitleEmpty
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
+	body := data.GetRequest().FormValue("body")
+	if len(body) == 0 {
+		err = ferror.ErrorPostBodyEmpty
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
+	data.EditPost().Title = title
+	data.EditPost().Body = body
 	err = categories.GetAll()
 	if err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
@@ -159,6 +171,11 @@ func ParseCreatePostRequest(data state.StateHandler) error {
 		if data.GetRequest().FormValue(cc) == "on" {
 			post_cat = append(post_cat, category)
 		}
+	}
+	if len(post_cat) == 0 {
+		err = ferror.ErrorPostHasNoCategory
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	data.EditPost().Categories = post_cat
 	imageFile, _, err := data.GetRequest().FormFile("image")
