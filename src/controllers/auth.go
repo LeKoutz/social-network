@@ -15,7 +15,8 @@ func Auth(identifier, password string) error {
 		return ferror.ErrorNotRegistered
 	}
 	var user models.UserType
-	err = user.SelectUserPasswordByIdentifier(identifier)
+	user.Identifier = identifier
+	err = user.GetUserPasswordByIdentifier()
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}

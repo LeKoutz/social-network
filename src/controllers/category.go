@@ -8,7 +8,7 @@ import (
 
 func ShowCategory(data state.StateController) error {
 	var err error
-	err = data.EditCategory().SelectCategoryById()
+	err = data.EditCategory().GetById()
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}

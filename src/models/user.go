@@ -597,3 +597,13 @@ func (u *UserType) CountUnreadNotifications() {
 		}
 	}
 }
+
+func (u *UserType) GetById() error {
+	var err error
+	err = u.SelectUserById()
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
+	return nil
+}

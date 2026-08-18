@@ -160,3 +160,19 @@ func (p *PostType) Update() error {
 	}
 	return nil
 }
+
+func (p *PostType) GetById() error {
+	var err error
+	err = p.SelectPostById()
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
+	t, err := utils.ConvertStringToTime(p.TimestampString)
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
+	p.TimestampString = utils.ConvertTimeToString(t)
+	return nil
+}

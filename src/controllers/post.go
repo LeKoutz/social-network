@@ -40,7 +40,7 @@ func CreatePost(data state.StateController) error {
 
 func getPostDataById(data state.StateController) error {
 	var err error
-	err = data.EditPost().SelectPostById()
+	err = data.EditPost().GetById()
 	if err != nil {
 		if err == ferror.ErrorNoRows {
 			return ferror.ErrorContentNotFound
@@ -48,7 +48,7 @@ func getPostDataById(data state.StateController) error {
 		return errors.Join(utils.GetFunctionName(), err)
 	}
 	data.EditPost().User.Id = data.GetPost().UserId
-	err = data.EditPost().User.SelectUserById()
+	err = data.EditPost().User.GetById()
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}
@@ -86,7 +86,7 @@ func getPostDataById(data state.StateController) error {
 
 func ShowEditPost(data state.StateController) error {
 	var err error
-	err = data.EditPost().SelectPostById()
+	err = data.EditPost().GetById()
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}
@@ -153,7 +153,7 @@ func DislikePost(data state.StateController) error {
 
 func PostReaction(data state.StateController) error {
 	var err error
-	err = data.EditPost().SelectPostById()
+	err = data.EditPost().GetById()
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}
@@ -169,7 +169,7 @@ func PostReaction(data state.StateController) error {
 
 func RemovePost(data state.StateController) error {
 	var err error
-	err = data.EditPost().SelectPostById()
+	err = data.EditPost().GetById()
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}
