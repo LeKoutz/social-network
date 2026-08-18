@@ -25,6 +25,7 @@ func createTestUser(t *testing.T, username, email, password string) UserType {
 	user.Username = username
 	user.Email = email
 	user.Hash = hash
+	user.Gender = "male"
 	if err := user.Add(); err != nil {
 		t.Fatalf("Failed to create test user: %v", err)
 	}
@@ -103,6 +104,7 @@ func TestUserAdd(t *testing.T) {
 		username string
 		email    string
 		password string
+		gender	 string
 		wantErr  error
 	}{
 		{
@@ -110,6 +112,7 @@ func TestUserAdd(t *testing.T) {
 			username: "testuser",
 			email:    "test@example.com",
 			password: "password123",
+			gender:   "male",
 			wantErr:  nil,
 		},
 		{
@@ -117,6 +120,7 @@ func TestUserAdd(t *testing.T) {
 			username: "anotheruser",
 			email:    "test@example.com",
 			password: "password123",
+			gender:   "male",
 			wantErr:  ferror.ErrorEmailIsRegistered,
 		},
 		{
@@ -124,6 +128,7 @@ func TestUserAdd(t *testing.T) {
 			username: "ab",
 			email:    "short@example.com",
 			password: "password123",
+			gender:   "male",
 			wantErr:  ferror.ErrorInvalidUsername,
 		},
 	}
@@ -134,6 +139,7 @@ func TestUserAdd(t *testing.T) {
 			u.Username = tt.username
 			u.Email = tt.email
 			u.Hash = hash
+			u.Gender = tt.gender
 			err := u.Add()
 			if tt.wantErr != nil {
 				if err == nil {
@@ -155,6 +161,7 @@ func TestUserAddOAuth(t *testing.T) {
 	user.Username = "oauthuser"
 	user.Email = "oauth@test.com"
 	user.OAuthProvider = "google"
+	user.Gender = "other"
 	err := user.AddOAuth()
 	if err != nil {
 		t.Fatalf("AddOAuth() unexpected error: %v", err)
@@ -169,6 +176,7 @@ func TestUserAddOAuth(t *testing.T) {
 	user2.Username = "oauthuser"
 	user2.Email = "oauth2@test.com"
 	user2.OAuthProvider = "google"
+	user2.Gender = "other"
 	err = user2.AddOAuth()
 	if err == nil {
 		t.Error("AddOAuth() should fail for duplicate username")
@@ -306,7 +314,7 @@ func TestHasUserLikedPost(t *testing.T) {
 		t.Error("HasUserLikedPost() should return false initially")
 	}
 
-	db.AddLikeToPost(user.Id, post.Id)
+	db.InsertLikeToPost(user.Id, post.Id)
 
 	liked, err = HasUserLikedPost(user.Id, post.Id)
 	if err != nil {
@@ -341,7 +349,7 @@ func TestHasUserDislikedPost(t *testing.T) {
 		t.Error("HasUserDislikedPost() should return false initially")
 	}
 
-	db.AddDislikeToPost(user.Id, post.Id)
+	db.InsertDislikeToPost(user.Id, post.Id)
 
 	disliked, err = HasUserDislikedPost(user.Id, post.Id)
 	if err != nil {
@@ -382,7 +390,7 @@ func TestHasUserLikedComment(t *testing.T) {
 		t.Error("HasUserLikedComment() should return false initially")
 	}
 
-	db.AddLikeToComment(user.Id, comment.Id)
+	db.InsertLikeToComment(user.Id, comment.Id)
 
 	liked, err = HasUserLikedComment(user.Id, comment.Id)
 	if err != nil {
@@ -423,7 +431,7 @@ func TestHasUserDislikedComment(t *testing.T) {
 		t.Error("HasUserDislikedComment() should return false initially")
 	}
 
-	db.AddDislikeToComment(user.Id, comment.Id)
+	db.InsertDislikeToComment(user.Id, comment.Id)
 
 	disliked, err = HasUserDislikedComment(user.Id, comment.Id)
 	if err != nil {
@@ -487,6 +495,7 @@ func TestUserGetUserByOAuthProviderAndEmail(t *testing.T) {
 	user.Username = "oauthlookup"
 	user.Email = "oauthlookup@test.com"
 	user.OAuthProvider = "google"
+	user.Gender = "other"
 	user.AddOAuth()
 
 	u := &UserType{}

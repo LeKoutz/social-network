@@ -5,7 +5,7 @@ import (
 	"forum/src/utils"
 )
 
-func GetAllUsernames() ([]string, error) {
+func SelectAllUsernames() ([]string, error) {
 	rows, err := db.Query(`SELECT username FROM users`)
 	if err != nil {
 		if config.Debug {
@@ -29,7 +29,7 @@ func GetAllUsernames() ([]string, error) {
 	return usernames, nil
 }
 
-func GetAllUserEmails() ([]string, error) {
+func SelectAllUserEmails() ([]string, error) {
 	rows, err := db.Query(`SELECT email FROM users`)
 	if err != nil {
 		if config.Debug {
@@ -53,7 +53,7 @@ func GetAllUserEmails() ([]string, error) {
 	return emails, nil
 }
 
-func GetAllUsers() ([]UserRowType, error) {
+func SelectAllUsers() ([]UserRowType, error) {
 	rows, err := db.Query(`SELECT id, username FROM users`)
 	if err != nil {
 		if config.Debug {
@@ -79,7 +79,7 @@ func GetAllUsers() ([]UserRowType, error) {
 
 // GetUsersForPanel retrieves all users from the database, excluding the current user, and returns them as a slice of User structs.
 // It also retrieves the timestamp of the last message sent or received by each user.
-func GetUsersForPanel(currentUserId int64) ([]UserRowType, error) {
+func SelectUsersForPanel(currentUserId int64) ([]UserRowType, error) {
 	rows, err := db.Query(`
 	SELECT
 		u.id,

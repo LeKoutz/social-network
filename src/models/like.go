@@ -7,41 +7,45 @@ import (
 )
 
 func (user *UserType) LikeComment(commentId int64) error {
-	alreadyLiked, err := HasUserLikedComment(user.Id, commentId)
+	likeId , err := db.SelectUserLikeFromComment(user.Id, commentId)
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}
-	if alreadyLiked {
-		return db.RemoveLikeFromComment(user.Id, commentId)
+	if likeId != 0 {
+		return db.DeleteReactionById(likeId)
 	}
-	existingDislikeId, err := db.CheckIfUserDislikedComment(user.Id, commentId)
+	existingDislikeId, err := db.SelectUserDislikeFromComment(user.Id, commentId)
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}
 	if existingDislikeId != 0 {
-		if err = db.RemoveReaction(existingDislikeId); err != nil {
-			return errors.Join(utils.GetFunctionName(), err)
+		err = db.DeleteReactionById(existingDislikeId)
+		if err != nil {
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+			return err
 		}
 	}
-	return db.AddLikeToComment(user.Id, commentId)
+	return db.InsertLikeToComment(user.Id, commentId)
 }
 
 func (user *UserType) LikePost(postId int64) error {
-	alreadyLiked, err := HasUserLikedPost(user.Id, postId)
+	likeId, err := db.SelectUserLikeFromPost(user.Id, postId)
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}
-	if alreadyLiked {
-		return db.RemoveLikeFromPost(user.Id, postId)
+	if likeId != 0 {
+		return db.DeleteReactionById(likeId)
 	}
-	existingDislikeId, err := db.CheckIfUserDislikedPost(user.Id, postId)
+	existingDislikeId, err := db.SelectUserDislikeFromPost(user.Id, postId)
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}
 	if existingDislikeId != 0 {
-		if err = db.RemoveReaction(existingDislikeId); err != nil {
-			return errors.Join(utils.GetFunctionName(), err)
+		err = db.DeleteReactionById(existingDislikeId)
+		if err != nil {
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+			return err
 		}
 	}
-	return db.AddLikeToPost(user.Id, postId)
+	return db.InsertLikeToPost(user.Id, postId)
 }

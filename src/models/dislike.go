@@ -7,43 +7,43 @@ import (
 )
 
 func (user *UserType) DislikePost(postId int64) error {
-	dislikeId, err := db.CheckIfUserDislikedPost(user.Id, postId)
+	dislikeId, err := db.SelectUserDislikeFromPost(user.Id, postId)
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}
 	if dislikeId != 0 {
-		return db.RemoveDislikeFromPost(dislikeId)
+		return db.DeleteReactionById(dislikeId)
 	}
-	existingLikeId, err := db.CheckIfUserLikedPost(user.Id, postId)
+	existingLikeId, err := db.SelectUserLikeFromPost(user.Id, postId)
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}
 	if existingLikeId != 0 {
-		err = db.RemoveLikeFromPost(user.Id, postId)
+		err = db.DeleteReactionById(existingLikeId)
 		if err != nil {
 			return errors.Join(utils.GetFunctionName(), err)
 		}
 	}
-	return db.AddDislikeToPost(user.Id, postId)
+	return db.InsertDislikeToPost(user.Id, postId)
 }
 
 func (user *UserType) DislikeComment(commentId int64) error {
-	dislikeId, err := db.CheckIfUserDislikedComment(user.Id, commentId)
+	dislikeId, err := db.SelectUserDislikeFromComment(user.Id, commentId)
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}
 	if dislikeId != 0 {
-		return db.RemoveReaction(dislikeId)
+		return db.DeleteReactionById(dislikeId)
 	}
-	existingLikeId, err := db.CheckIfUserLikedComment(user.Id, commentId)
+	existingLikeId, err := db.SelectUserLikeFromComment(user.Id, commentId)
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}
 	if existingLikeId != 0 {
-		err = db.RemoveReaction(existingLikeId)
+		err = db.DeleteReactionById(existingLikeId)
 		if err != nil {
 			return errors.Join(utils.GetFunctionName(), err)
 		}
 	}
-	return db.AddDislikeToComment(user.Id, commentId)
+	return db.InsertDislikeToComment(user.Id, commentId)
 }

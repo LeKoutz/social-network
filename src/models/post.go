@@ -51,7 +51,7 @@ func (p *PostType) Add() error {
 		return err
 	}
 	for _, category := range p.Categories {
-		err = db.AddPostCategory(db.PostCategoryRow{
+		err = db.InsertPostCategory(db.PostCategoryRow{
 			PostId:     p.Id,
 			CategoryId: category.Id,
 		})
@@ -65,11 +65,11 @@ func (p *PostType) Add() error {
 
 func (p *PostType) GetReactions() error {
 	var err error
-	p.Likes, err = db.GetLikesCountByPostId(p.Id)
+	p.Likes, err = db.SelectLikesCountByPostId(p.Id)
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}
-	p.Dislikes, err = db.GetDislikesCountByPostId(p.Id)
+	p.Dislikes, err = db.SelectDislikesCountByPostId(p.Id)
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}
@@ -147,7 +147,7 @@ func (p *PostType) Update() error {
 		return err
 	}
 	for _, category := range p.Categories {
-		err = db.AddPostCategory(db.PostCategoryRow{
+		err = db.InsertPostCategory(db.PostCategoryRow{
 			PostId:     p.Id,
 			CategoryId: category.Id,
 		})

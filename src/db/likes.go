@@ -5,7 +5,7 @@ import (
 	utils "forum/src/utils"
 )
 
-func GetLikesCountByPostId(postId int64) (int64, error) {
+func SelectLikesCountByPostId(postId int64) (int64, error) {
 	var likes int64
 	err := db.QueryRow(`
         SELECT COUNT(*)
@@ -21,7 +21,7 @@ func GetLikesCountByPostId(postId int64) (int64, error) {
 	return likes, nil
 }
 
-func GetLikesCountByCommentId(commentId int64) (int64, error) {
+func SelectLikesCountByCommentId(commentId int64) (int64, error) {
 	var likes int64
 	err := db.QueryRow(`
         SELECT COUNT(*)

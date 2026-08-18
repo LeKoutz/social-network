@@ -13,7 +13,7 @@ type ReactionRowType struct {
 	TimestampString string
 }
 
-func RemoveReaction(reactionId int64) error {
+func DeleteReactionById(reactionId int64) error {
 	_, err := db.Exec(`
 		DELETE FROM reactions
 		WHERE id = ?

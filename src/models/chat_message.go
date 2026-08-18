@@ -7,9 +7,9 @@ type ChatMessageType struct {
 }
 
 func (m *ChatMessageType) Add() (int64, error) {
-	return m.Add()
+	return m.InsertMessage()
 }
 
 func (m *ChatMessageType) MarkAsRead() error {
-	return m.MarkAsRead()
+	return m.UpdateMessageAsRead()
 }

@@ -6,7 +6,7 @@ import (
 	"forum/src/utils"
 )
 
-func CheckIfUserDislikedPost(userId, postId int64) (int64, error) {
+func SelectUserDislikeFromPost(userId, postId int64) (int64, error) {
 	var existingDislikeId int64
 	err := db.QueryRow(`
 		SELECT id FROM reactions
@@ -19,7 +19,7 @@ func CheckIfUserDislikedPost(userId, postId int64) (int64, error) {
 	return existingDislikeId, nil
 }
 
-func AddDislikeToPost(userId, postId int64) error {
+func InsertDislikeToPost(userId, postId int64) error {
 	_, err := db.Exec(`
 		INSERT INTO reactions (user_id, post_id, value, timestamp)
 		VALUES (?, ?, 2, ?)
@@ -30,18 +30,7 @@ func AddDislikeToPost(userId, postId int64) error {
 	return nil
 }
 
-func RemoveDislikeFromPost(dislikeId int64) error {
-	_, err := db.Exec(`
-		DELETE FROM reactions
-		WHERE id = ?
-		`, dislikeId)
-	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
-	}
-	return nil
-}
-
-func CheckIfUserDislikedComment(userId, commentId int64) (int64, error) {
+func SelectUserDislikeFromComment(userId, commentId int64) (int64, error) {
 	var existingDislikeId int64
 	err := db.QueryRow(`
 		SELECT id FROM reactions
@@ -54,7 +43,7 @@ func CheckIfUserDislikedComment(userId, commentId int64) (int64, error) {
 	return existingDislikeId, nil
 }
 
-func AddDislikeToComment(userId, commentId int64) error {
+func InsertDislikeToComment(userId, commentId int64) error {
 	_, err := db.Exec(`
 		INSERT INTO reactions (user_id, comment_id, value, timestamp)
 		VALUES (?, ?, 2, ?)

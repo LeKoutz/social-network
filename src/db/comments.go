@@ -7,7 +7,7 @@ import (
 
 type CommentRowsType []CommentRowType
 
-func GetCommentsByUserId(id int64) (CommentRowsType, error) {
+func SelectCommentsByUserId(id int64) (CommentRowsType, error) {
 	var comments CommentRowsType
 	rows, err := db.Query(`
 	SELECT id, post_id, body, timestamp, user_id

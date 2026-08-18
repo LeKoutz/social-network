@@ -9,7 +9,7 @@ func (u *UsersType) EditUsers() *UsersType {
 }
 
 func (u *UsersType) GetUsersForPanel(currentUserId int64) error {
-	users, err := db.GetUsersForPanel(currentUserId)
+	users, err := db.SelectUsersForPanel(currentUserId)
 	if err != nil {
 		return err
 	}

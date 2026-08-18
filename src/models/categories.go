@@ -12,7 +12,7 @@ type CategoriesType []CategoryType
 func (c *CategoriesType) GetAll() error {
 	var categories CategoriesType
 	var err error
-	rows, err := db.GetAllCategories()
+	rows, err := db.SelectAllCategories()
 	if err != nil {
 		return errors.Join(utils.GetFunctionName(), err)
 	}
@@ -34,7 +34,7 @@ func (c *CategoriesType) IsEmpty() bool {
 
 func (p *PostType) GetCategories() error {
 	var categories CategoriesType
-	rows, err := db.GetCategoriesByPostId(p.PostRowType.Id)
+	rows, err := db.SelectCategoriesByPostId(p.PostRowType.Id)
 	if err != nil {
 		if config.Debug {
 			err = errors.Join(utils.GetFunctionName(), err)

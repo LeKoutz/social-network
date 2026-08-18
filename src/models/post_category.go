@@ -7,5 +7,5 @@ type PostCategory struct {
 }
 
 func (pc *PostCategory) Add() error {
-	return db.AddPostCategory(pc.PostCategoryRow)
+	return db.InsertPostCategory(pc.PostCategoryRow)
 }
