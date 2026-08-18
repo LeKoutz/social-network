@@ -19,7 +19,8 @@ func RemoveReaction(reactionId int64) error {
 		WHERE id = ?
 		`, reactionId)
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	return nil
 }

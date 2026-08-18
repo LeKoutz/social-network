@@ -22,16 +22,19 @@ func ShowPosts(data state.StateController) error {
 	var err error
 	err = data.EditPosts().GetPosts()
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	for i := range *data.EditPosts() {
 		err = (*data.EditPosts())[i].GetReactions()
 		if err != nil {
-			return errors.Join(utils.GetFunctionName(), err)
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+			return err
 		}
 		err = (*data.EditPosts())[i].GetReactionsByUserId(data.GetUser().Id)
 		if err != nil {
-			return errors.Join(utils.GetFunctionName(), err)
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+			return err
 		}
 	}
 	// data.SetPosts(posts)

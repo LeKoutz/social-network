@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"encoding/json"
 	"forum/src/db"
 	"forum/src/ferror"
@@ -25,11 +26,13 @@ func (c *Client) ReadPump() {
 	for {
 		_, message, err := c.Conn.ReadMessage()
 		if err != nil {
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			(&ferror.Error{}).Consume(err).LogError()
 			break
 		}
 		var incoming WsMessage
 		if err := json.Unmarshal(message, &incoming); err != nil {
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			(&ferror.Error{}).Consume(err).LogError()
 			continue
 		}
@@ -40,6 +43,7 @@ func (c *Client) ReadPump() {
 				Body        string `json:"body"`
 			}
 			if err := json.Unmarshal(incoming.Payload, &p); err != nil {
+				if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 				(&ferror.Error{}).Consume(err).LogError()
 				continue
 			}
@@ -55,11 +59,13 @@ func (c *Client) ReadPump() {
 			}
 			msg.Id, err = msg.Add()
 			if err != nil {
+				if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 				(&ferror.Error{}).Consume(err).LogError()
 				continue
 			}
 			timestampTime, err := utils.ConvertStringToTime(msg.TimestampString)
 			if err != nil {
+				if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 				(&ferror.Error{}).Consume(err).LogError()
 				continue
 			}
@@ -68,10 +74,12 @@ func (c *Client) ReadPump() {
 		case "message-read":
 			message := ChatMessageType{}
 			if err := json.Unmarshal(incoming.Payload, &message); err != nil {
+				if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 				(&ferror.Error{}).Consume(err).LogError()
 				continue
 			}
 			if err := message.MarkAsRead(); err != nil {
+				if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 				(&ferror.Error{}).Consume(err).LogError()
 			}
 		}
@@ -83,6 +91,7 @@ func (c *Client) WritePump() {
 	for message := range c.Send {
 		err := c.Conn.WriteMessage(websocket.TextMessage, message)
 		if err != nil {
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			(&ferror.Error{}).Consume(err).LogError()
 			break
 		}

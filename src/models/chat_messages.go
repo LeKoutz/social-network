@@ -12,9 +12,7 @@ func (m *ChatMessagesType) GetUnreadMessageIds(userId int64) error {
 	var messages ChatMessagesType
 	rows, err := db.SelectUnreadMessageIds(userId)
 	if err != nil {
-		if config.Debug {
-			err = errors.Join(utils.GetFunctionName(), err)
-		}
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	for _, row := range rows {
@@ -30,9 +28,7 @@ func (m *ChatMessagesType) GetChatHistory(userId1, userId2, offset int64) error 
 	var messages ChatMessagesType
 	rows, err := db.SelectChatHistory(userId1, userId2, offset)
 	if err != nil {
-		if config.Debug {
-			err = errors.Join(utils.GetFunctionName(), err)
-		}
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	for _, row := range rows {

@@ -10,7 +10,8 @@ type PostRowsType []PostRowType
 func (posts *PostRowsType) SelectAllPosts() error {
 	rows, err := db.Query(`SELECT id, title, body, timestamp, image_path FROM posts`)
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
@@ -18,11 +19,13 @@ func (posts *PostRowsType) SelectAllPosts() error {
 		var ts string
 		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts, &post.ImagePath)
 		if err != nil {
-			return errors.Join(utils.GetFunctionName(), err)
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+			return err
 		}
 		t, err := utils.ConvertStringToTime(ts)
 		if err != nil {
-			return errors.Join(utils.GetFunctionName(), err)
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+			return err
 		}
 		post.TimestampString = utils.ConvertTimeToString(t)
 		*posts = append(*posts, post)
@@ -38,7 +41,8 @@ func (posts *PostRowsType) SelectPostsByCategoryId(id int64) error {
 	JOIN categories ON pc.category_id = categories.id
 	WHERE pc.category_id = ?`, id)
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
@@ -46,11 +50,13 @@ func (posts *PostRowsType) SelectPostsByCategoryId(id int64) error {
 		var ts string
 		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts, &post.ImagePath)
 		if err != nil {
-			return errors.Join(utils.GetFunctionName(), err)
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+			return err
 		}
 		t, err := utils.ConvertStringToTime(ts)
 		if err != nil {
-			return errors.Join(utils.GetFunctionName(), err)
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+			return err
 		}
 		post.TimestampString = utils.ConvertTimeToString(t)
 		*posts = append(*posts, post)

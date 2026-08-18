@@ -24,7 +24,8 @@ func (p *PostRowType) InsertPost() error {
 	`
 	stmt, err := db.Prepare(query)
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	res, err := stmt.Exec(
 		p.Title,
@@ -34,11 +35,13 @@ func (p *PostRowType) InsertPost() error {
 		utils.GetCurrentTimestamp(),
 	)
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	p.Id, err = res.LastInsertId()
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	return nil
 }
@@ -47,7 +50,8 @@ func (p *PostRowType) UpdatePost() error {
 	var err error
 	_, err = db.Exec("UPDATE posts SET title = ?, body = ?, image_path = ? WHERE id = ?", p.Title, p.Body, p.ImagePath, p.Id)
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	return nil
 }
@@ -67,10 +71,10 @@ func (p *PostRowType) SelectCommentsAndUsernameByPostId() (CommentRowsType, erro
 	ORDER BY c.timestamp ASC`, p.Id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return CommentRowsType{}, ferror.ErrorNoRows
-		} else {
-			return CommentRowsType{}, errors.Join(utils.GetFunctionName(), err)
+			err = ferror.ErrorNoRows
 		}
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return CommentRowsType{}, err
 	}
 	defer rows.Close()
 	var comments CommentRowsType
@@ -85,7 +89,7 @@ func (p *PostRowType) SelectCommentsAndUsernameByPostId() (CommentRowsType, erro
 			&comment.Username,
 		)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return CommentRowsType{}, err
 		}
 		comments = append(comments, comment)
@@ -96,37 +100,44 @@ func (p *PostRowType) SelectCommentsAndUsernameByPostId() (CommentRowsType, erro
 func (p *PostRowType) DeletePostById() error {
 	tx, err := db.Begin()
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	_, err = tx.Exec("DELETE FROM reactions WHERE post_id = ?", p.Id)
 	if err != nil {
 		tx.Rollback()
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	_, err = tx.Exec("DELETE FROM reactions WHERE comment_id IN (SELECT id FROM comments WHERE post_id = ?)", p.Id)
 	if err != nil {
 		tx.Rollback()
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	_, err = tx.Exec("DELETE FROM comments WHERE post_id = ?", p.Id)
 	if err != nil {
 		tx.Rollback()
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	_, err = tx.Exec("DELETE FROM posts_categories WHERE post_id = ?", p.Id)
 	if err != nil {
 		tx.Rollback()
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	_, err = tx.Exec("DELETE FROM posts WHERE id = ?", p.Id)
 	if err != nil {
 		tx.Rollback()
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	_, err = tx.Exec("DELETE FROM notifications WHERE post_id = ?", p.Id)
 	if err != nil {
 		tx.Rollback()
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	return tx.Commit()
 }
@@ -139,10 +150,10 @@ func (p *PostRowType) SelectPostById() error {
 	err := db.QueryRow(query, p.Id).Scan(&p.Title, &p.Body, &p.ImagePath, &p.TimestampString, &p.UserId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return errors.Join(utils.GetFunctionName(), ferror.ErrorNoRows)
-		} else {
-			return errors.Join(utils.GetFunctionName(), err)
+			err = ferror.ErrorNoRows
 		}
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	// p.User, err = getUserById(p.UserId)
 	// if err != nil {

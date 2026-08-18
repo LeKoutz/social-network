@@ -14,7 +14,8 @@ func (c *CategoriesType) GetAll() error {
 	var err error
 	rows, err := db.GetAllCategories()
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	for _, row := range rows {
 		var category CategoryType
@@ -36,9 +37,7 @@ func (p *PostType) GetCategories() error {
 	var categories CategoriesType
 	rows, err := db.GetCategoriesByPostId(p.PostRowType.Id)
 	if err != nil {
-		if config.Debug {
-			err = errors.Join(utils.GetFunctionName(), err)
-		}
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	for _, row := range rows {

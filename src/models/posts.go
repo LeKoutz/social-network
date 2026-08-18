@@ -14,7 +14,7 @@ func (p *PostsType) GetPostsByCategoryId(id int64) error {
 	var rows db.PostRowsType
 	err = rows.SelectPostsByCategoryId(id)
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	for _, row := range rows {
@@ -32,7 +32,7 @@ func (p *PostsType) GetPosts() error {
 	var rows db.PostRowsType
 	err = rows.SelectAllPosts()
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	for _, row := range rows {

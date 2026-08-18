@@ -12,19 +12,23 @@ import (
 func Auth(identifier, password string) error {
 	var err error
 	if !models.IsEmailRegistered(identifier) && !models.IsUsernameRegistered(identifier) {
-		return ferror.ErrorNotRegistered
+		err = ferror.ErrorNotRegistered
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	var user models.UserType
 	err = user.SelectUserPasswordByIdentifier(identifier)
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(user.Hash), []byte(password))
 	if err != nil {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
-			return ferror.ErrorWrongPassword
+			err = ferror.ErrorWrongPassword
 		}
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	return nil
 }

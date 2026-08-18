@@ -21,11 +21,13 @@ func (n *NotificationRowType) InsertNotification() error {
 	query := `INSERT INTO notifications (user_id, actor_id, type, post_id, comment_id, timestamp) VALUES (?, ?, ?, ?, ?, ?)`
 	res, err := db.Exec(query, n.UserId, n.ActorId, n.Type, n.PostId, n.CommentId, n.TimestampString)
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	n.Id, err = res.LastInsertId()
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	return nil
 }
@@ -33,11 +35,13 @@ func (n *NotificationRowType) InsertNotification() error {
 func (u *UserRowType) UpdateNotificationAsRead(notificationId int64) error {
 	stmt, err := db.Prepare(`UPDATE notifications SET "read" = 1 WHERE id = ? AND user_id = ?`)
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	_, err = stmt.Exec(notificationId, u.Id)
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	return nil
 }

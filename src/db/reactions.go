@@ -16,14 +16,16 @@ func (reaction_rows *ReactionRowsType) SelectPostLikesByUserId(id int64) error {
 	WHERE user_id = ? AND value=1 AND post_id IS NOT NULL
 	`, id)
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var reaction ReactionRowType
 		err = rows.Scan(&reaction.Id, &reaction.PostId, &reaction.UserId, &reaction.TimestampString)
 		if err != nil {
-			return errors.Join(utils.GetFunctionName(), err)
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+			return err
 		}
 		*reaction_rows = append(*reaction_rows, reaction)
 	}
@@ -38,7 +40,7 @@ func SelectPostDislikesByUserId(id int64) (ReactionRowsType, error) {
 	WHERE user_id = ? AND value=2 AND post_id IS NOT NULL
 	`, id)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return ReactionRowsType{}, err
 	}
 	defer rows.Close()
@@ -46,7 +48,7 @@ func SelectPostDislikesByUserId(id int64) (ReactionRowsType, error) {
 		var reaction ReactionRowType
 		err = rows.Scan(&reaction.Id, &reaction.PostId, &reaction.UserId, &reaction.TimestampString)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return ReactionRowsType{}, err
 		}
 		reactions = append(reactions, reaction)
@@ -62,7 +64,7 @@ func SelectCommentLikesByUserId(id int64) (ReactionRowsType, error) {
 	WHERE user_id = ? AND value=1 AND comment_id IS NOT NULL
 	`, id)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return ReactionRowsType{}, err
 	}
 	defer rows.Close()
@@ -70,7 +72,7 @@ func SelectCommentLikesByUserId(id int64) (ReactionRowsType, error) {
 		var reaction ReactionRowType
 		err = rows.Scan(&reaction.Id, &reaction.CommentId, &reaction.UserId, &reaction.TimestampString)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return ReactionRowsType{}, err
 		}
 		reactions = append(reactions, reaction)
@@ -86,7 +88,7 @@ func SelectCommentDislikesByUserId(id int64) (ReactionRowsType, error) {
 	WHERE user_id = ? AND value=2 AND comment_id IS NOT NULL
 	`, id)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return ReactionRowsType{}, err
 	}
 	defer rows.Close()
@@ -94,7 +96,7 @@ func SelectCommentDislikesByUserId(id int64) (ReactionRowsType, error) {
 		var reaction ReactionRowType
 		err = rows.Scan(&reaction.Id, &reaction.CommentId, &reaction.UserId, &reaction.TimestampString)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return ReactionRowsType{}, err
 		}
 		reactions = append(reactions, reaction)

@@ -18,7 +18,12 @@ func CreateNotification(notification NotificationType) error {
 		return nil
 	}
 	notification.TimestampString = utils.GetCurrentTimestamp()
-	return notification.InsertNotification()
+	err := notification.InsertNotification()
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
+	return nil
 }
 
 func (user *UserType) MarkAsReadPost(post PostType) error {
@@ -26,7 +31,8 @@ func (user *UserType) MarkAsReadPost(post PostType) error {
 		if notification.PostId == post.Id && !notification.Read {
 			err := user.UpdateNotificationAsRead(notification.Id)
 			if err != nil {
-				return errors.Join(utils.GetFunctionName(), err)
+				if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+				return err
 			}
 			user.Notifications[i].Read = true
 			user.UnreadNotificationsCount--

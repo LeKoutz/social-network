@@ -13,14 +13,14 @@ func (u *UserType) GetCommentsByUserId() (CommentsType, error) {
 	var err error
 	rows, err := db.GetCommentsByUserId(u.Id)
 	if err != nil {
-		if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return CommentsType{}, err
 	}
 	for _, row := range rows {
 		var comment CommentType
 		t, err := utils.ConvertStringToTime(row.TimestampString)
 		if err != nil {
-			if config.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return CommentsType{}, err
 		}
 		row.TimestampString = utils.ConvertTimeToString(t)

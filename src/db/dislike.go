@@ -13,7 +13,7 @@ func CheckIfUserDislikedPost(userId, postId int64) (int64, error) {
 		WHERE user_id = ? AND post_id = ? AND value = 2
 		`, userId, postId).Scan(&existingDislikeId)
 	if err != nil && err != sql.ErrNoRows {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return 0, err
 	}
 	return existingDislikeId, nil
@@ -25,7 +25,8 @@ func AddDislikeToPost(userId, postId int64) error {
 		VALUES (?, ?, 2, ?)
 		`, userId, postId, utils.GetCurrentTimestamp())
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	return nil
 }
@@ -48,7 +49,7 @@ func CheckIfUserDislikedComment(userId, commentId int64) (int64, error) {
 		WHERE user_id = ? AND comment_id = ? AND value = 2
 		`, userId, commentId).Scan(&existingDislikeId)
 	if err != nil && err != sql.ErrNoRows {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return 0, err
 	}
 	return existingDislikeId, nil
@@ -60,7 +61,8 @@ func AddDislikeToComment(userId, commentId int64) error {
 		VALUES (?, ?, 2, ?)
 		`, userId, commentId, utils.GetCurrentTimestamp())
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	return nil
 }

@@ -11,7 +11,7 @@ import (
 func HandleServeUnreadMessages(data state.StateHandler) {
 	err := controllers.ServeUnreadMessages(data.(state.StateController))
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
@@ -21,7 +21,7 @@ func HandleServeUnreadMessages(data state.StateHandler) {
 func HandleShowChatHistory(data state.StateHandler) {
 	recipientId, offset, err := parsers.ParseChatId(data)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
@@ -29,7 +29,7 @@ func HandleShowChatHistory(data state.StateHandler) {
 	data.SetChatOffset(offset)
 	err = controllers.ShowChatHistory(data.(state.StateController))
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
