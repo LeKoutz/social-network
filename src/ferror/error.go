@@ -75,37 +75,39 @@ func (e *Error) Consume(err error) *Error {
 	e.Message = strings.ReplaceAll(err.Error(), "\n", ": ")
 	e.Error = err
 	e.Has = true
-	switch err {
-	case ErrorNotFound,
-		ErrorContentNotFound:
+
+	switch {
+	case errors.Is(err, ErrorNotFound),
+		errors.Is(err, ErrorContentNotFound):
 		e.StatusCode = http.StatusNotFound
 	case
-		ErrorUnauthorizedAction,
-		ErrorUserPermissionDenied,
-		ErrorCommentPermissionDenied,
-		ErrorPostPermissionDenied,
-		ErrorPermissionDenied:
+		errors.Is(err, ErrorUnauthorizedAction),
+		errors.Is(err, ErrorUserPermissionDenied),
+		errors.Is(err, ErrorCommentPermissionDenied),
+		errors.Is(err, ErrorPostPermissionDenied),
+		errors.Is(err, ErrorPermissionDenied):
 		e.StatusCode = http.StatusForbidden
-	case ErrorMethodNotAllowed:
+	case errors.Is(err, ErrorMethodNotAllowed):
 		e.StatusCode = http.StatusMethodNotAllowed
-	case ErrorPostEmptyId,
-		ErrorInvalidPostId,
-		ErrorInvalidCommentId,
-		ErrorInvalidCategoryId,
-		ErrorPostBodyEmpty,
-		ErrorPostTitleEmpty,
-		ErrorPostHasNoCategory,
-		ErrorCommentEmpty,
-		ErrorCommentTooLong,
-		ErrorCommentEmptyId,
-		ErrorCategoryEmptyId,
-		ErrorCategoryNameEmpty,
-		ErrorCategoryNameTooLong,
-		ErrorEmailFieldEmpty,
-		ErrorPasswordFieldEmpty,
-		ErrorBadRequest:
+	case
+		errors.Is(err, ErrorPostEmptyId),
+		errors.Is(err, ErrorInvalidPostId),
+		errors.Is(err, ErrorInvalidCommentId),
+		errors.Is(err, ErrorInvalidCategoryId),
+		errors.Is(err, ErrorPostBodyEmpty),
+		errors.Is(err, ErrorPostTitleEmpty),
+		errors.Is(err, ErrorPostHasNoCategory),
+		errors.Is(err, ErrorCommentEmpty),
+		errors.Is(err, ErrorCommentTooLong),
+		errors.Is(err, ErrorCommentEmptyId),
+		errors.Is(err, ErrorCategoryEmptyId),
+		errors.Is(err, ErrorCategoryNameEmpty),
+		errors.Is(err, ErrorCategoryNameTooLong),
+		errors.Is(err, ErrorEmailFieldEmpty),
+		errors.Is(err, ErrorPasswordFieldEmpty),
+		errors.Is(err, ErrorBadRequest):
 		e.StatusCode = http.StatusBadRequest
-	case ErrorInternalServerError:
+	case errors.Is(err, ErrorInternalServerError):
 		e.StatusCode = http.StatusInternalServerError
 	}
 	return e
