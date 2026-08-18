@@ -105,3 +105,13 @@ func (c *CommentType) Update() error {
 	}
 	return nil
 }
+
+func (c *CommentType) Delete() error {
+	var err error
+	err = c.DeleteCommentById()
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
+	return nil
+}

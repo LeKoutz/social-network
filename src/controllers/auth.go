@@ -17,7 +17,8 @@ func Auth(identifier, password string) error {
 		return err
 	}
 	var user models.UserType
-	err = user.SelectUserPasswordByIdentifier(identifier)
+	user.Identifier = identifier
+	err = user.GetUserPasswordByIdentifier()
 	if err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err

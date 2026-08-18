@@ -40,3 +40,13 @@ func (c *CategoryType) Add() error {
 	}
 	return c.InsertCategory()
 }
+
+func (c *CategoryType) GetById() error {
+	var err error
+	err = c.SelectCategoryById()
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
+	return nil
+}

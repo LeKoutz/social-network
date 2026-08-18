@@ -14,7 +14,7 @@ func CommentCreate(data state.StateController) error {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
-	err = data.EditPost().SelectPostById()
+	err = data.EditPost().GetById()
 	if err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
@@ -36,7 +36,7 @@ func CommentCreate(data state.StateController) error {
 
 func CommentReaction(data state.StateController) error {
 	var err error
-	err = data.EditComment().SelectCommentById()
+	err = data.EditComment().GetById()
 	if err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
@@ -76,13 +76,13 @@ func CommentReaction(data state.StateController) error {
 
 func CommentDelete(data state.StateController) error {
 	var err error
-	err = data.EditComment().SelectCommentById()
+	err = VerifyCommentOwnership(data)
 	if err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	data.EditPost().Id = data.GetComment().PostId
-	err = data.EditComment().DeleteCommentById()
+	err = data.EditComment().Delete()
 	if err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
@@ -111,7 +111,7 @@ func CommentEdit(data state.StateController) error {
 
 func VerifyCommentOwnership(data state.StateController) error {
 	var err error
-	err = data.EditComment().SelectCommentById()
+	err = data.EditComment().GetById()
 	if err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
