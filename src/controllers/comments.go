@@ -19,18 +19,11 @@ func CommentCreate(data state.StateController) error {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
-	//data.SetRedirect(GetRedirectLinkToCommentOfPost(data))
 	err = data.EditComment().CreateCommentNotification(data.GetPost())
 	if err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
-	// TODO Look at this
-	// data.SetResponse().Header().Set("Content-Type", "application/json")
-	// json.NewEncoder(data.Response).Encode(map[string]int64{
-	// 	"postId":    post.Id,
-	// 	"commentId": comment.Id,
-	// })
 	return nil
 }
 
@@ -70,7 +63,6 @@ func CommentReaction(data state.StateController) error {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
-	//data.SetRedirect(GetRedirectLinkToCommentOfPost(data))
 	return nil
 }
 
@@ -87,7 +79,6 @@ func CommentDelete(data state.StateController) error {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
-	//data.SetRedirect(GetRedirectLinkToPost(data))
 	return nil
 }
 
@@ -98,6 +89,7 @@ func CommentEdit(data state.StateController) error {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
+	data.EditPost().Id = data.GetComment().PostId
 	if data.GetRequest().FormValue("save-comment") == "1" {
 		err = UpdateCommentFromForm(data)
 		if err != nil {

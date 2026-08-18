@@ -5,7 +5,6 @@ import (
 	"forum/src/controllers"
 	"forum/src/state"
 	"forum/src/utils"
-	"net/http"
 )
 
 func HandleMarkAllNotificationsAsRead(data state.StateHandler) {
@@ -15,9 +14,5 @@ func HandleMarkAllNotificationsAsRead(data state.StateHandler) {
 		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
-	previousURL := data.GetRequest().Referer()
-	if previousURL == "" {
-		previousURL = "/"
-	}
-	http.Redirect(*data.EditResponse(), data.GetRequest(), previousURL, http.StatusSeeOther)
+	data.WriteResponse()
 }

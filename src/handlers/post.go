@@ -59,7 +59,6 @@ func HandlePostCreatePost(data state.StateHandler) {
 		return
 	}
 	data.WriteResponse()
-	// http.Redirect(*data.EditResponse(), data.GetRequest(), data.GetRedirect(), http.StatusSeeOther)
 }
 
 func HandlePostCreate(data state.StateHandler) {
@@ -108,8 +107,7 @@ func HandlePostEdit(data state.StateHandler) {
 			data.SetErrorConsume(err).WriteResponse()
 			return
 		}
-		utils.LogDebug(data)
-		http.Redirect(*data.EditResponse(), data.GetRequest(), data.GetRedirect(), http.StatusSeeOther)
+		data.WriteResponse()
 		return
 	default:
 		err = ferror.ErrorMethodNotAllowed
@@ -152,5 +150,5 @@ func HandlePostDelete(data state.StateHandler) {
 		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
-	http.Redirect(*data.EditResponse(), data.GetRequest(), data.GetRedirect(), http.StatusSeeOther)
+	data.WriteResponse()
 }

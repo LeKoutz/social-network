@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"errors"
-	"fmt"
 	"forum/src/ferror"
 	"forum/src/models"
 	"forum/src/state"
@@ -37,7 +36,6 @@ func CreatePost(data state.StateController) error {
 			return err
 		}
 	}
-	data.SetRedirect(fmt.Sprintf("/post/view/%d", data.GetPost().Id))
 	return nil
 }
 
@@ -157,8 +155,6 @@ func LikePost(data state.StateController) error {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
-	utils.LogDebug(data.GetPost().Id)
-	data.SetRedirect(fmt.Sprintf("/post/view/%d", data.GetPost().Id))
 	return data.EditPost().CreateReactionNotification(data.GetUser().Id, "like")
 }
 
@@ -169,7 +165,6 @@ func DislikePost(data state.StateController) error {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
-	data.SetRedirect(fmt.Sprintf("/post/view/%d", data.GetPost().Id))
 	return data.EditPost().CreateReactionNotification(data.GetUser().Id, "dislike")
 }
 

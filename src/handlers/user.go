@@ -25,7 +25,6 @@ func HandleUserLogin(data state.StateHandler) {
 			data.SetErrorConsume(err).WriteResponse()
 			return
 		}
-		// http.Redirect(*data.EditResponse(), data.GetRequest(), "/", http.StatusSeeOther)
 		data.WriteResponse()
 		return
 	case http.MethodGet:
