@@ -1,6 +1,10 @@
 package models
 
-import "forum/src/db"
+import (
+	"errors"
+	"forum/src/db"
+	"forum/src/utils"
+)
 
 type UsersType []UserType
 
@@ -11,6 +15,7 @@ func (u *UsersType) EditUsers() *UsersType {
 func (u *UsersType) GetUsersForPanel(currentUserId int64) error {
 	users, err := db.SelectUsersForPanel(currentUserId)
 	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	for _, user := range users {

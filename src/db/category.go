@@ -19,7 +19,8 @@ func (cr *CategoryRowType) SelectCategoryById() error {
 	query := `SELECT name, description FROM categories WHERE id = ?`
 	err = db.QueryRow(query, cr.Id).Scan(&cr.Name, &cr.Description)
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	return nil
 }
@@ -35,14 +36,16 @@ func (cr *CategoryRowType) InsertCategory() error {
 	if err != nil {
 		if sqliteErr, ok := err.(sqlite3.Error); ok {
 			if sqliteErr.Code == sqlite3.ErrConstraint && sqliteErr.ExtendedCode == sqlite3.ErrConstraintUnique {
-				return ferror.ErrorCategoryAlreadyExists
+				err = ferror.ErrorCategoryAlreadyExists
 			}
 		}
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	cr.Id, err = res.LastInsertId()
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	return nil
 }

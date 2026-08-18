@@ -9,14 +9,16 @@ import (
 func (user *UserType) LikeComment(commentId int64) error {
 	likeId , err := db.SelectUserLikeFromComment(user.Id, commentId)
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	if likeId != 0 {
 		return db.DeleteReactionById(likeId)
 	}
 	existingDislikeId, err := db.SelectUserDislikeFromComment(user.Id, commentId)
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	if existingDislikeId != 0 {
 		err = db.DeleteReactionById(existingDislikeId)
@@ -31,14 +33,16 @@ func (user *UserType) LikeComment(commentId int64) error {
 func (user *UserType) LikePost(postId int64) error {
 	likeId, err := db.SelectUserLikeFromPost(user.Id, postId)
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	if likeId != 0 {
 		return db.DeleteReactionById(likeId)
 	}
 	existingDislikeId, err := db.SelectUserDislikeFromPost(user.Id, postId)
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	if existingDislikeId != 0 {
 		err = db.DeleteReactionById(existingDislikeId)

@@ -19,15 +19,13 @@ func (c *CategoryType) IsEmpty() bool {
 func (c *CategoryType) ValidateCategory() error {
 	var err error
 	if len(c.Name) == 0 {
-		if config.Debug {
-			err = errors.Join(utils.GetFunctionName(), ferror.ErrorCategoryNameEmpty)
-		}
+		err = ferror.ErrorCategoryNameEmpty
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	if len(c.Name) >= 128 {
-		if config.Debug {
-			err = errors.Join(utils.GetFunctionName(), ferror.ErrorCategoryNameTooLong)
-		}
+		err = ferror.ErrorCategoryNameTooLong
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	return nil
@@ -37,7 +35,8 @@ func (c *CategoryType) Add() error {
 	var err error
 	err = c.ValidateCategory()
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	return c.InsertCategory()
 }

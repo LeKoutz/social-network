@@ -13,7 +13,7 @@ func SelectUserLikeFromPost(userId, postId int64) (int64, error) {
 		WHERE user_id = ? AND post_id = ? AND value = 1
 		`, userId, postId).Scan(&existingReactionId)
 	if err != nil && err != sql.ErrNoRows {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return 0, err
 	}
 	return existingReactionId, nil
@@ -25,7 +25,8 @@ func InsertLikeToPost(userId, postId int64) error {
 		VALUES (?, ?, 1, ?)
 		`, userId, postId, utils.GetCurrentTimestamp())
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	return nil
 }
@@ -37,7 +38,7 @@ func SelectUserLikeFromComment(userId, commentId int64) (int64, error) {
 		WHERE user_id = ? AND comment_id = ? AND value = 1
 		`, userId, commentId).Scan(&existingReactionId)
 	if err != nil && err != sql.ErrNoRows {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return 0, err
 	}
 	return existingReactionId, nil
@@ -49,7 +50,8 @@ func InsertLikeToComment(userId, commentId int64) error {
 		VALUES (?, ?, 1, ?)
 		`, userId, commentId, utils.GetCurrentTimestamp())
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	return nil
 }

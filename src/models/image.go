@@ -36,26 +36,26 @@ func isValidImageType(buf []byte) bool {
 func SaveImage(file multipart.File) (string, error) {
 	_, err := file.Seek(0, io.SeekStart)
 	if err != nil {
-		if config.Debug {
-			err = errors.Join(utils.GetFunctionName(), err)
-		}
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return "", err
 	}
 
 	fileBytes, err := io.ReadAll(file)
 	if err != nil {
-		if config.Debug {
-			err = errors.Join(utils.GetFunctionName(), err)
-		}
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return "", err
 	}
 
 	if len(fileBytes) > MaxImageSize {
-		return "", ferror.ErrorImageTooBig
+		err = ferror.ErrorImageTooBig
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return "", err
 	}
 
 	if !isValidImageType(fileBytes[:512]) {
-		return "", ferror.ErrorInvalidImageType
+		err = ferror.ErrorInvalidImageType
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return "", err
 	}
 
 	ext := getImageExtension(fileBytes)
@@ -64,27 +64,21 @@ func SaveImage(file multipart.File) (string, error) {
 	dir := filepath.Join("uploads", "images")
 	err = os.MkdirAll(dir, 0755)
 	if err != nil {
-		if config.Debug {
-			err = errors.Join(utils.GetFunctionName(), err)
-		}
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return "", err
 	}
 
 	dst := filepath.Join(dir, filename)
 	out, err := os.Create(dst)
 	if err != nil {
-		if config.Debug {
-			err = errors.Join(utils.GetFunctionName(), err)
-		}
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return "", err
 	}
 	defer out.Close()
 
 	_, err = out.Write(fileBytes)
 	if err != nil {
-		if config.Debug {
-			err = errors.Join(utils.GetFunctionName(), err)
-		}
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return "", err
 	}
 

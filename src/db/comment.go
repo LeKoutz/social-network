@@ -24,7 +24,8 @@ func (c *CommentRowType) InsertComment() error {
 	)
 	c.Id, err = res.LastInsertId()
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	return nil
 }
@@ -35,7 +36,8 @@ func (c *CommentRowType) SelectCommentById() error {
 		FROM comments
 		WHERE id = ?`, c.Id).Scan(&c.Id, &c.PostId, &c.UserId, &c.Body, &c.TimestampString)
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	return nil
 }
@@ -43,22 +45,26 @@ func (c *CommentRowType) SelectCommentById() error {
 func (c *CommentRowType) DeleteCommentById() error {
 	tx, err := db.Begin()
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	_, err = tx.Exec("DELETE FROM reactions WHERE comment_id = ?", c.Id)
 	if err != nil {
 		tx.Rollback()
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	_, err = tx.Exec("DELETE FROM comments WHERE id = ?", c.Id)
 	if err != nil {
 		tx.Rollback()
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	_, err = tx.Exec("DELETE FROM notifications WHERE comment_id = ?", c.Id)
 	if err != nil {
 		tx.Rollback()
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	return tx.Commit()
 }
@@ -66,7 +72,8 @@ func (c *CommentRowType) DeleteCommentById() error {
 func (c *CommentRowType) UpdateCommentById() error {
 	_, err := db.Exec("UPDATE comments SET body = ? WHERE id = ?", c.Body, c.Id)
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	return nil
 }

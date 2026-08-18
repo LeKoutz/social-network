@@ -15,13 +15,13 @@ func HandleUserLogin(data state.StateHandler) {
 	switch data.GetRequest().Method {
 	case http.MethodPost:
 		if err = parsers.ParseLoginForm(data); err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			data.SetErrorConsume(err).WriteResponse()
 			return
 		}
 		err = controllers.AttemptLogin(data.(state.StateController))
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			data.SetErrorConsume(err).WriteResponse()
 			return
 		}
@@ -32,7 +32,9 @@ func HandleUserLogin(data state.StateHandler) {
 		data.WriteResponse()
 		return
 	default:
-		data.SetErrorConsume(ferror.ErrorMethodNotAllowed).WriteResponse()
+		err = ferror.ErrorMethodNotAllowed
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
 }
@@ -41,7 +43,7 @@ func HandleUserLogout(data state.StateHandler) {
 	var err error
 	err = controllers.UserLogout(data.(state.StateController))
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
@@ -52,7 +54,7 @@ func HandleShowUserPosts(data state.StateHandler) {
 	var err error
 	err = controllers.GetUserPosts(data.(state.StateController))
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
@@ -63,7 +65,7 @@ func HandleShowUserLikedPosts(data state.StateHandler) {
 	var err error
 	err = controllers.GetUserLikedPosts(data.(state.StateController))
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
@@ -77,8 +79,9 @@ func HandleShowUserView(data state.StateHandler) {
 func HandleShowUserActivity(data state.StateHandler) {
 	err := controllers.GetUserActivity(data.(state.StateController))
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
-		data.SetErrorConsume(ferror.ErrorInternalServerError).WriteResponse()
+		err = ferror.ErrorInternalServerError
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
 	data.WriteResponse()
@@ -89,19 +92,21 @@ func HandleUserRegister(data state.StateHandler) {
 	case http.MethodPost:
 		err := parsers.ParseRegistrationForm(data)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			data.SetErrorConsume(err).WriteResponse()
 			return
 		}
 		err = controllers.AttemptRegister(data.(state.StateController))
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			data.SetErrorConsume(err).WriteResponse()
 			return
 		}
 		data.WriteResponse()
 	default:
-		data.SetErrorConsume(ferror.ErrorMethodNotAllowed).WriteResponse()
+		err := ferror.ErrorMethodNotAllowed
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		data.SetErrorConsume(err).WriteResponse()
 	}
 }
 
@@ -109,7 +114,7 @@ func HandleGetUsers(data state.StateHandler) {
 	var err error
 	err = controllers.GetUsersForPanel(data.(state.StateController))
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		data.SetErrorConsume(err).WriteResponse()
 		return
 	}

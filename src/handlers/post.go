@@ -15,13 +15,13 @@ func HandleShowPost(data state.StateHandler) {
 	var err error
 	data.EditPost().Id, err = parsers.ParsePostId(data)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
 	err = controllers.GetPost(data.(state.StateController))
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
@@ -31,7 +31,7 @@ func HandleShowPost(data state.StateHandler) {
 func HandlePostCreateGet(data state.StateHandler) {
 	err := (data.(state.StateController)).EditCategories().GetAll()
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
@@ -42,19 +42,19 @@ func HandlePostCreatePost(data state.StateHandler) {
 	var err error
 	err = parsers.ParseCreatePostRequest(data)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
 	err = data.GetRequest().ParseMultipartForm(models.MaxImageSize)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
 	err = controllers.CreatePost(data.(state.StateController))
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
@@ -81,7 +81,7 @@ func HandlePostEdit(data state.StateHandler) {
 	var err error
 	data.EditPost().Id, err = parsers.ParsePostId(data)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
@@ -89,7 +89,7 @@ func HandlePostEdit(data state.StateHandler) {
 	case http.MethodGet:
 		err = controllers.ShowEditPost(data.(state.StateController))
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			data.SetErrorConsume(err).WriteResponse()
 			return
 		}
@@ -98,13 +98,13 @@ func HandlePostEdit(data state.StateHandler) {
 	case http.MethodPost:
 		err = parsers.ParseCreatePostRequest(data)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			data.SetErrorConsume(err).WriteResponse()
 			return
 		}
 		err = controllers.UpdatePost(data.(state.StateController))
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			data.SetErrorConsume(err).WriteResponse()
 			return
 		}
@@ -112,7 +112,9 @@ func HandlePostEdit(data state.StateHandler) {
 		http.Redirect(*data.EditResponse(), data.GetRequest(), data.GetRedirect(), http.StatusSeeOther)
 		return
 	default:
-		data.SetErrorConsume(ferror.ErrorMethodNotAllowed).WriteResponse()
+		err = ferror.ErrorMethodNotAllowed
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		data.SetErrorConsume(err).WriteResponse()
 	}
 }
 
@@ -120,13 +122,13 @@ func HandlePostReaction(data state.StateHandler) {
 	var err error
 	data.EditPost().Id, err = parsers.ParsePostId(data)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
 	err = controllers.PostReaction(data.(state.StateController))
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
@@ -138,14 +140,15 @@ func HandlePostDelete(data state.StateHandler) {
 	var post models.PostType
 	post.Id, err = parsers.ParsePostId(data)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
-		data.SetErrorConsume(ferror.ErrorInvalidPostId).WriteResponse()
+		err = ferror.ErrorInvalidPostId
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
 	data.(state.StateController).SetPost(post)
 	err = controllers.RemovePost(data.(state.StateController))
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		data.SetErrorConsume(err).WriteResponse()
 		return
 	}

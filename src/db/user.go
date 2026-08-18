@@ -25,9 +25,7 @@ type UserRowType struct {
 func (user *UserRowType) SelectUserPasswordByIdentifier(identifier string) error {
 	err := db.QueryRow(`SELECT hash FROM users WHERE email = ? OR username = ?`, identifier, identifier).Scan(&user.Hash)
 	if err != nil {
-		if config.Debug {
-			err = errors.Join(utils.GetFunctionName(), err)
-		}
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	return nil
@@ -36,9 +34,7 @@ func (user *UserRowType) SelectUserPasswordByIdentifier(identifier string) error
 func (user *UserRowType) SelectUserByIdentifier(identifier string) error {
 	err := db.QueryRow(`SELECT id, email, username FROM users WHERE email = ? OR username = ?`, identifier, identifier).Scan(&user.Id, &user.Email, &user.Username)
 	if err != nil {
-		if config.Debug {
-			err = errors.Join(utils.GetFunctionName(), err)
-		}
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	return nil
@@ -47,7 +43,8 @@ func (user *UserRowType) SelectUserByIdentifier(identifier string) error {
 func (user *UserRowType) SelectUserBySession() error {
 	err := db.QueryRow(`SELECT id, email, username FROM users WHERE session_key = ?`, user.SessionId).Scan(&user.Id, &user.Email, &user.Username)
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	return nil
 }
@@ -56,9 +53,10 @@ func (user *UserRowType) SelectUserByOAuthProviderAndEmail() error {
 	err := db.QueryRow(`SELECT id, email, username, oauth_provider FROM users WHERE oauth_provider = ? AND email = ?`, user.OAuthProvider, user.Email).Scan(&user.Id, &user.Email, &user.Username, &user.OAuthProvider)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return ferror.ErrorNoRows
+			err = ferror.ErrorNoRows
 		}
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	return nil
 }
@@ -66,7 +64,8 @@ func (user *UserRowType) SelectUserByOAuthProviderAndEmail() error {
 func (user *UserRowType) SelectUserById() error {
 	err := db.QueryRow(`SELECT username FROM users WHERE id = ?`, user.Id).Scan(&user.Username)
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	return nil
 }
@@ -74,15 +73,18 @@ func (user *UserRowType) SelectUserById() error {
 func (u *UserRowType) InsertUserWithHash() error {
 	stmt, err := db.Prepare("INSERT INTO users (username, first_name, last_name, gender, age, email, hash) VALUES (?, ?, ?, ?, ?, ?, ?)")
 	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	res, err := stmt.Exec(u.Username, u.FirstName, u.LastName, u.Gender, u.Age, u.Email, u.Hash)
 	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
 	u.Id, err = res.LastInsertId()
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	return nil
 }
@@ -90,15 +92,18 @@ func (u *UserRowType) InsertUserWithHash() error {
 func (u *UserRowType) InsertUserWithOAuth() error {
 	stmt, err := db.Prepare("INSERT INTO users (username, email, oauth_provider) VALUES (?, ?, ?)")
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	res, err := stmt.Exec(u.Username, u.Email, u.OAuthProvider)
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	u.Id, err = res.LastInsertId()
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	return nil
 }
@@ -110,7 +115,7 @@ func (u *UserRowType) SelectPosts() (PostRowsType, error) {
 	FROM posts
 	WHERE user_id = ?`, u.Id)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return PostRowsType{}, err
 	}
 	defer rows.Close()
@@ -119,12 +124,12 @@ func (u *UserRowType) SelectPosts() (PostRowsType, error) {
 		var ts string
 		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return PostRowsType{}, err
 		}
 		t, err := utils.ConvertStringToTime(ts)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return PostRowsType{}, err
 		}
 		post.TimestampString = utils.ConvertTimeToString(t)
@@ -142,7 +147,7 @@ func (u *UserRowType) SelectLikedPosts() (PostRowsType, error) {
 	WHERE r.user_id = ? AND r.value = 1
 	`, u.Id)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return PostRowsType{}, err
 	}
 	defer rows.Close()
@@ -151,12 +156,12 @@ func (u *UserRowType) SelectLikedPosts() (PostRowsType, error) {
 		var ts string
 		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return PostRowsType{}, err
 		}
 		t, err := utils.ConvertStringToTime(ts)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return PostRowsType{}, err
 		}
 		post.TimestampString = utils.ConvertTimeToString(t)
@@ -168,11 +173,13 @@ func (u *UserRowType) SelectLikedPosts() (PostRowsType, error) {
 func (u *UserRowType) UpdateUserSession(session_key string) error {
 	stmt, err := db.Prepare("UPDATE users SET session_key = ? WHERE id = ?")
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	_, err = stmt.Exec(session_key, u.Id)
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	u.SessionId = session_key
 	return nil

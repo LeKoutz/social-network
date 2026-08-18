@@ -1,8 +1,10 @@
 package models
 
 import (
+	"errors"
 	"encoding/json"
 	"forum/src/ferror"
+	"forum/src/utils"
 )
 
 var MainHub *Hub
@@ -53,6 +55,7 @@ func (h *Hub) Run() {
 		case msg := <-h.Transmit:
 			payload, err := json.Marshal(msg)
 			if err != nil {
+				if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 				(&ferror.Error{}).Consume(err).LogError()
 				continue
 			}
@@ -61,6 +64,7 @@ func (h *Hub) Run() {
 				Payload: json.RawMessage(payload),
 			})
 			if err != nil {
+				if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 				(&ferror.Error{}).Consume(err).LogError()
 				continue
 			}
@@ -92,6 +96,7 @@ func (h *Hub) signalOnlineStatusChange() {
 		Payload: json.RawMessage("{}"),
 	})
 	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		(&ferror.Error{}).Consume(err).LogError()
 		return
 	}

@@ -5,12 +5,10 @@ import (
 	"forum/src/utils"
 )
 
-func GetAllUsernames() ([]string, error) {
+func SelectAllUsernames() ([]string, error) {
 	rows, err := db.Query(`SELECT username FROM users`)
 	if err != nil {
-		if config.Debug {
-			err = errors.Join(utils.GetFunctionName(), err)
-		}
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return []string{}, err
 	}
 	defer rows.Close()
@@ -19,9 +17,7 @@ func GetAllUsernames() ([]string, error) {
 		var email string
 		err = rows.Scan(&email)
 		if err != nil {
-			if config.Debug {
-				err = errors.Join(utils.GetFunctionName(), err)
-			}
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return []string{}, err
 		}
 		usernames = append(usernames, email)
@@ -29,12 +25,10 @@ func GetAllUsernames() ([]string, error) {
 	return usernames, nil
 }
 
-func GetAllUserEmails() ([]string, error) {
+func SelectAllUserEmails() ([]string, error) {
 	rows, err := db.Query(`SELECT email FROM users`)
 	if err != nil {
-		if config.Debug {
-			err = errors.Join(utils.GetFunctionName(), err)
-		}
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return []string{}, err
 	}
 	defer rows.Close()
@@ -43,9 +37,7 @@ func GetAllUserEmails() ([]string, error) {
 		var email string
 		err = rows.Scan(&email)
 		if err != nil {
-			if config.Debug {
-				err = errors.Join(utils.GetFunctionName(), err)
-			}
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return []string{}, err
 		}
 		emails = append(emails, email)
@@ -53,12 +45,10 @@ func GetAllUserEmails() ([]string, error) {
 	return emails, nil
 }
 
-func GetAllUsers() ([]UserRowType, error) {
+func SelectAllUsers() ([]UserRowType, error) {
 	rows, err := db.Query(`SELECT id, username FROM users`)
 	if err != nil {
-		if config.Debug {
-			err = errors.Join(utils.GetFunctionName(), err)
-		}
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return []UserRowType{}, err
 	}
 	defer rows.Close()
@@ -67,9 +57,7 @@ func GetAllUsers() ([]UserRowType, error) {
 		var user UserRowType
 		err = rows.Scan(&user.Id, &user.Username)
 		if err != nil {
-			if config.Debug {
-				err = errors.Join(utils.GetFunctionName(), err)
-			}
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return []UserRowType{}, err
 		}
 		users = append(users, user)
@@ -94,9 +82,7 @@ func SelectUsersForPanel(currentUserId int64) ([]UserRowType, error) {
 	GROUP BY u.id, u.username
 	`, currentUserId, currentUserId, currentUserId)
 	if err != nil {
-		if config.Debug {
-			err = errors.Join(utils.GetFunctionName(), err)
-		}
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return []UserRowType{}, err
 	}
 	defer rows.Close()
@@ -109,9 +95,7 @@ func SelectUsersForPanel(currentUserId int64) ([]UserRowType, error) {
 			&user.LastMessageTimestamp, // TODO: Currently inconsistent. Should be in UserType
 		)
 		if err != nil {
-			if config.Debug {
-				err = errors.Join(utils.GetFunctionName(), err)
-			}
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return []UserRowType{}, err
 		}
 		users = append(users, user)

@@ -17,7 +17,7 @@ func SelectNotificationsByUserId(userId int64) (NotificationRowsType, error) {
 	ORDER BY n.timestamp DESC
 	`, userId)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return NotificationRowsType{}, err
 	}
 	defer rows.Close()
@@ -33,7 +33,7 @@ func SelectNotificationsByUserId(userId int64) (NotificationRowsType, error) {
 			&notification.Read,
 			&notification.Username)
 		if err != nil {
-			err = errors.Join(utils.GetFunctionName(), err)
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return NotificationRowsType{}, err
 		}
 		notifications = append(notifications, notification)
@@ -44,13 +44,13 @@ func SelectNotificationsByUserId(userId int64) (NotificationRowsType, error) {
 func (u *UserRowType) UpdateAllNotificationsAsRead() error {
 	stmt, err := db.Prepare(`UPDATE notifications SET "read" = 1 WHERE user_id = ?`)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	_, err = stmt.Exec((*u).Id)
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	return nil
 }

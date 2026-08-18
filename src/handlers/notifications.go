@@ -11,7 +11,7 @@ import (
 func HandleMarkAllNotificationsAsRead(data state.StateHandler) {
 	err := controllers.MarkAllNotificationsAsRead(data.(state.StateController))
 	if err != nil {
-		err = errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		data.SetErrorConsume(err).WriteResponse()
 		return
 	}

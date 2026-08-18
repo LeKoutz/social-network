@@ -9,7 +9,8 @@ import (
 func MarkAllNotificationsAsRead(data state.StateController) error {
 	err := data.EditUser().MarkAllNotificationsAsRead()
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	for i := range data.GetUser().Notifications {
 		data.EditUser().Notifications[i].Read = true
