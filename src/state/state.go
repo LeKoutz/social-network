@@ -21,7 +21,6 @@ type State struct {
 	Error         ferror.Error
 	Request       *http.Request       `json:"-"`
 	Response      http.ResponseWriter `json:"-"`
-	Redirect      string
 	Message       models.Message
 	Version       string
 }
@@ -60,8 +59,6 @@ type StateController interface {
 	GetRequest() *http.Request
 	EditResponse() *http.ResponseWriter
 
-	SetRedirect(string) *State
-
 	GetChatOffset() int64
 
 	EditChatMessages() *models.ChatMessagesType
@@ -94,8 +91,6 @@ type StateHandler interface {
 
 	GetRequest() *http.Request
 	EditResponse() *http.ResponseWriter
-
-	GetRedirect() string
 
 	WriteResponse()
 }
@@ -131,17 +126,8 @@ func (r State) EditResponse() *http.ResponseWriter {
 	return &r.Response
 }
 
-func (r State) GetRedirect() string {
-	return r.Redirect
-}
-
 func (r *State) SetMessage(m models.Message) *State {
 	r.Message = m
-	return r
-}
-
-func (r *State) SetRedirect(s string) *State {
-	r.Redirect = s
 	return r
 }
 

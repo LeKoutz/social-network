@@ -97,25 +97,6 @@ func TestStateGetError(t *testing.T) {
 	}
 }
 
-func TestStateGetRedirect(t *testing.T) {
-	s := &State{}
-	s.Redirect = "/test/redirect"
-	if s.GetRedirect() != "/test/redirect" {
-		t.Errorf("GetRedirect() = %q, want %q", s.GetRedirect(), "/test/redirect")
-	}
-}
-
-func TestStateSetRedirect(t *testing.T) {
-	s := &State{}
-	result := s.SetRedirect("/new/redirect")
-	if result != s {
-		t.Error("SetRedirect() should return same State pointer")
-	}
-	if s.Redirect != "/new/redirect" {
-		t.Errorf("SetRedirect() Redirect = %q, want %q", s.Redirect, "/new/redirect")
-	}
-}
-
 func TestStateSetMessage(t *testing.T) {
 	s := &State{}
 	msg := models.Message{Has: true, Type: "Success", Content: "test"}

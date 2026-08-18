@@ -6,7 +6,6 @@ import (
 	"forum/src/parsers"
 	"forum/src/state"
 	"forum/src/utils"
-	"net/http"
 )
 
 func HandleCommentCreate(data state.StateHandler) {
@@ -23,7 +22,7 @@ func HandleCommentCreate(data state.StateHandler) {
 		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
-	http.Redirect(*data.EditResponse(), data.GetRequest(), data.GetRedirect(), http.StatusSeeOther)
+	data.WriteResponse()
 }
 
 func HandleCommentReaction(data state.StateHandler) {
@@ -40,7 +39,7 @@ func HandleCommentReaction(data state.StateHandler) {
 		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
-	http.Redirect(*data.EditResponse(), data.GetRequest(), data.GetRedirect(), http.StatusSeeOther)
+	data.WriteResponse()
 }
 
 func HandleCommentDelete(data state.StateHandler) {
@@ -57,7 +56,7 @@ func HandleCommentDelete(data state.StateHandler) {
 		data.SetErrorConsume(err).WriteResponse()
 		return
 	}
-	http.Redirect(*data.EditResponse(), data.GetRequest(), data.GetRedirect(), http.StatusSeeOther)
+	data.WriteResponse()
 }
 
 func HandleCommentEdit(data state.StateHandler) {
