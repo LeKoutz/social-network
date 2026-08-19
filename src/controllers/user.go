@@ -212,3 +212,19 @@ func GetUserLikedPosts(data state.StateController) error {
 func GetUserActivity(data state.StateController) error {
 	return data.EditUser().GetActivity()
 }
+
+func GetReturningUser(data state.StateController) error {
+	var err error
+	err = data.EditUser().GetUserBySession()
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
+	data.EditUser().LoggedIn = true
+	err = data.EditUser().GetNotifications()
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
+	return nil
+}
