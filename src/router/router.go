@@ -3,7 +3,7 @@ package router
 import (
 	"forum/src/ferror"
 	"forum/src/handlers"
-	"forum/src/models"
+	"forum/src/middleware"
 	"forum/src/state"
 	"log"
 	"net/http"
@@ -122,33 +122,11 @@ func RoutesHandler(res http.ResponseWriter, req *http.Request) {
 	log.Printf("Cookies: %d", len(req.Cookies()))
 	var err error
 	data := state.State{}
-	data.Init().SetResponse(res).SetRequest(req).SetUser(models.GetGuestUser())
-	for _, cookie := range req.Cookies() {
-		if cookie.Name == "__Host-FRMSessionID" {
-			data.EditUser().SessionId = cookie.Value
-			err = data.EditUser().GetUserBySession()
-			if err != nil {
-				data.SetErrorConsume(err)
-				break
-			}
-			data.EditUser().LoggedIn = true
-			err = data.EditUser().GetNotifications()
-			if err != nil {
-				data.SetErrorConsume(err)
-				data.GetError().LogError()
-			}
-		}
-	}
-
+	data.Init().SetResponse(res).SetRequest(req)
+	middleware.AuthMiddleware(&data)
 	err = data.Request.ParseForm()
 	if err != nil {
 		data.SetErrorConsume(err)
-		data.WriteResponse()
-		return
-	}
-	// utils.LogDebug(data.Request.Form)
-	if req.Method != http.MethodPost && req.Method != http.MethodGet {
-		data.SetErrorConsume(ferror.ErrorMethodNotAllowed)
 		data.WriteResponse()
 		return
 	}
