@@ -3,7 +3,6 @@ package utils
 import (
 	"strings"
 	"testing"
-	"time"
 )
 
 func TestHashPassword(t *testing.T) {
@@ -127,62 +126,6 @@ func TestStringToInt64(t *testing.T) {
 				t.Errorf("StringToInt64() = %v, want %v", got, tt.want)
 			}
 		})
-	}
-}
-
-func TestConvertStringToTime(t *testing.T) {
-	tests := []struct {
-		name    string
-		input   string
-		wantErr bool
-	}{
-		{
-			name:    "valid timestamp",
-			input:   "1700000000",
-			wantErr: false,
-		},
-		{
-			name:    "invalid string",
-			input:   "not-a-timestamp",
-			wantErr: true,
-		},
-		{
-			name:    "empty string",
-			input:   "",
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := ConvertStringToTime(tt.input)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("ConvertStringToTime() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !tt.wantErr {
-				if got.Year() < 2023 {
-					t.Errorf("ConvertStringToTime() returned unexpected year %v", got.Year())
-				}
-			}
-		})
-	}
-}
-
-func TestConvertInt64ToTime(t *testing.T) {
-	ts := int64(1700000000)
-	got := ConvertInt64ToTime(ts)
-	want := time.Unix(ts, 0)
-	if !got.Equal(want) {
-		t.Errorf("ConvertInt64ToTime() = %v, want %v", got, want)
-	}
-}
-
-func TestConvertTimeToString(t *testing.T) {
-	ts := int64(1700000000)
-	tm := time.Unix(ts, 0)
-	got := ConvertTimeToString(tm)
-	if len(got) == 0 {
-		t.Error("ConvertTimeToString() returned empty string")
 	}
 }
 

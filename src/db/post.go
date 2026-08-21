@@ -13,7 +13,7 @@ type PostRowType struct {
 	Body            string
 	ImagePath       string
 	UserId          int64
-	TimestampString string
+	Timestamp       string
 }
 
 func (p *PostRowType) InsertPost() error {
@@ -85,7 +85,7 @@ func (p *PostRowType) SelectCommentsAndUsernameByPostId() (CommentRowsType, erro
 			&comment.PostId,
 			&comment.UserId,
 			&comment.Body,
-			&comment.TimestampString,
+			&comment.Timestamp,
 			&comment.Username,
 		)
 		if err != nil {
@@ -147,7 +147,7 @@ func (p *PostRowType) SelectPostById() error {
 		title, body, image_path, timestamp, user_id
 		FROM posts
 		WHERE id = ?`
-	err := db.QueryRow(query, p.Id).Scan(&p.Title, &p.Body, &p.ImagePath, &p.TimestampString, &p.UserId)
+	err := db.QueryRow(query, p.Id).Scan(&p.Title, &p.Body, &p.ImagePath, &p.Timestamp, &p.UserId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			err = ferror.ErrorNoRows
@@ -155,10 +155,5 @@ func (p *PostRowType) SelectPostById() error {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
-	// p.User, err = getUserById(p.UserId)
-	// if err != nil {
-	// 	err = errors.Join(utils.GetFunctionName(), err)
-	// 	return errors.Join(utils.GetFunctionName(), err)
-	// }
 	return nil
 }

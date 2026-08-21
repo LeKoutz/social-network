@@ -26,18 +26,11 @@ func SelectChatHistory(userId1, userId2, offset int64) (ChatMessagesRowType, err
 	var messages ChatMessagesRowType
 	for rows.Next() {
 		var message ChatMessageRowType
-		var ts string
-		err = rows.Scan(&message.Id, &message.SenderId, &message.RecipientId, &message.Body, &ts, &message.SenderUsername)
+		err = rows.Scan(&message.Id, &message.SenderId, &message.RecipientId, &message.Body, &message.Timestamp, &message.SenderUsername)
 		if err != nil {
 			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return ChatMessagesRowType{}, err
 		}
-		t, err := utils.ConvertStringToTime(ts)
-		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return ChatMessagesRowType{}, err
-		}
-		message.TimestampString = utils.ConvertTimeToString(t)
 		messages = append(messages, message)
 	}
 	return messages, nil

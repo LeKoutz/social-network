@@ -334,7 +334,7 @@ func (u *UserType) GetActivity() error {
 		return err
 	}
 	sort.Slice(u.Activities, func(i, j int) bool {
-		return u.Activities[i].TimestampString > u.Activities[j].TimestampString
+		return u.Activities[i].Timestamp > u.Activities[j].Timestamp
 	})
 	return nil
 }
@@ -362,7 +362,7 @@ func (u *UserType) GetPostsActivity() error {
 			return err
 		}
 		var activity ActivityType
-		activity.TimestampString = post.TimestampString
+		activity.Timestamp = post.Timestamp
 		activity.Post = post
 		activity.Type = "post"
 		u.Activities = append(u.Activities, activity)
@@ -400,7 +400,7 @@ func (u *UserType) GetCommentsActivity() error {
 		}
 		activity.Type = "comment"
 		activity.Comment = comment
-		activity.TimestampString = comment.TimestampString
+		activity.Timestamp = comment.Timestamp
 		activity.Post = post
 		u.Activities = append(u.Activities, activity)
 	}
@@ -434,7 +434,7 @@ func (u *UserType) GetLikedPostsActivity() error {
 			return err
 		}
 		activity.Type = "postLike"
-		activity.TimestampString = reaction.TimestampString
+		activity.Timestamp = reaction.Timestamp
 		activity.Post = post
 		u.Activities = append(u.Activities, activity)
 	}
@@ -467,7 +467,7 @@ func (u *UserType) GetDislikedPostsActivity() error {
 			return err
 		}
 		activity.Type = "postDislike"
-		activity.TimestampString = reaction.TimestampString
+		activity.Timestamp = reaction.Timestamp
 		activity.Post = post
 		u.Activities = append(u.Activities, activity)
 	}
@@ -507,7 +507,7 @@ func (u *UserType) GetLikedCommentsActivity() error {
 			return err
 		}
 		activity.Type = "commentLike"
-		activity.TimestampString = reaction.TimestampString
+		activity.Timestamp = reaction.Timestamp
 		activity.Comment = comment
 		activity.Post = post
 		u.Activities = append(u.Activities, activity)
@@ -548,7 +548,7 @@ func (u *UserType) GetDislikedCommentsActivity() error {
 			return err
 		}
 		activity.Type = "commentDislike"
-		activity.TimestampString = reaction.TimestampString
+		activity.Timestamp = reaction.Timestamp
 		activity.Comment = comment
 		activity.Post = post
 		u.Activities = append(u.Activities, activity)

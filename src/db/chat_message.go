@@ -10,8 +10,7 @@ type ChatMessageRowType struct {
 	SenderId        int64
 	RecipientId     int64
 	Body            string
-	Timestamp       int64
-	TimestampString string
+	Timestamp       string
 	Read            bool
 	SenderUsername  string
 }
@@ -22,7 +21,7 @@ func (msg *ChatMessageRowType) InsertMessage() (int64, error) {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return 0, err
 	}
-	res, err := stmt.Exec(msg.SenderId, msg.RecipientId, msg.Body, msg.TimestampString)
+	res, err := stmt.Exec(msg.SenderId, msg.RecipientId, msg.Body, msg.Timestamp)
 	if err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return 0, err

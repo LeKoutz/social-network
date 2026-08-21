@@ -22,7 +22,7 @@ func (reaction_rows *ReactionRowsType) SelectPostLikesByUserId(id int64) error {
 	defer rows.Close()
 	for rows.Next() {
 		var reaction ReactionRowType
-		err = rows.Scan(&reaction.Id, &reaction.PostId, &reaction.UserId, &reaction.TimestampString)
+		err = rows.Scan(&reaction.Id, &reaction.PostId, &reaction.UserId, &reaction.Timestamp)
 		if err != nil {
 			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return err
@@ -46,7 +46,7 @@ func SelectPostDislikesByUserId(id int64) (ReactionRowsType, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var reaction ReactionRowType
-		err = rows.Scan(&reaction.Id, &reaction.PostId, &reaction.UserId, &reaction.TimestampString)
+		err = rows.Scan(&reaction.Id, &reaction.PostId, &reaction.UserId, &reaction.Timestamp)
 		if err != nil {
 			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return ReactionRowsType{}, err
@@ -70,7 +70,7 @@ func SelectCommentLikesByUserId(id int64) (ReactionRowsType, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var reaction ReactionRowType
-		err = rows.Scan(&reaction.Id, &reaction.CommentId, &reaction.UserId, &reaction.TimestampString)
+		err = rows.Scan(&reaction.Id, &reaction.CommentId, &reaction.UserId, &reaction.Timestamp)
 		if err != nil {
 			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return ReactionRowsType{}, err
@@ -94,7 +94,7 @@ func SelectCommentDislikesByUserId(id int64) (ReactionRowsType, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var reaction ReactionRowType
-		err = rows.Scan(&reaction.Id, &reaction.CommentId, &reaction.UserId, &reaction.TimestampString)
+		err = rows.Scan(&reaction.Id, &reaction.CommentId, &reaction.UserId, &reaction.Timestamp)
 		if err != nil {
 			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return ReactionRowsType{}, err

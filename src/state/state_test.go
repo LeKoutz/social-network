@@ -219,8 +219,8 @@ func TestStateEditPosts(t *testing.T) {
 func TestStateSetPosts(t *testing.T) {
 	s := &State{}
 	posts := models.PostsType{
-		{PostRowType: db.PostRowType{Title: "Post B", TimestampString: "1700000000"}},
-		{PostRowType: db.PostRowType{Title: "Post A", TimestampString: "1700000010"}},
+		{PostRowType: db.PostRowType{Title: "Post B", Timestamp: "1700000000"}},
+		{PostRowType: db.PostRowType{Title: "Post A", Timestamp: "1700000010"}},
 	}
 	result := s.SetPosts(posts)
 	if result != s {

@@ -121,18 +121,11 @@ func (u *UserRowType) SelectPosts() (PostRowsType, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var post PostRowType
-		var ts string
-		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts)
+		err = rows.Scan(&post.Id, &post.Title, &post.Body, &post.Timestamp)
 		if err != nil {
 			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return PostRowsType{}, err
 		}
-		t, err := utils.ConvertStringToTime(ts)
-		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return PostRowsType{}, err
-		}
-		post.TimestampString = utils.ConvertTimeToString(t)
 		posts = append(posts, post)
 	}
 	return posts, nil
@@ -153,18 +146,11 @@ func (u *UserRowType) SelectLikedPosts() (PostRowsType, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var post PostRowType
-		var ts string
-		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts)
+		err = rows.Scan(&post.Id, &post.Title, &post.Body, &post.Timestamp)
 		if err != nil {
 			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return PostRowsType{}, err
 		}
-		t, err := utils.ConvertStringToTime(ts)
-		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return PostRowsType{}, err
-		}
-		post.TimestampString = utils.ConvertTimeToString(t)
 		posts = append(posts, post)
 	}
 	return posts, nil

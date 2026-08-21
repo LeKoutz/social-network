@@ -3,6 +3,7 @@ import {ShowActivityPost} from "./activity_post.js";
 import { apiFetch } from '../fetchers/api.js';
 import { displayPosts } from "./posts.js";
 import { attachPostReactionListener } from '../forms/post_react.js';
+import { DateToLocale } from '../utils/utils.js';
 
 function parseActivities(activities, data) {
     return activities !== null ? activities.map(activity=>parseActivity(activity, data)).join(''):'';
@@ -36,7 +37,7 @@ function parseActivity(activity, data) {
     }
     return `
     <div class="activity">
-    ${activity.TimestampString}
+    ${DateToLocale(activity.Timestamp)}
     <strong><a href="/#/user">${data?.User?.Username}</a></strong> 
     ${inner}
     </div>

@@ -19,18 +19,11 @@ func SelectCommentsByUserId(id int64) (CommentRowsType, error) {
 	}
 	for rows.Next() {
 		var comment CommentRowType
-		var ts string
-		err = rows.Scan(&comment.Id, &comment.PostId, &comment.Body, &ts, &comment.UserId)
+		err = rows.Scan(&comment.Id, &comment.PostId, &comment.Body, &comment.Timestamp, &comment.UserId)
 		if err != nil {
 			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return comments, err
 		}
-		t, err := utils.ConvertStringToTime(ts)
-		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return comments, err
-		}
-		comment.TimestampString = utils.ConvertTimeToString(t)
 		comments = append(comments, comment)
 	}
 	return comments, nil

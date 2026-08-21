@@ -18,12 +18,6 @@ func (u *UserType) GetCommentsByUserId() (CommentsType, error) {
 	}
 	for _, row := range rows {
 		var comment CommentType
-		t, err := utils.ConvertStringToTime(row.TimestampString)
-		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return CommentsType{}, err
-		}
-		row.TimestampString = utils.ConvertTimeToString(t)
 		comment.CommentRowType = row
 		comments = append(comments, comment)
 	}

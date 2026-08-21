@@ -11,7 +11,6 @@ type PostType struct {
 	db.PostRowType
 
 	User       UserType
-	Timestamp  int64
 	Likes      int64
 	Liked      bool
 	Dislikes   int64
@@ -104,12 +103,6 @@ func (p *PostType) GetComments() error {
 	for _, row := range rows {
 		var comment CommentType
 		comment.CommentRowType = row
-		t, err := utils.ConvertStringToTime(row.TimestampString)
-		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return err
-		}
-		comment.TimestampString = utils.ConvertTimeToString(t)
 		p.Comments = append(p.Comments, comment)
 	}
 	return nil
@@ -160,11 +153,5 @@ func (p *PostType) GetById() error {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
-	t, err := utils.ConvertStringToTime(p.TimestampString)
-	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
-	}
-	p.TimestampString = utils.ConvertTimeToString(t)
 	return nil
 }
