@@ -47,13 +47,13 @@ func (c *Client) ReadPump() {
 				(&ferror.Error{}).Consume(err).LogError()
 				continue
 			}
-			timestampString := utils.GetCurrentTimestamp()
+			timestamp := utils.GetCurrentTimestamp()
 			msg := ChatMessageType{
 				ChatMessageRowType: db.ChatMessageRowType{
 					SenderId:        c.UserId,
 					RecipientId:     p.RecipientId,
 					Body:            p.Body,
-					TimestampString: timestampString,
+					Timestamp:       timestamp,
 					SenderUsername:  c.Username,
 				},
 			}
@@ -63,13 +63,6 @@ func (c *Client) ReadPump() {
 				(&ferror.Error{}).Consume(err).LogError()
 				continue
 			}
-			timestampTime, err := utils.ConvertStringToTime(msg.TimestampString)
-			if err != nil {
-				if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-				(&ferror.Error{}).Consume(err).LogError()
-				continue
-			}
-			msg.TimestampString = utils.ConvertTimeToString(timestampTime)
 			c.Hub.Transmit <- msg
 		case "message-read":
 			message := ChatMessageType{}

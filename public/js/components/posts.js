@@ -7,12 +7,13 @@ import { apiFetch } from '../fetchers/api.js';
 import { postDeleteForm, attachPostDeleteListener } from '../forms/post_delete.js';
 import {attachPostReactionListener, postReactionForm} from "../forms/post_react.js";
 import {attachCommentReactionListener} from '../forms/comment_react.js';
+import { DateToLocale } from '../utils/utils.js';
 
 export function displayPosts(data) {
     return data.Posts ? data.Posts.map(post => `
     <div class="post" id="${post.Id}">
         <a href="#/post/view/${post.Id}"><h3>${post.Title}</h3></a>
-        <p>Posted on <em>${post.TimestampString}</em>.</p>
+        <p>Posted on <em>${DateToLocale(post.Timestamp)}</em>.</p>
         <pre>${post.Body}</pre>
         ${post.ImagePath ? `<img src="/${post.ImagePath}" alt="Post image" style="max-width: max-content;"/>` : ''}
         <div class="reactions">
@@ -37,7 +38,7 @@ export function displayPost(data) {
                 <p>Categories:
                 ${showPostCategories(post)}
                 </p>
-                <p>Posted by <strong>${post.User.Username}</strong> on <em>(${post.TimestampString})</em></p>
+                <p>Posted by <strong>${post.User.Username}</strong> on <em>(${DateToLocale(post.Timestamp)})</em></p>
             </div>
             <div class="manage-post">
                 ${data.User.Id === post.User.Id ? `

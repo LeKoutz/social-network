@@ -10,7 +10,7 @@ type ReactionRowType struct {
 	PostId          int64
 	UserId          int64
 	CommentId       int64
-	TimestampString string
+	Timestamp       string
 }
 
 func DeleteReactionById(reactionId int64) error {

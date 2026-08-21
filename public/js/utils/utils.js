@@ -17,3 +17,7 @@ export function throttle(func, wait) {
         }, wait);
     };
 }
+
+export function DateToLocale(s) {
+    return new Date(parseInt(s)*1000).toLocaleString()
+}

@@ -10,7 +10,7 @@ type CommentRowType struct {
 	PostId          int64
 	UserId          int64
 	Body            string
-	TimestampString string
+	Timestamp       string
 	Username        string
 }
 
@@ -34,7 +34,7 @@ func (c *CommentRowType) SelectCommentById() error {
 	err := db.QueryRow(
 		`SELECT id, post_id, user_id, body, timestamp
 		FROM comments
-		WHERE id = ?`, c.Id).Scan(&c.Id, &c.PostId, &c.UserId, &c.Body, &c.TimestampString)
+		WHERE id = ?`, c.Id).Scan(&c.Id, &c.PostId, &c.UserId, &c.Body, &c.Timestamp)
 	if err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err

@@ -1,12 +1,13 @@
 import { commentReactForm } from '../forms/comment_react.js';
 import { CommentEditForm } from '../forms/comment_edit.js';
 import { CommentDeleteForm } from '../forms/comment_delete.js';
+import { DateToLocale } from '../utils/utils.js';
 
 export function showPostComments(data) {
     const post = data.Posts[0];
     return post.Comments.map(comment => `
         <div class="comment" id="comment-${comment.Id}">
-            <span>${comment.Username} (${comment.TimestampString})</span>
+            <span>${comment.Username} (${DateToLocale(comment.Timestamp)})</span>
             <div class="manage-comment">
                 ${ data.User.Id === comment.UserId ? `
                 ${ CommentEditForm(post.Id, comment.Id) }

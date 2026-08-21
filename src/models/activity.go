@@ -2,7 +2,7 @@ package models
 
 type ActivityType struct {
 	Type            string
-	TimestampString string
+	Timestamp       string
 	Post            PostType
 	Comment         CommentType
 }

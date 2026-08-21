@@ -8,7 +8,7 @@ import (
 func (r *State) SetPosts(posts models.PostsType) *State {
 	r.Posts = posts
 	sort.Slice(r.Posts, func(i, j int) bool {
-		return r.Posts[i].TimestampString > r.Posts[j].TimestampString
+		return r.Posts[i].Timestamp > r.Posts[j].Timestamp
 	})
 	return r
 }

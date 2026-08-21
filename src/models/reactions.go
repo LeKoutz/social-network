@@ -20,12 +20,6 @@ func (r *ReactionsType) GetPostLikesByUserId(id int64) error {
 	for _, row := range rows {
 		var reaction ReactionType
 		reaction.ReactionRowType = row
-		t, err := utils.ConvertStringToTime(reaction.TimestampString)
-		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return err
-		}
-		reaction.TimestampString = utils.ConvertTimeToString(t)
 		reactions = append(reactions, reaction)
 	}
 	*r = reactions
@@ -42,12 +36,6 @@ func GetPostDislikesByUserId(id int64) (ReactionsType, error) {
 	for _, row := range rows {
 		var reaction ReactionType
 		reaction.ReactionRowType = row
-		t, err := utils.ConvertStringToTime(reaction.TimestampString)
-		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return ReactionsType{}, err
-		}
-		reaction.TimestampString = utils.ConvertTimeToString(t)
 		reactions = append(reactions, reaction)
 	}
 	return reactions, nil
@@ -63,12 +51,6 @@ func GetCommentLikesByUserId(id int64) (ReactionsType, error) {
 	for _, row := range rows {
 		var reaction ReactionType
 		reaction.ReactionRowType = row
-		t, err := utils.ConvertStringToTime(reaction.TimestampString)
-		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return ReactionsType{}, err
-		}
-		reaction.TimestampString = utils.ConvertTimeToString(t)
 		reactions = append(reactions, reaction)
 	}
 	return reactions, nil
@@ -84,12 +66,6 @@ func GetCommentDisikesByUserId(id int64) (ReactionsType, error) {
 	for _, row := range rows {
 		var reaction ReactionType
 		reaction.ReactionRowType = row
-		t, err := utils.ConvertStringToTime(reaction.TimestampString)
-		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return ReactionsType{}, err
-		}
-		reaction.TimestampString = utils.ConvertTimeToString(t)
 		reactions = append(reactions, reaction)
 	}
 	return reactions, nil

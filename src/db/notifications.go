@@ -29,7 +29,7 @@ func SelectNotificationsByUserId(userId int64) (NotificationRowsType, error) {
 			&notification.Type,
 			&notification.PostId,
 			&notification.CommentId,
-			&notification.TimestampString,
+			&notification.Timestamp,
 			&notification.Read,
 			&notification.Username)
 		if err != nil {

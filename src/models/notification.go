@@ -17,7 +17,7 @@ func CreateNotification(notification NotificationType) error {
 	if notification.ActorId == notification.UserId {
 		return nil
 	}
-	notification.TimestampString = utils.GetCurrentTimestamp()
+	notification.Timestamp = utils.GetCurrentTimestamp()
 	err := notification.InsertNotification()
 	if err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }

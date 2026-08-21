@@ -16,18 +16,11 @@ func (posts *PostRowsType) SelectAllPosts() error {
 	defer rows.Close()
 	for rows.Next() {
 		var post PostRowType
-		var ts string
-		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts, &post.ImagePath)
+		err = rows.Scan(&post.Id, &post.Title, &post.Body, &post.Timestamp, &post.ImagePath)
 		if err != nil {
 			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return err
 		}
-		t, err := utils.ConvertStringToTime(ts)
-		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return err
-		}
-		post.TimestampString = utils.ConvertTimeToString(t)
 		*posts = append(*posts, post)
 	}
 	return nil
@@ -47,18 +40,11 @@ func (posts *PostRowsType) SelectPostsByCategoryId(id int64) error {
 	defer rows.Close()
 	for rows.Next() {
 		var post PostRowType
-		var ts string
-		err = rows.Scan(&post.Id, &post.Title, &post.Body, &ts, &post.ImagePath)
+		err = rows.Scan(&post.Id, &post.Title, &post.Body, &post.Timestamp, &post.ImagePath)
 		if err != nil {
 			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return err
 		}
-		t, err := utils.ConvertStringToTime(ts)
-		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return err
-		}
-		post.TimestampString = utils.ConvertTimeToString(t)
 		*posts = append(*posts, post)
 	}
 	return nil

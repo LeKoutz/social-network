@@ -9,7 +9,6 @@ import (
 
 type CommentType struct {
 	db.CommentRowType
-	Timestamp int64
 	Likes     int64
 	Liked     bool
 	Dislikes  int64
@@ -82,12 +81,6 @@ func (c *CommentType) GetById() error {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
-	t, err := utils.ConvertStringToTime(c.TimestampString)
-	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
-	}
-	c.TimestampString = utils.ConvertTimeToString(t)
 	return nil
 }
 
