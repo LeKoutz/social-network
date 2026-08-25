@@ -4,6 +4,8 @@ import "forum/src/db"
 
 type ChatMessageType struct {
 	db.ChatMessageRowType
+
+	SenderUsername  string
 }
 
 func (m *ChatMessageType) Add() (int64, error) {
