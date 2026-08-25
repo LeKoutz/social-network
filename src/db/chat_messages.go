@@ -7,7 +7,7 @@ import (
 
 type ChatMessagesRowType []ChatMessageRowType
 
-func SelectChatHistory(userId1, userId2, offset int64) (ChatMessagesRowType, error) {
+func SelectChatHistory(userId1, userId2, offset int64) (ChatMessagesRowType, []string, error) {
 	rows, err := db.Query(`
 	SELECT * FROM (
     SELECT m.id, m.sender_id, m.recipient_id, m.body, m.timestamp, u.username
@@ -20,20 +20,23 @@ func SelectChatHistory(userId1, userId2, offset int64) (ChatMessagesRowType, err
 ) ORDER BY timestamp ASC`, userId1, userId2, userId2, userId1, offset)
 	if err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return ChatMessagesRowType{}, err
+		return ChatMessagesRowType{}, nil, err
 	}
 	defer rows.Close()
 	var messages ChatMessagesRowType
+	var usernames []string
 	for rows.Next() {
 		var message ChatMessageRowType
-		err = rows.Scan(&message.Id, &message.SenderId, &message.RecipientId, &message.Body, &message.Timestamp, &message.SenderUsername)
+		var username string
+		err = rows.Scan(&message.Id, &message.SenderId, &message.RecipientId, &message.Body, &message.Timestamp, &username)
 		if err != nil {
 			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return ChatMessagesRowType{}, err
+			return ChatMessagesRowType{}, nil, err
 		}
 		messages = append(messages, message)
+		usernames = append(usernames, username)
 	}
-	return messages, nil
+	return messages, usernames, nil
 }
 
 func SelectUnreadMessageIds(userId int64) (ChatMessagesRowType, error) {

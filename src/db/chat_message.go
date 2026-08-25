@@ -12,7 +12,6 @@ type ChatMessageRowType struct {
 	Body            string
 	Timestamp       string
 	Read            bool
-	SenderUsername  string
 }
 
 func (msg *ChatMessageRowType) InsertMessage() (int64, error) {
