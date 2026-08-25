@@ -26,14 +26,15 @@ func (m *ChatMessagesType) GetUnreadMessageIds(userId int64) error {
 
 func (m *ChatMessagesType) GetChatHistory(userId1, userId2, offset int64) error {
 	var messages ChatMessagesType
-	rows, err := db.SelectChatHistory(userId1, userId2, offset)
+	rows, usernames, err := db.SelectChatHistory(userId1, userId2, offset)
 	if err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
-	for _, row := range rows {
+	for i, row := range rows {
 		var message ChatMessageType
 		message.ChatMessageRowType = row
+		message.SenderUsername = usernames[i]
 		messages = append(messages, message)
 	}
 	*m = messages

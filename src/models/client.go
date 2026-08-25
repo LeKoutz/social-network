@@ -54,8 +54,8 @@ func (c *Client) ReadPump() {
 					RecipientId:     p.RecipientId,
 					Body:            p.Body,
 					Timestamp:       timestamp,
-					SenderUsername:  c.Username,
 				},
+				SenderUsername:  c.Username,
 			}
 			msg.Id, err = msg.Add()
 			if err != nil {
