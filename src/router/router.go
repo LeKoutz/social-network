@@ -26,12 +26,12 @@ var routes = Routes{
 	Route{Method: "GET", Path: "/api", Function: handlers.HandleIndex},
 
 	// Categories
-	Route{Method: "GET", Path: "/api/category/view/", Prefix: true, Function: handlers.HandleShowCategory},
-	Route{Method: "GET", Path: "/api/categories", Prefix: true, Function: handlers.HandleShowCategories},
+	Route{Method: "GET", Path: "/api/category/view/", Prefix: true, Function: handlers.HandleShowCategory, NeedsLogin: true},
+	Route{Method: "GET", Path: "/api/categories", Prefix: true, Function: handlers.HandleShowCategories, NeedsLogin: true},
 
 	// Comments
 	Route{Method: "POST", Path: "/api/comment/create", Function: handlers.HandleCommentCreate, NeedsLogin: true},
-	Route{Method: "POST", Path: "/api/comment/react", Function: handlers.HandleCommentReaction},
+	Route{Method: "POST", Path: "/api/comment/react", Function: handlers.HandleCommentReaction, NeedsLogin: true},
 	Route{Method: "POST", Path: "/api/comment/edit", Function: handlers.HandleCommentEdit, NeedsLogin: true},
 	Route{Method: "POST", Path: "/api/comment/delete", Function: handlers.HandleCommentDelete, NeedsLogin: true},
 
@@ -42,11 +42,11 @@ var routes = Routes{
 	Route{Method: "GET", Path: "/api/auth/github", Prefix: true, Function: handlers.HandleOAuthLoginGithub},
 
 	// Post(s)
-	Route{Method: "GET", Path: "/api/posts", Function: handlers.HandleShowPosts},
+	Route{Method: "GET", Path: "/api/posts", Function: handlers.HandleShowPosts, NeedsLogin: true},
 	Route{Method: "*", Path: "/api/post/create", Function: handlers.HandlePostCreate, NeedsLogin: true},
 	Route{Method: "POST", Path: "/api/post/react", Function: handlers.HandlePostReaction, NeedsLogin: true},
-	Route{Method: "GET", Path: "/api/post/view/", Prefix: true, Function: handlers.HandleShowPost},
-	Route{Method: "GET", Path: "/api/post/comment", Function: handlers.HandleShowPost},
+	Route{Method: "GET", Path: "/api/post/view/", Prefix: true, Function: handlers.HandleShowPost, NeedsLogin: true},
+	Route{Method: "GET", Path: "/api/post/comment", Function: handlers.HandleShowPost, NeedsLogin: true},
 	Route{Method: "*", Path: "/api/post/edit", Prefix: true, Function: handlers.HandlePostEdit, NeedsLogin: true},
 	Route{Method: "POST", Path: "/api/post/delete", Function: handlers.HandlePostDelete, NeedsLogin: true},
 
