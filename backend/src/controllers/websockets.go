@@ -7,11 +7,13 @@ import (
 	"forum/src/utils"
 
 	"github.com/gorilla/websocket"
+	"net/http"
 )
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+	CheckOrigin: func (r *http.Request) bool { utils.LogDebug(r);return true },
 }
 
 func ServeWs(data state.StateController) error {

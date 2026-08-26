@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: backend
+    environment:
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - BASE_URL=${BASE_URL}
+    volumes:
+      - db_data:/app/data
+      - uploads:/app/uploads 
+    networks:
+      - app-network
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  db_data:
+    name: social-network-db
+  uploads:
+    name: social-network-uploads
