@@ -10,7 +10,6 @@ FROM alpine:latest
 WORKDIR /app
 COPY --from=builder /app/bin/forum ./app/forum
 COPY --from=builder /app/bin/mockgen ./app/mockgen
-COPY --from=builder /app/templates ./templates
 COPY --from=builder /app/migrations ./migrations
 RUN mkdir -p /app/data /app/uploads/images
 EXPOSE 8080
