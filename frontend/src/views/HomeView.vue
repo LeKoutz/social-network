@@ -1,4 +1,9 @@
-<script setup></script>
+<script setup>
+import { useUser } from '@/composables/useUser';
+import Categories from '@/components/Categories.vue';
+
+const { user } = useUser();
+</script>
 
 <template>
     <div class="welcome">
@@ -25,7 +30,7 @@
                 or via the menu at the top of the page.
             </p>
         </template>
-        <!-- TODO: Show Categories if LoggedIn -->
+        <Categories v-if="user.LoggedIn" />
     </div>
 </template>
 
