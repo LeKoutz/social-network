@@ -3,7 +3,7 @@ import { ref } from 'vue';
 const alert = ref(null)
 
 export function useAlerts() {
-    function createAlert(data) {
+    function setAlert(data) {
         if (data.Error.Has) {
             alert.value = { type: 'Error', message: data.Error.Message }
         } else if (data.Message.Has) {
@@ -15,5 +15,5 @@ export function useAlerts() {
         alert.value = null
     }
     
-    return { alert, createAlert, clear }
+    return { alert, setAlert, clear }
 }
