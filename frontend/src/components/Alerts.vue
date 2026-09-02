@@ -1,5 +1,5 @@
 <script setup>
-import { useAlerts } from '../composables/useAlerts.js'
+import { useAlerts } from '../composables/useAlerts.js';
 
 const { alert } = useAlerts();
 </script>
@@ -13,5 +13,4 @@ const { alert } = useAlerts();
     </template>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
