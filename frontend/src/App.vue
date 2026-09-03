@@ -6,15 +6,20 @@ import Footer from './components/Footer.vue';
 import { apiFetch } from './utils/api.js';
 import Alerts from './components/Alerts.vue';
 import { useAppData } from './composables/useAppData.js';
+import { useUser } from './composables/useUser.js';
 
 const loaded = ref(false);
 const { setAppData } = useAppData();
+const { setUser } = useUser();
 
 onMounted(async () => {
     const data = await apiFetch('/api');
     if (data) {
         setAppData(data);
         loaded.value = true;
+        if (data.User.LoggedIn) {
+            setUser(data.User);
+        }
     }
 });
 </script>
