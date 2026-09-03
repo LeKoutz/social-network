@@ -1,18 +1,17 @@
-<script setup></script>
+<script setup>
+import { useUser } from '@/composables/useUser';
+
+const { user } = useUser();
+</script>
 
 <template>
     <div class="welcome">
-        <h2>
-            Welcome
-            <!-- TODO: user.Username -->
-            !
-        </h2>
+        <h2>Welcome {{ user.LoggedIn ? user.Username : '' }}!</h2>
         <p>
             Below, you will see the post categories available as well as a brief description when
             applicable. Click any of them to navigate to its list of posts.
         </p>
-        <!-- TODO: Below will show only if user is not LoggedIn -->
-        <template>
+        <template v-if="!user.LoggedIn">
             <p>
                 If you want to upload posts or comment on other ones or just react (like or dislike)
                 comments or posts, you have to
