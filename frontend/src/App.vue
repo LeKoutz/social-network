@@ -6,14 +6,17 @@ import Footer from './components/Footer.vue';
 import { apiFetch } from './utils/api.js';
 import Alerts from './components/Alerts.vue';
 import { useAppData } from './composables/useAppData.js';
+import { useNotifications } from './composables/useNotifications.js';
 
 const loaded = ref(false);
 const { setAppData } = useAppData();
+const { setNotifications } = useNotifications();
 
 onMounted(async () => {
     const data = await apiFetch('/api');
     if (data) {
         setAppData(data);
+        setNotifications(data.User.Notifications);
         loaded.value = true;
     }
 });
