@@ -1,23 +1,37 @@
 {
-  "name": "real-time-forum",
-  "version": "1.0.0",
-  "description": "This project can be used to host a forum on the web. It serves via the HTTP protocol and uses a sqlite3 database to store information.",
-  "main": "eslint.config.js",
+  "name": "frontend",
+  "version": "0.0.0",
+  "private": true,
   "type": "module",
   "scripts": {
-    "lint": "npx eslint .",
-    "lint-fix": "npx eslint --fix .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "run-s \"lint:*\"",
+    "lint:oxlint": "oxlint . --fix",
+    "lint:eslint": "eslint . --fix --cache",
+    "format": "prettier --write --experimental-cli src/"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://platform.zone01.gr/git/gkoutzos/real-time-forum"
+  "dependencies": {
+    "vue": "^3.5.40",
+    "vue-router": "^5.2.0"
   },
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "eslint": "^10.6.0",
-    "globals": "^17.7.0"
+    "@vitejs/plugin-vue": "^6.0.8",
+    "eslint": "^10.7.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-oxlint": "~1.80.0",
+    "eslint-plugin-vue": "~10.9.2",
+    "globals": "^17.7.0",
+    "npm-run-all2": "^9.0.2",
+    "oxlint": "~1.80.0",
+    "prettier": "3.9.5",
+    "vite": "^8.1.5",
+    "vite-plugin-vue-devtools": "^8.1.5",
+    "vue-eslint-parser": "^10.4.1"
+  },
+  "engines": {
+    "node": "^22.18.0 || >=24.12.0"
   }
 }
