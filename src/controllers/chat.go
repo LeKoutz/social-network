@@ -3,6 +3,7 @@ package controllers
 import (
 	"errors"
 	"forum/src/ferror"
+	"forum/src/models"
 	"forum/src/state"
 	"forum/src/utils"
 )
@@ -12,6 +13,13 @@ func ShowChatHistory(data state.StateController) error {
 	user1 := data.GetUser().Id
 	user2 := data.GetChatMessage(0).RecipientId
 	if user1 == user2 {
+		err = ferror.ErrorNotFound
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
+	var recipient models.UserType
+	recipient.Id = user2
+	if err = recipient.GetById(); err != nil {
 		err = ferror.ErrorNotFound
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
