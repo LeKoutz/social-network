@@ -4,5 +4,6 @@ tags
 data
 uploads/images
 .env
-node_modules/
+node_modules
+.vscode
 package-lock.json
