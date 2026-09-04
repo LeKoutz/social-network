@@ -1,7 +1,7 @@
 <script setup>
 import { useAlerts } from '../composables/useAlerts.js'
 
-const { alert } = useAlerts();
+const { alert, clear } = useAlerts();
 </script>
 
 <template>
@@ -9,6 +9,7 @@ const { alert } = useAlerts();
         <fieldset class="alert">
             <legend>{{ alert.type }}</legend>
             <p>{{ alert.message }}</p>
+            <button @click="clear">Dismiss</button>
         </fieldset>
     </template>
 </template>
