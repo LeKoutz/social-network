@@ -10,5 +10,4 @@ const { version } = useAppData();
     </div>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
