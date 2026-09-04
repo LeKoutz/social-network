@@ -1,13 +1,15 @@
 <script setup>
 import { useAppData } from '@/composables/useAppData.js';
 
-const { websiteName } = useAppData()
+const { websiteName } = useAppData();
 </script>
 
 <template>
     <div class="topbar">
         <div class="title">
-            <router-link to="/"><h1>{{ websiteName }}</h1></router-link>
+            <router-link to="/">
+                <h1>{{ websiteName }}</h1>
+            </router-link>
         </div>
         <div class="menu">
             <ul>
@@ -19,5 +21,4 @@ const { websiteName } = useAppData()
     </div>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

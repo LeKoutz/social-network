@@ -14,7 +14,7 @@ onMounted(async () => {
     const data = await apiFetch('/api');
     if (data) {
         setAppData(data);
-        loaded.value = true
+        loaded.value = true;
     }
 });
 </script>
