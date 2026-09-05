@@ -1,0 +1,18 @@
+BEGIN TRANSACTION;
+
+CREATE TABLE IF NOT EXISTS "group_events" (
+	"id"	INTEGER NOT NULL UNIQUE,
+	"timestamp"	TEXT NOT NULL,
+	"title"	TEXT NOT NULL,
+	"description" TEXT NOT NULL,
+	"when"	TEXT NOT NULL,
+	"group_id"	INTEGER NOT NULL,
+	"by_user_id" INTEGER NOT NULL,
+	PRIMARY KEY("id" AUTOINCREMENT),
+	FOREIGN KEY("group_id") REFERENCES "groups"("id") ON DELETE CASCADE,
+	FOREIGN KEY("by_user_id") REFERENCES "users"("id") ON DELETE CASCADE
+);
+
+END TRANSACTION;
+
+
