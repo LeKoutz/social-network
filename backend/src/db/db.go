@@ -31,6 +31,11 @@ func InitDB(dbPath string) error {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
+	_, err = db.Exec("PRAGMA foreign_keys=ON;")
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
 	db.SetMaxOpenConns(1)
 	err = createMigrationsTable(db)
 	if err != nil {
