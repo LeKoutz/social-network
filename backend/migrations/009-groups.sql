@@ -1,0 +1,14 @@
+BEGIN TRANSACTION;
+
+CREATE TABLE IF NOT EXISTS "groups" (
+	"id"	INTEGER NOT NULL UNIQUE,
+	"timestamp"	TEXT NOT NULL,
+	"title"	TEXT NOT NULL UNIQUE,
+	"description"	TEXT,
+	"owner_user_id"	INTEGER NOT NULL,
+	PRIMARY KEY("id" AUTOINCREMENT),
+	FOREIGN KEY("owner_user_id") REFERENCES "users"("id")
+);
+
+END TRANSACTION;
+
