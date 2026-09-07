@@ -16,7 +16,6 @@ func setupTestReactionDB(t *testing.T) (UserType, PostType, CommentType) {
 	user.Username = "reactuser"
 	user.Email = "react@test.com"
 	user.Hash = hash
-	user.Gender = "male"
 	if err := user.Add(); err != nil {
 		t.Fatalf("Failed to create test user: %v", err)
 	}
@@ -166,7 +165,6 @@ func TestGetPostLikesByUserIdMultiple(t *testing.T) {
 	user2.Username = "reactuser2"
 	user2.Email = "react2@test.com"
 	user2.Hash, _ = utils.HashPassword("password123")
-	user2.Gender = "male"
 	user2.Add()
 
 	db.InsertLikeToPost(user.Id, post.Id)

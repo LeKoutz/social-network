@@ -13,6 +13,7 @@ import (
 
 type UserType struct {
 	db.UserRowType
+	db.UserProfileRowType
 
 	LoggedIn                 bool
 	Notifications            NotificationsType
@@ -70,19 +71,7 @@ func (u *UserType) ValidateUser() error {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
-	if !u.isValidGender() {
-		err = ferror.ErrorInvalidGender
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
-	}
 	return nil
-}
-
-func (u *UserType) isValidGender() bool {
-	if u.Gender != "male" && u.Gender != "female" && u.Gender != "other" {
-		return false
-	}
-	return true
 }
 
 func (u *UserType) Add() error {
@@ -94,6 +83,13 @@ func (u *UserType) Add() error {
 	}
 	err = u.InsertUserWithHash()
 	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
+	u.UserId = u.Id
+	err = u.InsertUserProfile()
+	if err != nil {
+		u.DeleteUserById()
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}

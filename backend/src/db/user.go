@@ -14,10 +14,6 @@ type UserRowType struct {
 	Email         string
 	OAuthProvider string
 	SessionId     string
-	FirstName     string
-	LastName      string
-	Age           int64
-	Gender        string
 	LastMessageTimestamp	int64
 }
 
@@ -71,12 +67,12 @@ func (user *UserRowType) SelectUserById() error {
 }
 
 func (u *UserRowType) InsertUserWithHash() error {
-	stmt, err := db.Prepare("INSERT INTO users (username, first_name, last_name, gender, age, email, hash) VALUES (?, ?, ?, ?, ?, ?, ?)")
+	stmt, err := db.Prepare("INSERT INTO users (username, email, hash) VALUES (?, ?, ?)")
 	if err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
-	res, err := stmt.Exec(u.Username, u.FirstName, u.LastName, u.Gender, u.Age, u.Email, u.Hash)
+	res, err := stmt.Exec(u.Username, u.Email, u.Hash)
 	if err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
@@ -168,5 +164,14 @@ func (u *UserRowType) UpdateUserSession(session_key string) error {
 		return err
 	}
 	u.SessionId = session_key
+	return nil
+}
+
+func (u *UserRowType) DeleteUserById() error {
+	_, err := db.Exec("DELETE FROM users WHERE id = ?", u.Id)
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
 	return nil
 }

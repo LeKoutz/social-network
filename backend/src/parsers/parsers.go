@@ -12,15 +12,19 @@ import (
 
 func ParseRegistrationForm(data state.StateHandler) error {
 	var err error
+	err = data.GetRequest().ParseMultipartForm(models.MaxImageSize)
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
 	formData := map[string]string{
 		"username":   data.GetRequest().FormValue("username"),
 		"email":      data.GetRequest().FormValue("email"),
 		"first_name": data.GetRequest().FormValue("first_name"),
 		"last_name":  data.GetRequest().FormValue("last_name"),
-		"age":        data.GetRequest().FormValue("age"),
-		"gender":     data.GetRequest().FormValue("gender"),
 		"password1":  data.GetRequest().FormValue("password1"),
 		"password2":  data.GetRequest().FormValue("password2"),
+		"date_of_birth": data.GetRequest().FormValue("date_of_birth"),
 	}
 	for _, value := range formData {
 		if len(value) == 0 {
@@ -39,13 +43,11 @@ func ParseRegistrationForm(data state.StateHandler) error {
 	data.EditUser().Password = formData["password1"]
 	data.EditUser().FirstName = formData["first_name"]
 	data.EditUser().LastName = formData["last_name"]
-	age, err := utils.StringToInt64(formData["age"])
-	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
-	}
-	data.EditUser().Age = age
-	data.EditUser().Gender = formData["gender"]
+	data.EditUser().DateOfBirth = formData["date_of_birth"]
+	data.EditUser().Nickname = data.GetRequest().FormValue("nickname")
+	data.EditUser().About = data.GetRequest().FormValue("about_me")
+	data.EditUser().AvatarURL = data.GetRequest().FormValue("avatar")
+	data.EditUser().PrivateProfile = data.GetRequest().FormValue("private_profile") == "on"
 	return nil
 }
 
