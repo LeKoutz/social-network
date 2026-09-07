@@ -2,7 +2,7 @@
     font-family: system-ui;
 }
 
-body {
+body, #app {
     display: flex;
     flex-direction: column;
     background-color: #2f2f2f;
