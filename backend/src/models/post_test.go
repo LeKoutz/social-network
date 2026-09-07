@@ -17,7 +17,6 @@ func setupTestPostDB(t *testing.T) UserType {
 	user.Username = "postauthor"
 	user.Email = "author@test.com"
 	user.Hash = hash
-	user.Gender = "male"
 	if err := user.Add(); err != nil {
 		t.Fatalf("Failed to create test user: %v", err)
 	}

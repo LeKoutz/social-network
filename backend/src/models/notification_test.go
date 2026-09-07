@@ -17,7 +17,6 @@ func setupTestNotificationDB(t *testing.T) (UserType, UserType, PostType) {
 	owner.Username = "notifowner"
 	owner.Email = "owner@test.com"
 	owner.Hash = hash
-	owner.Gender = "male"
 	if err := owner.Add(); err != nil {
 		t.Fatalf("Failed to create owner user: %v", err)
 	}
@@ -26,7 +25,6 @@ func setupTestNotificationDB(t *testing.T) (UserType, UserType, PostType) {
 	actor.Username = "notifactor"
 	actor.Email = "actor@test.com"
 	actor.Hash = hash
-	actor.Gender = "male"
 	if err := actor.Add(); err != nil {
 		t.Fatalf("Failed to create actor user: %v", err)
 	}

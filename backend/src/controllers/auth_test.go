@@ -47,7 +47,6 @@ func TestAuth(t *testing.T) {
 				hash, _ := utils.HashPassword(tt.password)
 				user := models.UserType{}
 				user.Username = "tester"
-				user.Gender = "other"
 				user.Email = tt.email
 				user.Hash = hash
 				if err := user.Add(); err != nil {

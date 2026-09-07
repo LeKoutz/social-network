@@ -18,7 +18,6 @@ func setupTestCommentDB(t *testing.T) (UserType, PostType) {
 	user.Username = "commentauthor"
 	user.Email = "comment@test.com"
 	user.Hash = hash
-	user.Gender = "male"
 	if err := user.Add(); err != nil {
 		t.Fatalf("Failed to create test user: %v", err)
 	}
