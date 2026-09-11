@@ -37,9 +37,6 @@ export async function routeSelect() {
     case '/user/posts':
         await userPostsRoute();
         break;
-    case '/user/activity':
-        await userActivityRoute();
-        break;
     case `/category/view/${id}`:
         await categoryRoute(id);
         break;
