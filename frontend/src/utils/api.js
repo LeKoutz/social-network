@@ -10,3 +10,17 @@ export async function apiFetch(url) {
     }
     return data;
 }
+
+export async function apiPost(url, body) {
+    const response = await fetch(url, {
+        method: 'POST',
+        body,
+    });
+    const data = await response.json();
+    if (data.Error?.Has) {
+        const { setAlert } = useAlerts();
+        setAlert(data);
+        return null;
+    }
+    return data;
+}
