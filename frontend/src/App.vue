@@ -1,4 +1,3 @@
-<!-- App.vue -->
 <script setup>
 import { ref, onMounted } from 'vue';
 import Topbar from './components/Topbar.vue';
