@@ -314,6 +314,35 @@ func TestStateSetCategories(t *testing.T) {
 	}
 }
 
+func TestStateEditGroup(t *testing.T) {
+	s := &State{}
+	g := s.EditGroup()
+	if g == nil {
+		t.Error("EditGroup() returned nil")
+	}
+}
+
+func TestStateGetGroup(t *testing.T) {
+	s := &State{}
+	g := s.GetGroup()
+	if g.Id != 0 {
+		t.Errorf("GetGroup() Id = %d, want 0", g.Id)
+	}
+}
+
+func TestStateSetGroup(t *testing.T) {
+	s := &State{}
+	group := models.GroupType{}
+	group.Title = "testgroup"
+	result := s.SetGroup(group)
+	if result != s {
+		t.Error("SetGroup() should return same State pointer")
+	}
+	if s.Groups[0].Title != "testgroup" {
+		t.Errorf("SetGroup() Title = %q, want %q", s.Groups[0].Title, "testgroup")
+	}
+}
+
 func TestStateSetEditPost(t *testing.T) {
 	s := &State{}
 	s.SetEditPost(true)

@@ -252,3 +252,16 @@ func ParseUserFollowRequest(data state.StateHandler) error {
 	data.EditFollowRequest().ToUserId = to_user_id
 	return nil
 }
+
+func ParseCreateGroupRequest(data state.StateHandler) error {
+	var err error
+	err = data.GetRequest().ParseMultipartForm(models.MaxImageSize)
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
+	data.EditGroup().OwnerUserId = data.GetUser().Id
+	data.EditGroup().Title = data.GetRequest().FormValue("title")
+	data.EditGroup().Description = data.GetRequest().FormValue("description")
+	return nil
+}

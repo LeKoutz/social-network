@@ -15,6 +15,7 @@ type State struct {
 	Users         models.UsersType
 	Posts         models.PostsType
 	Categories    models.CategoriesType
+	Groups        models.GroupsType
 	EditingPost   bool
 	EditCommentId int64
 	ChatOffset	  int64
@@ -36,6 +37,10 @@ type StateController interface {
 	EditCategory() *models.CategoryType
 	GetCategory() models.CategoryType
 	SetCategory(models.CategoryType) *State
+
+	EditGroup() *models.GroupType
+	GetGroup() models.GroupType
+	SetGroup(models.GroupType) *State
 
 	EditPost() *models.PostType
 	GetPost() models.PostType
@@ -84,6 +89,7 @@ type StateHandler interface {
 	SetCategories(models.CategoriesType) *State
 	EditCategories() *models.CategoriesType
 	EditCategory() *models.CategoryType
+	EditGroup() *models.GroupType
 	EditComment() *models.CommentType
 	EditPost() *models.PostType
 	GetPost() models.PostType

@@ -57,6 +57,9 @@ var (
 	ErrorContentNotFound         = errors.New("Content not found. It doesn't exist or it may have been deleted")
 	ErrorInvitationAlreadyExists = errors.New("Invitation already exists")
 	ErrorInvalidUserId           = errors.New("Invalid user ID")
+	ErrorGroupTitleEmpty         = errors.New("Group title can't be empty.")
+	ErrorGroupTitleTooLong       = errors.New("Group title is too long. Use less than 128 characters.")
+	ErrorGroupTitleAlreadyExists = errors.New("Group title already exists.")
 )
 
 type Error struct {
@@ -105,6 +108,9 @@ func (e *Error) Consume(err error) *Error {
 		errors.Is(err, ErrorCategoryEmptyId),
 		errors.Is(err, ErrorCategoryNameEmpty),
 		errors.Is(err, ErrorCategoryNameTooLong),
+		errors.Is(err, ErrorGroupTitleEmpty),
+		errors.Is(err, ErrorGroupTitleTooLong),
+		errors.Is(err, ErrorGroupTitleAlreadyExists),
 		errors.Is(err, ErrorEmailFieldEmpty),
 		errors.Is(err, ErrorPasswordFieldEmpty),
 		errors.Is(err, ErrorBadRequest):
