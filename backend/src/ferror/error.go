@@ -60,6 +60,9 @@ var (
 	ErrorGroupTitleEmpty         = errors.New("Group title can't be empty.")
 	ErrorGroupTitleTooLong       = errors.New("Group title is too long. Use less than 128 characters.")
 	ErrorGroupTitleAlreadyExists = errors.New("Group title already exists.")
+	ErrorGroupEmptyId            = errors.New("Group ID can't be empty.")
+	ErrorInvalidGroupId          = errors.New("Invalid group ID")
+	ErrorGroupMembershipRequired = errors.New("You must be a member of this group to see its posts.")
 )
 
 type Error struct {
@@ -90,6 +93,7 @@ func (e *Error) Consume(err error) *Error {
 		errors.Is(err, ErrorUserPermissionDenied),
 		errors.Is(err, ErrorCommentPermissionDenied),
 		errors.Is(err, ErrorPostPermissionDenied),
+		errors.Is(err, ErrorGroupMembershipRequired),
 		errors.Is(err, ErrorPermissionDenied):
 		e.StatusCode = http.StatusForbidden
 	case errors.Is(err, ErrorMethodNotAllowed):
@@ -111,6 +115,8 @@ func (e *Error) Consume(err error) *Error {
 		errors.Is(err, ErrorGroupTitleEmpty),
 		errors.Is(err, ErrorGroupTitleTooLong),
 		errors.Is(err, ErrorGroupTitleAlreadyExists),
+		errors.Is(err, ErrorGroupEmptyId),
+		errors.Is(err, ErrorInvalidGroupId),
 		errors.Is(err, ErrorEmailFieldEmpty),
 		errors.Is(err, ErrorPasswordFieldEmpty),
 		errors.Is(err, ErrorBadRequest):

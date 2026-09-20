@@ -4,6 +4,10 @@ import { useRouter } from 'vue-router';
 import { useCategories } from '@/composables/useCategories.js';
 import { apiPost } from '@/utils/api.js';
 
+const props = defineProps({
+    group: { type: Object, default: null },
+});
+
 const router = useRouter();
 const { categories } = useCategories();
 
@@ -34,11 +38,13 @@ async function submit() {
     for (const id of selected.value) {
         data.append(`category-${id}`, 'on');
     }
+    if (props.group) data.append('group-id', props.group.Id);
     if (image.value) data.append('image', image.value);
     const res = await apiPost('/api/post/create', data);
     submitting.value = false;
     if (res) {
-        router.push(`/post/view/${res.Posts[0].Id}`);
+        const id = props.group ? props.group.Id : res.Posts[0].Id;
+        router.push(props.group ? `/group/view/${id}` : `/post/view/${id}`);
     }
 }
 </script>
@@ -48,20 +54,23 @@ async function submit() {
         <form class="post-create" @submit.prevent="submit">
             <fieldset>
                 <legend>New post</legend>
-                <input type="text" v-model="title" name="title" placeholder="Your title here" required />
-                <template v-if="categories.length">
-                    <div class="inline" v-for="category in categories" :key="category.Id">
-                        <input
-                            type="checkbox"
-                            :id="`category-${category.Id}`"
-                            :name="`category-${category.Id}`"
-                            :checked="selected.includes(category.Id)"
-                            @change="toggle(category.Id)"
-                        />
-                        <label :for="`category-${category.Id}`">{{ category.Name }}</label>
-                    </div>
+                <template v-if="!group">
+                    <input type="text" v-model="title" name="title" placeholder="Your title here" required />
+                    <template v-if="categories.length">
+                        <div class="inline" v-for="category in categories" :key="category.Id">
+                            <input
+                                type="checkbox"
+                                :id="`category-${category.Id}`"
+                                :name="`category-${category.Id}`"
+                                :checked="selected.includes(category.Id)"
+                                @change="toggle(category.Id)"
+                            />
+                            <label :for="`category-${category.Id}`">{{ category.Name }}</label>
+                        </div>
+                    </template>
+                    <p v-else>No categories available</p>
                 </template>
-                <p v-else>No categories available</p>
+                <input v-else type="text" v-model="title" name="title" placeholder="Your title here" required />
                 <textarea v-model="body" name="body" placeholder="Your post here" required></textarea>
                 <input
                     type="file"

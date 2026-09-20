@@ -65,6 +65,7 @@ var routes = Routes{
 
 	// Groups
 	Route{Method: "GET", Path: "/api/groups", Function: handlers.HandleShowGroups, NeedsLogin: true},
+	Route{Method: "GET", Path: "/api/group/view/", Prefix: true, Function: handlers.HandleShowGroup, NeedsLogin: true},
 	Route{Method: "POST", Path: "/api/group/create", Function: handlers.HandleCreateGroup, NeedsLogin: true},
 
 	// WebSocket

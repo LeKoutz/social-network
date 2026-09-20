@@ -9,6 +9,9 @@ import (
 
 type GroupType struct {
 	db.GroupRowType
+
+	Member bool
+	Posts  PostsType
 }
 
 func (g *GroupType) ValidateGroup() error {
@@ -35,4 +38,23 @@ func (g *GroupType) Add() error {
 		return err
 	}
 	return g.InsertGroup()
+}
+
+func (g *GroupType) GetById() error {
+	var err error
+	err = g.SelectGroupById()
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
+	return nil
+}
+
+func (g *GroupType) IsMember(userId int64) (bool, error) {
+	member, err := g.GroupRowType.IsMember(userId)
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return false, err
+	}
+	return member, nil
 }

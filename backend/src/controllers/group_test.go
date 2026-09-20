@@ -89,3 +89,81 @@ func TestShowGroups(t *testing.T) {
 		t.Errorf("ShowGroups() len = %d, want 2", len(s.GetGroups()))
 	}
 }
+
+func TestShowGroup(t *testing.T) {
+	if err := db.InitDB(":memory:"); err != nil {
+		t.Skip("Database initialization failed: ", err)
+	}
+	hash, _ := utils.HashPassword("password123")
+	owner := models.UserType{}
+	owner.Username = "groupowner"
+	owner.Email = "groupowner@test.com"
+	owner.Hash = hash
+	if err := owner.Add(); err != nil {
+		t.Fatalf("Failed to create owner: %v", err)
+	}
+	stranger := models.UserType{}
+	stranger.Username = "stranger"
+	stranger.Email = "stranger@test.com"
+	stranger.Hash = hash
+	if err := stranger.Add(); err != nil {
+		t.Fatalf("Failed to create stranger: %v", err)
+	}
+
+	group := models.GroupType{}
+	group.Title = "Members Area"
+	group.Description = "Only members"
+	group.OwnerUserId = owner.Id
+	if err := group.Add(); err != nil {
+		t.Fatalf("Failed to create group: %v", err)
+	}
+
+	post := models.PostType{}
+	post.Title = "Group update"
+	post.Body = "Members only content"
+	post.UserId = owner.Id
+	post.GroupId = group.Id
+	if err := post.Add(); err != nil {
+		t.Fatalf("Failed to create group post: %v", err)
+	}
+
+	t.Run("member sees posts", func(t *testing.T) {
+		s := &state.State{}
+		s.Init()
+		s.SetUser(owner)
+		g := models.GroupType{}
+		g.Id = group.Id
+		s.SetGroup(g)
+
+		err := ShowGroup(s)
+		if err != nil {
+			t.Fatalf("ShowGroup() error: %v", err)
+		}
+		if !s.GetGroup().Member {
+			t.Error("ShowGroup() member = false for owner, want true")
+		}
+		if len(s.GetGroup().Posts) != 1 {
+			t.Errorf("ShowGroup() group posts len = %d, want 1", len(s.GetGroup().Posts))
+		}
+	})
+
+	t.Run("non-member sees no posts", func(t *testing.T) {
+		s := &state.State{}
+		s.Init()
+		s.SetUser(stranger)
+		g := models.GroupType{}
+		g.Id = group.Id
+		s.SetGroup(g)
+
+		err := ShowGroup(s)
+		if err != nil {
+			t.Fatalf("ShowGroup() error: %v", err)
+		}
+		if s.GetGroup().Member {
+			t.Error("ShowGroup() member = true for stranger, want false")
+		}
+		if len(s.GetGroup().Posts) != 0 {
+			t.Errorf("ShowGroup() leaked %d posts to non-member", len(s.GetGroup().Posts))
+		}
+	})
+}

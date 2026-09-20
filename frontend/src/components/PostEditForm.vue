@@ -66,6 +66,7 @@ async function submit() {
                     placeholder="Your title here"
                     required
                 />
+                <template v-if="!post.GroupId">
                 <div class="inline" v-for="category in categories" :key="category.Id">
                     <input
                         type="checkbox"
@@ -76,6 +77,7 @@ async function submit() {
                     />
                     <label :for="`category-${category.Id}`">{{ category.Name }}</label>
                 </div>
+                </template>
                 <img
                     v-if="post.ImagePath"
                     :src="`/${post.ImagePath}`"

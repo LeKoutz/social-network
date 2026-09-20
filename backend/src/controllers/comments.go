@@ -9,12 +9,17 @@ import (
 
 func CommentCreate(data state.StateController) error {
 	var err error
-	err = data.EditComment().Add()
+	err = data.EditPost().GetById()
 	if err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
-	err = data.EditPost().GetById()
+	err = verifyPostGroupAccess(data)
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
+	err = data.EditComment().Add()
 	if err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
@@ -35,6 +40,16 @@ func CommentReaction(data state.StateController) error {
 		return err
 	}
 	data.EditPost().Id = data.GetComment().PostId
+	err = data.EditPost().GetById()
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
+	err = verifyPostGroupAccess(data)
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
 	switch data.GetRequest().FormValue("action") {
 	case "like":
 		err = data.EditUser().LikeComment(data.GetComment().Id)

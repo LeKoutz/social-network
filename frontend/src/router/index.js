@@ -11,6 +11,7 @@ import PostEditView from '@/views/PostEditView.vue';
 import { useUser } from '@/composables/useUser.js';
 import GroupCreateView from '@/views/GroupCreateView.vue';
 import GroupsBrowserView from '@/views/GroupsBrowserView.vue';
+import GroupView from '@/views/GroupView.vue';
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,6 +35,7 @@ const router = createRouter({
         },
         { path: '/group/create', component: GroupCreateView },
         { path: '/groups', component: GroupsBrowserView },
+        { path: '/group/view/:id', component: GroupView },
     ],
 });
 

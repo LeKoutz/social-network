@@ -31,3 +31,20 @@ func HandleCreateGroup(data state.StateHandler) {
 	}
 	data.WriteResponse()
 }
+
+func HandleShowGroup(data state.StateHandler) {
+	var err error
+	data.EditGroup().Id, err = parsers.ParseGroupId(data)
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		data.SetErrorConsume(err).WriteResponse()
+		return
+	}
+	err = controllers.ShowGroup(data.(state.StateController))
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		data.SetErrorConsume(err).WriteResponse()
+		return
+	}
+	data.WriteResponse()
+}

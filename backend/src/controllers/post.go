@@ -20,6 +20,13 @@ func GetPost(data state.StateController) error {
 
 func CreatePost(data state.StateController) error {
 	var err error
+	if data.GetPost().GroupId != 0 {
+		err = verifyPostGroupAccess(data)
+		if err != nil {
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+			return err
+		}
+	}
 	err = data.EditPost().InsertPost()
 	if err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
@@ -49,6 +56,11 @@ func getPostDataById(data state.StateController) error {
 			return err
 		}
 		return errors.Join(utils.GetFunctionName(), err)
+	}
+	err = verifyPostGroupAccess(data)
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
 	}
 	data.EditPost().User.Id = data.GetPost().UserId
 	err = data.EditPost().User.GetById()
@@ -102,6 +114,11 @@ func ShowEditPost(data state.StateController) error {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
+	err = verifyPostGroupAccess(data)
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
 	if err = verifyUserPostAssociation(data); err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
@@ -126,6 +143,26 @@ func verifyUserPostAssociation(data state.StateController) error {
 	// Check your priviledge
 	if data.GetPost().UserId != data.GetUser().Id {
 		err := ferror.ErrorCommentPermissionDenied
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
+	return nil
+}
+
+// verifyPostGroupAccess restricts group posts to the group's members.
+func verifyPostGroupAccess(data state.StateController) error {
+	var err error
+	if data.GetPost().GroupId == 0 {
+		return nil
+	}
+	data.EditGroup().Id = data.GetPost().GroupId
+	member, err := data.EditGroup().IsMember(data.GetUser().Id)
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
+	if !member {
+		err = ferror.ErrorGroupMembershipRequired
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
@@ -175,6 +212,11 @@ func PostReaction(data state.StateController) error {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
+	err = verifyPostGroupAccess(data)
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
 	switch data.GetRequest().FormValue("action") {
 	case "like":
 		return LikePost(data)
@@ -190,6 +232,11 @@ func PostReaction(data state.StateController) error {
 func RemovePost(data state.StateController) error {
 	var err error
 	err = data.EditPost().GetById()
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
+	err = verifyPostGroupAccess(data)
 	if err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err

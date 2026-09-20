@@ -18,8 +18,14 @@ type NotificationRowType struct {
 }
 
 func (n *NotificationRowType) InsertNotification() error {
+	var commentId any
+	if n.CommentId == 0 {
+		commentId = nil
+	} else {
+		commentId = n.CommentId
+	}
 	query := `INSERT INTO notifications (user_id, actor_id, type, post_id, comment_id, timestamp) VALUES (?, ?, ?, ?, ?, ?)`
-	res, err := db.Exec(query, n.UserId, n.ActorId, n.Type, n.PostId, n.CommentId, n.Timestamp)
+	res, err := db.Exec(query, n.UserId, n.ActorId, n.Type, n.PostId, commentId, n.Timestamp)
 	if err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err

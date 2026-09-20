@@ -1,6 +1,7 @@
 package db
 
 import (
+	"database/sql"
 	"errors"
 	"forum/src/utils"
 )
@@ -23,12 +24,13 @@ func SelectNotificationsByUserId(userId int64) (NotificationRowsType, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var notification NotificationRowType
+		var commentId sql.NullInt64
 		err = rows.Scan(&notification.Id,
 			&notification.UserId,
 			&notification.ActorId,
 			&notification.Type,
 			&notification.PostId,
-			&notification.CommentId,
+			&commentId,
 			&notification.Timestamp,
 			&notification.Read,
 			&notification.Username)
@@ -36,6 +38,7 @@ func SelectNotificationsByUserId(userId int64) (NotificationRowsType, error) {
 			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return NotificationRowsType{}, err
 		}
+		notification.CommentId = commentId.Int64
 		notifications = append(notifications, notification)
 	}
 	return notifications, nil

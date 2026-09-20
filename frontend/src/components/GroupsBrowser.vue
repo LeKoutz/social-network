@@ -21,7 +21,7 @@ onMounted(async () => {
         <h2>Groups</h2>
         <template v-if="user.LoggedIn">
             <div class="group" v-for="group in groups" :key="group.Id">
-                <h3>{{ group.Title }}</h3>
+                <router-link :to="`/group/view/${group.Id}`"><h3>{{ group.Title }}</h3></router-link>
                 <p class="group-description">{{ group.Description }}</p>
                 <p class="group-owner">
                     Owned by <strong>{{ group.OwnerUsername }}</strong> on

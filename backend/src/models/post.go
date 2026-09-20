@@ -31,7 +31,7 @@ func (p *PostType) ValidatePost() error {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
-	if p.Categories.IsEmpty() {
+	if p.Categories.IsEmpty() && p.GroupId == 0 {
 		err := ferror.ErrorPostHasNoCategory
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err

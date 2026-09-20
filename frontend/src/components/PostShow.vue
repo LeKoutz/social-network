@@ -56,6 +56,14 @@ const isOwner = () =>
             <div class="post-content">
                 <router-link :to="`/post/view/${post.Id}`"><h3>{{post.Title}}</h3></router-link>
                 <div class="post-details">
+                    <template v-if="post.GroupId">
+                    <p>Group:
+                        <router-link :to="`/group/view/${post.GroupId}`">
+                            <strong>{{ post.GroupTitle }}</strong>
+                        </router-link>
+                    </p>
+                    </template>
+                    <template v-else>
                     <p>Categories:
                     <span v-for="category in post.Categories" :key="category.Id">
                         <router-link :to="`/category/view/${category.Id}`">
@@ -63,6 +71,7 @@ const isOwner = () =>
                         </router-link>
                     </span>
                     </p>
+                    </template>
                     <p>Posted by
                     <router-link :to="`/user/${post.User.Id}`">
                         <strong>{{post.User.Username}}</strong>

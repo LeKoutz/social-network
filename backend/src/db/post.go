@@ -8,24 +8,32 @@ import (
 )
 
 type PostRowType struct {
-	Id              int64
-	Title           string
-	Body            string
-	ImagePath       string
-	UserId          int64
-	Timestamp       string
+	Id         int64
+	Title      string
+	Body       string
+	ImagePath  string
+	UserId     int64
+	Timestamp  string
+	GroupId    int64
+	GroupTitle string
 }
 
 func (p *PostRowType) InsertPost() error {
 	var query string = `
 		INSERT INTO posts
-		(title, body, image_path, user_id, timestamp)
-		VALUES (?, ?, ?, ?, ?)
+		(title, body, image_path, user_id, timestamp, group_id)
+		VALUES (?, ?, ?, ?, ?, ?)
 	`
 	stmt, err := db.Prepare(query)
 	if err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
+	}
+	var groupId any
+	if p.GroupId == 0 {
+		groupId = nil
+	} else {
+		groupId = p.GroupId
 	}
 	res, err := stmt.Exec(
 		p.Title,
@@ -33,6 +41,7 @@ func (p *PostRowType) InsertPost() error {
 		p.ImagePath,
 		p.UserId,
 		utils.GetCurrentTimestamp(),
+		groupId,
 	)
 	if err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
@@ -143,11 +152,22 @@ func (p *PostRowType) DeletePostById() error {
 }
 
 func (p *PostRowType) SelectPostById() error {
+	var groupId sql.NullInt64
 	var query string = `SELECT
-		title, body, image_path, timestamp, user_id
+		posts.title, posts.body, posts.image_path, posts.timestamp, posts.user_id,
+		posts.group_id, COALESCE(groups.title, '')
 		FROM posts
-		WHERE id = ?`
-	err := db.QueryRow(query, p.Id).Scan(&p.Title, &p.Body, &p.ImagePath, &p.Timestamp, &p.UserId)
+		LEFT JOIN groups ON posts.group_id = groups.id
+		WHERE posts.id = ?`
+	err := db.QueryRow(query, p.Id).Scan(
+		&p.Title,
+		&p.Body,
+		&p.ImagePath,
+		&p.Timestamp,
+		&p.UserId,
+		&groupId,
+		&p.GroupTitle,
+	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			err = ferror.ErrorNoRows
@@ -155,5 +175,6 @@ func (p *PostRowType) SelectPostById() error {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
 	}
+	p.GroupId = groupId.Int64
 	return nil
 }

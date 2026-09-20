@@ -139,6 +139,23 @@ func ParseCategoryId(data state.StateHandler) (int64, error) {
 	return categoryId, nil
 }
 
+func ParseGroupId(data state.StateHandler) (int64, error) {
+	var err error
+	id, ok := strings.CutPrefix(data.GetRequest().RequestURI, "/api/group/view/")
+	if !ok || len(id) == 0 {
+		err = ferror.ErrorGroupEmptyId
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return 0, err
+	}
+	groupId, err := utils.StringToInt64(id)
+	if err != nil {
+		err = ferror.ErrorInvalidGroupId
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return 0, err
+	}
+	return groupId, nil
+}
+
 func ParseCreatePostRequest(data state.StateHandler) error {
 	var err error
 	var categories models.CategoriesType
@@ -162,6 +179,16 @@ func ParseCreatePostRequest(data state.StateHandler) error {
 	}
 	data.EditPost().Title = title
 	data.EditPost().Body = body
+	groupIdStr := data.GetRequest().FormValue("group-id")
+	if len(groupIdStr) != 0 {
+		groupId, err := utils.StringToInt64(groupIdStr)
+		if err != nil {
+			err = ferror.ErrorInvalidGroupId
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+			return err
+		}
+		data.EditPost().GroupId = groupId
+	}
 	err = categories.GetAll()
 	if err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
@@ -174,7 +201,7 @@ func ParseCreatePostRequest(data state.StateHandler) error {
 			post_cat = append(post_cat, category)
 		}
 	}
-	if len(post_cat) == 0 {
+	if len(post_cat) == 0 && data.GetPost().GroupId == 0 {
 		err = ferror.ErrorPostHasNoCategory
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err

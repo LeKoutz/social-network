@@ -119,3 +119,122 @@ func TestGroupGetGroups(t *testing.T) {
 		}
 	}
 }
+
+func TestGroupGetById(t *testing.T) {
+	user := setupTestGroupDB(t)
+
+	g := &GroupType{}
+	g.Title = "Club Alpha"
+	g.Description = "Members only"
+	g.OwnerUserId = user.Id
+	if err := g.Add(); err != nil {
+		t.Fatalf("Add() error: %v", err)
+	}
+
+	got := &GroupType{}
+	got.Id = g.Id
+	if err := got.GetById(); err != nil {
+		t.Fatalf("GetById() error: %v", err)
+	}
+	if got.Title != g.Title || got.Description != g.Description {
+		t.Errorf("GetById() = %+v, want title %q description %q", got, g.Title, g.Description)
+	}
+	if got.OwnerUsername != user.Username {
+		t.Errorf("GetById() OwnerUsername = %q, want %q", got.OwnerUsername, user.Username)
+	}
+}
+
+func TestGroupIsMember(t *testing.T) {
+	user := setupTestGroupDB(t)
+
+	g := &GroupType{}
+	g.Title = "Closed Club"
+	g.OwnerUserId = user.Id
+	if err := g.Add(); err != nil {
+		t.Fatalf("Add() error: %v", err)
+	}
+
+	member, err := g.IsMember(user.Id)
+	if err != nil {
+		t.Fatalf("IsMember() error: %v", err)
+	}
+	if !member {
+		t.Error("IsMember(owner) = false, want true")
+	}
+
+	stranger := &UserType{}
+	stranger.Username = "stranger"
+	stranger.Email = "stranger@test.com"
+	stranger.Hash, _ = utils.HashPassword("password123")
+	if err := stranger.Add(); err != nil {
+		t.Fatalf("failed to create stranger: %v", err)
+	}
+	member, err = g.IsMember(stranger.Id)
+	if err != nil {
+		t.Fatalf("IsMember() error: %v", err)
+	}
+	if member {
+		t.Error("IsMember(stranger) = true, want false")
+	}
+}
+
+func TestGroupGetPostsByGroupId(t *testing.T) {
+	user := setupTestGroupDB(t)
+
+	g := &GroupType{}
+	g.Title = "Group Hub"
+	g.OwnerUserId = user.Id
+	if err := g.Add(); err != nil {
+		t.Fatalf("Add() group error: %v", err)
+	}
+
+	groupPost := &PostType{}
+	groupPost.Title = "Group only post"
+	groupPost.Body = "Secret content"
+	groupPost.UserId = user.Id
+	groupPost.GroupId = g.Id
+	if err := groupPost.Add(); err != nil {
+		t.Fatalf("Add() group post error: %v", err)
+	}
+
+	cat := CategoryType{}
+	cat.Name = "general"
+	cat.Description = "General discussion"
+	if err := cat.Add(); err != nil {
+		t.Fatalf("Add() category error: %v", err)
+	}
+	publicPost := &PostType{}
+	publicPost.Title = "Public post"
+	publicPost.Body = "Everyone sees this"
+	publicPost.UserId = user.Id
+	publicPost.Categories = CategoriesType{cat}
+	if err := publicPost.Add(); err != nil {
+		t.Fatalf("Add() public post error: %v", err)
+	}
+
+	var groupPosts PostsType
+	if err := groupPosts.GetPostsByGroupId(g.Id); err != nil {
+		t.Fatalf("GetPostsByGroupId() error: %v", err)
+	}
+	if len(groupPosts) != 1 {
+		t.Errorf("GetPostsByGroupId() len = %d, want 1", len(groupPosts))
+	}
+	if len(groupPosts) > 0 {
+		if groupPosts[0].GroupId != g.Id {
+			t.Errorf("group post GroupId = %d, want %d", groupPosts[0].GroupId, g.Id)
+		}
+		if groupPosts[0].GroupTitle != g.Title {
+			t.Errorf("group post GroupTitle = %q, want %q", groupPosts[0].GroupTitle, g.Title)
+		}
+	}
+
+	var all PostsType
+	if err := all.GetPosts(); err != nil {
+		t.Fatalf("GetPosts() error: %v", err)
+	}
+	for _, post := range all {
+		if post.GroupId != 0 {
+			t.Errorf("public feed leaked group post id %d", post.Id)
+		}
+	}
+}
