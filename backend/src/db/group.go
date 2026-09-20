@@ -9,11 +9,12 @@ import (
 )
 
 type GroupRowType struct {
-	Id          int64
-	Timestamp   string
-	Title       string
-	Description string
-	OwnerUserId int64
+	Id            int64
+	Timestamp     string
+	Title         string
+	Description   string
+	OwnerUserId   int64
+	OwnerUsername string
 }
 
 func (g *GroupRowType) InsertGroup() error {

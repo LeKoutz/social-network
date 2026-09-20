@@ -86,3 +86,36 @@ func TestGroupAdd(t *testing.T) {
 		t.Errorf("Add() duplicate title error = %v, want %v", err, ferror.ErrorGroupTitleAlreadyExists)
 	}
 }
+
+func TestGroupGetGroups(t *testing.T) {
+	user := setupTestGroupDB(t)
+
+	for _, title := range []string{"Group One", "Group Two"} {
+		g := &GroupType{}
+		g.Title = title
+		g.OwnerUserId = user.Id
+		if err := g.Add(); err != nil {
+			t.Fatalf("Add() error for %q: %v", title, err)
+		}
+	}
+
+	var groups GroupsType
+	if err := groups.GetGroups(); err != nil {
+		t.Fatalf("GetGroups() error: %v", err)
+	}
+	if len(groups) != 2 {
+		t.Errorf("GetGroups() len = %d, want 2", len(groups))
+	}
+	found := map[string]bool{}
+	for _, group := range groups {
+		found[group.Title] = true
+		if group.OwnerUsername != user.Username {
+			t.Errorf("GetGroups() OwnerUsername = %q, want %q", group.OwnerUsername, user.Username)
+		}
+	}
+	for _, title := range []string{"Group One", "Group Two"} {
+		if !found[title] {
+			t.Errorf("GetGroups() missing group %q", title)
+		}
+	}
+}

@@ -42,6 +42,10 @@ type StateController interface {
 	GetGroup() models.GroupType
 	SetGroup(models.GroupType) *State
 
+	EditGroups() *models.GroupsType
+	GetGroups() models.GroupsType
+	SetGroups(models.GroupsType) *State
+
 	EditPost() *models.PostType
 	GetPost() models.PostType
 	SetPost(models.PostType) *State

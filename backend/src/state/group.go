@@ -22,3 +22,19 @@ func (r *State) SetGroup(group models.GroupType) *State {
 	r.Groups = models.GroupsType{group}
 	return r
 }
+
+func (r *State) EditGroups() *models.GroupsType {
+	if r.Groups == nil {
+		r.InitGroup()
+	}
+	return &r.Groups
+}
+
+func (r *State) GetGroups() models.GroupsType {
+	return *r.EditGroups()
+}
+
+func (r *State) SetGroups(groups models.GroupsType) *State {
+	r.Groups = groups
+	return r
+}
