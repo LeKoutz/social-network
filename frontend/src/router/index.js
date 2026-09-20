@@ -9,6 +9,7 @@ import PostView from '@/views/PostView.vue';
 import PostCreateView from '@/views/PostCreateView.vue';
 import PostEditView from '@/views/PostEditView.vue';
 import { useUser } from '@/composables/useUser.js';
+import GroupCreateView from '@/views/GroupCreateView.vue';
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -30,6 +31,7 @@ const router = createRouter({
             component: PostEditView,
             meta: { requiresAuth: true },
         },
+        { path: '/group/create', component: GroupCreateView },
     ],
 });
 

@@ -25,6 +25,7 @@ const { unreadNotificationsCount } = useNotifications();
                     <li>
                         <ul>
                             <li><router-link to="/post/create">Create post</router-link></li>
+                            <li><router-link to="/group/create">Create group</router-link></li>
                             <li><router-link to="/user/activity">My activity</router-link></li>
                             <li><router-link to="/user/posts">My posts</router-link></li>
                             <li><router-link to="/user/likes">My likes</router-link></li>
