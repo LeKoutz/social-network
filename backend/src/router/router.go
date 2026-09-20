@@ -60,6 +60,9 @@ var routes = Routes{
 	Route{Method: "GET", Path: "/api/user", Function: handlers.HandleShowUserView, NeedsLogin: true},
 	Route{Method: "GET", Path: "/api/user/activity", Function: handlers.HandleShowUserActivity, NeedsLogin: true},
 
+	// Follows
+	Route{Method: "POST", Path: "/api/follow/", Prefix: true, Function: handlers.HandleUserFollow, NeedsLogin: true},
+
 	// WebSocket
 	Route{Method: "GET", Path: "/ws", Function: handlers.HandleWs, NeedsLogin: true},
 

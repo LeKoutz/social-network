@@ -22,6 +22,7 @@ type State struct {
 	Request       *http.Request       `json:"-"`
 	Response      http.ResponseWriter `json:"-"`
 	Message       models.Message
+	FollowRequest models.FollowRequestType
 	Version       string
 }
 
@@ -66,6 +67,8 @@ type StateController interface {
 	EditChatMessage(index int64) *models.ChatMessageType
 	GetChatMessage(index int64) models.ChatMessageType
 
+	EditFollowRequest() *models.FollowRequestType
+
 	SetMessage(models.Message) *State
 	SetView(string) *State // TODO: Remove
 	SetErrorConsume(error) *State
@@ -88,6 +91,7 @@ type StateHandler interface {
 	EditChatMessages() *models.ChatMessagesType
 	EditChatMessage(index int64) *models.ChatMessageType
 	SetChatOffset(int64) *State
+	EditFollowRequest() *models.FollowRequestType
 
 	GetRequest() *http.Request
 	EditResponse() *http.ResponseWriter

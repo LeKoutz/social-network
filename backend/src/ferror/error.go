@@ -55,6 +55,8 @@ var (
 	ErrorCookieNotFound          = errors.New("State cookie not found")
 	ErrorInvalidOAuthState       = errors.New("Invalid OAuth state")
 	ErrorContentNotFound         = errors.New("Content not found. It doesn't exist or it may have been deleted")
+	ErrorInvitationAlreadyExists = errors.New("Invitation already exists")
+	ErrorInvalidUserId           = errors.New("Invalid user ID")
 )
 
 type Error struct {
