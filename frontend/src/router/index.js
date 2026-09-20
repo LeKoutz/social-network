@@ -6,6 +6,9 @@ import RegisterView from '@/views/RegisterView.vue';
 import ProfileView from '@/views/ProfileView.vue';
 import UserActivityView from '@/views/UserActivityView.vue';
 import PostView from '@/views/PostView.vue';
+import PostCreateView from '@/views/PostCreateView.vue';
+import PostEditView from '@/views/PostEditView.vue';
+import { useUser } from '@/composables/useUser.js';
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -17,7 +20,24 @@ const router = createRouter({
         { path: '/profile', component: ProfileView },
         { path: '/user/activity', component: UserActivityView },
         { path: '/post/view/:id', component: PostView },
+        {
+            path: '/post/create',
+            component: PostCreateView,
+            meta: { requiresAuth: true },
+        },
+        {
+            path: '/post/edit/:id',
+            component: PostEditView,
+            meta: { requiresAuth: true },
+        },
     ],
+});
+
+router.beforeEach((to) => {
+    if (to.meta.requiresAuth) {
+        const { user } = useUser();
+        if (!user.value.LoggedIn) return '/user/login';
+    }
 });
 
 export default router;

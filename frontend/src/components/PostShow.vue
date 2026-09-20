@@ -1,11 +1,13 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { useUser } from '@/composables/useUser.js';
-import { apiFetch } from '@/utils/api.js';
+import { apiFetch, apiPost } from '@/utils/api.js';
 import { firstOrNull, DateToLocale } from '@/utils/utils.js';
 
 import CommentCreateForm from '@/components/CommentCreateForm.vue';
 import CommentShow from '@/components/CommentShow.vue';
+import PostReactForm from '@/components/PostReactForm.vue';
+import PostDeleteForm from '@/components/PostDeleteForm.vue';
 
 const props = defineProps({
     post: { type: Object, default: null },
@@ -25,6 +27,19 @@ watch(
 async function refresh() {
     if (!post.value) return;
     const data = await apiFetch(`/api/post/view/${post.value.Id}`);
+    if (data) {
+        post.value = firstOrNull(data.Posts);
+    }
+}
+
+async function react(action) {
+    const data = await apiPost(
+        '/api/post/react',
+        new URLSearchParams({
+            'post-id': post.value.Id,
+            action,
+        })
+    );
     if (data) {
         post.value = firstOrNull(data.Posts);
     }
@@ -60,12 +75,11 @@ const isOwner = () =>
                     <router-link :to="`/post/edit/${post.Id}`">
                         <button type="button">Edit Post</button>
                     </router-link>
-                    <router-link :to="`/post/delete/${post.Id}`">
-                        <button type="button">Delete Post</button>
-                    </router-link>
+                    <PostDeleteForm :post="post" />
                 </div>
                 <pre>{{post.Body}}</pre>
                 <img v-if="post.ImagePath" :src="`/${post.ImagePath}`" alt="Post image" style="max-width: 100%;"/>
+                <PostReactForm :post="post" @react="react" />
                 <div class="comments">
                     <CommentCreateForm v-if="user.LoggedIn" :post="post" @created="refresh" />
                     <CommentShow
