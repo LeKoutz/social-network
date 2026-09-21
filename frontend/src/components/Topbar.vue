@@ -30,6 +30,16 @@ const { unreadNotificationsCount } = useNotifications();
                             <li><router-link to="/groups">Browse groups</router-link></li>
                             <li><router-link to="/user/posts">My posts</router-link></li>
                             <li><router-link to="/user/likes">My likes</router-link></li>
+                            <li><router-link to="/follows">My follows</router-link></li>
+                            <li>
+                                <details>
+                                    <summary>
+                                        Notifications 🔔 {{ unreadNotificationsCount }}
+                                    </summary>
+                                    <NotificationsPanel v-if="unreadNotificationsCount > 0" />
+                                </details>
+                            </li>
+                            <li><button @click="logoutUser">Log out</button></li>
                         </ul>
                     </li>
                     <li>
