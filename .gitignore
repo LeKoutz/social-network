@@ -2,7 +2,8 @@ bin
 *.db*
 tags
 data
-uploads/images
+backend/uploads/images
+frontend/dist
 .env
 node_modules
 .vscode

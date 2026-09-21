@@ -11,6 +11,7 @@ body, #app {
     height: 100vh;
     margin-top: 0px;
     margin-bottom: 0px;
+    justify-content: space-between;
 }
 
 a {
@@ -125,6 +126,7 @@ input[type=submit]:hover, button:hover {
 .container {
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
 }
 
 .content {

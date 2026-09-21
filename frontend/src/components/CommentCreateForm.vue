@@ -12,21 +12,25 @@ const props = defineProps({
 const emit = defineEmits(['created']);
 
 const body = ref('');
+const image = ref(null);
 const submitting = ref(false);
+
+function onImage(e) {
+    image.value = e.target.files[0] ?? null;
+}
 
 async function submit() {
     if (!body.value.trim()) return;
     submitting.value = true;
-    const data = await apiPost(
-        '/api/comment/create',
-        new URLSearchParams({
-            'post-id': props.post.Id,
-            comment: body.value,
-        })
-    );
+    const data = new FormData();
+    data.append('post-id', props.post.Id);
+    data.append('comment', body.value);
+    if (image.value) data.append('image', image.value);
+    const res = await apiPost('/api/comment/create', data);
     submitting.value = false;
-    if (data) {
+    if (res) {
         body.value = '';
+        image.value = null;
         emit('created');
     }
 }
@@ -42,6 +46,12 @@ async function submit() {
                 placeholder="Enter your comment"
                 required
             ></textarea>
+            <input
+                type="file"
+                name="image"
+                accept="image/jpeg,image/png,image/gif"
+                @change="onImage"
+            />
             <input type="submit" :disabled="submitting" value="Post comment" />
         </fieldset>
     </form>

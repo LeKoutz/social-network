@@ -21,6 +21,7 @@ defineProps({
                 <router-link :to="`/post/view/{{post.Id}}#comment-{{comment.Id}}`">
                     <pre>{{comment.Body}}</pre>
                 </router-link>
+                <img v-if="comment.ImagePath" :src="`/${comment.ImagePath}`" alt="Comment image" style="max-width: 100%"/>
                 <div class="reactions">
                     <button disabled>{{comment.Likes}} {{comment.Liked?"👍":"👍🏻"}}</button>
                     <button disabled>{{comment.Dislikes}} {{comment.Disliked?"👎":"👎🏻"}}</button>
