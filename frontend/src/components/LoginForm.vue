@@ -1,11 +1,13 @@
 <script setup>
 import { useUser } from '@/composables/useUser.js';
+import { useChat } from '@/composables/useChat.js';
 import { useAlerts } from '@/composables/useAlerts';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const { setAlert } = useAlerts();
 const { user, setUser } = useUser();
+const { ensureWs } = useChat();
 
 if (user.value.LoggedIn) {
     setAlert({ Error: { Has: true, Message: 'You are already logged-in' } });
@@ -20,8 +22,8 @@ async function submitForm(e) {
     setAlert(data);
     if (data && !data.Error.Has) {
         setUser(data.User);
+        ensureWs(data.User.Id);
         router.push('/');
-        // TODO: Handle Websocket
     }
 }
 </script>

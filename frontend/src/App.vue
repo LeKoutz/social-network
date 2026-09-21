@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import Topbar from './components/Topbar.vue';
 import Footer from './components/Footer.vue';
+import UsersPanel from './components/UsersPanel.vue';
 import { apiFetch } from './utils/api.js';
 import Alerts from './components/Alerts.vue';
 import { useAppData } from './composables/useAppData.js';
@@ -12,7 +13,7 @@ import { useCategories } from './composables/useCategories.js';
 const loaded = ref(false);
 const { setAppData } = useAppData();
 const { setNotifications } = useNotifications();
-const { setUser } = useUser();
+const { user, setUser } = useUser();
 const { setCategories } = useCategories();
 
 onMounted(async () => {
@@ -34,6 +35,7 @@ onMounted(async () => {
         <Topbar />
         <Alerts />
         <router-view />
+        <UsersPanel v-if="user.LoggedIn" />
         <Footer />
     </template>
 </template>

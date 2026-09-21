@@ -1,5 +1,7 @@
 import { ref } from 'vue';
 import { apiFetch } from '@/utils/api.js';
+import router from '@/router/index.js';
+import { useChat } from '@/composables/useChat.js';
 
 const user = ref({ LoggedIn: false });
 
@@ -13,8 +15,8 @@ export function useUser() {
             const data = await apiFetch('/api/user/logout');
             if (data) {
                 user.value = { LoggedIn: false };
-                router.push('/')
-                // TODO: Update Websocket
+                router.push('/');
+                useChat().disconnectWS();
             }
             return true;
         } catch (e) {
