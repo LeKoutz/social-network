@@ -73,6 +73,7 @@ func (p *PostRowType) SelectCommentsAndUsernameByPostId() (CommentRowsType, erro
 	c.user_id,
 	c.body,
 	c.timestamp,
+	COALESCE(c.image_path, ''),
 	u.username
 	FROM comments c
 	JOIN users u ON c.user_id = u.id
@@ -95,6 +96,7 @@ func (p *PostRowType) SelectCommentsAndUsernameByPostId() (CommentRowsType, erro
 			&comment.UserId,
 			&comment.Body,
 			&comment.Timestamp,
+			&comment.ImagePath,
 			&comment.Username,
 		)
 		if err != nil {

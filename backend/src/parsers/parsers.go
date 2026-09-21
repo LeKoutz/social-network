@@ -221,6 +221,11 @@ func ParseCreatePostRequest(data state.StateHandler) error {
 
 func ParseCreateCommentRequest(data state.StateHandler) error {
 	var err error
+	err = data.GetRequest().ParseMultipartForm(models.MaxImageSize)
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
 	data.EditComment().UserId = data.GetUser().Id
 	data.EditComment().Body = data.GetRequest().FormValue("comment")
 	data.EditPost().Id, err = ParsePostId(data)
@@ -230,6 +235,15 @@ func ParseCreateCommentRequest(data state.StateHandler) error {
 		return err
 	}
 	data.EditComment().PostId = data.GetPost().Id
+	imageFile, _, err := data.GetRequest().FormFile("image")
+	if err == nil {
+		defer imageFile.Close()
+		data.EditComment().ImagePath, err = models.SaveImage(imageFile)
+		if err != nil {
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+			return err
+		}
+	}
 	return nil
 }
 

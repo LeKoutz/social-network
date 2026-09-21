@@ -3,6 +3,7 @@ package handlers
 import (
 	"forum/src/controllers"
 	"errors"
+	"forum/src/models"
 	"forum/src/parsers"
 	"forum/src/state"
 	"forum/src/utils"
@@ -61,6 +62,12 @@ func HandleCommentDelete(data state.StateHandler) {
 
 func HandleCommentEdit(data state.StateHandler) {
 	var err error
+	err = data.GetRequest().ParseMultipartForm(models.MaxImageSize)
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		data.SetErrorConsume(err).WriteResponse()
+		return
+	}
 	data.EditComment().Id, err = parsers.ParseCommentId(data)
 	if err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }

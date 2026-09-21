@@ -10,7 +10,7 @@ type CommentRowsType []CommentRowType
 func SelectCommentsByUserId(id int64) (CommentRowsType, error) {
 	var comments CommentRowsType
 	rows, err := db.Query(`
-	SELECT id, post_id, body, timestamp, user_id
+	SELECT id, post_id, body, COALESCE(image_path, ''), timestamp, user_id
 	FROM comments
 	WHERE user_id = ?`, id)
 	if err != nil {
@@ -19,7 +19,7 @@ func SelectCommentsByUserId(id int64) (CommentRowsType, error) {
 	}
 	for rows.Next() {
 		var comment CommentRowType
-		err = rows.Scan(&comment.Id, &comment.PostId, &comment.Body, &comment.Timestamp, &comment.UserId)
+		err = rows.Scan(&comment.Id, &comment.PostId, &comment.Body, &comment.ImagePath, &comment.Timestamp, &comment.UserId)
 		if err != nil {
 			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 			return comments, err

@@ -10,16 +10,18 @@ type CommentRowType struct {
 	PostId          int64
 	UserId          int64
 	Body            string
+	ImagePath       string
 	Timestamp       string
 	Username        string
 }
 
 func (c *CommentRowType) InsertComment() error {
 	res, err := db.Exec(
-		"INSERT INTO comments (post_id, user_id, body, timestamp) VALUES (?, ?, ?, ?)",
+		"INSERT INTO comments (post_id, user_id, body, image_path, timestamp) VALUES (?, ?, ?, ?, ?)",
 		c.PostId,
 		c.UserId,
 		c.Body,
+		c.ImagePath,
 		utils.GetCurrentTimestamp(),
 	)
 	c.Id, err = res.LastInsertId()
@@ -32,9 +34,9 @@ func (c *CommentRowType) InsertComment() error {
 
 func (c *CommentRowType) SelectCommentById() error {
 	err := db.QueryRow(
-		`SELECT id, post_id, user_id, body, timestamp
+		`SELECT id, post_id, user_id, body, COALESCE(image_path, ''), timestamp
 		FROM comments
-		WHERE id = ?`, c.Id).Scan(&c.Id, &c.PostId, &c.UserId, &c.Body, &c.Timestamp)
+		WHERE id = ?`, c.Id).Scan(&c.Id, &c.PostId, &c.UserId, &c.Body, &c.ImagePath, &c.Timestamp)
 	if err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err
@@ -70,7 +72,7 @@ func (c *CommentRowType) DeleteCommentById() error {
 }
 
 func (c *CommentRowType) UpdateCommentById() error {
-	_, err := db.Exec("UPDATE comments SET body = ? WHERE id = ?", c.Body, c.Id)
+	_, err := db.Exec("UPDATE comments SET body = ?, image_path = ? WHERE id = ?", c.Body, c.ImagePath, c.Id)
 	if err != nil {
 		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
 		return err

@@ -3,6 +3,7 @@ package controllers
 import (
 	"errors"
 	"forum/src/ferror"
+	"forum/src/models"
 	"forum/src/state"
 	"forum/src/utils"
 )
@@ -145,6 +146,21 @@ func ShowEditComment(data state.StateController) error {
 }
 
 func UpdateCommentFromForm(data state.StateController) error {
+	var err error
+	err = data.GetRequest().ParseMultipartForm(models.MaxImageSize)
+	if err != nil {
+		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+		return err
+	}
 	data.EditComment().Body = data.GetRequest().FormValue("comment")
+	imageFile, _, err := data.GetRequest().FormFile("image")
+	if err == nil {
+		defer imageFile.Close()
+		data.EditComment().ImagePath, err = models.SaveImage(imageFile)
+		if err != nil {
+			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+			return err
+		}
+	}
 	return data.EditComment().Update()
 }

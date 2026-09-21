@@ -199,6 +199,61 @@ func TestCommentGetById(t *testing.T) {
 	}
 }
 
+func TestCommentImagePath(t *testing.T) {
+	user, post := setupTestCommentDB(t)
+
+	c := &CommentType{}
+	c.UserId = user.Id
+	c.PostId = post.Id
+	c.Body = "Comment with image"
+	c.ImagePath = "uploads/images/comment.png"
+	if err := c.Add(); err != nil {
+		t.Fatalf("Add() error: %v", err)
+	}
+
+	c2 := &CommentType{}
+	c2.Id = c.Id
+	if err := c2.GetById(); err != nil {
+		t.Fatalf("GetById() error: %v", err)
+	}
+	if c2.ImagePath != "uploads/images/comment.png" {
+		t.Errorf("GetById() ImagePath = %q, want %q", c2.ImagePath, "uploads/images/comment.png")
+	}
+
+	var p db.PostRowType
+	p.Id = post.Id
+	comments, err := p.SelectCommentsAndUsernameByPostId()
+	if err != nil {
+		t.Fatalf("SelectCommentsAndUsernameByPostId() error: %v", err)
+	}
+	if len(comments) != 1 {
+		t.Fatalf("SelectCommentsAndUsernameByPostId() len = %d, want 1", len(comments))
+	}
+	if comments[0].ImagePath != "uploads/images/comment.png" {
+		t.Errorf("SelectCommentsAndUsernameByPostId() ImagePath = %q, want %q", comments[0].ImagePath, "uploads/images/comment.png")
+	}
+	if comments[0].Username != "commentauthor" {
+		t.Errorf("SelectCommentsAndUsernameByPostId() Username = %q, want %q", comments[0].Username, "commentauthor")
+	}
+
+	c2.ImagePath = "uploads/images/edited.png"
+	c2.Body = "Rewritten"
+	if err := c2.Update(); err != nil {
+		t.Fatalf("Update() error: %v", err)
+	}
+	c3 := &CommentType{}
+	c3.Id = c.Id
+	if err := c3.SelectCommentById(); err != nil {
+		t.Fatalf("SelectCommentById() error: %v", err)
+	}
+	if c3.ImagePath != "uploads/images/edited.png" {
+		t.Errorf("Update() ImagePath = %q, want %q", c3.ImagePath, "uploads/images/edited.png")
+	}
+	if c3.Body != "Rewritten" {
+		t.Errorf("Update() Body = %q, want %q", c3.Body, "Rewritten")
+	}
+}
+
 func TestCommentUpdate(t *testing.T) {
 	user, post := setupTestCommentDB(t)
 
