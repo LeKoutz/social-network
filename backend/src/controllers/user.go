@@ -21,19 +21,16 @@ func UserLogout(data state.StateController) error {
 		if errors.Is(err, http.ErrNoCookie) {
 			err = ferror.ErrorAlreadyLoggedOut
 		}
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	data.EditUser().SessionId = cookie.Value
 	err = data.EditUser().GetUserBySession()
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	err = data.EditUser().SetUserSession("")
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	http.SetCookie(*data.EditResponse(), UnsetCookie())
 	data.SetUser(GuestUser)
@@ -45,21 +42,17 @@ func AttemptRegister(data state.StateController) error {
 	var err error
 	if data.GetUser().LoggedIn {
 		err = ferror.ErrorAlreadyLoggedIn
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	if err = validatePasswordStrength(data.GetUser().Password); err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	if data.EditUser().Hash, err = utils.HashPassword(data.GetUser().Password); err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	data.EditUser().Password = ""
 	if err = data.EditUser().Add(); err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	data.SetUser(models.GetGuestUser())
 	data.SetMessage(models.Message{
@@ -74,17 +67,14 @@ func AttemptLogin(data state.StateController) error {
 	var err error
 	if data.GetUser().LoggedIn {
 		err = ferror.ErrorAlreadyLoggedIn
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	if err = authenticateUser(data); err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	sessionValue, err := createUserSession(data)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	setSessionCookie(data, sessionValue)
 	data.SetMessage(
@@ -104,8 +94,7 @@ func authenticateUser(data state.StateController) error {
 		if !errors.Is(err, ferror.ErrorWrongPassword) && !errors.Is(err, ferror.ErrorNotRegistered) {
 			err = ferror.ErrorInternalServerError
 		}
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	data.EditUser().Password = ""
 	return nil
@@ -115,23 +104,20 @@ func createUserSession(data state.StateController) (string, error) {
 	sessionValue, err := uuid.NewV4()
 	if err != nil {
 		data.SetUser(models.GetGuestUser())
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return "", err
+		return "", ferror.ReturnErr(err)
 	}
 	data.EditUser().SessionId = sessionValue.String()
 	err = data.EditUser().GetUserByIdentifier()
 	if err != nil {
 		data.SetUser(models.GetGuestUser())
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return "", err
+		return "", ferror.ReturnErr(err)
 	}
 	data.EditUser().Identifier = ""
 	data.EditUser().LoggedIn = true
 	err = data.EditUser().SetUserSession(sessionValue.String())
 	if err != nil {
 		data.SetUser(models.GetGuestUser())
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return "", err
+		return "", ferror.ReturnErr(err)
 	}
 	return sessionValue.String(), nil
 }
@@ -155,8 +141,7 @@ func validatePasswordStrength(password string) error {
 	unameMask := regexp.MustCompile(`^[[:punct:][:alnum:]]{10,16}$`)
 	if !unameMask.MatchString(password) {
 		err := ferror.ErrorWeakPassword
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }
@@ -164,19 +149,16 @@ func validatePasswordStrength(password string) error {
 func GetUserPosts(data state.StateController) error {
 	posts, err := data.EditUser().GetPosts()
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	for i := range posts {
 		err = posts[i].GetReactions()
 		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return err
+			return ferror.ReturnErr(err)
 		}
 		err = posts[i].GetReactionsByUserId(data.GetUser().Id)
 		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return err
+			return ferror.ReturnErr(err)
 		}
 	}
 	// data.Posts = posts
@@ -190,19 +172,16 @@ func GetUserLikedPosts(data state.StateController) error {
 	var posts models.PostsType
 	posts, err = data.EditUser().GetLikedPosts()
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	for i := range posts {
 		err = posts[i].GetReactions()
 		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return err
+			return ferror.ReturnErr(err)
 		}
 		err = posts[i].GetReactionsByUserId(data.GetUser().Id)
 		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return err
+			return ferror.ReturnErr(err)
 		}
 	}
 	data.SetPosts(posts)
@@ -217,14 +196,12 @@ func GetReturningUser(data state.StateController) error {
 	var err error
 	err = data.EditUser().GetUserBySession()
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	data.EditUser().LoggedIn = true
 	err = data.EditUser().GetNotifications()
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }

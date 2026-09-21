@@ -1,7 +1,6 @@
 package db
 
 import (
-	"errors"
 	"forum/src/ferror"
 	"forum/src/utils"
 
@@ -25,8 +24,7 @@ func (g *GroupRowType) InsertGroup() error {
 	`
 	stmt, err := db.Prepare(query)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	res, err := stmt.Exec(
 		utils.GetCurrentTimestamp(),
@@ -40,13 +38,11 @@ func (g *GroupRowType) InsertGroup() error {
 				err = ferror.ErrorGroupTitleAlreadyExists
 			}
 		}
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	g.Id, err = res.LastInsertId()
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }
@@ -68,8 +64,7 @@ func (g *GroupRowType) SelectGroupById() error {
 		&g.OwnerUsername,
 	)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }
@@ -85,8 +80,7 @@ func (g *GroupRowType) IsMember(userId int64) (bool, error) {
 		userId,
 	).Scan(&isOwner)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return false, err
+		return false, ferror.ReturnErr(err)
 	}
 	if isOwner {
 		return true, nil
@@ -101,8 +95,7 @@ func (g *GroupRowType) IsMember(userId int64) (bool, error) {
 		userId,
 	).Scan(&invited)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return false, err
+		return false, ferror.ReturnErr(err)
 	}
 	return invited, nil
 }

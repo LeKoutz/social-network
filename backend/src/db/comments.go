@@ -1,9 +1,6 @@
 package db
 
-import (
-	"errors"
-	"forum/src/utils"
-)
+import "forum/src/ferror"
 
 type CommentRowsType []CommentRowType
 
@@ -14,15 +11,13 @@ func SelectCommentsByUserId(id int64) (CommentRowsType, error) {
 	FROM comments
 	WHERE user_id = ?`, id)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return comments, err
+		return comments, ferror.ReturnErr(err)
 	}
 	for rows.Next() {
 		var comment CommentRowType
 		err = rows.Scan(&comment.Id, &comment.PostId, &comment.Body, &comment.ImagePath, &comment.Timestamp, &comment.UserId)
 		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return comments, err
+			return comments, ferror.ReturnErr(err)
 		}
 		comments = append(comments, comment)
 	}

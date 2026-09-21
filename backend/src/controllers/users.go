@@ -1,17 +1,15 @@
 package controllers
 
 import (
-	"errors"
 	"forum/src/models"
 	"forum/src/state"
-	"forum/src/utils"
+	"forum/src/ferror"
 )
 
 func GetUsersForPanel(data state.StateController) error {
 	err := data.EditUsers().GetUsersForPanel(data.GetUser().Id)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }

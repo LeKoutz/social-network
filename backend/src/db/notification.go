@@ -1,8 +1,7 @@
 package db
 
 import (
-	"errors"
-	"forum/src/utils"
+	"forum/src/ferror"
 )
 
 type NotificationRowType struct {
@@ -27,13 +26,11 @@ func (n *NotificationRowType) InsertNotification() error {
 	query := `INSERT INTO notifications (user_id, actor_id, type, post_id, comment_id, timestamp) VALUES (?, ?, ?, ?, ?, ?)`
 	res, err := db.Exec(query, n.UserId, n.ActorId, n.Type, n.PostId, commentId, n.Timestamp)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	n.Id, err = res.LastInsertId()
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }
@@ -41,13 +38,11 @@ func (n *NotificationRowType) InsertNotification() error {
 func (u *UserRowType) UpdateNotificationAsRead(notificationId int64) error {
 	stmt, err := db.Prepare(`UPDATE notifications SET "read" = 1 WHERE id = ? AND user_id = ?`)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	_, err = stmt.Exec(notificationId, u.Id)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }

@@ -1,9 +1,6 @@
 package db
 
-import (
-	"errors"
-	"forum/src/utils"
-)
+import "forum/src/ferror"
 
 type ReactionRowType struct {
 	Id              int64
@@ -19,8 +16,7 @@ func DeleteReactionById(reactionId int64) error {
 		WHERE id = ?
 		`, reactionId)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }

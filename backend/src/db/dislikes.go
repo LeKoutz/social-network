@@ -1,8 +1,7 @@
 package db
 
 import (
-	"errors"
-	utils "forum/src/utils"
+	"forum/src/ferror"
 )
 
 func SelectDislikesCountByPostId(postId int64) (int64, error) {
@@ -13,8 +12,7 @@ func SelectDislikesCountByPostId(postId int64) (int64, error) {
         WHERE post_id = ? AND value = 2
     `, postId).Scan(&dislikes)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return 0, err
+		return 0, ferror.ReturnErr(err)
 	}
 	return dislikes, nil
 }
@@ -27,8 +25,7 @@ func SelectDislikesCountByCommentId(commentId int64) (int64, error) {
         WHERE comment_id = ? AND value = 2
     `, commentId).Scan(&dislikes)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return 0, err
+		return 0, ferror.ReturnErr(err)
 	}
 	return dislikes, nil
 }

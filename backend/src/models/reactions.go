@@ -1,9 +1,8 @@
 package models
 
 import (
-	"errors"
 	"forum/src/db"
-	"forum/src/utils"
+	"forum/src/ferror"
 )
 
 type ReactionsType []ReactionType
@@ -14,8 +13,7 @@ func (r *ReactionsType) GetPostLikesByUserId(id int64) error {
 	var rows db.ReactionRowsType
 	err = rows.SelectPostLikesByUserId(id)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	for _, row := range rows {
 		var reaction ReactionType
@@ -30,8 +28,7 @@ func GetPostDislikesByUserId(id int64) (ReactionsType, error) {
 	var reactions ReactionsType
 	rows, err := db.SelectPostDislikesByUserId(id)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return ReactionsType{}, err
+		return ReactionsType{}, ferror.ReturnErr(err)
 	}
 	for _, row := range rows {
 		var reaction ReactionType
@@ -45,8 +42,7 @@ func GetCommentLikesByUserId(id int64) (ReactionsType, error) {
 	var reactions ReactionsType
 	rows, err := db.SelectCommentLikesByUserId(id)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return ReactionsType{}, err
+		return ReactionsType{}, ferror.ReturnErr(err)
 	}
 	for _, row := range rows {
 		var reaction ReactionType
@@ -60,8 +56,7 @@ func GetCommentDisikesByUserId(id int64) (ReactionsType, error) {
 	var reactions ReactionsType
 	rows, err := db.SelectCommentDislikesByUserId(id)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return ReactionsType{}, err
+		return ReactionsType{}, ferror.ReturnErr(err)
 	}
 	for _, row := range rows {
 		var reaction ReactionType

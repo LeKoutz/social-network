@@ -1,8 +1,7 @@
 package db
 
 import (
-	"errors"
-	"forum/src/utils"
+	"forum/src/ferror"
 )
 
 type ChatMessagesRowType []ChatMessageRowType
@@ -19,8 +18,7 @@ func SelectChatHistory(userId1, userId2, offset int64) (ChatMessagesRowType, []s
     LIMIT 10 OFFSET ?
 ) ORDER BY timestamp ASC`, userId1, userId2, userId2, userId1, offset)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return ChatMessagesRowType{}, nil, err
+		return ChatMessagesRowType{}, nil, ferror.ReturnErr(err)
 	}
 	defer rows.Close()
 	var messages ChatMessagesRowType
@@ -30,8 +28,7 @@ func SelectChatHistory(userId1, userId2, offset int64) (ChatMessagesRowType, []s
 		var username string
 		err = rows.Scan(&message.Id, &message.SenderId, &message.RecipientId, &message.Body, &message.Timestamp, &username)
 		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return ChatMessagesRowType{}, nil, err
+			return ChatMessagesRowType{}, nil, ferror.ReturnErr(err)
 		}
 		messages = append(messages, message)
 		usernames = append(usernames, username)
@@ -46,8 +43,7 @@ func SelectUnreadMessageIds(userId int64) (ChatMessagesRowType, error) {
 	WHERE recipient_id = ?
 	AND read = 0`, userId)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return ChatMessagesRowType{}, err
+		return ChatMessagesRowType{}, ferror.ReturnErr(err)
 	}
 	defer rows.Close()
 	var messages ChatMessagesRowType
@@ -55,8 +51,7 @@ func SelectUnreadMessageIds(userId int64) (ChatMessagesRowType, error) {
 		var message ChatMessageRowType
 		err = rows.Scan(&message.Id, &message.SenderId)
 		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return ChatMessagesRowType{}, err
+			return ChatMessagesRowType{}, ferror.ReturnErr(err)
 		}
 		messages = append(messages, message)
 	}

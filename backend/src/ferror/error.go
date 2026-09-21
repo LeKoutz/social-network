@@ -2,6 +2,7 @@ package ferror
 
 import (
 	"errors"
+	"forum/src/utils"
 	"log"
 	"net/http"
 	"strings"
@@ -130,4 +131,11 @@ func (e *Error) Consume(err error) *Error {
 // Logs *Error to terminal
 func (e *Error) LogError() {
 	log.Printf("Error: %s", e.Message)
+}
+
+func ReturnErr(err error) error {
+	if utils.GlobalConfig.Debug {
+		err = errors.Join(utils.GetFunctionName(), err)
+	}
+	return err
 }

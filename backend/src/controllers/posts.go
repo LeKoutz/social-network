@@ -1,10 +1,9 @@
 package controllers
 
 import (
-	"errors"
 	"forum/src/models"
 	"forum/src/state"
-	"forum/src/utils"
+	"forum/src/ferror"
 )
 
 func markSelectedCategories(categories models.CategoriesType, selected models.CategoriesType) models.CategoriesType {
@@ -22,19 +21,16 @@ func ShowPosts(data state.StateController) error {
 	var err error
 	err = data.EditPosts().GetPosts()
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	for i := range *data.EditPosts() {
 		err = (*data.EditPosts())[i].GetReactions()
 		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return err
+			return ferror.ReturnErr(err)
 		}
 		err = (*data.EditPosts())[i].GetReactionsByUserId(data.GetUser().Id)
 		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return err
+			return ferror.ReturnErr(err)
 		}
 	}
 	// data.SetPosts(posts)

@@ -1,7 +1,7 @@
 package models
 
 import (
-	"errors"
+	"forum/src/ferror"
 	"forum/src/db"
 	"forum/src/utils"
 )
@@ -20,8 +20,7 @@ func CreateNotification(notification NotificationType) error {
 	notification.Timestamp = utils.GetCurrentTimestamp()
 	err := notification.InsertNotification()
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }
@@ -31,8 +30,7 @@ func (user *UserType) MarkAsReadPost(post PostType) error {
 		if notification.PostId == post.Id && !notification.Read {
 			err := user.UpdateNotificationAsRead(notification.Id)
 			if err != nil {
-				if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-				return err
+				return ferror.ReturnErr(err)
 			}
 			user.Notifications[i].Read = true
 			user.UnreadNotificationsCount--

@@ -1,9 +1,8 @@
 package models
 
 import (
-	"errors"
 	"forum/src/db"
-	"forum/src/utils"
+	"forum/src/ferror"
 )
 
 type CommentsType []CommentType
@@ -13,8 +12,7 @@ func (u *UserType) GetCommentsByUserId() (CommentsType, error) {
 	var err error
 	rows, err := db.SelectCommentsByUserId(u.Id)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return CommentsType{}, err
+		return CommentsType{}, ferror.ReturnErr(err)
 	}
 	for _, row := range rows {
 		var comment CommentType

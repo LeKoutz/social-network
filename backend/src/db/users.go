@@ -1,15 +1,11 @@
 package db
 
-import (
-	"errors"
-	"forum/src/utils"
-)
+import "forum/src/ferror"
 
 func SelectAllUsernames() ([]string, error) {
 	rows, err := db.Query(`SELECT username FROM users`)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return []string{}, err
+		return []string{}, ferror.ReturnErr(err)
 	}
 	defer rows.Close()
 	var usernames []string
@@ -17,8 +13,7 @@ func SelectAllUsernames() ([]string, error) {
 		var email string
 		err = rows.Scan(&email)
 		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return []string{}, err
+			return []string{}, ferror.ReturnErr(err)
 		}
 		usernames = append(usernames, email)
 	}
@@ -28,8 +23,7 @@ func SelectAllUsernames() ([]string, error) {
 func SelectAllUserEmails() ([]string, error) {
 	rows, err := db.Query(`SELECT email FROM users`)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return []string{}, err
+		return []string{}, ferror.ReturnErr(err)
 	}
 	defer rows.Close()
 	var emails []string
@@ -37,8 +31,7 @@ func SelectAllUserEmails() ([]string, error) {
 		var email string
 		err = rows.Scan(&email)
 		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return []string{}, err
+			return []string{}, ferror.ReturnErr(err)
 		}
 		emails = append(emails, email)
 	}
@@ -48,8 +41,7 @@ func SelectAllUserEmails() ([]string, error) {
 func SelectAllUsers() ([]UserRowType, error) {
 	rows, err := db.Query(`SELECT id, username FROM users`)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return []UserRowType{}, err
+		return []UserRowType{}, ferror.ReturnErr(err)
 	}
 	defer rows.Close()
 	var users []UserRowType
@@ -57,8 +49,7 @@ func SelectAllUsers() ([]UserRowType, error) {
 		var user UserRowType
 		err = rows.Scan(&user.Id, &user.Username)
 		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return []UserRowType{}, err
+			return []UserRowType{}, ferror.ReturnErr(err)
 		}
 		users = append(users, user)
 	}
@@ -82,8 +73,7 @@ func SelectUsersForPanel(currentUserId int64) ([]UserRowType, error) {
 	GROUP BY u.id, u.username
 	`, currentUserId, currentUserId, currentUserId)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return []UserRowType{}, err
+		return []UserRowType{}, ferror.ReturnErr(err)
 	}
 	defer rows.Close()
 	var users []UserRowType
@@ -95,8 +85,7 @@ func SelectUsersForPanel(currentUserId int64) ([]UserRowType, error) {
 			&user.LastMessageTimestamp, // TODO: Currently inconsistent. Should be in UserType
 		)
 		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return []UserRowType{}, err
+			return []UserRowType{}, ferror.ReturnErr(err)
 		}
 		users = append(users, user)
 	}

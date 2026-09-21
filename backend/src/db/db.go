@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"errors"
 	"forum/src/ferror"
 	"forum/src/utils"
 	"os"
@@ -23,29 +22,24 @@ func InitDB(dbPath string) error {
 	var err error
 	db, err = sql.Open("sqlite3", dbPath)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	_, err = db.Exec("PRAGMA journal_mode=WAL;")
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	_, err = db.Exec("PRAGMA foreign_keys=ON;")
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	db.SetMaxOpenConns(1)
 	err = createMigrationsTable(db)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	err = runMigrations(db)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }
@@ -56,8 +50,7 @@ func createMigrationsTable(db *sql.DB) error {
 		"timestamp"	TEXT NOT NULL DEFAULT current_timestamp
 	)`)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }
@@ -67,8 +60,7 @@ func selectMigrations(db *sql.DB) (MigrationsEnabled, error) {
 	var err error
 	rows, err := db.Query("SELECT version FROM schema_migrations")
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return applied, err
+		return applied, ferror.ReturnErr(err)
 	}
 	defer rows.Close()
 	for rows.Next() {
@@ -76,7 +68,7 @@ func selectMigrations(db *sql.DB) (MigrationsEnabled, error) {
 		rows.Scan(&version)
 		applied[version] = true
 	}
-	return applied, err
+	return applied, nil
 }
 
 func runMigrations(db *sql.DB) error {
@@ -89,33 +81,28 @@ func runMigrations(db *sql.DB) error {
 	utils.LogDebug(x)
 	migrations_found, err := os.ReadDir(migrations_dir)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	applied, err = selectMigrations(db)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	for _, file := range migrations_found {
 		if !applied[file.Name()] {
 			bytes, err := os.ReadFile(path.Join(migrations_dir, file.Name()))
 			if err != nil {
-				if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-				return err
+				return ferror.ReturnErr(err)
 			}
 			if strings.HasSuffix(file.Name(), ".sql") {
 				utils.LogInfo("Running migration file: " + file.Name())
 				query := string(bytes)
 				_, err = db.Exec(query)
 				if err != nil {
-					if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-					return err
+					return ferror.ReturnErr(err)
 				}
 				_, err = db.Exec("INSERT INTO schema_migrations(version) VALUES (?)", file.Name())
 				if err != nil {
-					if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-					return err
+					return ferror.ReturnErr(err)
 				}
 			}
 		}

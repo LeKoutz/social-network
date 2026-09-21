@@ -26,8 +26,7 @@ func (p *PostRowType) InsertPost() error {
 	`
 	stmt, err := db.Prepare(query)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	var groupId any
 	if p.GroupId == 0 {
@@ -44,13 +43,11 @@ func (p *PostRowType) InsertPost() error {
 		groupId,
 	)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	p.Id, err = res.LastInsertId()
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }
@@ -59,8 +56,7 @@ func (p *PostRowType) UpdatePost() error {
 	var err error
 	_, err = db.Exec("UPDATE posts SET title = ?, body = ?, image_path = ? WHERE id = ?", p.Title, p.Body, p.ImagePath, p.Id)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }
@@ -83,8 +79,7 @@ func (p *PostRowType) SelectCommentsAndUsernameByPostId() (CommentRowsType, erro
 		if errors.Is(err, sql.ErrNoRows) {
 			err = ferror.ErrorNoRows
 		}
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return CommentRowsType{}, err
+		return CommentRowsType{}, ferror.ReturnErr(err)
 	}
 	defer rows.Close()
 	var comments CommentRowsType
@@ -100,8 +95,7 @@ func (p *PostRowType) SelectCommentsAndUsernameByPostId() (CommentRowsType, erro
 			&comment.Username,
 		)
 		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return CommentRowsType{}, err
+			return CommentRowsType{}, ferror.ReturnErr(err)
 		}
 		comments = append(comments, comment)
 	}
@@ -111,44 +105,37 @@ func (p *PostRowType) SelectCommentsAndUsernameByPostId() (CommentRowsType, erro
 func (p *PostRowType) DeletePostById() error {
 	tx, err := db.Begin()
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	_, err = tx.Exec("DELETE FROM reactions WHERE post_id = ?", p.Id)
 	if err != nil {
 		tx.Rollback()
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	_, err = tx.Exec("DELETE FROM reactions WHERE comment_id IN (SELECT id FROM comments WHERE post_id = ?)", p.Id)
 	if err != nil {
 		tx.Rollback()
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	_, err = tx.Exec("DELETE FROM comments WHERE post_id = ?", p.Id)
 	if err != nil {
 		tx.Rollback()
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	_, err = tx.Exec("DELETE FROM posts_categories WHERE post_id = ?", p.Id)
 	if err != nil {
 		tx.Rollback()
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	_, err = tx.Exec("DELETE FROM posts WHERE id = ?", p.Id)
 	if err != nil {
 		tx.Rollback()
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	_, err = tx.Exec("DELETE FROM notifications WHERE post_id = ?", p.Id)
 	if err != nil {
 		tx.Rollback()
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return tx.Commit()
 }
@@ -174,8 +161,7 @@ func (p *PostRowType) SelectPostById() error {
 		if errors.Is(err, sql.ErrNoRows) {
 			err = ferror.ErrorNoRows
 		}
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	p.GroupId = groupId.Int64
 	return nil

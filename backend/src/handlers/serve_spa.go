@@ -7,8 +7,6 @@ import (
 	"forum/src/utils"
 	"net/http"
 	"os"
-	// "path/filepath"
-	// "strings"
 )
 
 func HandleServeSPA(data state.StateHandler) {
@@ -22,14 +20,12 @@ func HandleServeSPA(data state.StateHandler) {
 		if errors.Is(err, os.ErrNotExist) {
 			err = ferror.ErrorNotFound
 		}
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		data.SetErrorConsume(err).WriteResponse()
+		data.SetErrorConsume(ferror.ReturnErr(err)).WriteResponse()
 		return
 	}
 	if stat.IsDir() {
 		err = ferror.ErrorCommentPermissionDenied
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		data.SetErrorConsume(err).WriteResponse()
+		data.SetErrorConsume(ferror.ReturnErr(err)).WriteResponse()
 		return
 	}
 	http.ServeFile(*data.EditResponse(), data.GetRequest(), "./public/"+fileURL)

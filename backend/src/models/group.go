@@ -1,10 +1,8 @@
 package models
 
 import (
-	"errors"
 	"forum/src/db"
 	"forum/src/ferror"
-	"forum/src/utils"
 )
 
 type GroupType struct {
@@ -18,13 +16,11 @@ func (g *GroupType) ValidateGroup() error {
 	var err error
 	if len(g.Title) == 0 {
 		err = ferror.ErrorGroupTitleEmpty
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	if len(g.Title) >= 128 {
 		err = ferror.ErrorGroupTitleTooLong
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }
@@ -34,8 +30,7 @@ func (g *GroupType) Add() error {
 	var err error
 	err = g.ValidateGroup()
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return g.InsertGroup()
 }
@@ -44,8 +39,7 @@ func (g *GroupType) GetById() error {
 	var err error
 	err = g.SelectGroupById()
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }
@@ -53,8 +47,7 @@ func (g *GroupType) GetById() error {
 func (g *GroupType) IsMember(userId int64) (bool, error) {
 	member, err := g.GroupRowType.IsMember(userId)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return false, err
+		return false, ferror.ReturnErr(err)
 	}
 	return member, nil
 }

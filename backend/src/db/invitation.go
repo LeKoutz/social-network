@@ -1,7 +1,6 @@
 package db
 
 import (
-	"errors"
 	"forum/src/ferror"
 	"forum/src/utils"
 
@@ -33,8 +32,7 @@ func (i *InvitationRowType) Insert() error {
 	`
 	stmt, err := db.Prepare(query)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	res, err := stmt.Exec(utils.GetCurrentTimestamp(), i.FromUserId, i.ToUserId)
 	if err != nil {
@@ -43,13 +41,11 @@ func (i *InvitationRowType) Insert() error {
 				err = ferror.ErrorInvitationAlreadyExists
 			}
 		}
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	i.Id, err = res.LastInsertId()
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }
@@ -60,8 +56,7 @@ func (i *InvitationRowType) Unfollow() error {
         i.FromUserId, i.ToUserId,
     )
     if err != nil {
-        if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-        return err
+        return ferror.ReturnErr(err)
     }
     return nil
 }

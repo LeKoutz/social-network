@@ -2,8 +2,7 @@ package db
 
 import (
 	"database/sql"
-	"errors"
-	"forum/src/utils"
+	"forum/src/ferror"
 )
 
 type NotificationRowsType []NotificationRowType
@@ -18,8 +17,7 @@ func SelectNotificationsByUserId(userId int64) (NotificationRowsType, error) {
 	ORDER BY n.timestamp DESC
 	`, userId)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return NotificationRowsType{}, err
+		return NotificationRowsType{}, ferror.ReturnErr(err)
 	}
 	defer rows.Close()
 	for rows.Next() {
@@ -35,8 +33,7 @@ func SelectNotificationsByUserId(userId int64) (NotificationRowsType, error) {
 			&notification.Read,
 			&notification.Username)
 		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return NotificationRowsType{}, err
+			return NotificationRowsType{}, ferror.ReturnErr(err)
 		}
 		notification.CommentId = commentId.Int64
 		notifications = append(notifications, notification)
@@ -47,13 +44,11 @@ func SelectNotificationsByUserId(userId int64) (NotificationRowsType, error) {
 func (u *UserRowType) UpdateAllNotificationsAsRead() error {
 	stmt, err := db.Prepare(`UPDATE notifications SET "read" = 1 WHERE user_id = ?`)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	_, err = stmt.Exec((*u).Id)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }

@@ -1,10 +1,8 @@
 package models
 
 import (
-	"errors"
-
 	"forum/src/db"
-	"forum/src/utils"
+	"forum/src/ferror"
 )
 
 type CategoriesType []CategoryType
@@ -14,8 +12,7 @@ func (c *CategoriesType) GetAll() error {
 	var err error
 	rows, err := db.SelectAllCategories()
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	for _, row := range rows {
 		var category CategoryType
@@ -37,8 +34,7 @@ func (p *PostType) GetCategories() error {
 	var categories CategoriesType
 	rows, err := db.SelectCategoriesByPostId(p.PostRowType.Id)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	for _, row := range rows {
 		var category CategoryType

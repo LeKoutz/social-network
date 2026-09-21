@@ -1,9 +1,8 @@
 package models
 
 import (
-	"errors"
 	"forum/src/db"
-	"forum/src/utils"
+	"forum/src/ferror"
 )
 
 type UsersType []UserType
@@ -15,8 +14,7 @@ func (u *UsersType) EditUsers() *UsersType {
 func (u *UsersType) GetUsersForPanel(currentUserId int64) error {
 	users, err := db.SelectUsersForPanel(currentUserId)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	for _, user := range users {
 		var x UserType

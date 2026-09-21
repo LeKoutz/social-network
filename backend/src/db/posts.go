@@ -1,25 +1,20 @@
 package db
 
-import (
-	"errors"
-	"forum/src/utils"
-)
+import "forum/src/ferror"
 
 type PostRowsType []PostRowType
 
 func (posts *PostRowsType) SelectAllPosts() error {
 	rows, err := db.Query(`SELECT id, title, body, timestamp, image_path FROM posts WHERE group_id IS NULL`)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var post PostRowType
 		err = rows.Scan(&post.Id, &post.Title, &post.Body, &post.Timestamp, &post.ImagePath)
 		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return err
+			return ferror.ReturnErr(err)
 		}
 		*posts = append(*posts, post)
 	}
@@ -34,16 +29,14 @@ func (posts *PostRowsType) SelectPostsByCategoryId(id int64) error {
 	JOIN categories ON pc.category_id = categories.id
 	WHERE pc.category_id = ? AND posts.group_id IS NULL`, id)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var post PostRowType
 		err = rows.Scan(&post.Id, &post.Title, &post.Body, &post.Timestamp, &post.ImagePath)
 		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return err
+			return ferror.ReturnErr(err)
 		}
 		*posts = append(*posts, post)
 	}
@@ -59,8 +52,7 @@ func (posts *PostRowsType) SelectGroupPostsByGroupId(id int64) error {
 	WHERE posts.group_id = ?
 	ORDER BY posts.timestamp DESC`, id)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	defer rows.Close()
 	for rows.Next() {
@@ -76,8 +68,7 @@ func (posts *PostRowsType) SelectGroupPostsByGroupId(id int64) error {
 			&post.GroupTitle,
 		)
 		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return err
+			return ferror.ReturnErr(err)
 		}
 		*posts = append(*posts, post)
 	}

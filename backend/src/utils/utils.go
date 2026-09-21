@@ -25,7 +25,7 @@ func GetCurrentTimestamp() string {
 }
 
 func GetFunctionName() error {
-	pc, _, _, ok := runtime.Caller(1)
+	pc, _, _, ok := runtime.Caller(2)
 	if !ok {
 		return errors.New("")
 	}

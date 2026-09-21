@@ -7,7 +7,6 @@ import (
 	"forum/src/ferror"
 	"forum/src/models"
 	"forum/src/state"
-	"forum/src/utils"
 	"net/http"
 	"net/url"
 	"os"
@@ -52,8 +51,7 @@ func (c *oauthConfig) Exchange(ctx context.Context, code string) (string, error)
 
 	req, err := http.NewRequestWithContext(ctx, "POST", c.TokenURL, strings.NewReader(data.Encode()))
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return "", err
+		return "", ferror.ReturnErr(err)
 	}
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -61,20 +59,17 @@ func (c *oauthConfig) Exchange(ctx context.Context, code string) (string, error)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return "", err
+		return "", ferror.ReturnErr(err)
 	}
 	defer resp.Body.Close()
 
 	var tr tokenResponse
 	if err := json.NewDecoder(resp.Body).Decode(&tr); err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return "", err
+		return "", ferror.ReturnErr(err)
 	}
 	if tr.AccessToken == "" {
 		err = ferror.ErrorAccessToken
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return "", err
+		return "", ferror.ReturnErr(err)
 	}
 
 	return tr.AccessToken, nil
@@ -137,13 +132,11 @@ func HandleOAuthLogin(data state.StateController, provider string) {
 func OAuthGoogleCallback(data state.StateController) error {
 	token, err := googleOAuthConf.Exchange(data.GetRequest().Context(), data.GetRequest().URL.Query().Get("code"))
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	resp, err := googleOAuthConf.Client(data.GetRequest().Context(), token).Get("https://www.googleapis.com/oauth2/v2/userinfo")
 	if err != nil || resp == nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	defer resp.Body.Close()
 
@@ -161,13 +154,11 @@ func OAuthGoogleCallback(data state.StateController) error {
 func OAuthGitHubCallback(data state.StateController) error {
 	token, err := githubOAuthConf.Exchange(data.GetRequest().Context(), data.GetRequest().URL.Query().Get("code"))
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	resp, err := githubOAuthConf.Client(data.GetRequest().Context(), token).Get("https://api.github.com/user")
 	if err != nil || resp == nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	defer resp.Body.Close()
 
@@ -206,8 +197,7 @@ func createOrLoginUser(data state.StateController, provider, email, username str
 		data.EditUser().OAuthProvider = provider
 		err := data.EditUser().AddOAuth()
 		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return err
+			return ferror.ReturnErr(err)
 		}
 	} else {
 		data.EditUser().Email = email
@@ -216,8 +206,7 @@ func createOrLoginUser(data state.StateController, provider, email, username str
 	sessionValue, err := uuid.NewV4()
 	if err != nil {
 		data.SetUser(models.GetGuestUser())
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	err = data.EditUser().GetUserByOAuthProviderAndEmail()
 	if err != nil {
@@ -225,20 +214,17 @@ func createOrLoginUser(data state.StateController, provider, email, username str
 		if errors.Is(err, ferror.ErrorNoRows) {
 			err = ferror.ErrorEmailNotFoundForOAuth
 		}
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	data.EditUser().LoggedIn = true
 	err = data.EditUser().SetUserSession(sessionValue.String())
 	if err != nil {
 		data.SetUser(models.GetGuestUser())
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	err = data.EditUser().GetNotifications()
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	cookie := &http.Cookie{
 		Name:     "__Host-FRMSessionID",

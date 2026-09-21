@@ -1,8 +1,7 @@
 package db
 
 import (
-	"errors"
-	"forum/src/utils"
+	"forum/src/ferror"
 )
 
 type CategoriesRowsType []CategoryRowType
@@ -10,8 +9,7 @@ type CategoriesRowsType []CategoryRowType
 func SelectAllCategories() (CategoriesRowsType, error) {
 	rows, err := db.Query(`SELECT id, name, description FROM categories`)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return nil, err
+		return nil, ferror.ReturnErr(err)
 	}
 	defer rows.Close()
 	var categories CategoriesRowsType
@@ -19,8 +17,7 @@ func SelectAllCategories() (CategoriesRowsType, error) {
 		var category CategoryRowType
 		err = rows.Scan(&category.Id, &category.Name, &category.Description)
 		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return nil, err
+			return nil, ferror.ReturnErr(err)
 		}
 		categories = append(categories, category)
 	}
@@ -37,16 +34,14 @@ func SelectCategoriesByPostId(post_id int64) (CategoriesRowsType, error) {
 	WHERE pc.post_id = ?
 	`, post_id)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return categories, err
+		return categories, ferror.ReturnErr(err)
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var category CategoryRowType
 		err = rows.Scan(&category.Id, &category.Name, &category.Description)
 		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return categories, err
+			return categories, ferror.ReturnErr(err)
 		}
 		categories = append(categories, category)
 	}

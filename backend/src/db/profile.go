@@ -1,8 +1,7 @@
 package db
 
 import (
-	"errors"
-	"forum/src/utils"
+	"forum/src/ferror"
 )
 
 type UserProfileRowType struct {
@@ -23,8 +22,7 @@ func (u *UserProfileRowType) InsertUserProfile() error {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `, u.UserId, u.Nickname, u.FirstName, u.LastName, u.DateOfBirth, u.About, u.AvatarURL, u.PrivateProfile)
     if err != nil {
-        if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-        return err
+        return ferror.ReturnErr(err)
     }
     return nil
 }

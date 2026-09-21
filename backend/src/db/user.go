@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"forum/src/ferror"
-	"forum/src/utils"
 )
 
 type UserRowType struct {
@@ -21,8 +20,7 @@ type UserRowType struct {
 func (user *UserRowType) SelectUserPasswordByIdentifier(identifier string) error {
 	err := db.QueryRow(`SELECT hash FROM users WHERE email = ? OR username = ?`, identifier, identifier).Scan(&user.Hash)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }
@@ -30,8 +28,7 @@ func (user *UserRowType) SelectUserPasswordByIdentifier(identifier string) error
 func (user *UserRowType) SelectUserByIdentifier(identifier string) error {
 	err := db.QueryRow(`SELECT id, email, username FROM users WHERE email = ? OR username = ?`, identifier, identifier).Scan(&user.Id, &user.Email, &user.Username)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }
@@ -39,8 +36,7 @@ func (user *UserRowType) SelectUserByIdentifier(identifier string) error {
 func (user *UserRowType) SelectUserBySession() error {
 	err := db.QueryRow(`SELECT id, email, username FROM users WHERE session_key = ?`, user.SessionId).Scan(&user.Id, &user.Email, &user.Username)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }
@@ -51,8 +47,7 @@ func (user *UserRowType) SelectUserByOAuthProviderAndEmail() error {
 		if errors.Is(err, sql.ErrNoRows) {
 			err = ferror.ErrorNoRows
 		}
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }
@@ -60,8 +55,7 @@ func (user *UserRowType) SelectUserByOAuthProviderAndEmail() error {
 func (user *UserRowType) SelectUserById() error {
 	err := db.QueryRow(`SELECT username FROM users WHERE id = ?`, user.Id).Scan(&user.Username)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }
@@ -69,18 +63,15 @@ func (user *UserRowType) SelectUserById() error {
 func (u *UserRowType) InsertUserWithHash() error {
 	stmt, err := db.Prepare("INSERT INTO users (username, email, hash) VALUES (?, ?, ?)")
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	res, err := stmt.Exec(u.Username, u.Email, u.Hash)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	u.Id, err = res.LastInsertId()
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }
@@ -88,18 +79,15 @@ func (u *UserRowType) InsertUserWithHash() error {
 func (u *UserRowType) InsertUserWithOAuth() error {
 	stmt, err := db.Prepare("INSERT INTO users (username, email, oauth_provider) VALUES (?, ?, ?)")
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	res, err := stmt.Exec(u.Username, u.Email, u.OAuthProvider)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	u.Id, err = res.LastInsertId()
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }
@@ -111,16 +99,14 @@ func (u *UserRowType) SelectPosts() (PostRowsType, error) {
 	FROM posts
 	WHERE user_id = ?`, u.Id)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return PostRowsType{}, err
+		return PostRowsType{}, ferror.ReturnErr(err)
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var post PostRowType
 		err = rows.Scan(&post.Id, &post.Title, &post.Body, &post.Timestamp)
 		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return PostRowsType{}, err
+			return PostRowsType{}, ferror.ReturnErr(err)
 		}
 		posts = append(posts, post)
 	}
@@ -136,16 +122,14 @@ func (u *UserRowType) SelectLikedPosts() (PostRowsType, error) {
 	WHERE r.user_id = ? AND r.value = 1
 	`, u.Id)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return PostRowsType{}, err
+		return PostRowsType{}, ferror.ReturnErr(err)
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var post PostRowType
 		err = rows.Scan(&post.Id, &post.Title, &post.Body, &post.Timestamp)
 		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return PostRowsType{}, err
+			return PostRowsType{}, ferror.ReturnErr(err)
 		}
 		posts = append(posts, post)
 	}
@@ -155,13 +139,11 @@ func (u *UserRowType) SelectLikedPosts() (PostRowsType, error) {
 func (u *UserRowType) UpdateUserSession(session_key string) error {
 	stmt, err := db.Prepare("UPDATE users SET session_key = ? WHERE id = ?")
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	_, err = stmt.Exec(session_key, u.Id)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	u.SessionId = session_key
 	return nil
@@ -170,8 +152,7 @@ func (u *UserRowType) UpdateUserSession(session_key string) error {
 func (u *UserRowType) DeleteUserById() error {
 	_, err := db.Exec("DELETE FROM users WHERE id = ?", u.Id)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }

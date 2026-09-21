@@ -1,9 +1,7 @@
 package db
 
 import (
-	"errors"
 	"forum/src/ferror"
-	"forum/src/utils"
 
 	"github.com/mattn/go-sqlite3"
 )
@@ -19,8 +17,7 @@ func (cr *CategoryRowType) SelectCategoryById() error {
 	query := `SELECT name, description FROM categories WHERE id = ?`
 	err = db.QueryRow(query, cr.Id).Scan(&cr.Name, &cr.Description)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }
@@ -30,7 +27,7 @@ func (cr *CategoryRowType) InsertCategory() error {
 	query := "INSERT INTO categories (name, description) VALUES (?, ?)"
 	stmt, err := db.Prepare(query)
 	if err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		return ferror.ReturnErr(err)
 	}
 	res, err := stmt.Exec(cr.Name, cr.Description)
 	if err != nil {
@@ -39,13 +36,11 @@ func (cr *CategoryRowType) InsertCategory() error {
 				err = ferror.ErrorCategoryAlreadyExists
 			}
 		}
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	cr.Id, err = res.LastInsertId()
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }

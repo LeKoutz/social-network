@@ -1,9 +1,6 @@
 package db
 
-import (
-	"errors"
-	"forum/src/utils"
-)
+import "forum/src/ferror"
 
 type PostCategoryRow struct {
 	PostId     int64
@@ -13,13 +10,11 @@ type PostCategoryRow struct {
 func InsertPostCategory(pc PostCategoryRow) error {
 	stmt, err := db.Prepare("INSERT INTO posts_categories (post_id, category_id) VALUES (?, ?)")
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	_, err = stmt.Exec(pc.PostId, pc.CategoryId)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }
@@ -28,8 +23,7 @@ func DeletePostCategoryByPostId(id int64) error {
 	var err error
 	_, err = db.Exec("DELETE FROM posts_categories WHERE post_id = ?", id)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"errors"
 	"os"
 
 	"forum/src/db"
+	"forum/src/ferror"
 	"forum/src/models"
 	"forum/src/utils"
 )
@@ -12,7 +12,7 @@ import (
 // mockGen generates mock data for the database
 func mockGen(dbPath string) error {
 	if err := db.InitDB(dbPath); err != nil {
-		return errors.Join(utils.GetFunctionName(), err)
+		return ferror.ReturnErr(err)
 	}
 
 	// Create some mock categories

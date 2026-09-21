@@ -1,17 +1,15 @@
 package controllers
 
 import (
-	"errors"
 	"forum/src/state"
-	"forum/src/utils"
+	"forum/src/ferror"
 )
 
 func ShowGroups(data state.StateController) error {
 	var err error
 	err = data.EditGroups().GetGroups()
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }

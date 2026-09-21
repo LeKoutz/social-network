@@ -1,7 +1,6 @@
 package parsers
 
 import (
-	"errors"
 	"fmt"
 	"forum/src/ferror"
 	"forum/src/models"
@@ -14,8 +13,7 @@ func ParseRegistrationForm(data state.StateHandler) error {
 	var err error
 	err = data.GetRequest().ParseMultipartForm(models.MaxImageSize)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	formData := map[string]string{
 		"username":   data.GetRequest().FormValue("username"),
@@ -29,14 +27,12 @@ func ParseRegistrationForm(data state.StateHandler) error {
 	for _, value := range formData {
 		if len(value) == 0 {
 			err = ferror.ErrorBadRequest
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return err
+			return ferror.ReturnErr(err)
 		}
 	}
 	if formData["password1"] != formData["password2"] {
 		err = ferror.ErrorPasswordMismatch
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	data.EditUser().Username = formData["username"]
 	data.EditUser().Email = formData["email"]
@@ -56,14 +52,12 @@ func ParseLoginForm(data state.StateHandler) error {
 	identifier := data.GetRequest().FormValue("identifier")
 	if len(identifier) == 0 {
 		err = ferror.ErrorEmailFieldEmpty
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	password := data.GetRequest().FormValue("password")
 	if len(password) == 0 {
 		err = ferror.ErrorPasswordFieldEmpty
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	data.EditUser().Identifier = identifier
 	data.EditUser().Password = password
@@ -92,15 +86,13 @@ func ParsePostId(data state.StateHandler) (int64, error) {
 	}
 	if len(postIdStr) == 0 {
 		err = ferror.ErrorPostEmptyId
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return 0, err
+		return 0, ferror.ReturnErr(err)
 	}
 Convert:
 	postId, err = utils.StringToInt64(postIdStr)
 	if err != nil || postId == 0 {
 		err = ferror.ErrorInvalidPostId
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return 0, err
+		return 0, ferror.ReturnErr(err)
 	}
 	return postId, nil
 }
@@ -110,14 +102,12 @@ func ParseCommentId(data state.StateHandler) (int64, error) {
 	commentIdStr := data.GetRequest().FormValue("comment-id")
 	if len(commentIdStr) == 0 {
 		err = ferror.ErrorCommentEmptyId
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return 0, err
+		return 0, ferror.ReturnErr(err)
 	}
 	commentId, err := utils.StringToInt64(commentIdStr)
 	if err != nil {
 		err = ferror.ErrorInvalidCommentId
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return 0, err
+		return 0, ferror.ReturnErr(err)
 	}
 	return commentId, nil
 }
@@ -127,14 +117,12 @@ func ParseCategoryId(data state.StateHandler) (int64, error) {
 	id, ok := strings.CutPrefix(data.GetRequest().RequestURI, "/api/category/view/")
 	if !ok || len(id) == 0 {
 		err = ferror.ErrorCategoryEmptyId
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return 0, err
+		return 0, ferror.ReturnErr(err)
 	}
 	categoryId, err := utils.StringToInt64(id)
 	if err != nil {
 		err = ferror.ErrorInvalidCategoryId
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return 0, err
+		return 0, ferror.ReturnErr(err)
 	}
 	return categoryId, nil
 }
@@ -144,14 +132,12 @@ func ParseGroupId(data state.StateHandler) (int64, error) {
 	id, ok := strings.CutPrefix(data.GetRequest().RequestURI, "/api/group/view/")
 	if !ok || len(id) == 0 {
 		err = ferror.ErrorGroupEmptyId
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return 0, err
+		return 0, ferror.ReturnErr(err)
 	}
 	groupId, err := utils.StringToInt64(id)
 	if err != nil {
 		err = ferror.ErrorInvalidGroupId
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return 0, err
+		return 0, ferror.ReturnErr(err)
 	}
 	return groupId, nil
 }
@@ -161,21 +147,18 @@ func ParseCreatePostRequest(data state.StateHandler) error {
 	var categories models.CategoriesType
 	err = data.GetRequest().ParseMultipartForm(models.MaxImageSize)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	data.EditPost().UserId = data.EditUser().Id
 	title := data.GetRequest().FormValue("title")
 	if len(title) == 0 {
 		err = ferror.ErrorPostTitleEmpty
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	body := data.GetRequest().FormValue("body")
 	if len(body) == 0 {
 		err = ferror.ErrorPostBodyEmpty
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	data.EditPost().Title = title
 	data.EditPost().Body = body
@@ -184,15 +167,13 @@ func ParseCreatePostRequest(data state.StateHandler) error {
 		groupId, err := utils.StringToInt64(groupIdStr)
 		if err != nil {
 			err = ferror.ErrorInvalidGroupId
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return err
+			return ferror.ReturnErr(err)
 		}
 		data.EditPost().GroupId = groupId
 	}
 	err = categories.GetAll()
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	var post_cat models.CategoriesType
 	for _, category := range categories {
@@ -203,8 +184,7 @@ func ParseCreatePostRequest(data state.StateHandler) error {
 	}
 	if len(post_cat) == 0 && data.GetPost().GroupId == 0 {
 		err = ferror.ErrorPostHasNoCategory
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	data.EditPost().Categories = post_cat
 	imageFile, _, err := data.GetRequest().FormFile("image")
@@ -212,8 +192,7 @@ func ParseCreatePostRequest(data state.StateHandler) error {
 		defer imageFile.Close()
 		data.EditPost().ImagePath, err = models.SaveImage(imageFile)
 		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return err
+			return ferror.ReturnErr(err)
 		}
 	}
 	return nil
@@ -223,16 +202,14 @@ func ParseCreateCommentRequest(data state.StateHandler) error {
 	var err error
 	err = data.GetRequest().ParseMultipartForm(models.MaxImageSize)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	data.EditComment().UserId = data.GetUser().Id
 	data.EditComment().Body = data.GetRequest().FormValue("comment")
 	data.EditPost().Id, err = ParsePostId(data)
 	if err != nil {
 		err = ferror.ErrorInvalidPostId
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	data.EditComment().PostId = data.GetPost().Id
 	imageFile, _, err := data.GetRequest().FormFile("image")
@@ -240,8 +217,7 @@ func ParseCreateCommentRequest(data state.StateHandler) error {
 		defer imageFile.Close()
 		data.EditComment().ImagePath, err = models.SaveImage(imageFile)
 		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return err
+			return ferror.ReturnErr(err)
 		}
 	}
 	return nil
@@ -251,28 +227,24 @@ func ParseChatId(data state.StateHandler) (id, offset int64, err error) {
 	uri, ok := strings.CutPrefix(data.GetRequest().RequestURI, "/api/chat/")
 	if !ok {
 		err = ferror.ErrorBadRequest
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return 0, 0, err
+		return 0, 0, ferror.ReturnErr(err)
 	}
 	idStr, offsetStr, found := strings.Cut(uri, "?offset=")
 	if !found {
 		err = ferror.ErrorBadRequest
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return 0, 0, err
+		return 0, 0, ferror.ReturnErr(err)
 	}
 	id, err = utils.StringToInt64(idStr)
 	if err != nil {
 		err = ferror.ErrorInvalidChatId
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return 0, 0, err
+		return 0, 0, ferror.ReturnErr(err)
 	}
 	offset, err = utils.StringToInt64(offsetStr)
 	if err != nil {
 		err = ferror.ErrorBadRequest
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return 0, 0, err
+		return 0, 0, ferror.ReturnErr(err)
 	}
-	return id, offset, err
+	return id, offset, nil
 }
 
 func ParseUserFollowRequest(data state.StateHandler) error {
@@ -280,14 +252,12 @@ func ParseUserFollowRequest(data state.StateHandler) error {
     userIdStr := data.GetRequest().FormValue("user-id")
     if len(userIdStr) == 0 {
         err = ferror.ErrorBadRequest
-        if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-        return err
+        return ferror.ReturnErr(err)
     }
     userId, err := utils.StringToInt64(userIdStr)
     if err != nil {
         err = ferror.ErrorInvalidUserId
-        if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-        return err
+        return ferror.ReturnErr(err)
     }
     data.EditFollowRequest().ToUserId = userId
     return nil
@@ -297,8 +267,7 @@ func ParseCreateGroupRequest(data state.StateHandler) error {
 	var err error
 	err = data.GetRequest().ParseMultipartForm(models.MaxImageSize)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	data.EditGroup().OwnerUserId = data.GetUser().Id
 	data.EditGroup().Title = data.GetRequest().FormValue("title")

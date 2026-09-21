@@ -1,7 +1,7 @@
 package db
 
 import (
-	"errors"
+	"forum/src/ferror"
 	"forum/src/utils"
 )
 
@@ -26,8 +26,7 @@ func (c *CommentRowType) InsertComment() error {
 	)
 	c.Id, err = res.LastInsertId()
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }
@@ -38,8 +37,7 @@ func (c *CommentRowType) SelectCommentById() error {
 		FROM comments
 		WHERE id = ?`, c.Id).Scan(&c.Id, &c.PostId, &c.UserId, &c.Body, &c.ImagePath, &c.Timestamp)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }
@@ -47,26 +45,22 @@ func (c *CommentRowType) SelectCommentById() error {
 func (c *CommentRowType) DeleteCommentById() error {
 	tx, err := db.Begin()
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	_, err = tx.Exec("DELETE FROM reactions WHERE comment_id = ?", c.Id)
 	if err != nil {
 		tx.Rollback()
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	_, err = tx.Exec("DELETE FROM comments WHERE id = ?", c.Id)
 	if err != nil {
 		tx.Rollback()
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	_, err = tx.Exec("DELETE FROM notifications WHERE comment_id = ?", c.Id)
 	if err != nil {
 		tx.Rollback()
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return tx.Commit()
 }
@@ -74,8 +68,7 @@ func (c *CommentRowType) DeleteCommentById() error {
 func (c *CommentRowType) UpdateCommentById() error {
 	_, err := db.Exec("UPDATE comments SET body = ?, image_path = ? WHERE id = ?", c.Body, c.ImagePath, c.Id)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	return nil
 }

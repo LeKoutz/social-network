@@ -2,7 +2,6 @@ package models
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -10,7 +9,6 @@ import (
 	"path/filepath"
 
 	"forum/src/ferror"
-	"forum/src/utils"
 
 	"github.com/gofrs/uuid"
 )
@@ -36,26 +34,22 @@ func isValidImageType(buf []byte) bool {
 func SaveImage(file multipart.File) (string, error) {
 	_, err := file.Seek(0, io.SeekStart)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return "", err
+		return "", ferror.ReturnErr(err)
 	}
 
 	fileBytes, err := io.ReadAll(file)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return "", err
+		return "", ferror.ReturnErr(err)
 	}
 
 	if len(fileBytes) > MaxImageSize {
 		err = ferror.ErrorImageTooBig
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return "", err
+		return "", ferror.ReturnErr(err)
 	}
 
 	if !isValidImageType(fileBytes[:512]) {
 		err = ferror.ErrorInvalidImageType
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return "", err
+		return "", ferror.ReturnErr(err)
 	}
 
 	ext := getImageExtension(fileBytes)
@@ -64,22 +58,19 @@ func SaveImage(file multipart.File) (string, error) {
 	dir := filepath.Join("uploads", "images")
 	err = os.MkdirAll(dir, 0755)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return "", err
+		return "", ferror.ReturnErr(err)
 	}
 
 	dst := filepath.Join(dir, filename)
 	out, err := os.Create(dst)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return "", err
+		return "", ferror.ReturnErr(err)
 	}
 	defer out.Close()
 
 	_, err = out.Write(fileBytes)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return "", err
+		return "", ferror.ReturnErr(err)
 	}
 
 	return filepath.Join("uploads", "images", filename), nil

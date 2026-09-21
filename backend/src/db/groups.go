@@ -1,9 +1,6 @@
 package db
 
-import (
-	"errors"
-	"forum/src/utils"
-)
+import "forum/src/ferror"
 
 type GroupRowsType []GroupRowType
 
@@ -14,8 +11,7 @@ func (groups *GroupRowsType) SelectAllGroups() error {
 		JOIN users ON groups.owner_user_id = users.id
 	`)
 	if err != nil {
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
+		return ferror.ReturnErr(err)
 	}
 	defer rows.Close()
 	for rows.Next() {
@@ -29,8 +25,7 @@ func (groups *GroupRowsType) SelectAllGroups() error {
 			&group.OwnerUsername,
 		)
 		if err != nil {
-			if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-			return err
+			return ferror.ReturnErr(err)
 		}
 		*groups = append(*groups, group)
 	}
