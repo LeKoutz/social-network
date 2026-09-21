@@ -53,3 +53,15 @@ func (i *InvitationRowType) Insert() error {
 	}
 	return nil
 }
+
+func (i *InvitationRowType) Unfollow() error {
+    _, err := db.Exec(
+        "UPDATE invitations SET status = 'unfollowed' WHERE from_user_id = ? AND to_user_id = ? AND status = 'accepted'",
+        i.FromUserId, i.ToUserId,
+    )
+    if err != nil {
+        if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+        return err
+    }
+    return nil
+}

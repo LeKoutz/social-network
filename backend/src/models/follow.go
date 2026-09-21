@@ -9,3 +9,7 @@ type FollowRequestType struct {
 func (f *FollowRequestType) AddFollowInvite() error {
 	return f.InvitationRowType.Insert()
 }
+
+func (f *FollowRequestType) Unfollow() error {
+    return f.InvitationRowType.Unfollow()
+}

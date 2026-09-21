@@ -8,7 +8,6 @@ import (
 	"forum/src/utils"
 )
 
-
 func HandleUserFollow(data state.StateHandler) {
 	var err error
 	err = parsers.ParseUserFollowRequest(data)
@@ -24,4 +23,21 @@ func HandleUserFollow(data state.StateHandler) {
 		return
 	}
 	data.WriteResponse()
+}
+
+func HandleUserUnFollow(data state.StateHandler) {
+    var err error
+    err = parsers.ParseUserFollowRequest(data)
+    if err != nil {
+        if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+        data.SetErrorConsume(err).WriteResponse()
+        return
+    }
+    err = controllers.UnfollowUser(data.(state.StateController))
+    if err != nil {
+        if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+        data.SetErrorConsume(err).WriteResponse()
+        return
+    }
+    data.WriteResponse()
 }

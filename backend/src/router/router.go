@@ -60,9 +60,6 @@ var routes = Routes{
 	Route{Method: "GET", Path: "/api/user", Function: handlers.HandleShowUserView, NeedsLogin: true},
 	Route{Method: "GET", Path: "/api/user/activity", Function: handlers.HandleShowUserActivity, NeedsLogin: true},
 
-	// Follows
-	Route{Method: "POST", Path: "/api/follow/", Prefix: true, Function: handlers.HandleUserFollow, NeedsLogin: true},
-
 	// Groups
 	Route{Method: "GET", Path: "/api/groups", Function: handlers.HandleShowGroups, NeedsLogin: true},
 	Route{Method: "GET", Path: "/api/group/view/", Prefix: true, Function: handlers.HandleShowGroup, NeedsLogin: true},
@@ -75,6 +72,10 @@ var routes = Routes{
 	Route{Method: "GET", Path: "/api/users", Function: handlers.HandleGetUsers, NeedsLogin: true},
 	Route{Method: "GET", Path: "/api/chat/unread", Function: handlers.HandleServeUnreadMessages, NeedsLogin: true},
 	Route{Method: "GET", Path: "/api/chat/", Prefix: true, Function: handlers.HandleShowChatHistory, NeedsLogin: true},
+
+	// Follows
+	Route{Method: "POST", Path: "/api/follow", Function: handlers.HandleUserFollow, NeedsLogin: true},
+	Route{Method: "POST", Path: "/api/unfollow", Function: handlers.HandleUserUnFollow, NeedsLogin: true},
 
 	// Uploads
 	Route{Method: "GET", Path: "/uploads/", Prefix: true, Function: handlers.HandleImages, NeedsLogin: true},

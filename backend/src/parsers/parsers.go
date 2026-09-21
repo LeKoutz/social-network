@@ -276,22 +276,21 @@ func ParseChatId(data state.StateHandler) (id, offset int64, err error) {
 }
 
 func ParseUserFollowRequest(data state.StateHandler) error {
-	var err error
-	var to_user_id int64
-	id, ok := strings.CutPrefix(data.GetRequest().RequestURI, "/api/follow/")
-	if !ok {
-		err = ferror.ErrorBadRequest
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
-	}
-	to_user_id, err = utils.StringToInt64(id)
-	if err != nil {
-		err = ferror.ErrorInvalidUserId
-		if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
-		return err
-	}
-	data.EditFollowRequest().ToUserId = to_user_id
-	return nil
+    var err error
+    userIdStr := data.GetRequest().FormValue("user-id")
+    if len(userIdStr) == 0 {
+        err = ferror.ErrorBadRequest
+        if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+        return err
+    }
+    userId, err := utils.StringToInt64(userIdStr)
+    if err != nil {
+        err = ferror.ErrorInvalidUserId
+        if utils.GlobalConfig.Debug { err = errors.Join(utils.GetFunctionName(), err) }
+        return err
+    }
+    data.EditFollowRequest().ToUserId = userId
+    return nil
 }
 
 func ParseCreateGroupRequest(data state.StateHandler) error {
