@@ -57,8 +57,10 @@ var routes = Routes{
 	Route{Method: "GET", Path: "/api/user/posts", Function: handlers.HandleShowUserPosts, NeedsLogin: true},
 	Route{Method: "GET", Path: "/api/user/likes", Function: handlers.HandleShowUserLikedPosts, NeedsLogin: true},
 	Route{Method: "POST", Path: "/api/user/notifications", Function: handlers.HandleMarkAllNotificationsAsRead, NeedsLogin: true},
-	Route{Method: "GET", Path: "/api/user", Function: handlers.HandleShowUserView, NeedsLogin: true},
 	Route{Method: "GET", Path: "/api/user/activity", Function: handlers.HandleShowUserActivity, NeedsLogin: true},
+
+	// Profiles
+	Route{Method: "GET", Path: "/api/profile/view/", Prefix: true, Function: handlers.HandleShowProfileView, NeedsLogin: true},
 
 	// Groups
 	Route{Method: "GET", Path: "/api/groups", Function: handlers.HandleShowGroups, NeedsLogin: true},

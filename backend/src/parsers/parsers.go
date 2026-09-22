@@ -274,3 +274,18 @@ func ParseCreateGroupRequest(data state.StateHandler) error {
 	data.EditGroup().Description = data.GetRequest().FormValue("description")
 	return nil
 }
+
+func ParseProfileId(data state.StateHandler) (int64, error) {
+	var err error
+	id, ok := strings.CutPrefix(data.GetRequest().RequestURI, "/api/profile/view/")
+	if !ok || len(id) == 0 {
+		err = ferror.ErrorProfileEmptyId
+		return 0, ferror.ReturnErr(err)
+	}
+	profileId, err := utils.StringToInt64(id)
+	if err != nil {
+		err = ferror.ErrorInvalidProfileId
+		return 0, ferror.ReturnErr(err)
+	}
+	return profileId, nil
+}

@@ -63,10 +63,6 @@ func HandleShowUserLikedPosts(data state.StateHandler) {
 	data.WriteResponse()
 }
 
-func HandleShowUserView(data state.StateHandler) {
-	data.WriteResponse()
-}
-
 func HandleShowUserActivity(data state.StateHandler) {
 	err := controllers.GetUserActivity(data.(state.StateController))
 	if err != nil {

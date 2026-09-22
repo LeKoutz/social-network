@@ -111,9 +111,14 @@ func (u *UserType) GetPosts() (PostsType, error) {
 	if err != nil {
 		return posts, ferror.ReturnErr(err)
 	}
+	err = u.GetById()
+	if err != nil {
+		return posts, ferror.ReturnErr(err)
+	}
 	for _, row := range rows {
 		var post PostType
 		post.PostRowType = row
+		post.User = *u
 		posts = append(posts, post)
 	}
 	return posts, err

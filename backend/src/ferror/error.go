@@ -64,6 +64,8 @@ var (
 	ErrorGroupEmptyId            = errors.New("Group ID can't be empty.")
 	ErrorInvalidGroupId          = errors.New("Invalid group ID")
 	ErrorGroupMembershipRequired = errors.New("You must be a member of this group to see its posts.")
+	ErrorProfileEmptyId			 = errors.New("Profile ID can't be empty.")
+	ErrorInvalidProfileId		 = errors.New("Invalid profile ID")
 )
 
 type Error struct {
@@ -120,6 +122,8 @@ func (e *Error) Consume(err error) *Error {
 		errors.Is(err, ErrorInvalidGroupId),
 		errors.Is(err, ErrorEmailFieldEmpty),
 		errors.Is(err, ErrorPasswordFieldEmpty),
+		errors.Is(err, ErrorProfileEmptyId),
+		errors.Is(err, ErrorInvalidProfileId),
 		errors.Is(err, ErrorBadRequest):
 		e.StatusCode = http.StatusBadRequest
 	case errors.Is(err, ErrorInternalServerError):

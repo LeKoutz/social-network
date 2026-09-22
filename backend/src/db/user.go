@@ -53,7 +53,7 @@ func (user *UserRowType) SelectUserByOAuthProviderAndEmail() error {
 }
 
 func (user *UserRowType) SelectUserById() error {
-	err := db.QueryRow(`SELECT username FROM users WHERE id = ?`, user.Id).Scan(&user.Username)
+	err := db.QueryRow(`SELECT id, username FROM users WHERE id = ?`, user.Id).Scan(&user.Id, &user.Username)
 	if err != nil {
 		return ferror.ReturnErr(err)
 	}
