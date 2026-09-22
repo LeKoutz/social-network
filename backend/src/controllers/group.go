@@ -26,45 +26,46 @@ func ShowGroup(data state.StateController) error {
 	}
 	data.EditGroup().Member = member
 	if !member {
-		return nil
+		return ferror.ReturnErr(ferror.ErrorPermissionDenied)
 	}
 	err = data.EditPosts().GetPostsByGroupId(data.GetGroup().Id)
 	if err != nil {
 		return ferror.ReturnErr(err)
 	}
-	data.EditGroup().Posts = *data.EditPosts()
-	for i := range data.EditGroup().Posts {
-		data.EditGroup().Posts[i].User.Id = data.EditGroup().Posts[i].UserId
-		err = data.EditGroup().Posts[i].User.GetById()
+	posts := *data.EditPosts()
+	for i := range posts {
+		posts[i].User.Id = posts[i].UserId
+		err = posts[i].User.GetById()
 		if err != nil {
 			return ferror.ReturnErr(err)
 		}
-		err = data.EditGroup().Posts[i].GetComments()
+		err = posts[i].GetComments()
 		if err != nil {
 			return ferror.ReturnErr(err)
 		}
-		for j := range data.EditGroup().Posts[i].Comments {
-			err = data.EditGroup().Posts[i].Comments[j].GetReactions()
+		for j := range posts[i].Comments {
+			err = posts[i].Comments[j].GetReactions()
 			if err != nil {
 				return ferror.ReturnErr(err)
 			}
-			err = data.EditGroup().Posts[i].Comments[j].GetReactionsByUserId(data.GetUser().Id)
+			err = posts[i].Comments[j].GetReactionsByUserId(data.GetUser().Id)
 			if err != nil {
 				return ferror.ReturnErr(err)
 			}
 		}
-		err = data.EditGroup().Posts[i].GetCategories()
+		err = posts[i].GetCategories()
 		if err != nil {
 			return ferror.ReturnErr(err)
 		}
-		err = data.EditGroup().Posts[i].GetReactions()
+		err = posts[i].GetReactions()
 		if err != nil {
 			return ferror.ReturnErr(err)
 		}
-		err = data.EditGroup().Posts[i].GetReactionsByUserId(data.GetUser().Id)
+		err = posts[i].GetReactionsByUserId(data.GetUser().Id)
 		if err != nil {
 			return ferror.ReturnErr(err)
 		}
 	}
+	data.SetPosts(posts)
 	return nil
 }

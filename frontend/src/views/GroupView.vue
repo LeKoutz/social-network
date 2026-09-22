@@ -8,6 +8,7 @@ import PostShow from '@/components/PostShow.vue';
 
 const route = useRoute();
 const group = ref(null);
+const posts = ref(null);
 const loading = ref(true);
 const error = ref(null);
 
@@ -17,6 +18,7 @@ async function loadGroup(id) {
     const data = await apiFetch(`/api/group/view/${id}`);
     if (data) {
         group.value = firstOrNull(data.Groups);
+        posts.value = data.Posts;
         if (!group.value) error.value = 'Group not found';
     }
     loading.value = false;
@@ -45,8 +47,8 @@ watch(
             </p>
             <template v-if="group.Member">
                 <PostCreateForm :group="group" />
-                <div v-if="group.Posts && group.Posts.length">
-                    <PostShow v-for="post in group.Posts" :key="post.Id" :post="post" />
+                <div v-if="posts && posts.length">
+                    <PostShow v-for="post in posts" :key="post.Id" :post="post" />
                 </div>
                 <p v-else>No posts in this group yet. Be the first to post!</p>
             </template>

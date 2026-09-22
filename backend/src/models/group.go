@@ -9,7 +9,6 @@ type GroupType struct {
 	db.GroupRowType
 
 	Member bool
-	Posts  PostsType
 }
 
 func (g *GroupType) ValidateGroup() error {
