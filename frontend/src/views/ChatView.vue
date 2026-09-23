@@ -98,13 +98,13 @@ function send(e) {
 </script>
 
 <template>
-    <div class="chat-container">
+    <div class="container padding-sides-1vw">
         <h2>Chat with <span><router-link :to="`/profile/view/${chatUserId()}`">{{ recipientUsername }}</router-link></span></h2>
         <div class="chat-messages" ref="container" @scroll="handleScroll">
             <div v-for="message in messages" :key="message.Id" class="chat-message">
                 <span class="timestamp">{{ DateToLocale(message.Timestamp) }}</span>
                 <span class="sender"><router-link :to="`/profile/view/${message.SenderId}`">{{ message.SenderUsername }}</router-link></span>
-                <p>{{ message.Body }}</p>
+                <span>{{ message.Body }}</span>
             </div>
         </div>
         <form id="chat-message" @submit.prevent="send">

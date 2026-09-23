@@ -30,7 +30,7 @@ async function submitForm(e) {
 <template>
     <template v-if="!user.LoggedIn">
         <div class="box">
-            <form id="login" @submit.prevent="submitForm">
+            <form id="login" class="box" @submit.prevent="submitForm">
                 <fieldset>
                     <legend>User Login</legend>
                     <input type="hidden" name="action" value="login" />

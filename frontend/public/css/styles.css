@@ -1,21 +1,44 @@
+:root {
+    --bg-base:        #1f2220;
+    --bg-elevated:    #262a26;
+    --bg-input:       #1a1d1a;
+    --text-primary:   #d4e0c8;
+    --text-secondary: #9aa392;
+    --text-muted:     #6b7264;
+    --accent:         #b6e34a;
+    --accent-hover:   #c9f062;
+    --accent-dim:     #7fa32e;
+    --accent-line:    #5c7a2a;
+    --danger:         #e06c5a;
+    --border:         #4a4f45;
+}
+
 * {
     font-family: system-ui;
 }
 
-body, #app {
+body {
+    margin: 0;
+    height: 100vh;
+}
+
+#app {
     display: flex;
     flex-direction: column;
-    background-color: #2f2f2f;
-    color: lightgreen;
+    background-color: var(--bg-base);
+    color: var(--text-primary);
     gap: 15px;
     height: 100vh;
-    margin-top: 0px;
-    margin-bottom: 0px;
+    margin-top: 0;
+    margin-bottom: 0;
     justify-content: space-between;
 }
 
 a {
-    color: greenyellow;
+    color: var(--accent);
+}
+a:hover {
+    color: var(--accent-hover);
 }
 
 .categories {
@@ -23,112 +46,106 @@ a {
     flex-direction: column;
     gap: 5px;
 }
-
-.categories * {
-    margin: 0px;
-    padding: 0px;
-}
+.categories * { margin: 0; padding: 0; }
 
 .category {
     display: flex;
     flex-direction: column;
     gap: 2px;
     padding: 1%;
-    border: #00ff00 dashed 1px;
+    border: 1px dashed var(--accent-line);
 }
-
-.category * {
-    width: max-content;
-}
+.category * { width: max-content; }
 
 fieldset {
     display: flex;
     flex-direction: column;
-    border-color: #6a6a6a;
-    border-style: solid;
-    border-width: 1px;
+    border: 1px solid var(--border);
     border-radius: 2px;
+    box-shadow: 10px 10px 0px 0px rgba(0, 0, 0, 0.5);
+    background: var(--bg-elevated);
     gap: 5px;
 }
-
 legend {
     padding: 0 1vw;
-    border-color: #6a6a6a;
-    border-style: solid;
-    border-width: 1px;
+    border: 1px solid var(--border);
+    background-color: var(--bg-input);
     border-radius: 2px;
 }
-
 select {
-    background-color: #1c1c1c;
-    color: #6e6e6e;
-    border: gray solid 1px;
+    background-color: var(--bg-input);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
 }
-
 input, textarea {
-    background-color: #1c1c1c;
-    color: #fff;
-    border: gray solid 1px;
+    background-color: var(--bg-input);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
 }
-
 input[type=submit], button {
-    background-color: #1c1c1c;
-    color: greenyellow;
-    border: gray solid 1px;
+    background-color: var(--bg-input);
+    color: var(--accent);
+    border: 1px solid var(--border);
+    cursor: pointer;
 }
-
 input[type=submit]:hover, button:hover {
-    background-color: #1c1c1c;
-    color: greenyellow;
-    border-color: greenyellow;
+    background-color: var(--bg-input);
+    color: var(--accent-hover);
+    border-color: var(--accent);
 }
 
 .topbar {
+    padding: 0 1vw;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-    border-bottom: lightgreen solid 1px;
+    border-bottom: 1px solid var(--accent-line);
+}
+.topbar .title a { text-decoration: none; }
+.topbar .title a h1 { margin: 0; }
+
+.menu li {
+	position: relative;
+	display: inline-block;
+	padding: 8px 12px;
 }
 
-.topbar .title a {
-    text-decoration: none;
+.menu li > ul {
+	display: none;
+	position: absolute;
+	top: 100%;
+	left: 0;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	background: var(--bg-base);
+	border: 1px solid var(--accent-line);
+	min-width: 140px;
 }
 
-.topbar .title a h1 {
-    margin: 0px;
+.menu li:hover > ul {
+	display: block;
 }
 
-.menu ul {
-    display: flex;
-    flex-direction: row;
-    gap: 4vw;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    flex-wrap: wrap;
+.menu li > ul li {
+	display: block;
+	padding: 6px 10px;
 }
 
-.menu * li {
-    list-style: none;
+.menu li > ul li:hover {
+	background: var(--danger);
+	color: var(--bg-base);
 }
 
-.menu a:hover {
-    background: red;
-}
-
-.inline {
-    display: flex;
-    flex-direction: row;
-}
+.inline { display: flex; flex-direction: row; }
 
 .container {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
 }
-
 .content {
     display: flex;
     flex-direction: column;
@@ -142,34 +159,28 @@ input[type=submit]:hover, button:hover {
     justify-content: flex-start;
     gap: 5px;
 }
-
 .comment {
-    border-color: #6a6a6a;
-    border-style: solid;
-    border-width: 1px;
+    border: 1px solid var(--border);
     border-radius: 2px;
 }
 
 .post {
-    border-top: lightgreen solid 1px;
+    border-top: 1px solid var(--accent-line);
     padding: 20px;
-    background-color: #1f2020;
+    background-color: var(--bg-elevated);
     display: flex;
     flex-direction: column;
     gap: 5px;
 }
-
-.post div {
-    padding: 1%;
-}
-
+.post div { padding: 1%; }
 .post .reactions {
-    border-top: lightgreen solid 1px;
-    border-bottom: lightgreen solid 1px;
+    border-top: 1px solid var(--accent-line);
+    border-bottom: 1px solid var(--accent-line);
 }
 
 .footer {
-    border-top: lightgreen solid 1px;
+    padding: 0 1vw;
+    border-top: 1px solid var(--accent-line);
     max-height: 55px;
     height: 55px;
 }
@@ -177,9 +188,12 @@ input[type=submit]:hover, button:hover {
 .box {
     max-width: 400px;
     align-self: center;
-    box-shadow: 0px 5px 40px 22px #004;
-    background: #004;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
 }
+
 .oauth-buttons {
     display: flex;
     flex-direction: column;
@@ -187,14 +201,12 @@ input[type=submit]:hover, button:hover {
     gap: 2px;
 }
 
-.menu details > summary {
-    list-style: none;
-}
+.menu details > summary { list-style: none; }
 
 .notifications ul {
     position: absolute;
-    background-color: #1c1c1c;
-    border: lightgreen solid 1px;
+    background-color: var(--bg-input);
+    border: 1px solid var(--accent-line);
     display: flex;
     flex-direction: row;
     gap: 8px;
@@ -205,21 +217,17 @@ input[type=submit]:hover, button:hover {
 }
 
 .activity {
-    border: lightgreen solid 1px;
+    border: 1px solid var(--accent-line);
     padding: 1%;
-    background-color: #1f2020;
+    background-color: var(--bg-elevated);
 }
-
 .activity-highlight {
-    border-top: lightgreen solid 1px;
-    border-bottom: lightgreen solid 1px;
+    border-top: 1px solid var(--accent-line);
+    border-bottom: 1px solid var(--accent-line);
     padding: 1%;
 }
 
-.manage-comment, .manage-post {
-    display: flex;
-    flex-direction: row;
-}
+.manage-comment, .manage-post { display: flex; flex-direction: row; }
 
 .chat-messages {
     height: 400px;
@@ -236,38 +244,88 @@ input[type=submit]:hover, button:hover {
 
 .users-panel {
     position: fixed;
-    background: #1c1c1c;
+    background: var(--bg-elevated);
     right: 0;
     width: 40%;
     padding: 0 10px;
     bottom: 0;
+    border-left: 1px solid var(--accent-line);
+    border-top: 1px solid var(--accent-line);
 }
-
 .users-panel-header {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
 }
-.users-panel-inner > ul{
+.users-panel-inner > ul {
     list-style: none;
     padding: 0 0 0 10px;
 }
-
 .users-panel-inner li {
     display: flex;
     align-items: baseline;
     flex-wrap: wrap;
     gap: 5px;
 }
-
 .last-message-time {
-    color: lightgreen;
+    color: var(--text-secondary);
     font-size: 0.8rem;
     opacity: 0.75;
     white-space: nowrap;
 }
-#collapse-panel {
-    width: 36px;
-    height: 36px;
+#collapse-panel { width: 36px; height: 36px; }
+
+.alert-space {
+    position: fixed;
+    top: 20px;
+    display: flex;
+    justify-content: center;
+    align-self: center;
 }
+
+.alert {
+    border: 1px solid;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    padding: 5px;
+}
+
+.alert-type-Success {
+    background: var(--accent-dim);
+    border-color: var(--border);
+    color: var(--bg-base);
+}
+
+.alert-type-Error {
+    background: var(--danger);
+    border-color: pink;
+    color: black;
+}
+
+.alert button {
+    border:none;
+    background: none;
+    font-size: 16px;
+}
+
+.alert button:hover {
+    text-shadow: 1px 1px black;
+}
+
+.max-width-600px {
+    max-width: 600px;
+}
+
+.max-width-400px {
+    max-width: 400px;
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+.gap-15 { gap: 15px; }
+
+.padding-sides-1vw { padding: 0 1vw; }

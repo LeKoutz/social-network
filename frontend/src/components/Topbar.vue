@@ -16,30 +16,31 @@ const { unreadNotificationsCount } = useNotifications();
                 <h1>{{ websiteName }}</h1>
             </router-link>
         </div>
-        <div class="menu">
-            <ul>
+        <div class="">
+            <ul class="menu">
                 <template v-if="user.LoggedIn">
                     <li>
                         <router-link :to="`/profile/view/${user.Id}`">Welcome back, {{ user.Username }}</router-link>
                     </li>
                     <li>
+                        Menu
                         <ul>
                             <li><router-link to="/post/create">Create post</router-link></li>
                             <li><router-link to="/group/create">Create group</router-link></li>
                             <li><router-link to="/groups">Browse groups</router-link></li>
                             <li><router-link to="/user/posts">My posts</router-link></li>
                             <li><router-link to="/user/likes">My likes</router-link></li>
-                            <li>
-                                <details>
-                                    <summary>
-                                        Notifications 🔔 {{ unreadNotificationsCount }}
-                                    </summary>
-                                    <NotificationsPanel v-if="unreadNotificationsCount > 0" />
-                                </details>
-                            </li>
-                            <li><button @click="logoutUser">Log out</button></li>
                         </ul>
                     </li>
+                    <li>
+                        <details>
+                            <summary>
+                                Notifications 🔔 {{ unreadNotificationsCount }}
+                            </summary>
+                            <NotificationsPanel v-if="unreadNotificationsCount > 0" />
+                        </details>
+                    </li>
+                    <li><button @click="logoutUser">Log out</button></li>
                 </template>
                 <template v-else>
                     <li><router-link to="/user/login">Log in</router-link></li>

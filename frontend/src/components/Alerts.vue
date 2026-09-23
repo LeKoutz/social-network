@@ -5,13 +5,12 @@ const { alert, clear } = useAlerts();
 </script>
 
 <template>
-    <template v-if="alert">
-        <fieldset class="alert">
-            <legend>{{ alert.type }}</legend>
-            <p>{{ alert.message }}</p>
-            <button @click="clear">Dismiss</button>
-        </fieldset>
-    </template>
+    <div v-if="alert" class="alert-space">
+        <div :class="['alert', `alert-type-${alert.type}`]">
+            <span>{{ alert.message }}</span>
+            <button @click="clear">✗</button>
+        </div>
+    </div>
 </template>
 
 <style scoped></style>

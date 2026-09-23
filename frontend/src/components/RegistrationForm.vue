@@ -70,7 +70,7 @@ async function submitForm(e) {
 
 <template>
     <template v-if="!user.LoggedIn">
-        <div class="box">
+        <div class="container align-items-center gap-15">
             <form id="register" @submit.prevent="submitForm">
                 <fieldset>
                     <legend>User Registration</legend>
