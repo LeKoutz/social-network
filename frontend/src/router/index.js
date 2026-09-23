@@ -4,7 +4,6 @@ import CategoryView from '@/views/CategoryView.vue';
 import LoginView from '@/views/LoginView.vue';
 import RegisterView from '@/views/RegisterView.vue';
 import ProfileView from '@/views/ProfileView.vue';
-import UserActivityView from '@/views/UserActivityView.vue';
 import PostView from '@/views/PostView.vue';
 import PostCreateView from '@/views/PostCreateView.vue';
 import PostEditView from '@/views/PostEditView.vue';
@@ -21,8 +20,7 @@ const router = createRouter({
         { path: '/category/view/', component: CategoryView },
         { path: '/user/login', component: LoginView },
         { path: '/user/register', component: RegisterView },
-        { path: '/profile', component: ProfileView },
-        { path: '/user/activity', component: UserActivityView },
+        { path: '/profile/view/:id', component: ProfileView },
         { path: '/post/view/:id', component: PostView },
         {
             path: '/post/create',

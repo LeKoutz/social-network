@@ -42,8 +42,11 @@ watch(
             <h2>{{ group.Title }}</h2>
             <p class="group-description">{{ group.Description }}</p>
             <p class="group-owner">
-                Owned by <strong>{{ group.OwnerUsername }}</strong> on
-                <em>({{ DateToLocale(group.Timestamp) }})</em>
+                Owned by 
+                <router-link :to="`/profile/view/${group.OwnerUserId}`">
+                    <strong>{{ group.OwnerUsername }}</strong>
+                </router-link>
+                on <em>({{ DateToLocale(group.Timestamp) }})</em>
             </p>
             <template v-if="group.Member">
                 <PostCreateForm :group="group" />

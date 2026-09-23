@@ -20,14 +20,13 @@ const { unreadNotificationsCount } = useNotifications();
             <ul>
                 <template v-if="user.LoggedIn">
                     <li>
-                        <router-link to="/user">Welcome back, {{ user.Username }}</router-link>
+                        <router-link :to="`/profile/view/${user.Id}`">Welcome back, {{ user.Username }}</router-link>
                     </li>
                     <li>
                         <ul>
                             <li><router-link to="/post/create">Create post</router-link></li>
                             <li><router-link to="/group/create">Create group</router-link></li>
                             <li><router-link to="/groups">Browse groups</router-link></li>
-                            <li><router-link to="/user/activity">My activity</router-link></li>
                             <li><router-link to="/user/posts">My posts</router-link></li>
                             <li><router-link to="/user/likes">My likes</router-link></li>
                             <li>

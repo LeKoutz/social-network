@@ -88,7 +88,7 @@ async function react(action) {
 
 <template>
     <div class="comment" :id="`comment-${comment.Id}`">
-        <span>{{ comment.Username }} ({{ DateToLocale(comment.Timestamp) }})</span>
+        <span><router-link :to="`/profile/view/${comment.UserId}`">{{ comment.Username }}</router-link> ({{ DateToLocale(comment.Timestamp) }})</span>
         <div class="manage-comment">
             <template v-if="isOwner()">
                 <CommentEditForm @edit="toggleEdit" />

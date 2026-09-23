@@ -73,7 +73,7 @@ const isOwner = () =>
                     </p>
                     </template>
                     <p>Posted by
-                    <router-link :to="`/user/${post.User.Id}`">
+                    <router-link :to="`/profile/view/${post.User.Id}`">
                         <strong>{{post.User.Username}}</strong>
                     </router-link>
                     on

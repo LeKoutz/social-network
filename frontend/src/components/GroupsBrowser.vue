@@ -24,9 +24,12 @@ onMounted(async () => {
                 <router-link :to="`/group/view/${group.Id}`"><h3>{{ group.Title }}</h3></router-link>
                 <p class="group-description">{{ group.Description }}</p>
                 <p class="group-owner">
-                    Owned by <strong>{{ group.OwnerUsername }}</strong> on
-                    <em>({{ DateToLocale(group.Timestamp) }})</em>
-                </p>
+                Owned by 
+                <router-link :to="`/profile/view/${group.OwnerUserId}`">
+                    <strong>{{ group.OwnerUsername }}</strong>
+                </router-link>
+                on<em>({{ DateToLocale(group.Timestamp) }})</em>
+            </p>
             </div>
             <p v-if="groups.length === 0">No groups yet. Create the first one!</p>
         </template>
