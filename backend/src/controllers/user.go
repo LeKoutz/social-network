@@ -188,10 +188,6 @@ func GetUserLikedPosts(data state.StateController) error {
 	return nil
 }
 
-func GetUserActivity(data state.StateController) error {
-	return data.EditUser().GetActivity()
-}
-
 func GetReturningUser(data state.StateController) error {
 	var err error
 	err = data.EditUser().GetUserBySession()

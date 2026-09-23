@@ -63,16 +63,6 @@ func HandleShowUserLikedPosts(data state.StateHandler) {
 	data.WriteResponse()
 }
 
-func HandleShowUserActivity(data state.StateHandler) {
-	err := controllers.GetUserActivity(data.(state.StateController))
-	if err != nil {
-		err = ferror.ErrorInternalServerError
-		data.SetErrorConsume(ferror.ReturnErr(err)).WriteResponse()
-		return
-	}
-	data.WriteResponse()
-}
-
 func HandleUserRegister(data state.StateHandler) {
 	switch data.GetRequest().Method {
 	case http.MethodPost:

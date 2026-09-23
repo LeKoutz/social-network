@@ -10,6 +10,7 @@ type UserProfileType struct {
 
 	Username             string
 	Email                string
+	Activities			 ActivitiesType
 	CanView				 bool
 }
 

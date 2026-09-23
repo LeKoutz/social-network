@@ -30,13 +30,12 @@ func ShowProfile(data state.StateController) error {
 	if err != nil {
 		return ferror.ReturnErr(err)
 	}
-	var postAuthor models.UserType
-	postAuthor.Id = profile.UserId
-	posts, err := postAuthor.GetPosts()
+	var activities models.ActivitiesType
+	err = activities.GetActivityById(profile.UserId)
 	if err != nil {
 		return ferror.ReturnErr(err)
 	}
-	data.SetPosts(posts)
+	profile.Activities = activities
 	// TODO: Followers list for profile.UserId
 	// TODO: Following list for profile.UserId
 
