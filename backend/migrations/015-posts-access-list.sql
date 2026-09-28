@@ -1,0 +1,13 @@
+BEGIN TRANSACTION;
+
+CREATE TABLE IF NOT EXISTS "posts_access_list" (
+	"id"	INTEGER NOT NULL UNIQUE,
+	"post_id"	INTEGER NOT NULL,
+	"user_id"	INTEGER NOT NULL,
+	PRIMARY KEY("id" AUTOINCREMENT),
+	UNIQUE("post_id", "user_id"),
+	FOREIGN KEY("post_id") REFERENCES "posts"("id") ON DELETE CASCADE,
+	FOREIGN KEY("user_id") REFERENCES "users"("id") ON DELETE CASCADE
+);
+
+END TRANSACTION;
