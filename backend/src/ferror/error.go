@@ -66,6 +66,7 @@ var (
 	ErrorGroupMembershipRequired = errors.New("You must be a member of this group to see its posts.")
 	ErrorProfileEmptyId			 = errors.New("Profile ID can't be empty.")
 	ErrorInvalidProfileId		 = errors.New("Invalid profile ID")
+	ErrorRecipientNotFollowed    = errors.New("You can only chat with users you follow and who follow you back.")
 )
 
 type Error struct {
@@ -126,6 +127,9 @@ func (e *Error) Consume(err error) *Error {
 		errors.Is(err, ErrorInvalidProfileId),
 		errors.Is(err, ErrorBadRequest):
 		e.StatusCode = http.StatusBadRequest
+	case errors.Is(err, ErrorPermissionDenied),
+		errors.Is(err, ErrorRecipientNotFollowed):
+		e.StatusCode = http.StatusForbidden
 	case errors.Is(err, ErrorInternalServerError):
 		e.StatusCode = http.StatusInternalServerError
 	}

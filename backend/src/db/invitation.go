@@ -51,12 +51,30 @@ func (i *InvitationRowType) Insert() error {
 }
 
 func (i *InvitationRowType) Unfollow() error {
-    _, err := db.Exec(
-        "UPDATE invitations SET status = 'unfollowed' WHERE from_user_id = ? AND to_user_id = ? AND status = 'accepted'",
-        i.FromUserId, i.ToUserId,
-    )
-    if err != nil {
-        return ferror.ReturnErr(err)
-    }
-    return nil
+	_, err := db.Exec(
+		"UPDATE invitations SET status = 'unfollowed' WHERE from_user_id = ? AND to_user_id = ? AND status = 'accepted'",
+		i.FromUserId, i.ToUserId,
+	)
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
+	return nil
+}
+
+func (i *InvitationRowType) AreFollowingEachOther(fromUserId, toUserId int64) (bool, error) {
+	var following bool
+	err := db.QueryRow(`
+		SELECT EXISTS(
+			SELECT 1 FROM invitations
+			WHERE status = 'accepted'
+			AND (
+				(from_user_id = ? AND to_user_id = ?)
+				OR (from_user_id = ? AND to_user_id = ?)
+			)
+		)
+	`, fromUserId, toUserId, toUserId, fromUserId).Scan(&following)
+	if err != nil {
+		return false, ferror.ReturnErr(err)
+	}
+	return following, nil
 }
