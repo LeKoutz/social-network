@@ -4,6 +4,8 @@ import router from '@/router/index.js';
 import { useChat } from '@/composables/useChat.js';
 
 const user = ref({ LoggedIn: false });
+let resolveUserLoaded;
+const userLoaded = new Promise((resolve) => { resolveUserLoaded = resolve });
 
 export function useUser() {
     function setUser(newUser) {
@@ -25,5 +27,5 @@ export function useUser() {
         }
     }
 
-    return { user, setUser, logoutUser };
+    return { user, setUser, logoutUser, userLoaded, resolveUserLoaded };
 }

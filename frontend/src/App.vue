@@ -13,19 +13,23 @@ import { useCategories } from './composables/useCategories.js';
 const loaded = ref(false);
 const { setAppData } = useAppData();
 const { setNotifications } = useNotifications();
-const { user, setUser } = useUser();
+const { user, setUser, resolveUserLoaded } = useUser();
 const { setCategories } = useCategories();
 
 onMounted(async () => {
-    const data = await apiFetch('/api');
-    if (data) {
-        setAppData(data);
-        setCategories(data.Categories)
-        loaded.value = true;
-        if (data.User.LoggedIn) {
-            setUser(data.User);
-            setNotifications(data.User.Notifications);
+    try {
+        const data = await apiFetch('/api');
+        if (data) {
+            setAppData(data);
+            setCategories(data.Categories)
+            loaded.value = true;
+            if (data.User.LoggedIn) {
+                setUser(data.User);
+                setNotifications(data.User.Notifications);
+            }
         }
+    } finally {
+        resolveUserLoaded();
     }
 });
 </script>
