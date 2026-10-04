@@ -43,9 +43,10 @@ const router = createRouter({
     ],
 });
 
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
     if (to.meta.requiresAuth) {
-        const { user } = useUser();
+        const { user, userLoaded } = useUser();
+        await userLoaded;
         if (!user.value.LoggedIn) return '/user/login';
     }
 });
