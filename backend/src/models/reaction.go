@@ -6,6 +6,6 @@ import (
 
 type ReactionType struct {
 	db.ReactionRowType
-	Post      PostType
-	Comment   CommentType
+	Post    PostType
+	Comment CommentType
 }

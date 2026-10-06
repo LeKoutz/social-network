@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"forum/src/controllers"
-	"forum/src/state"
 	"forum/src/ferror"
+	"forum/src/state"
 )
 
 func HandleShowGroups(data state.StateHandler) {

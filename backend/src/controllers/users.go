@@ -1,9 +1,9 @@
 package controllers
 
 import (
+	"forum/src/ferror"
 	"forum/src/models"
 	"forum/src/state"
-	"forum/src/ferror"
 )
 
 func GetUsersForPanel(data state.StateController) error {

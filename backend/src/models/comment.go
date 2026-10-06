@@ -7,10 +7,10 @@ import (
 
 type CommentType struct {
 	db.CommentRowType
-	Likes     int64
-	Liked     bool
-	Dislikes  int64
-	Disliked  bool
+	Likes    int64
+	Liked    bool
+	Dislikes int64
+	Disliked bool
 }
 
 func (c *CommentType) ValidateComment() error {

@@ -1,8 +1,8 @@
 package models
 
 type ActivityType struct {
-	Type            string
-	Timestamp       string
-	Post            PostType
-	Comment         CommentType
+	Type      string      `json:"Type,omitempty"`
+	Timestamp string      `json:"Timestamp,omitempty"`
+	Post      PostType    `json:"Post,omitzero"`
+	Comment   CommentType `json:"Comment,omitzero"`
 }

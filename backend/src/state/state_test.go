@@ -23,17 +23,6 @@ func TestStateInit(t *testing.T) {
 	}
 }
 
-func TestStateSetView(t *testing.T) {
-	s := &State{}
-	result := s.SetView("test_view")
-	if result != s {
-		t.Error("SetView() should return same State pointer")
-	}
-	if s.View != "test_view" {
-		t.Errorf("SetView() View = %q, want %q", s.View, "test_view")
-	}
-}
-
 func TestStateSetError(t *testing.T) {
 	s := &State{}
 	result := s.SetError(ferror.Error{Message: "test error"})
@@ -117,30 +106,6 @@ func TestStateSetWebsiteName(t *testing.T) {
 	}
 	if s.WebsiteName != "My Forum" {
 		t.Errorf("SetWebsiteName() WebsiteName = %q, want %q", s.WebsiteName, "My Forum")
-	}
-}
-
-func TestStateReturnController(t *testing.T) {
-	s := &State{}
-	sc := s.ReturnController()
-	if sc == nil {
-		t.Error("ReturnController() returned nil")
-	}
-}
-
-func TestStateReturnHandler(t *testing.T) {
-	s := &State{}
-	sh := s.ReturnHandler()
-	if sh == nil {
-		t.Error("ReturnHandler() returned nil")
-	}
-}
-
-func TestStateReturnView(t *testing.T) {
-	s := &State{}
-	sv := s.ReturnView()
-	if sv == nil {
-		t.Error("ReturnView() returned nil")
 	}
 }
 

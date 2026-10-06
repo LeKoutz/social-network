@@ -9,64 +9,73 @@ import (
 )
 
 var (
-	ErrorNotRegistered           = errors.New("Email is not registered")
-	ErrorEmailIsRegistered       = errors.New("Email is already registered")
-	ErrorEmailFieldEmpty         = errors.New("Email field can't be empty")
-	ErrorPasswordFieldEmpty      = errors.New("Password field can't be empty")
-	ErrorInvalidUsername         = errors.New("Username is invalid")
-	ErrorInvalidGender           = errors.New("Gender is invalid")
-	ErrorUsernameTaken           = errors.New("Username is taken")
-	ErrorInvalidUser             = errors.New("Invalid user")
-	ErrorWrongPassword           = errors.New("Wrong password")
-	ErrorWeakPassword            = errors.New("Weak password. Use lower and upper case letters, symbols and number. Length must be between 10-16 characters.")
-	ErrorPasswordMismatch        = errors.New("Password mismatch")
-	ErrorAlreadyLoggedIn         = errors.New("Already logged in.")
-	ErrorAlreadyLoggedOut        = errors.New("Already logged out.")
-	ErrorNotFound                = errors.New("Not found")
-	ErrorPostEmptyId             = errors.New("Post ID can't be empty.")
-	ErrorInvalidPostId           = errors.New("Invalid post ID")
-	ErrorInvalidCommentId        = errors.New("Invalid comment ID")
-	ErrorInvalidCategoryId       = errors.New("Invalid category ID")
-	ErrorInvalidChatId           = errors.New("Invalid chat ID")
-	ErrorPostBodyEmpty           = errors.New("Post body can't be empty.")
-	ErrorPostTitleEmpty          = errors.New("Post title can't be empty.")
-	ErrorPostHasNoCategory       = errors.New("Post category can't be empty.")
-	ErrorPermissionDenied        = errors.New("Permission denied.")
-	ErrorPostPermissionDenied    = errors.New("You must be logged in to create a post.")
-	ErrorUserPermissionDenied    = errors.New("You must be logged in.")
-	ErrorCommentEmpty            = errors.New("Comment can't be empty.")
-	ErrorCommentTooLong          = errors.New("Comment is too long.")
-	ErrorCommentPermissionDenied = errors.New("You must be logged in to create a comment.")
-	ErrorCommentEmptyId          = errors.New("Comment ID can't be empty.")
-	ErrorCategoryEmptyId         = errors.New("Category ID can't be empty.")
-	ErrorCategoryAlreadyExists   = errors.New("Category already exists.")
-	ErrorCategoryNameEmpty       = errors.New("Category name can't be empty.")
-	ErrorCategoryNameTooLong     = errors.New("Category name is too long. Use less than 128 characters.")
-	ErrorUnauthorizedAction      = errors.New("Unauthorized action. Log in and try again.")
-	ErrorMethodNotAllowed        = errors.New("Method not allowed.")
-	ErrorBadRequest              = errors.New("Bad request.")
-	ErrorInternalServerError     = errors.New("Internal server error.")
-	ErrorUnknownAction           = errors.New("Unknown action requested.")
-	ErrorImageTooBig             = errors.New("Image is too big. Maximum size is 20MB.")
-	ErrorInvalidImageType        = errors.New("Invalid image type. Allowed types: JPEG, PNG, GIF.")
-	ErrorFailedToGetCaller       = errors.New("Failed to get caller information")
-	ErrorNoRows                  = errors.New("No rows")
-	ErrorEmailNotFoundForOAuth   = errors.New("Could not associate email with given OAuth provider. Try to login with a password or another provider.")
-	ErrorAccessToken             = errors.New("Failed to retrieve access token")
-	ErrorCookieNotFound          = errors.New("State cookie not found")
-	ErrorInvalidOAuthState       = errors.New("Invalid OAuth state")
-	ErrorContentNotFound         = errors.New("Content not found. It doesn't exist or it may have been deleted")
-	ErrorInvitationAlreadyExists = errors.New("Invitation already exists")
-	ErrorInvalidUserId           = errors.New("Invalid user ID")
-	ErrorGroupTitleEmpty         = errors.New("Group title can't be empty.")
-	ErrorGroupTitleTooLong       = errors.New("Group title is too long. Use less than 128 characters.")
-	ErrorGroupTitleAlreadyExists = errors.New("Group title already exists.")
-	ErrorGroupEmptyId            = errors.New("Group ID can't be empty.")
-	ErrorInvalidGroupId          = errors.New("Invalid group ID")
-	ErrorGroupMembershipRequired = errors.New("You must be a member of this group to see its posts.")
-	ErrorProfileEmptyId			 = errors.New("Profile ID can't be empty.")
-	ErrorInvalidProfileId		 = errors.New("Invalid profile ID")
-	ErrorRecipientNotFollowed    = errors.New("You can only chat with users you follow and who follow you back.")
+	ErrorNotRegistered                = errors.New("Email is not registered")
+	ErrorEmailIsRegistered            = errors.New("Email is already registered")
+	ErrorEmailFieldEmpty              = errors.New("Email field can't be empty")
+	ErrorPasswordFieldEmpty           = errors.New("Password field can't be empty")
+	ErrorInvalidUsername              = errors.New("Username is invalid")
+	ErrorInvalidGender                = errors.New("Gender is invalid")
+	ErrorUsernameTaken                = errors.New("Username is taken")
+	ErrorInvalidUser                  = errors.New("Invalid user")
+	ErrorWrongPassword                = errors.New("Wrong password")
+	ErrorWeakPassword                 = errors.New("Weak password. Use lower and upper case letters, symbols and number. Length must be between 10-16 characters.")
+	ErrorPasswordMismatch             = errors.New("Password mismatch")
+	ErrorAlreadyLoggedIn              = errors.New("Already logged in.")
+	ErrorAlreadyLoggedOut             = errors.New("Already logged out.")
+	ErrorNotFound                     = errors.New("Not found")
+	ErrorPostEmptyId                  = errors.New("Post ID can't be empty.")
+	ErrorInvalidPostId                = errors.New("Invalid post ID")
+	ErrorInvalidCommentId             = errors.New("Invalid comment ID")
+	ErrorInvalidCategoryId            = errors.New("Invalid category ID")
+	ErrorInvalidChatId                = errors.New("Invalid chat ID")
+	ErrorPostBodyEmpty                = errors.New("Post body can't be empty.")
+	ErrorPostTitleEmpty               = errors.New("Post title can't be empty.")
+	ErrorPostHasNoCategory            = errors.New("Post category can't be empty.")
+	ErrorPermissionDenied             = errors.New("Permission denied.")
+	ErrorPostPermissionDenied         = errors.New("You must be logged in to create a post.")
+	ErrorUserPermissionDenied         = errors.New("You must be logged in.")
+	ErrorCommentEmpty                 = errors.New("Comment can't be empty.")
+	ErrorCommentTooLong               = errors.New("Comment is too long.")
+	ErrorCommentPermissionDenied      = errors.New("You must be logged in to create a comment.")
+	ErrorCommentEmptyId               = errors.New("Comment ID can't be empty.")
+	ErrorCategoryEmptyId              = errors.New("Category ID can't be empty.")
+	ErrorCategoryAlreadyExists        = errors.New("Category already exists.")
+	ErrorCategoryNameEmpty            = errors.New("Category name can't be empty.")
+	ErrorCategoryNameTooLong          = errors.New("Category name is too long. Use less than 128 characters.")
+	ErrorUnauthorizedAction           = errors.New("Unauthorized action. Log in and try again.")
+	ErrorMethodNotAllowed             = errors.New("Method not allowed.")
+	ErrorBadRequest                   = errors.New("Bad request.")
+	ErrorInternalServerError          = errors.New("Internal server error.")
+	ErrorUnknownAction                = errors.New("Unknown action requested.")
+	ErrorImageTooBig                  = errors.New("Image is too big. Maximum size is 20MB.")
+	ErrorInvalidImageType             = errors.New("Invalid image type. Allowed types: JPEG, PNG, GIF.")
+	ErrorFailedToGetCaller            = errors.New("Failed to get caller information")
+	ErrorNoRows                       = errors.New("No rows")
+	ErrorEmailNotFoundForOAuth        = errors.New("Could not associate email with given OAuth provider. Try to login with a password or another provider.")
+	ErrorAccessToken                  = errors.New("Failed to retrieve access token")
+	ErrorCookieNotFound               = errors.New("State cookie not found")
+	ErrorInvalidOAuthState            = errors.New("Invalid OAuth state")
+	ErrorContentNotFound              = errors.New("Content not found. It doesn't exist or it may have been deleted")
+	ErrorInvitationAlreadyExists      = errors.New("Invitation already exists")
+	ErrorInvitationNotFound           = errors.New("Invitation not found")
+	ErrorInvitationNotPending         = errors.New("Invitation is not pending")
+	ErrorInvalidInvitationId          = errors.New("Invalid invitation ID")
+	ErrorCannotUnfollow               = errors.New("You are not following this user")
+	ErrorInvalidUserId                = errors.New("Invalid user ID")
+	ErrorGroupTitleEmpty              = errors.New("Group title can't be empty.")
+	ErrorGroupTitleTooLong            = errors.New("Group title is too long. Use less than 128 characters.")
+	ErrorGroupTitleAlreadyExists      = errors.New("Group title already exists.")
+	ErrorGroupEmptyId                 = errors.New("Group ID can't be empty.")
+	ErrorInvalidGroupId               = errors.New("Invalid group ID")
+	ErrorGroupMembershipRequired      = errors.New("You must be a member of this group to see its posts.")
+	ErrorProfileEmptyId               = errors.New("Profile ID can't be empty.")
+	ErrorInvalidProfileId             = errors.New("Invalid profile ID")
+	ErrorRecipientNotFollowed         = errors.New("You can only chat with users you follow and who follow you back.")
+	ErrorNotImplemented               = errors.New("Not implemented")
+	ErrorGroupInvitationAlreadyExists = errors.New("Group invitation already exists from another member.")
+	ErrorGroupAlreadyMember           = errors.New("You are already a member of this group.")
+	ErrorGroupNoInvites               = errors.New("No invites.")
+	ErrorGroupNoJoinRequests          = errors.New("No join requests.")
 )
 
 type Error struct {
@@ -78,7 +87,6 @@ type Error struct {
 
 type ErrorIface interface {
 	LogError()
-	RespondError(http.ResponseWriter) // TODO: Remove
 	Consume(error) Error
 }
 
@@ -89,9 +97,14 @@ func (e *Error) Consume(err error) *Error {
 	e.Has = true
 
 	switch {
-	case errors.Is(err, ErrorNotFound),
-		errors.Is(err, ErrorContentNotFound):
+	case
+		errors.Is(err, ErrorNotFound),
+		errors.Is(err, ErrorContentNotFound),
+		errors.Is(err, ErrorInvitationNotFound),
+		errors.Is(err, ErrorCannotUnfollow):
+
 		e.StatusCode = http.StatusNotFound
+
 	case
 		errors.Is(err, ErrorUnauthorizedAction),
 		errors.Is(err, ErrorUserPermissionDenied),
@@ -99,9 +112,14 @@ func (e *Error) Consume(err error) *Error {
 		errors.Is(err, ErrorPostPermissionDenied),
 		errors.Is(err, ErrorGroupMembershipRequired),
 		errors.Is(err, ErrorPermissionDenied):
+
 		e.StatusCode = http.StatusForbidden
-	case errors.Is(err, ErrorMethodNotAllowed):
+
+	case
+		errors.Is(err, ErrorMethodNotAllowed):
+
 		e.StatusCode = http.StatusMethodNotAllowed
+
 	case
 		errors.Is(err, ErrorPostEmptyId),
 		errors.Is(err, ErrorInvalidPostId),
@@ -120,17 +138,25 @@ func (e *Error) Consume(err error) *Error {
 		errors.Is(err, ErrorGroupTitleTooLong),
 		errors.Is(err, ErrorGroupTitleAlreadyExists),
 		errors.Is(err, ErrorGroupEmptyId),
-		errors.Is(err, ErrorInvalidGroupId),
 		errors.Is(err, ErrorEmailFieldEmpty),
 		errors.Is(err, ErrorPasswordFieldEmpty),
 		errors.Is(err, ErrorProfileEmptyId),
 		errors.Is(err, ErrorInvalidProfileId),
+		errors.Is(err, ErrorInvitationNotPending),
+		errors.Is(err, ErrorInvalidGroupId),
+		errors.Is(err, ErrorInvalidInvitationId),
 		errors.Is(err, ErrorBadRequest):
+
 		e.StatusCode = http.StatusBadRequest
-	case errors.Is(err, ErrorPermissionDenied),
+	case
+		errors.Is(err, ErrorPermissionDenied),
 		errors.Is(err, ErrorRecipientNotFollowed):
+
 		e.StatusCode = http.StatusForbidden
-	case errors.Is(err, ErrorInternalServerError):
+	case
+		errors.Is(err, ErrorNotImplemented),
+		errors.Is(err, ErrorInternalServerError):
+
 		e.StatusCode = http.StatusInternalServerError
 	}
 	return e

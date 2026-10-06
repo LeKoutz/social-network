@@ -79,7 +79,7 @@ func HandleUserRegister(data state.StateHandler) {
 		data.WriteResponse()
 	default:
 		err := ferror.ErrorMethodNotAllowed
-		
+
 		data.SetErrorConsume(ferror.ReturnErr(err)).WriteResponse()
 	}
 }

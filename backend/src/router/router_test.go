@@ -119,6 +119,89 @@ func TestMatchRouteLogin(t *testing.T) {
 	}
 }
 
+func TestMatchRouteFollows(t *testing.T) {
+	req := httptest.NewRequest("GET", "/api/follows", nil)
+	s := newState(req)
+
+	route, err := matchRoute(s)
+	if err != nil {
+		t.Fatalf("matchRoute() error: %v", err)
+	}
+	if route == nil {
+		t.Fatal("matchRoute() returned nil route for /api/follows")
+	}
+	if route.Path != "/api/follows" {
+		t.Errorf("matchRoute() Path = %q, want %q", route.Path, "/api/follows")
+	}
+	if !route.NeedsLogin {
+		t.Error("matchRoute() /api/follows should require login")
+	}
+}
+
+func TestMatchRouteFollowAccept(t *testing.T) {
+	req := httptest.NewRequest("POST", "/api/follow/accept/5", nil)
+	s := newState(req)
+
+	route, err := matchRoute(s)
+	if err != nil {
+		t.Fatalf("matchRoute() error: %v", err)
+	}
+	if route == nil {
+		t.Fatal("matchRoute() returned nil route for /api/follow/accept/5")
+	}
+	if route.Path != "/api/follow/accept/" {
+		t.Errorf("matchRoute() Path = %q, want %q", route.Path, "/api/follow/accept/")
+	}
+	if !route.NeedsLogin {
+		t.Error("matchRoute() /api/follow/accept/ should require login")
+	}
+}
+
+func TestMatchRouteFollowDeny(t *testing.T) {
+	req := httptest.NewRequest("POST", "/api/follow/deny/5", nil)
+	s := newState(req)
+
+	route, err := matchRoute(s)
+	if err != nil {
+		t.Fatalf("matchRoute() error: %v", err)
+	}
+	if route == nil {
+		t.Fatal("matchRoute() returned nil route for /api/follow/deny/5")
+	}
+	if route.Path != "/api/follow/deny/" {
+		t.Errorf("matchRoute() Path = %q, want %q", route.Path, "/api/follow/deny/")
+	}
+}
+
+func TestMatchRouteUnfollow(t *testing.T) {
+	req := httptest.NewRequest("POST", "/api/unfollow/5", nil)
+	s := newState(req)
+
+	route, err := matchRoute(s)
+	if err != nil {
+		t.Fatalf("matchRoute() error: %v", err)
+	}
+	if route == nil {
+		t.Fatal("matchRoute() returned nil route for /api/unfollow/5")
+	}
+	if route.Path != "/api/unfollow/" {
+		t.Errorf("matchRoute() Path = %q, want %q", route.Path, "/api/unfollow/")
+	}
+}
+
+func TestRoutesHandlerFollowsNeedsLogin(t *testing.T) {
+	setupTestRouterDB(t)
+
+	req := httptest.NewRequest("GET", "/api/follows", nil)
+	w := httptest.NewRecorder()
+
+	RoutesHandler(w, req)
+
+	if w.Code != http.StatusForbidden {
+		t.Errorf("RoutesHandler() status for /api/follows without login = %d, want %d", w.Code, http.StatusForbidden)
+	}
+}
+
 func TestMatchRouteNotFound(t *testing.T) {
 	req := httptest.NewRequest("GET", "/nonexistent/path", nil)
 	s := newState(req)

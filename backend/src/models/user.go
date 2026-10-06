@@ -12,13 +12,13 @@ type UserType struct {
 	db.UserRowType
 	db.UserProfileRowType
 
-	LoggedIn                 bool
-	Notifications            NotificationsType
-	UnreadNotificationsCount int
-	ChatMessages             ChatMessagesType
+	LoggedIn                 bool              `json:"LoggedIn,omitempty"`
+	Notifications            NotificationsType `json:"Notifications,omitempty"`
+	UnreadNotificationsCount int               `json:"UnreadNotificationsCount,omitempty"`
+	ChatMessages             ChatMessagesType  `json:"ChatMessages,omitempty"`
 	// LastMessageTimestamp     int64
-	Identifier               string
-	Password				 string
+	Identifier string `json:"Identifier,omitempty"`
+	Password   string `json:"-"`
 }
 
 func GetGuestUser() UserType {

@@ -8,14 +8,14 @@ import (
 type PostType struct {
 	db.PostRowType
 
-	User       UserType
-	Likes      int64
-	Liked      bool
-	Dislikes   int64
-	Disliked   bool
-	Category   CategoryType
-	Categories CategoriesType
-	Comments   CommentsType
+	User       UserType       `json:"User,omitempty"`
+	Likes      int64          `json:"Likes,omitempty"`
+	Liked      bool           `json:"Liked,omitempty"`
+	Dislikes   int64          `json:"Dislikes,omitempty"`
+	Disliked   bool           `json:"Disliked,omitempty"`
+	Category   CategoryType   `json:"Category,omitzero"`
+	Categories CategoriesType `json:"Categories,omitzero"`
+	Comments   CommentsType   `json:"Comments,omitzero"`
 }
 
 func (p *PostType) ValidatePost() error {

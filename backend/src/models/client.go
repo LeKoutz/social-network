@@ -60,12 +60,12 @@ func (c *Client) ReadPump() {
 			timestamp := utils.GetCurrentTimestamp()
 			msg := ChatMessageType{
 				ChatMessageRowType: db.ChatMessageRowType{
-					SenderId:        c.UserId,
-					RecipientId:     p.RecipientId,
-					Body:            p.Body,
-					Timestamp:       timestamp,
+					SenderId:    c.UserId,
+					RecipientId: p.RecipientId,
+					Body:        p.Body,
+					Timestamp:   timestamp,
 				},
-				    SenderUsername:  c.Username,
+				SenderUsername: c.Username,
 			}
 			msg.Id, err = msg.Add()
 			if err != nil {

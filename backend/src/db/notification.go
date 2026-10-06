@@ -5,15 +5,15 @@ import (
 )
 
 type NotificationRowType struct {
-	Id              int64
-	UserId          int64
-	ActorId         int64
-	Type            string
-	PostId          int64
-	CommentId       int64
-	Timestamp       string
-	Read            bool
-	Username        string
+	Id        int64
+	UserId    int64
+	ActorId   int64
+	Type      string
+	PostId    int64
+	CommentId int64
+	Timestamp string
+	Read      bool
+	Username  string
 }
 
 func (n *NotificationRowType) InsertNotification() error {

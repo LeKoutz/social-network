@@ -16,12 +16,12 @@ func ParseRegistrationForm(data state.StateHandler) error {
 		return ferror.ReturnErr(err)
 	}
 	formData := map[string]string{
-		"username":   data.GetRequest().FormValue("username"),
-		"email":      data.GetRequest().FormValue("email"),
-		"first_name": data.GetRequest().FormValue("first_name"),
-		"last_name":  data.GetRequest().FormValue("last_name"),
-		"password1":  data.GetRequest().FormValue("password1"),
-		"password2":  data.GetRequest().FormValue("password2"),
+		"username":      data.GetRequest().FormValue("username"),
+		"email":         data.GetRequest().FormValue("email"),
+		"first_name":    data.GetRequest().FormValue("first_name"),
+		"last_name":     data.GetRequest().FormValue("last_name"),
+		"password1":     data.GetRequest().FormValue("password1"),
+		"password2":     data.GetRequest().FormValue("password2"),
 		"date_of_birth": data.GetRequest().FormValue("date_of_birth"),
 	}
 	for _, value := range formData {
@@ -248,19 +248,61 @@ func ParseChatId(data state.StateHandler) (id, offset int64, err error) {
 }
 
 func ParseUserFollowRequest(data state.StateHandler) error {
-    var err error
-    userIdStr := data.GetRequest().FormValue("user-id")
-    if len(userIdStr) == 0 {
-        err = ferror.ErrorBadRequest
-        return ferror.ReturnErr(err)
-    }
-    userId, err := utils.StringToInt64(userIdStr)
-    if err != nil {
-        err = ferror.ErrorInvalidUserId
-        return ferror.ReturnErr(err)
-    }
-    data.EditFollowRequest().ToUserId = userId
-    return nil
+	var err error
+	userIdStr := data.GetRequest().FormValue("user-id")
+	if len(userIdStr) == 0 {
+		err = ferror.ErrorBadRequest
+		return ferror.ReturnErr(err)
+	}
+	userId, err := utils.StringToInt64(userIdStr)
+	if err != nil {
+		err = ferror.ErrorInvalidUserId
+		return ferror.ReturnErr(err)
+	}
+	data.EditFollowRequest().ToUserId = userId
+	return nil
+}
+
+func ParseAcceptFollowRequest(data state.StateHandler) error {
+	return parseFollowRequestId(data, "/api/follow/accept/", ferror.ErrorInvalidInvitationId)
+}
+
+func ParseDenyFollowRequest(data state.StateHandler) error {
+	return parseFollowRequestId(data, "/api/follow/deny/", ferror.ErrorInvalidInvitationId)
+}
+
+func ParseUnfollowUserRequest(data state.StateHandler) error {
+	var err error
+	var userId int64
+	id, ok := strings.CutPrefix(data.GetRequest().RequestURI, "/api/unfollow/")
+	if !ok {
+		err = ferror.ErrorBadRequest
+		return ferror.ReturnErr(err)
+	}
+	userId, err = utils.StringToInt64(id)
+	if err != nil {
+		err = ferror.ErrorInvalidUserId
+		return ferror.ReturnErr(err)
+	}
+	data.EditFollowRequest().ToUserId = userId
+	return nil
+}
+
+func parseFollowRequestId(data state.StateHandler, prefix string, invalidErr error) error {
+	var err error
+	var invitationId int64
+	id, ok := strings.CutPrefix(data.GetRequest().RequestURI, prefix)
+	if !ok {
+		err = ferror.ErrorBadRequest
+		return ferror.ReturnErr(err)
+	}
+	invitationId, err = utils.StringToInt64(id)
+	if err != nil {
+		err = invalidErr
+		return ferror.ReturnErr(err)
+	}
+	data.EditFollowRequest().Id = invitationId
+	return nil
 }
 
 func ParseCreateGroupRequest(data state.StateHandler) error {
@@ -272,6 +314,45 @@ func ParseCreateGroupRequest(data state.StateHandler) error {
 	data.EditGroup().OwnerUserId = data.GetUser().Id
 	data.EditGroup().Title = data.GetRequest().FormValue("title")
 	data.EditGroup().Description = data.GetRequest().FormValue("description")
+	return nil
+}
+
+func ParseInviteToGroupRequest(data state.StateHandler) error {
+	var err error
+	err = data.GetRequest().ParseMultipartForm(models.MaxImageSize)
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
+	data.EditGroupInvitation().Timestamp = utils.GetCurrentTimestamp()
+	data.EditGroupInvitation().Status = "pending"
+	group_id_str := data.GetRequest().FormValue("group-id")
+	data.EditGroupInvitation().GroupId, err = utils.StringToInt64(group_id_str)
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
+	to_user_id_str := data.GetRequest().FormValue("to-user-id")
+	data.EditGroupInvitation().ToUserId, err = utils.StringToInt64(to_user_id_str)
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
+	data.EditGroupInvitation().InvitedBy = data.GetUser().Id
+	return nil
+}
+
+func ParseJoinGroupRequest(data state.StateHandler) error {
+	var err error
+	err = data.GetRequest().ParseMultipartForm(models.MaxImageSize)
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
+	data.EditGroupInvitation().Timestamp = utils.GetCurrentTimestamp()
+	data.EditGroupInvitation().Status = "pending"
+	group_id_str := data.GetRequest().FormValue("group-id")
+	data.EditGroupInvitation().GroupId, err = utils.StringToInt64(group_id_str)
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
+	data.EditGroupInvitation().ToUserId = data.GetUser().Id
 	return nil
 }
 
@@ -288,4 +369,27 @@ func ParseProfileId(data state.StateHandler) (int64, error) {
 		return 0, ferror.ReturnErr(err)
 	}
 	return profileId, nil
+}
+
+func ParseGroupInvitations(data state.StateHandler) error {
+	var str string
+	var ok bool
+	var i64 int64
+	var err error
+	str, ok = strings.CutPrefix(data.GetRequest().RequestURI, "/api/group/joins/")
+	if ok && len(str) != 0 {
+		goto Convert
+	}
+	str, ok = strings.CutPrefix(data.GetRequest().RequestURI, "/api/group/invites/")
+	if !ok || len(str) == 0 {
+		return ferror.ReturnErr(ferror.ErrorBadRequest)
+	}
+Convert:
+	i64, err = utils.StringToInt64(str)
+	if err != nil || i64 == 0 {
+		err = ferror.ErrorInvalidGroupId
+		return ferror.ReturnErr(err)
+	}
+	data.EditGroup().Id = i64
+	return nil
 }

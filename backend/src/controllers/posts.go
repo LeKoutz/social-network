@@ -1,9 +1,9 @@
 package controllers
 
 import (
+	"forum/src/ferror"
 	"forum/src/models"
 	"forum/src/state"
-	"forum/src/ferror"
 )
 
 func markSelectedCategories(categories models.CategoriesType, selected models.CategoriesType) models.CategoriesType {

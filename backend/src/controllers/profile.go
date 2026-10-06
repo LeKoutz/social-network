@@ -1,9 +1,9 @@
 package controllers
 
 import (
+	"forum/src/ferror"
 	"forum/src/models"
 	"forum/src/state"
-	"forum/src/ferror"
 )
 
 func ShowProfile(data state.StateController) error {
@@ -36,8 +36,40 @@ func ShowProfile(data state.StateController) error {
 		return ferror.ReturnErr(err)
 	}
 	profile.Activities = activities
-	// TODO: Followers list for profile.UserId
-	// TODO: Following list for profile.UserId
+
+	followers := &models.UserProfilesType{}
+	tmp := &models.InvitationsType{}
+	err = (*tmp).InvitationsRowType.SelectAcceptedInvitationsToUserId(profile.UserId)
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
+	for _, req := range tmp.InvitationsRowType {
+		var user models.UserProfileType
+		user.UserId = req.FromUserId
+		err = user.GetUserProfileIdentity()
+		if err != nil {
+			return ferror.ReturnErr(err)
+		}
+		*followers = append(*followers, user)
+	}
+	profile.Followers = *followers
+
+	following := &models.UserProfilesType{}
+	tmp = &models.InvitationsType{}
+	err = (*tmp).InvitationsRowType.SelectAcceptedInvitationsFromUserId(profile.UserId)
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
+	for _, req := range tmp.InvitationsRowType {
+		var user models.UserProfileType
+		user.UserId = req.FromUserId
+		err = user.GetUserProfileIdentity()
+		if err != nil {
+			return ferror.ReturnErr(err)
+		}
+		*following = append(*following, user)
+	}
+	profile.Following = *following
 
 	return nil
 }

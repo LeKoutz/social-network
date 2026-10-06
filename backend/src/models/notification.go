@@ -1,8 +1,8 @@
 package models
 
 import (
-	"forum/src/ferror"
 	"forum/src/db"
+	"forum/src/ferror"
 	"forum/src/utils"
 )
 

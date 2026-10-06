@@ -1,15 +1,18 @@
 package state
 
-import "forum/src/models"
+import (
+	"forum/src/db"
+	"forum/src/models"
+)
 
 func (r *State) InitFollowRequest() {
-	var followRequest models.FollowRequestType
-	followRequest.FromUserId = r.User.Id
-	r.SetFollowRequest(followRequest)
+	r.SetFollowRequest(models.FollowRequestType{
+		InvitationRowType: db.InvitationRowType{FromUserId: r.User.Id},
+	})
 }
 
 func (r *State) SetFollowRequest(followRequest models.FollowRequestType) {
-	*r.EditFollowRequest() = followRequest
+	r.FollowRequest = followRequest
 }
 
 func (r *State) GetFollowRequest() models.FollowRequestType {
@@ -17,7 +20,7 @@ func (r *State) GetFollowRequest() models.FollowRequestType {
 }
 
 func (r *State) EditFollowRequest() *models.FollowRequestType {
-	if &r.FollowRequest == nil {
+	if r.FollowRequest.FromUserId == 0 {
 		r.InitFollowRequest()
 	}
 	return &r.FollowRequest

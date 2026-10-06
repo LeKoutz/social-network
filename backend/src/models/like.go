@@ -6,7 +6,7 @@ import (
 )
 
 func (user *UserType) LikeComment(commentId int64) error {
-	likeId , err := db.SelectUserLikeFromComment(user.Id, commentId)
+	likeId, err := db.SelectUserLikeFromComment(user.Id, commentId)
 	if err != nil {
 		return ferror.ReturnErr(err)
 	}

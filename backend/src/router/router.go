@@ -61,10 +61,21 @@ var routes = Routes{
 	// Profiles
 	Route{Method: "GET", Path: "/api/profile/view/", Prefix: true, Function: handlers.HandleShowProfileView, NeedsLogin: true},
 
+	// Follows
+	Route{Method: "GET", Path: "/api/follows", Function: handlers.HandleShowFollows, NeedsLogin: true},
+	Route{Method: "POST", Path: "/api/follow/accept/", Prefix: true, Function: handlers.HandleAcceptFollowRequest, NeedsLogin: true},
+	Route{Method: "POST", Path: "/api/follow/deny/", Prefix: true, Function: handlers.HandleDenyFollowRequest, NeedsLogin: true},
+	Route{Method: "POST", Path: "/api/follow/", Prefix: true, Function: handlers.HandleUserFollow, NeedsLogin: true},
+	Route{Method: "POST", Path: "/api/unfollow/", Prefix: true, Function: handlers.HandleUnfollowUser, NeedsLogin: true},
+
 	// Groups
 	Route{Method: "GET", Path: "/api/groups", Function: handlers.HandleShowGroups, NeedsLogin: true},
 	Route{Method: "GET", Path: "/api/group/view/", Prefix: true, Function: handlers.HandleShowGroup, NeedsLogin: true},
 	Route{Method: "POST", Path: "/api/group/create", Function: handlers.HandleCreateGroup, NeedsLogin: true},
+	Route{Method: "GET", Path: "/api/group/invites/", Prefix: true, Function: handlers.HandleInvitesGroup, NeedsLogin: true},
+	Route{Method: "POST", Path: "/api/group/invite", Function: handlers.HandleInviteToGroup, NeedsLogin: true},
+	Route{Method: "GET", Path: "/api/group/joins/", Prefix: true, Function: handlers.HandleJoinsGroup, NeedsLogin: true},
+	Route{Method: "POST", Path: "/api/group/join", Function: handlers.HandleJoinGroup, NeedsLogin: true},
 
 	// WebSocket
 	Route{Method: "GET", Path: "/ws", Function: handlers.HandleWs, NeedsLogin: true},
@@ -80,10 +91,6 @@ var routes = Routes{
 
 	// Uploads
 	Route{Method: "GET", Path: "/uploads/", Prefix: true, Function: handlers.HandleImages, NeedsLogin: true},
-
-	// SPA
-	// TODO Remove
-	Route{Method: "GET", Path: "/", Prefix: true, Function: handlers.HandleServeSPA},
 }
 
 func matchRoute(data state.StateRoute) (*Route, error) {

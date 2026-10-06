@@ -8,10 +8,12 @@ import (
 type UserProfileType struct {
 	db.UserProfileRowType
 
-	Username             string
-	Email                string
-	Activities			 ActivitiesType
-	CanView				 bool
+	Username   string
+	Email      string
+	Activities ActivitiesType
+	CanView    bool
+	Followers  UserProfilesType
+	Following  UserProfilesType
 }
 
 func (u *UserProfileType) GetUserProfileIdentity() error {

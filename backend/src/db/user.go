@@ -7,13 +7,13 @@ import (
 )
 
 type UserRowType struct {
-	Id            int64
-	Username      string
-	Hash          string
-	Email         string
-	OAuthProvider string
-	SessionId     string
-	LastMessageTimestamp	int64
+	Id                   int64  `json:"Id,omitempty"`
+	Username             string `json:"Username,omitempty"`
+	Hash                 string `json:"Hash,omitempty"` // TODO: I don't think we ever need this in the frontend
+	Email                string `json:"Email,omitempty"`
+	OAuthProvider        string `json:"OAuthProvider,omitempty"`
+	SessionId            string `json:"SessionId,omitempty"`
+	LastMessageTimestamp int64  `json:"LastMessageTimestamp,omitempty"`
 }
 
 // Returns ONLY the `User.Hash` field for comparison against the given password

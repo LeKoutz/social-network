@@ -2,11 +2,10 @@ package handlers
 
 import (
 	"forum/src/controllers"
+	"forum/src/ferror"
 	"forum/src/parsers"
 	"forum/src/state"
-	"forum/src/ferror"
 )
-
 
 func HandleShowProfileView(data state.StateHandler) {
 	var err error

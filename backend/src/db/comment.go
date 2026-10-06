@@ -6,13 +6,13 @@ import (
 )
 
 type CommentRowType struct {
-	Id              int64
-	PostId          int64
-	UserId          int64
-	Body            string
-	ImagePath       string
-	Timestamp       string
-	Username        string
+	Id        int64
+	PostId    int64
+	UserId    int64
+	Body      string
+	ImagePath string
+	Timestamp string
+	Username  string
 }
 
 func (c *CommentRowType) InsertComment() error {

@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"forum/src/state"
 	"forum/src/ferror"
+	"forum/src/state"
 )
 
 func ShowGroups(data state.StateController) error {

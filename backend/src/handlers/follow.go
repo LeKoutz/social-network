@@ -23,16 +23,16 @@ func HandleUserFollow(data state.StateHandler) {
 }
 
 func HandleUserUnFollow(data state.StateHandler) {
-    var err error
-    err = parsers.ParseUserFollowRequest(data)
-    if err != nil {
-        data.SetErrorConsume(ferror.ReturnErr(err)).WriteResponse()
-        return
-    }
-    err = controllers.UnfollowUser(data.(state.StateController))
-    if err != nil {
-        data.SetErrorConsume(ferror.ReturnErr(err)).WriteResponse()
-        return
-    }
-    data.WriteResponse()
+	var err error
+	err = parsers.ParseUserFollowRequest(data)
+	if err != nil {
+		data.SetErrorConsume(ferror.ReturnErr(err)).WriteResponse()
+		return
+	}
+	err = controllers.UnfollowUser(data.(state.StateController))
+	if err != nil {
+		data.SetErrorConsume(ferror.ReturnErr(err)).WriteResponse()
+		return
+	}
+	data.WriteResponse()
 }

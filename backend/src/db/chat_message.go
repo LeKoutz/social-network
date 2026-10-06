@@ -5,12 +5,12 @@ import (
 )
 
 type ChatMessageRowType struct {
-	Id              int64 `json:"Id"`
-	SenderId        int64
-	RecipientId     int64
-	Body            string
-	Timestamp       string
-	Read            bool
+	Id          int64 `json:"Id"`
+	SenderId    int64
+	RecipientId int64
+	Body        string
+	Timestamp   string
+	Read        bool
 }
 
 func (msg *ChatMessageRowType) InsertMessage() (int64, error) {

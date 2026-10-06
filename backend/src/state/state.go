@@ -9,28 +9,28 @@ import (
 )
 
 type State struct {
-	WebsiteName   string
-	View          string // TODO: Remove
-	User          models.UserType
-	Users         models.UsersType
-	Posts         models.PostsType
-	Categories    models.CategoriesType
-	Groups        models.GroupsType
-	Profiles	  models.UserProfilesType
-	EditingPost   bool
-	EditCommentId int64
-	ChatOffset	  int64
-	Error         ferror.Error
-	Request       *http.Request       `json:"-"`
-	Response      http.ResponseWriter `json:"-"`
-	Message       models.Message
-	FollowRequest models.FollowRequestType
-	Version       string
+	WebsiteName      string
+	User             models.UserType             `json:"User,omitzero"`
+	Users            models.UsersType            `json:"Users,omitzero"`
+	Posts            models.PostsType            `json:"Posts,omitzero"`
+	Categories       models.CategoriesType       `json:"Categories,omitzero"`
+	Groups           models.GroupsType           `json:"Groups,omitzero"`
+	Profiles         models.UserProfilesType     `json:"Profiles,omitzero"`
+	EditingPost      bool                        `json:"EditingPost,omitzero"`
+	EditCommentId    int64                       `json:"EditCommentId,omitzero"`
+	ChatOffset       int64                       `json:"ChatOffset,omitzero"`
+	Error            ferror.Error                `json:"Error,omitzero"`
+	Request          *http.Request               `json:"-"`
+	Response         http.ResponseWriter         `json:"-"`
+	Message          models.Message              `json:"Message,omitzero"`
+	FollowRequest    models.FollowRequestType    `json:"FollowRequest,omitzero"`
+	Follows          models.InvitationsType      `json:"Follows,omitzero"`
+	GroupInvitation  models.GroupInvitationType  `json:"GroupInvitation,omitzero"`
+	GroupInvitations models.GroupInvitationsType `json:"GroupInvitations,omitzero"`
+	Version          string                      `json:"Version,omitzero"`
 }
 
 type StateController interface {
-	// FormValue(string) string
-
 	EditCategories() *models.CategoriesType
 	GetCategories() models.CategoriesType
 	SetCategories(models.CategoriesType) *State
@@ -80,9 +80,12 @@ type StateController interface {
 	GetChatMessage(index int64) models.ChatMessageType
 
 	EditFollowRequest() *models.FollowRequestType
+	EditFollows() *models.InvitationsType
+
+	EditGroupInvitation() *models.GroupInvitationType
+	EditGroupInvitations() *models.GroupInvitationsType
 
 	SetMessage(models.Message) *State
-	SetView(string) *State // TODO: Remove
 	SetErrorConsume(error) *State
 }
 
@@ -106,6 +109,8 @@ type StateHandler interface {
 	SetChatOffset(int64) *State
 	EditFollowRequest() *models.FollowRequestType
 	EditProfile() *models.UserProfileType
+	EditFollows() *models.InvitationsType
+	EditGroupInvitation() *models.GroupInvitationType
 
 	GetRequest() *http.Request
 	EditResponse() *http.ResponseWriter
@@ -121,8 +126,6 @@ type StateRoute interface {
 
 	GetRequest() *http.Request
 	SetRequest(req *http.Request) *State
-
-	SetView(string) *State // TODO: Remove
 
 	GetUser() models.UserType
 	SetUser(models.UserType) *State
@@ -173,12 +176,6 @@ func (r *State) Init() *State {
 
 func (r *State) SetWebsiteName(websiteName string) *State {
 	r.WebsiteName = websiteName
-	return r
-}
-
-// TODO: Remove
-func (r *State) SetView(viewname string) *State {
-	r.View = viewname
 	return r
 }
 

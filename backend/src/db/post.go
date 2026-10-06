@@ -8,14 +8,14 @@ import (
 )
 
 type PostRowType struct {
-	Id         int64
-	Title      string
-	Body       string
-	ImagePath  string
-	UserId     int64
-	Timestamp  string
-	GroupId    int64
-	GroupTitle string
+	Id         int64  `json:"Id,omitempty"`
+	Title      string `json:"Title,omitempty"`
+	Body       string `json:"Body,omitempty"`
+	ImagePath  string `json:"ImagePath,omitempty"`
+	UserId     int64  `json:"UserId,omitempty"`
+	Timestamp  string `json:"Timestamp,omitempty"`
+	GroupId    int64  `json:"GroupId,omitempty"`
+	GroupTitle string `json:"GroupTitle,omitempty"`
 }
 
 func (p *PostRowType) InsertPost() error {
