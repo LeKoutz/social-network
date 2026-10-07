@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"forum/src/controllers"
+	"forum/src/ferror"
 	"forum/src/parsers"
 	"forum/src/state"
-	"forum/src/ferror"
 )
 
 func HandleServeUnreadMessages(data state.StateHandler) {
@@ -29,5 +29,15 @@ func HandleShowChatHistory(data state.StateHandler) {
 		data.SetErrorConsume(ferror.ReturnErr(err)).WriteResponse()
 		return
 	}
+	data.WriteResponse()
+}
+
+func HandleShowAllChats(data state.StateHandler) {
+	err := controllers.ShowAllChats(data.(state.StateController))
+	if err != nil {
+		data.SetErrorConsume(ferror.ReturnErr(err)).WriteResponse()
+		return
+	}
+	controllers.HubOnlineUsers(data.(state.StateController))
 	data.WriteResponse()
 }

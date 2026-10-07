@@ -11,5 +11,9 @@ func (f *FollowRequestType) AddFollowInvite() error {
 }
 
 func (f *FollowRequestType) Unfollow() error {
-    return f.InvitationRowType.Unfollow()
+	return f.InvitationRowType.Unfollow()
+}
+
+func (f *FollowRequestType) HasFollowRelation() (bool, error) {
+	return f.AreFollowingEachOther()
 }

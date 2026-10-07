@@ -16,9 +16,10 @@ type UserType struct {
 	Notifications            NotificationsType
 	UnreadNotificationsCount int
 	ChatMessages             ChatMessagesType
+	CanChat                  bool
 	// LastMessageTimestamp     int64
 	Identifier               string
-	Password				 string
+	Password                 string
 }
 
 func GetGuestUser() UserType {

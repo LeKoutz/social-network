@@ -73,6 +73,7 @@ var routes = Routes{
 	Route{Method: "GET", Path: "/api/users", Function: handlers.HandleGetUsers, NeedsLogin: true},
 	Route{Method: "GET", Path: "/api/chat/unread", Function: handlers.HandleServeUnreadMessages, NeedsLogin: true},
 	Route{Method: "GET", Path: "/api/chat/", Prefix: true, Function: handlers.HandleShowChatHistory, NeedsLogin: true},
+	Route{Method: "GET", Path: "/api/chats", Function: handlers.HandleShowAllChats, NeedsLogin: true},
 
 	// Follows
 	Route{Method: "POST", Path: "/api/follow", Function: handlers.HandleUserFollow, NeedsLogin: true},
