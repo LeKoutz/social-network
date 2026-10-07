@@ -8,7 +8,8 @@ import (
 type GroupType struct {
 	db.GroupRowType
 
-	Member bool
+	Member       bool
+	ChatMessages GroupMessagesType
 }
 
 func (g *GroupType) ValidateGroup() error {
@@ -49,4 +50,12 @@ func (g *GroupType) IsMember(userId int64) (bool, error) {
 		return false, ferror.ReturnErr(err)
 	}
 	return member, nil
+}
+
+func (g *GroupType) GetMemberIds() ([]int64, error) {
+	ids, err := g.SelectGroupMemberIds()
+	if err != nil {
+		return nil, ferror.ReturnErr(err)
+	}
+	return ids, nil
 }

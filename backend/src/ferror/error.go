@@ -67,6 +67,7 @@ var (
 	ErrorProfileEmptyId			 = errors.New("Profile ID can't be empty.")
 	ErrorInvalidProfileId		 = errors.New("Invalid profile ID")
 	ErrorRecipientNotFollowed    = errors.New("You can only chat with users you follow and who follow you back.")
+	ErrorChatMessageEmpty		 = errors.New("Message cannot be empty.")
 )
 
 type Error struct {
@@ -125,6 +126,7 @@ func (e *Error) Consume(err error) *Error {
 		errors.Is(err, ErrorPasswordFieldEmpty),
 		errors.Is(err, ErrorProfileEmptyId),
 		errors.Is(err, ErrorInvalidProfileId),
+		errors.Is(err, ErrorChatMessageEmpty),
 		errors.Is(err, ErrorBadRequest):
 		e.StatusCode = http.StatusBadRequest
 	case errors.Is(err, ErrorPermissionDenied),

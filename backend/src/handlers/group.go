@@ -42,3 +42,19 @@ func HandleShowGroup(data state.StateHandler) {
 	}
 	data.WriteResponse()
 }
+
+func HandleShowGroupChatHistory(data state.StateHandler) {
+	groupId, offset, err := parsers.ParseGroupChatRequest(data)
+	if err != nil {
+		data.SetErrorConsume(ferror.ReturnErr(err)).WriteResponse()
+		return
+	}
+	data.EditGroup().Id = groupId
+	data.SetChatOffset(offset)
+	err = controllers.ShowGroupChatHistory(data.(state.StateController))
+	if err != nil {
+		data.SetErrorConsume(ferror.ReturnErr(err)).WriteResponse()
+		return
+	}
+	data.WriteResponse()
+}
