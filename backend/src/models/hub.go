@@ -17,22 +17,24 @@ type OnlineQuery struct {
 }
 
 type Hub struct {
-	Clients    map[int64]*Client
-	Register   chan *Client
-	Unregister chan *Client
-	Broadcast  chan []byte
-	Transmit   chan ChatMessageType
-	Query      chan OnlineQuery
+	Clients       map[int64]*Client
+	Register      chan *Client
+	Unregister    chan *Client
+	Broadcast     chan []byte
+	Transmit      chan ChatMessageType
+	TransmitGroup chan GroupMessageType
+	Query         chan OnlineQuery
 }
 
 func NewHub() *Hub {
 	return &Hub{
-		Clients:    make(map[int64]*Client),
-		Register:   make(chan *Client),
-		Unregister: make(chan *Client),
-		Broadcast:  make(chan []byte),
-		Transmit:   make(chan ChatMessageType),
-		Query:      make(chan OnlineQuery),
+		Clients:       make(map[int64]*Client),
+		Register:      make(chan *Client),
+		Unregister:    make(chan *Client),
+		Broadcast:     make(chan []byte),
+		Transmit:      make(chan ChatMessageType),
+		TransmitGroup: make(chan GroupMessageType),
+		Query:         make(chan OnlineQuery),
 	}
 }
 
@@ -69,6 +71,32 @@ func (h *Hub) Run() {
 			}
 			if recipient, ok := h.Clients[msg.RecipientId]; ok {
 				recipient.Send <- msgBytes
+			}
+		case msg := <-h.TransmitGroup:
+			payload, err := json.Marshal(msg)
+			if err != nil {
+				(&ferror.Error{}).Consume(ferror.ReturnErr(err)).LogError()
+				continue
+			}
+			msgBytes, err := json.Marshal(WsMessage{
+				Type:    "group_message",
+				Payload: json.RawMessage(payload),
+			})
+			if err != nil {
+				(&ferror.Error{}).Consume(ferror.ReturnErr(err)).LogError()
+				continue
+			}
+			for _, id := range msg.MemberIds {
+				client, ok := h.Clients[id]
+				if !ok {
+					continue
+				}
+				select {
+				case client.Send <- msgBytes:
+				default:
+					delete(h.Clients, id)
+					close(client.Send)
+				}
 			}
 		case query := <-h.Query:
 			onlineUsers := make(map[int64]bool)

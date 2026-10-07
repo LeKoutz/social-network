@@ -99,3 +99,29 @@ func (g *GroupRowType) IsMember(userId int64) (bool, error) {
 	}
 	return invited, nil
 }
+
+func (g *GroupRowType) SelectGroupMemberIds() ([]int64, error) {
+	rows, err := db.Query(
+		`SELECT owner_user_id FROM groups WHERE id = ?
+        UNION
+        SELECT to_user_id FROM group_invitations WHERE group_id = ? AND status = 'accepted'`,
+		g.Id,
+		g.Id,
+	)
+	if err != nil {
+		return nil, ferror.ReturnErr(err)
+	}
+	defer rows.Close()
+	var ids []int64
+	for rows.Next() {
+		var id int64
+		if err = rows.Scan(&id); err != nil {
+			return nil, ferror.ReturnErr(err)
+		}
+		ids = append(ids, id)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, ferror.ReturnErr(err)
+	}
+	return ids, nil
+}

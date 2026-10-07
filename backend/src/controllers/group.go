@@ -69,3 +69,29 @@ func ShowGroup(data state.StateController) error {
 	data.SetPosts(posts)
 	return nil
 }
+
+func ShowGroupChatHistory(data state.StateController) error {
+	userId := data.GetUser().Id
+	member, err := data.EditGroup().IsMember(userId)
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
+	if !member {
+		return ferror.ReturnErr(ferror.ErrorPermissionDenied)
+	}
+	data.EditGroup().Member = member
+	messages := &data.EditGroup().ChatMessages
+	err = messages.GetChatHistory(data.GetGroup().Id, data.GetChatOffset())
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
+	if len(*messages) == 0 {
+		return nil
+	}
+	newest := (*messages)[len(*messages)-1]
+	err = newest.MarkAsRead(userId)
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
+	return nil
+}

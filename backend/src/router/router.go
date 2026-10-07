@@ -76,6 +76,7 @@ var routes = Routes{
 	Route{Method: "POST", Path: "/api/group/invite", Function: handlers.HandleInviteToGroup, NeedsLogin: true},
 	Route{Method: "GET", Path: "/api/group/joins/", Prefix: true, Function: handlers.HandleJoinsGroup, NeedsLogin: true},
 	Route{Method: "POST", Path: "/api/group/join", Function: handlers.HandleJoinGroup, NeedsLogin: true},
+	Route{Method: "GET", Path: "/api/group/chat/", Prefix: true, Function: handlers.HandleShowGroupChatHistory, NeedsLogin: true},
 
 	// WebSocket
 	Route{Method: "GET", Path: "/ws", Function: handlers.HandleWs, NeedsLogin: true},
