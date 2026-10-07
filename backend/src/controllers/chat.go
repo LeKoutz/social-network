@@ -44,7 +44,16 @@ func ShowChatHistory(data state.StateController) error {
 }
 
 func ServeUnreadMessages(data state.StateController) error {
-	return data.EditChatMessages().GetUnreadMessageIds(data.GetUser().Id)
+	userId := data.GetUser().Id
+	err := data.EditChatMessages().GetUnreadMessageIds(userId)
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
+	err = data.EditGroups().GetGroupsWithUnreadMessages(userId)
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
+	return nil
 }
 
 func ShowAllChats(data state.StateController) error {

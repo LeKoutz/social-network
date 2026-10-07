@@ -30,7 +30,7 @@ func (msg *ChatMessageRowType) InsertMessage() (int64, error) {
 }
 
 func (msg *ChatMessageRowType) UpdateMessageAsRead() error {
-	_, err := db.Exec(`UPDATE messages SET read = 1 WHERE id = ?`, msg.Id)
+	_, err := db.Exec(`UPDATE messages SET read = 1 WHERE id = ? AND recipient_id = ?`, msg.Id, msg.RecipientId)
 	if err != nil {
 		return ferror.ReturnErr(err)
 	}

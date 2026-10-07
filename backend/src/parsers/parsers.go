@@ -289,3 +289,26 @@ func ParseProfileId(data state.StateHandler) (int64, error) {
 	}
 	return profileId, nil
 }
+
+func ParseGroupChatRequest(data state.StateHandler) (groupId, offset int64, err error) {
+	id, ok := strings.CutPrefix(data.GetRequest().URL.Path, "/api/group/chat/")
+	if !ok || len(id) == 0 {
+		err = ferror.ErrorGroupEmptyId
+		return 0, 0, ferror.ReturnErr(err)
+	}
+	groupId, err = utils.StringToInt64(id)
+	if err != nil {
+		err = ferror.ErrorInvalidGroupId
+		return 0, 0, ferror.ReturnErr(err)
+	}
+	offsetStr := data.GetRequest().URL.Query().Get("offset")
+	if offsetStr == "" {
+		return groupId, 0, nil
+	}
+	offset, err = utils.StringToInt64(offsetStr)
+	if err != nil {
+		err = ferror.ErrorBadRequest
+		return 0, 0, ferror.ReturnErr(err)
+	}
+	return groupId, offset, nil
+}
