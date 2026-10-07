@@ -14,12 +14,21 @@ func ShowChatHistory(data state.StateController) error {
 		err = ferror.ErrorNotFound
 		return ferror.ReturnErr(err)
 	}
+	var inv models.FollowRequestType
+	inv.FromUserId = user1
+	inv.ToUserId = user2
+	allowed, err := inv.HasFollowRelation()
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
 	var recipient models.UserType
 	recipient.Id = user2
 	if err = recipient.GetById(); err != nil {
 		err = ferror.ErrorNotFound
 		return ferror.ReturnErr(err)
 	}
+	recipient.CanChat = allowed
+	data.SetUsers(models.UsersType{recipient})
 	offset := data.GetChatOffset()
 	if err = data.EditChatMessages().GetChatHistory(user1, user2, offset); err != nil {
 		return ferror.ReturnErr(err)
@@ -36,4 +45,12 @@ func ShowChatHistory(data state.StateController) error {
 
 func ServeUnreadMessages(data state.StateController) error {
 	return data.EditChatMessages().GetUnreadMessageIds(data.GetUser().Id)
+}
+
+func ShowAllChats(data state.StateController) error {
+	err := data.EditUsers().GetAllChats(data.GetUser().Id)
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
+	return nil
 }

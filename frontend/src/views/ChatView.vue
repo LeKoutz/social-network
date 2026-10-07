@@ -15,6 +15,7 @@ const recipientUsername = ref('');
 const body = ref('');
 const historyEnded = ref(false);
 const container = ref(null);
+const canChat = ref(null);
 
 function chatUserId() {
     return Number(route.params.id);
@@ -23,6 +24,8 @@ function chatUserId() {
 async function loadHistory(offset) {
     const data = await apiFetch(`/api/chat/${chatUserId()}?offset=${offset}`);
     if (!data) return [];
+    canChat.value = data.Users?.[0]?.CanChat ?? false;
+    recipientUsername.value = data.Users?.[0]?.Username ?? '';
     const msgs = data.User?.ChatMessages ?? [];
     msgs.forEach((m) => {
         if (m.RecipientId === user.value.Id) markMessageAsRead(m);
@@ -30,17 +33,10 @@ async function loadHistory(offset) {
     return msgs;
 }
 
-async function loadRecipientUsername() {
-    const data = await apiFetch('/api/users');
-    const found = (data?.Users ?? []).find((u) => u.Id === chatUserId());
-    if (found) recipientUsername.value = found.Username;
-}
-
 async function initChat() {
     setActiveChat(chatUserId());
     historyEnded.value = false;
     messages.value = await loadHistory(0);
-    loadRecipientUsername();
     await nextTick();
     scrollToBottom();
 }
@@ -90,10 +86,11 @@ function scrollToBottom() {
 }
 
 function send(e) {
-    e.preventDefault();
-    if (!body.value.trim()) return;
-    sendChatMessage(chatUserId(), body.value);
-    body.value = '';
+    if (canChat.value) {
+        if (!body.value.trim()) return;
+        sendChatMessage(chatUserId(), body.value);
+        body.value = '';
+    }
 }
 </script>
 
@@ -108,8 +105,9 @@ function send(e) {
             </div>
         </div>
         <form id="chat-message" @submit.prevent="send">
-            <input v-model="body" name="body" placeholder="Type a message..." required />
-            <input type="submit" value="Send" />
+            <input v-model="body" name="body" placeholder="Type a message..." required :hidden="!canChat"/>
+            <input type="submit" value="Send" :hidden="!canChat"/>
+            <p :hidden="canChat !== false">You can't chat with this user. Try following them first</p>
         </form>
     </div>
 </template>

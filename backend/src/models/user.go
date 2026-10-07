@@ -16,6 +16,7 @@ type UserType struct {
 	Notifications            NotificationsType `json:"Notifications,omitempty"`
 	UnreadNotificationsCount int               `json:"UnreadNotificationsCount,omitempty"`
 	ChatMessages             ChatMessagesType  `json:"ChatMessages,omitempty"`
+	CanChat                  bool              `json:"CanChat"`
 	// LastMessageTimestamp     int64
 	Identifier string `json:"Identifier,omitempty"`
 	Password   string `json:"-"`

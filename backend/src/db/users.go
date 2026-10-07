@@ -56,8 +56,8 @@ func SelectAllUsers() ([]UserRowType, error) {
 	return users, nil
 }
 
-// GetUsersForPanel retrieves all users from the database, excluding the current user, and returns them as a slice of User structs.
-// It also retrieves the timestamp of the last message sent or received by each user.
+// Selects users that the currentUser can chat with (followers or following).
+// It also retrieves the timestamp of the last message sent or received by each user
 func SelectUsersForPanel(currentUserId int64) ([]UserRowType, error) {
 	rows, err := db.Query(`
 	SELECT
@@ -70,8 +70,16 @@ func SelectUsersForPanel(currentUserId int64) ([]UserRowType, error) {
 		OR
 		(m.recipient_id = ? AND m.sender_id = u.id)
 	WHERE u.id != ?
+		AND EXISTS (
+			SELECT 1 FROM invitations
+			WHERE status = 'accepted'
+			AND (
+				(from_user_id = ? AND to_user_id = u.id)
+				OR (from_user_id = u.id AND to_user_id = ?)
+			)
+		)
 	GROUP BY u.id, u.username
-	`, currentUserId, currentUserId, currentUserId)
+	`, currentUserId, currentUserId, currentUserId, currentUserId, currentUserId)
 	if err != nil {
 		return []UserRowType{}, ferror.ReturnErr(err)
 	}
@@ -90,4 +98,57 @@ func SelectUsersForPanel(currentUserId int64) ([]UserRowType, error) {
 		users = append(users, user)
 	}
 	return users, nil
+}
+
+func SelectUsersWithChats(currentUserId int64) ([]UserRowType, []ChatMessageRowType, error) {
+	rows, err := db.Query(`
+	SELECT
+			u.id,
+			u.username,
+			lm.id,
+			lm.sender_id,
+			lm.recipient_id,
+			lm.body,
+			lm.timestamp,
+			lm.read
+	FROM users u
+	JOIN messages lm ON lm.id = (
+			SELECT m.id FROM messages m
+			WHERE (m.sender_id = ? AND m.recipient_id = u.id)
+					OR (m.recipient_id = ? AND m.sender_id = u.id)
+			ORDER BY CAST(m.timestamp AS INTEGER) DESC, m.id DESC
+			LIMIT 1
+	)
+	WHERE u.id != ?
+	ORDER BY CAST(lm.timestamp AS INTEGER) DESC, lm.id DESC
+	`, currentUserId, currentUserId, currentUserId)
+	if err != nil {
+		return []UserRowType{}, []ChatMessageRowType{}, ferror.ReturnErr(err)
+	}
+	defer rows.Close()
+	var users []UserRowType
+	var lastMessages []ChatMessageRowType
+	for rows.Next() {
+		var user UserRowType
+		var message ChatMessageRowType
+		err = rows.Scan(
+			&user.Id,
+			&user.Username,
+			&message.Id,
+			&message.SenderId,
+			&message.RecipientId,
+			&message.Body,
+			&message.Timestamp,
+			&message.Read,
+		)
+		if err != nil {
+			return []UserRowType{}, []ChatMessageRowType{}, ferror.ReturnErr(err)
+		}
+		users = append(users, user)
+		lastMessages = append(lastMessages, message)
+	}
+	if err = rows.Err(); err != nil {
+		return []UserRowType{}, []ChatMessageRowType{}, ferror.ReturnErr(err)
+	}
+	return users, lastMessages, nil
 }

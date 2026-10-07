@@ -93,3 +93,7 @@ func (f *FollowRequestType) respondToRequest(userId int64, status string) error 
 	}
 	return nil
 }
+
+func (f *FollowRequestType) HasFollowRelation() (bool, error) {
+	return f.AreFollowingEachOther()
+}

@@ -23,3 +23,21 @@ func (u *UsersType) GetUsersForPanel(currentUserId int64) error {
 	}
 	return nil
 }
+
+func (u *UsersType) GetAllChats(currentUserId int64) error {
+	users, lastMessages, err := db.SelectUsersWithChats(currentUserId)
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
+	for i, user := range users {
+		var x UserType
+		x.UserRowType = user
+
+		var msg ChatMessageType
+		msg.ChatMessageRowType = lastMessages[i]
+		x.ChatMessages = ChatMessagesType{msg}
+
+		*u = append(*u, x)
+	}
+	return nil
+}

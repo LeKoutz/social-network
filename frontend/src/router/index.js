@@ -13,6 +13,7 @@ import GroupsBrowserView from '@/views/GroupsBrowserView.vue';
 import GroupView from '@/views/GroupView.vue';
 import ChatView from '@/views/ChatView.vue';
 import FollowsView from '@/views/FollowsView.vue';
+import ChatsView from '../views/ChatsView.vue';
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -44,6 +45,11 @@ const router = createRouter({
         {
             path: '/follows',
             component: FollowsView,
+            meta: { requiresAuth: true },
+        },
+        {
+            path: '/chats',
+            component: ChatsView,
             meta: { requiresAuth: true },
         },
     ],
