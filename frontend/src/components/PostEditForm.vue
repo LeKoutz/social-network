@@ -2,7 +2,9 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { apiPost } from '@/utils/api.js';
+import PostVisibilityPanel from '@/components/PostVisibilityPanel.vue';
 
+const visibility = ref(props.post.Visibility ?? 'public');
 const props = defineProps({
     post: {
         type: Object,
@@ -46,6 +48,7 @@ async function submit() {
         data.append(`category-${id}`, 'on');
     }
     if (image.value) data.append('image', image.value);
+    data.append('visibility', props.post.GroupId ? 'public' : visibility.value);
     const res = await apiPost(`/api/post/edit/${props.post.Id}`, data);
     submitting.value = false;
     if (res) {
@@ -59,6 +62,12 @@ async function submit() {
         <form class="post-edit" @submit.prevent="submit">
             <fieldset>
                 <legend>Edit Post</legend>
+                <PostVisibilityPanel
+                    v-if="!group"
+                    v-model="visibility"
+                    :disabled="submitting"
+                />
+                <p v-else>Visibility is set to <strong>Public</strong> for group posts.</p>
                 <input
                     type="text"
                     v-model="title"

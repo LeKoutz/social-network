@@ -1,15 +1,25 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useCategories } from '@/composables/useCategories.js';
 import { apiPost } from '@/utils/api.js';
+import PostVisibilityPanel from '@/components/PostVisibilityPanel.vue';
 
 const props = defineProps({
-    group: { type: Object, default: null },
+    post: {
+        type: Object,
+        required: true,
+    },
+    categories: {
+        type: Array,
+        required: true,
+    },
 });
 
+const visibility = ref(
+    props.post.GroupId ? 'public' : (props.post.Visibility ?? 'public')
+);
+
 const router = useRouter();
-const { categories } = useCategories();
 
 const title = ref('');
 const body = ref('');
@@ -40,6 +50,7 @@ async function submit() {
     }
     if (props.group) data.append('group-id', props.group.Id);
     if (image.value) data.append('image', image.value);
+    data.append('visibility', props.group ? 'public' : visibility.value);
     const res = await apiPost('/api/post/create', data);
     submitting.value = false;
     if (res) {
@@ -54,6 +65,12 @@ async function submit() {
         <form class="post-create" @submit.prevent="submit">
             <fieldset>
                 <legend>New post</legend>
+                <PostVisibilityPanel
+                    v-if="!group"
+                    v-model="visibility"
+                    :disabled="submitting"
+                />
+                <p v-else>Only group members can see this post.</p>
                 <template v-if="!group">
                     <input
                         type="text"

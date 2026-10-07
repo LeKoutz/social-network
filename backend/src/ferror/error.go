@@ -33,6 +33,7 @@ var (
 	ErrorPostHasNoCategory            = errors.New("Post category can't be empty.")
 	ErrorPermissionDenied             = errors.New("Permission denied.")
 	ErrorPostPermissionDenied         = errors.New("You must be logged in to create a post.")
+	ErrorPostInvalidVisibility        = errors.New("Post visibility is invalid. Use 'public', 'private' or 'limited'.")
 	ErrorUserPermissionDenied         = errors.New("You must be logged in.")
 	ErrorCommentEmpty                 = errors.New("Comment can't be empty.")
 	ErrorCommentTooLong               = errors.New("Comment is too long.")
@@ -129,6 +130,7 @@ func (e *Error) Consume(err error) *Error {
 		errors.Is(err, ErrorPostBodyEmpty),
 		errors.Is(err, ErrorPostTitleEmpty),
 		errors.Is(err, ErrorPostHasNoCategory),
+		errors.Is(err, ErrorPostInvalidVisibility),
 		errors.Is(err, ErrorCommentEmpty),
 		errors.Is(err, ErrorCommentTooLong),
 		errors.Is(err, ErrorCommentEmptyId),
