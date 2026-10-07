@@ -8,6 +8,7 @@ const { user } = useUser();
 const { ensureWs, onChatEvent, hasUnread, totalUnread } = useChat();
 
 const users = ref([]);
+const loaded = ref(false);
 const collapsed = ref(false);
 
 const list = computed(() => {
@@ -51,6 +52,7 @@ async function refresh() {
     if (data) {
         users.value = data.Users ?? [];
     }
+    loaded.value = true;
 }
 
 const unsubscribes = [];
@@ -72,38 +74,44 @@ onUnmounted(() => {
     <div v-if="user.LoggedIn" class="users-panel">
         <div class="users-panel-header">
             <h3>Users <span v-if="totalUnread()" class="new-message">●</span></h3>
+            <router-link to="/chats">See all chats</router-link>
             <button id="collapse-panel" @click="collapsed = !collapsed">−</button>
         </div>
         <div class="users-panel-inner" :hidden="collapsed">
-            <h4>Online</h4>
-            <ul>
-                <li
-                    v-for="u in list.online"
-                    :key="u.Id"
-                    :data-user-id="u.Id"
-                >
-                    <router-link :to="`/chat/${u.Id}`">{{ u.Username }}</router-link>
-                    <span v-if="hasUnread(u.Id)" class="new-message">●</span>
-                    <span v-if="u.LastMessageTimestamp" class="last-message-time">
-                        - last msg {{ lastMessageLabel(u) }}
-                    </span>
-                </li>
-            </ul>
-            <h4>Offline</h4>
-            <ul>
-                <li
-                    v-for="u in list.offline"
-                    :key="u.Id"
-                    :data-user-id="u.Id"
-                    class="offline"
-                >
-                    <router-link :to="`/chat/${u.Id}`">{{ u.Username }}</router-link>
-                    <span v-if="hasUnread(u.Id)" class="new-message">●</span>
-                    <span v-if="u.LastMessageTimestamp" class="last-message-time">
-                        - last msg {{ lastMessageLabel(u) }}
-                    </span>
-                </li>
-            </ul>
+            <p v-if="loaded && users.length === 0">
+                It's empty here. Follow someone to start chatting
+            </p>
+            <template v-else>
+                <h4>Online</h4>
+                <ul>
+                    <li
+                        v-for="u in list.online"
+                        :key="u.Id"
+                        :data-user-id="u.Id"
+                    >
+                        <router-link :to="`/chat/${u.Id}`">{{ u.Username }}</router-link>
+                        <span v-if="hasUnread(u.Id)" class="new-message">●</span>
+                        <span v-if="u.LastMessageTimestamp" class="last-message-time">
+                            - last msg {{ lastMessageLabel(u) }}
+                        </span>
+                    </li>
+                </ul>
+                <h4>Offline</h4>
+                <ul>
+                    <li
+                        v-for="u in list.offline"
+                        :key="u.Id"
+                        :data-user-id="u.Id"
+                        class="offline"
+                    >
+                        <router-link :to="`/chat/${u.Id}`">{{ u.Username }}</router-link>
+                        <span v-if="hasUnread(u.Id)" class="new-message">●</span>
+                        <span v-if="u.LastMessageTimestamp" class="last-message-time">
+                            - last msg {{ lastMessageLabel(u) }}
+                        </span>
+                    </li>
+                </ul>
+            </template>
         </div>
     </div>
 </template>

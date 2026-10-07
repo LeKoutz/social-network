@@ -47,8 +47,13 @@ func (c *Client) ReadPump() {
 				(&ferror.Error{}).Consume(ferror.ErrorNotFound).LogError()
 				continue
 			}
-			inv := db.InvitationRowType{}
-			allowed, err := inv.AreFollowingEachOther(c.UserId, p.RecipientId)
+			inv := FollowRequestType{
+				InvitationRowType: db.InvitationRowType{
+					FromUserId: c.UserId,
+					ToUserId:   p.RecipientId,
+				},
+			}
+			allowed, err := inv.HasFollowRelation()
 			if err != nil {
 				(&ferror.Error{}).Consume(ferror.ReturnErr(err)).LogError()
 				continue
@@ -60,12 +65,12 @@ func (c *Client) ReadPump() {
 			timestamp := utils.GetCurrentTimestamp()
 			msg := ChatMessageType{
 				ChatMessageRowType: db.ChatMessageRowType{
-					SenderId:        c.UserId,
-					RecipientId:     p.RecipientId,
-					Body:            p.Body,
-					Timestamp:       timestamp,
+					SenderId:    c.UserId,
+					RecipientId: p.RecipientId,
+					Body:        p.Body,
+					Timestamp:   timestamp,
 				},
-				    SenderUsername:  c.Username,
+				SenderUsername: c.Username,
 			}
 			msg.Id, err = msg.Add()
 			if err != nil {

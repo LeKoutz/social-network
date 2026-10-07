@@ -61,7 +61,7 @@ func (i *InvitationRowType) Unfollow() error {
 	return nil
 }
 
-func (i *InvitationRowType) AreFollowingEachOther(fromUserId, toUserId int64) (bool, error) {
+func (i *InvitationRowType) AreFollowingEachOther() (bool, error) {
 	var following bool
 	err := db.QueryRow(`
 		SELECT EXISTS(
@@ -72,7 +72,7 @@ func (i *InvitationRowType) AreFollowingEachOther(fromUserId, toUserId int64) (b
 				OR (from_user_id = ? AND to_user_id = ?)
 			)
 		)
-	`, fromUserId, toUserId, toUserId, fromUserId).Scan(&following)
+	`, i.FromUserId, i.ToUserId, i.ToUserId, i.FromUserId).Scan(&following)
 	if err != nil {
 		return false, ferror.ReturnErr(err)
 	}
