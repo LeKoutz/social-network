@@ -5,7 +5,7 @@ import { useChat } from '@/composables/useChat.js';
 import { apiFetch } from '@/utils/api.js';
 
 const { user } = useUser();
-const { ensureWs, onChatEvent, hasUnread, totalUnread } = useChat();
+const { ensureWs, onChatEvent, hasUnread, totalUnread, myGroups } = useChat();
 
 const users = ref([]);
 const loaded = ref(false);
@@ -78,7 +78,7 @@ onUnmounted(() => {
             <button id="collapse-panel" @click="collapsed = !collapsed">−</button>
         </div>
         <div class="users-panel-inner" :hidden="collapsed">
-            <p v-if="loaded && users.length === 0">
+            <p v-if="loaded && users.length === 0 && myGroups.length === 0">
                 It's empty here. Follow someone to start chatting
             </p>
             <template v-else>
@@ -111,6 +111,15 @@ onUnmounted(() => {
                         </span>
                     </li>
                 </ul>
+                <template v-if="myGroups.length">
+                    <h4>Groups</h4>
+                    <ul>
+                        <li v-for="g in myGroups" :key="g.Id">
+                            <router-link :to="`/group/${g.Id}/chat`">{{ g.Title }}</router-link>
+                            <span v-if="hasUnread(`g:${g.Id}`)" class="new-message">●</span>
+                        </li>
+                    </ul>
+                </template>
             </template>
         </div>
     </div>
