@@ -6,7 +6,7 @@ import { apiFetch } from '@/utils/api.js';
 import { DateToLocale, firstOrNull } from '@/utils/utils.js';
 
 const { user } = useUser();
-const { ensureWs, onChatEvent, hasUnread } = useChat();
+const { ensureWs, onChatEvent, hasUnread, myGroups } = useChat();
 
 const chats = ref([]);
 const loaded = ref(false);
@@ -44,17 +44,33 @@ function previewPrefix(u) {
 <template>
     <div class="container padding-sides-1vw">
         <h2>Chats</h2>
-        <p v-if="loaded && chats.length === 0">No conversations yet.</p>
-        <ul v-else class="chats-list">
-            <li v-for="u in chats" :key="u.Id">
-                <router-link :to="`/chat/${u.Id}`">
-                    <strong>{{ u.Username }}</strong>
-                    <span v-if="hasUnread(u.Id)" class="new-message">●</span>
-                    <span class="timestamp">{{ DateToLocale(lastMessage(u)?.Timestamp) }}</span>
-                    <span class="preview">{{ previewPrefix(u) }}{{ lastMessage(u)?.Body }}</span>
-                </router-link>
-            </li>
-        </ul>
+        <p v-if="loaded && chats.length === 0 && myGroups.length === 0">No conversations yet.</p>
+        <template v-else>
+            <template v-if="chats.length">
+                <h3>Direct messages</h3>
+                <ul class="chats-list">
+                    <li v-for="u in chats" :key="u.Id">
+                        <router-link :to="`/chat/${u.Id}`">
+                            <strong>{{ u.Username }}</strong>
+                            <span v-if="hasUnread(u.Id)" class="new-message">●</span>
+                            <span class="timestamp">{{ DateToLocale(lastMessage(u)?.Timestamp) }}</span>
+                            <span class="preview">{{ previewPrefix(u) }}{{ lastMessage(u)?.Body }}</span>
+                        </router-link>
+                    </li>
+                </ul>
+            </template>
+            <template v-if="myGroups.length">
+                <h3>Groups</h3>
+                <ul class="chats-list">
+                    <li v-for="g in myGroups" :key="g.Id">
+                        <router-link :to="`/group/${g.Id}/chat`">
+                            <strong>{{ g.Title }}</strong>
+                            <span v-if="hasUnread(`g:${g.Id}`)" class="new-message">●</span>
+                        </router-link>
+                    </li>
+                </ul>
+            </template>
+        </template>
     </div>
 </template>
 

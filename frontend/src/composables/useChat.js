@@ -6,15 +6,21 @@ let reconnectTimer = null;
 const listeners = [];
 const unread = reactive(new Map());
 const activeChat = ref(null);
+const myGroups = ref([]);
 const sound = new Audio('/sounds/message_notification.mp3');
 
 function emit(type, payload) {
     listeners.filter((l) => l.type === type).forEach((l) => l.fn(payload));
 }
 
+function unreadKey(msg) {
+    return msg.GroupId ? `g:${msg.GroupId}` : msg.SenderId;
+}
+
 function cacheUnreadMessage(msg) {
-    if (!unread.has(msg.SenderId)) unread.set(msg.SenderId, new Set());
-    unread.get(msg.SenderId).add(msg.Id);
+    const key = unreadKey(msg);
+    if (!unread.has(key)) unread.set(key, new Set());
+    unread.get(key).add(msg.Id);
     emit('unread_change');
 }
 
@@ -31,9 +37,10 @@ export function useChat() {
         ws = socket;
         socket.onopen = async () => {
             const data = await fetch('/api/chat/unread').then((r) => r.json());
-            if (data && !data.Error?.Has && data.User?.ChatMessages) {
-                data.User.ChatMessages.forEach(cacheUnreadMessage);
-            }
+            if (!data || data.Error?.Has) return;
+            data.User?.ChatMessages?.forEach(cacheUnreadMessage);
+            myGroups.value = data.Groups ?? [];
+            myGroups.value.forEach((g) => g.ChatMessages?.forEach(cacheUnreadMessage));
         };
         socket.onclose = () => {
             if (ws === socket) ws = null;
@@ -58,6 +65,17 @@ export function useChat() {
                     playNotificationTone();
                 }
                 emit('chat_message', { msg, isForCurrent });
+                break;
+            }
+            case 'group_message': {
+                const msg = envelope.payload;
+                const isForCurrent = activeChat.value === `g:${msg.GroupId}`;
+                const isOwn = msg.SenderId === lastUserId;
+                if (!isForCurrent && !isOwn) {
+                    cacheUnreadMessage(msg);
+                    playNotificationTone();
+                }
+                emit('group_message', { msg, isForCurrent });
                 break;
             }
             case 'user_status':
@@ -104,6 +122,19 @@ export function useChat() {
         return (unread.get(senderId)?.size ?? 0) > 0;
     }
 
+    function sendGroupMessage(groupId, body) {
+        sendWS(JSON.stringify({ type: 'group-message', payload: { groupId, body } }));
+    }
+
+    function notifyGroupMessageRead(id, groupId) {
+        sendWS(JSON.stringify({ type: 'message-read', payload: { Id: id, GroupId: groupId } }));
+    }
+
+    function markGroupAsRead(groupId) {
+        unread.delete(`g:${groupId}`);
+        emit('unread_change');
+    }
+
     function totalUnread() {
         let total = 0;
         for (const ids of unread.values()) total += ids.size;
@@ -139,5 +170,9 @@ export function useChat() {
         playNotificationTone,
         onChatEvent,
         setActiveChat,
+        myGroups,
+        sendGroupMessage,
+        notifyGroupMessageRead,
+        markGroupAsRead,
     };
 }
