@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useUser } from '@/composables/useUser.js';
 import { useAlerts } from '@/composables/useAlerts.js';
 import { apiPost } from '@/utils/api.js';
@@ -7,6 +7,7 @@ import { DateToLocale } from '@/utils/utils.js';
 import CommentEditForm from '@/components/CommentEditForm.vue';
 import CommentDeleteForm from '@/components/CommentDeleteForm.vue';
 import CommentReactForm from '@/components/CommentReactForm.vue';
+import { useRoute } from 'vue-router';
 
 const props = defineProps({
     post: {
@@ -23,6 +24,7 @@ const emit = defineEmits(['updated']);
 
 const { user } = useUser();
 const { setAlert } = useAlerts();
+const route = useRoute();
 
 const editing = ref(false);
 const body = ref(props.comment.Body);
@@ -30,6 +32,8 @@ const image = ref(null);
 
 const isOwner = () =>
     user.value.LoggedIn && String(user.value.Id) === String(props.comment.UserId);
+
+const isTarget = computed(() => route.hash === `#comment-${props.comment.Id}`);
 
 function toggleEdit() {
     editing.value = !editing.value;
@@ -87,7 +91,7 @@ async function react(action) {
 </script>
 
 <template>
-    <div class="comment" :id="`comment-${comment.Id}`">
+    <div class="comment" :class="{ highlighted: isTarget }" :id="`comment-${comment.Id}`">
         <span><router-link :to="`/profile/view/${comment.UserId}`">{{ comment.Username }}</router-link> ({{ DateToLocale(comment.Timestamp) }})</span>
         <div class="manage-comment">
             <template v-if="isOwner()">
@@ -112,4 +116,12 @@ async function react(action) {
     </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.comment.highlighted {
+    animation: flash 1s ease-out;
+}
+@keyframes flash {
+    from { background: #7fa32e; }
+    to   { background: transparent; }
+}
+</style>

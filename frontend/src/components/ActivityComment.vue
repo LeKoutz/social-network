@@ -17,8 +17,8 @@ defineProps({
                 <h3>{{ post.Title }}</h3>
         </router-link>
         <div class="activity-highlight">
-            <div class="comment" id="comment-{{comment.Id}}">
-                <router-link :to="`/post/view/{{post.Id}}#comment-{{comment.Id}}`">
+            <div class="comment" :id="`comment-${comment.Id}`">
+                <router-link :to="`/post/view/${post.Id}#comment-${comment.Id}`">
                     <pre>{{comment.Body}}</pre>
                 </router-link>
                 <img v-if="comment.ImagePath" :src="`/${comment.ImagePath}`" alt="Comment image" style="max-width: 100%"/>

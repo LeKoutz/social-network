@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import { apiFetch } from '@/utils/api.js';
 import { firstOrNull } from '@/utils/utils.js';
@@ -23,9 +23,18 @@ async function loadPost(id) {
     } finally {
         loading.value = false;
     }
+    await scrollToHash();
+}
+
+async function scrollToHash() {
+    if (!route.hash) return;
+    await nextTick();
+    document.getElementById(route.hash.slice(1))?.scrollIntoView({ behavior: 'smooth'});
 }
 
 onMounted(()=>loadPost(route.params.id));
+
+watch(() => route.hash, scrollToHash);
 
 watch(() => route.params.id, (newId) => {
     if (newId) loadPost(newId);
