@@ -88,7 +88,7 @@ export async function postRoute(id, arg) {
                     const r = /^\d*$/;
                     if ( r.test(args[1]) ) {
                         const element = document.querySelector(`#${arg}`);
-                        element ? element.scrollIntoView() : SetAlertsInner(ShowError({Error: {Message:"Content does not exist or has been deleted"}}));
+                        return element ? element.scrollIntoView() : SetAlertsInner(ShowError({Error: {Message:"Content does not exist or has been deleted"}}));
                     }
                 }
             }

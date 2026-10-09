@@ -56,7 +56,7 @@ a:hover {
     padding: 1%;
     border: 1px dashed var(--accent-line);
 }
-.category * { width: max-content; }
+/* .category * { width: max-content; } */
 
 fieldset {
     display: flex;
@@ -152,6 +152,7 @@ input[type=submit]:hover, button:hover {
     flex-direction: column;
     overflow-y: auto;
     padding: 0 1vw;
+    height: 100%;
 }
 
 .reactions {
@@ -233,7 +234,7 @@ input[type=submit]:hover, button:hover {
 .manage-comment, .manage-post { display: flex; flex-direction: row; }
 
 .chat-messages {
-    height: 400px;
+    height: 100%;
     overflow-y: scroll;
 }
 

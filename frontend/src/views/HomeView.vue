@@ -27,8 +27,8 @@ const { user } = useUser();
             </p>
         </template>
         <div v-else class="flex flex-row flex-wrap gap-20">
-            <Categories/>
-            <GroupsBrowser/>
+            <Categories />
+            <GroupsBrowser />
         </div>
     </div>
 </template>

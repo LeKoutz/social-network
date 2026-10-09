@@ -21,11 +21,11 @@ const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
         { path: '/', component: HomeView },
-        { path: '/category/view/', component: CategoryView },
+        { path: '/category/view/:id', component: CategoryView, meta: { requiresAuth: true } },
         { path: '/user/login', component: LoginView },
         { path: '/user/register', component: RegisterView },
-        { path: '/profile/view/:id', component: ProfileView },
-        { path: '/post/view/:id', component: PostView },
+        { path: '/profile/view/:id', component: ProfileView, meta: { requiresAuth: true } },
+        { path: '/post/view/:id', component: PostView, meta: { requiresAuth: true } },
         {
             path: '/post/create',
             component: PostCreateView,
@@ -41,9 +41,21 @@ const router = createRouter({
             component: ProfileEditView,
             meta: { requiresAuth: true },
         },
-        { path: '/group/create', component: GroupCreateView },
-        { path: '/groups', component: GroupsBrowserView },
-        { path: '/group/view/:id', component: GroupView },
+        {
+            path: '/group/create',
+            component: GroupCreateView,
+            meta: { requiresAuth: true },
+        },
+        {
+            path: '/groups',
+            component: GroupsBrowserView,
+            meta: { requiresAuth: true },
+        },
+        {
+            path: '/group/view/:id',
+            component: GroupView,
+            meta: { requiresAuth: true },
+        },
         {
             path: '/chat/:id',
             component: ChatView,

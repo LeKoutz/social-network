@@ -1,7 +1,6 @@
 import { apiFetch } from '../fetchers/api.js';
 import { displayPosts } from "./posts.js";
 import { attachPostReactionListener } from '../forms/post_react.js';
-import { DateToLocale } from '../utils/utils.js';
 
 export function ShowUserLikes(data) {
     return `

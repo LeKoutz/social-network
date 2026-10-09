@@ -1,19 +1,38 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { apiFetch } from '@/utils/api.js';
+import { firstOrNull } from '@/utils/utils.js';
+import CategoryShow from '@/components/CategoryShow.vue';
+import PostShow from '@/components/PostShow.vue';
+import { useCategory } from '@/composables/useCategory.js';
 
 const route = useRoute();
-const category = ref(null);
-const posts = ref(null);
+const category = ref(true);
+const loading = ref(true);
+const posts = ref(true);
+const error = ref(null);
 
-onMounted(async () => {
-    const data = apiFetch(`/api/category/view/${route.params.id}`);
+async function loadCategory(id) {
+    loading.value = true;
+    error.value = null;
+    const data = await apiFetch(`/api/category/view/${id}`);
     if (data) {
+        category.value = firstOrNull(data.Categories);
+        if (!category.value) error.value = 'Category not found';
         posts.value = data.Posts ?? [];
-        category.value = data.Categories[0];
     }
-});
+    loading.value = false;
+}
+
+onMounted(() => loadCategory(route.params.id));
+
+watch(
+    () => route.params.id,
+    (newId) => {
+        if (newId) loadCategory(newId);
+    },
+);
 </script>
 
 <template>
@@ -22,7 +41,9 @@ onMounted(async () => {
             <h2>{{ category.Name }}</h2>
             <p>{{ category.Description }}</p>
             <p v-if="posts.length === 0">This category is empty</p>
-            <!-- TODO: posts rendering -->
+            <template v-else v-for="post in posts">
+                <PostShow :post="post" />
+            </template>
         </div>
     </div>
 </template>
