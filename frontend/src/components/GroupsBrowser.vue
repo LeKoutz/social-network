@@ -1,8 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useUser } from '@/composables/useUser.js';
-import { apiFetch } from '@/utils/api.js';
-import { DateToLocale } from '@/utils/utils.js';
+import { apiFetch, apiPost } from '@/utils/api.js';
+import { DateToLocale, firstOrNull } from '@/utils/utils.js';
 
 const { user } = useUser();
 
@@ -14,6 +14,15 @@ onMounted(async () => {
         groups.value = data.Groups ?? [];
     }
 });
+
+async function join(user) {
+    const group = firstOrNull(groups.value);
+    const payload = new FormData();
+    payload.append('group-id', group.Id);
+    payload.append('to-user-id', user.Id);
+    const data = await apiPost('/api/group/join', payload);
+    console.log(data);
+}
 </script>
 
 <template>
