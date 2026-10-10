@@ -36,11 +36,7 @@ func RequestJoinGroup(data state.StateController) error {
 	if err != nil {
 		return ferror.ReturnErr(err)
 	}
-	b, err := data.EditGroup().IsMember(data.GetUser().Id)
-	if err != nil {
-		return ferror.ReturnErr(err)
-	}
-	if b {
+	if data.EditGroup().Member || data.EditGroup().Owner {
 		return ferror.ReturnErr(ferror.ErrorGroupAlreadyMember)
 	}
 	data.EditGroupInvitation().ToUserId = data.GetUser().Id
