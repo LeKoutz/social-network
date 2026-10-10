@@ -26,7 +26,7 @@ watch(() => route.params.id, (newId) => { if (newId) loadProfile(newId); });
 </script>
 
 <template>
-	<div class="container">
+	<div class="flex flex-column gap-20 overflow-y-auto padding-sides-1vw">
 		<div v-if="loading">Loading…</div>
 		<div v-else-if="error">{{ error }}</div>
 		<ProfileShow v-else-if="profile" :profile="profile" />

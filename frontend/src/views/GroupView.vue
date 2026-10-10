@@ -35,10 +35,10 @@ watch(
 </script>
 
 <template>
-    <div class="container">
+    <div class="flex flex-column gap-20 overflow-y-auto">
         <div v-if="loading">Loading…</div>
         <div v-else-if="error">{{ error }}</div>
-        <div v-else-if="group">
+        <div class="padding-sides-1vw" v-else-if="group">
             <h2>{{ group.Title }}</h2>
             <p class="group-description">{{ group.Description }}</p>
             <p class="group-owner">
@@ -48,13 +48,13 @@ watch(
                 </router-link>
                 on <em>({{ DateToLocale(group.Timestamp) }})</em>
             </p>
-            <template v-if="group.Member">
+            <div class="flex flex-column gap-20" v-if="group.Member">
                 <PostCreateForm :group="group" />
-                <div v-if="posts && posts.length">
+                <div class="flex flex-column gap-20" v-if="posts && posts.length">
                     <PostShow v-for="post in posts" :key="post.Id" :post="post" />
                 </div>
                 <p v-else>No posts in this group yet. Be the first to post!</p>
-            </template>
+            </div>
             <p v-else class="group-locked">
                 This group is private. Only its members can see the posts and join the
                 conversation.

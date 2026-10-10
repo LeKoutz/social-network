@@ -42,7 +42,7 @@ watch(() => route.params.id, (newId) => {
 </script>
 
 <template>
-    <div class="container">
+    <div class="flex flex-column gap-20 overflow-y-auto">
         <div v-if="loading">Loading…</div>
         <div v-else-if="error">{{ error }}</div>
         <PostShow v-else-if="post" :post="post" />

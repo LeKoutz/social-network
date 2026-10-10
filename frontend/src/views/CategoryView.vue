@@ -17,7 +17,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="container">
+    <div class="flex flex-column gap-20">
         <div class="category" :id="`${category.Id}`">
             <h2>{{ category.Name }}</h2>
             <p>{{ category.Description }}</p>

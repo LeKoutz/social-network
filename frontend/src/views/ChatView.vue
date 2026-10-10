@@ -95,7 +95,7 @@ function send(e) {
 </script>
 
 <template>
-    <div class="container padding-sides-1vw">
+    <div class="flex flex-column gap-20 padding-sides-1vw">
         <h2>Chat with <span><router-link :to="`/profile/view/${chatUserId()}`">{{ recipientUsername }}</router-link></span></h2>
         <div class="chat-messages" ref="container" @scroll="handleScroll">
             <div v-for="message in messages" :key="message.Id" class="chat-message">

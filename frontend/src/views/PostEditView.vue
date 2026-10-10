@@ -34,7 +34,7 @@ watch(
 </script>
 
 <template>
-    <div class="container">
+    <div class="flex flex-column gap-20">
         <div v-if="loading">Loading…</div>
         <div v-else-if="error">{{ error }}</div>
         <PostEditForm v-else-if="post" :post="post" :categories="categories" />

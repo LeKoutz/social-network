@@ -12,7 +12,7 @@ defineProps({
 </script>
 
 <template>
-    <div class="container">
+    <div class="flex flex-column gap-20">
         <router-link :to="`/post/view/${post.Id}`">
                 <h3>{{ post.Title }}</h3>
         </router-link>

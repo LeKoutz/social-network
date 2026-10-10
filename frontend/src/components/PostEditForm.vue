@@ -55,7 +55,7 @@ async function submit() {
 </script>
 
 <template>
-    <div class="container">
+    <div class="flex flex-column gap-20">
         <form class="post-edit" @submit.prevent="submit">
             <fieldset>
                 <legend>Edit Post</legend>

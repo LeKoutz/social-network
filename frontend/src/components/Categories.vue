@@ -5,9 +5,9 @@ const { categories } = useCategories();
 </script>
 
 <template>
-    <div class="categories">
+    <div class="flex flex-column gap-5">
         <h2>Categories</h2>
-        <div class="category" v-for="category in categories" :key="category.Id">
+        <div class="flex flex-column gap-2 border-1px-dashed-accent-line padding-sides-1vw" v-for="category in categories" :key="category.Id">
             <router-link :to="`/category/view/${category.Id}`">
                 <h2>{{ category.Name }}</h2>
             </router-link>
