@@ -1,6 +1,7 @@
 <script setup>
 import { useUser } from '@/composables/useUser';
 import Categories from '@/components/Categories.vue';
+import GroupsBrowser from '@/components/GroupsBrowser.vue';
 
 const { user } = useUser();
 </script>
@@ -25,7 +26,10 @@ const { user } = useUser();
                 or via the menu at the top of the page.
             </p>
         </template>
-        <Categories v-if="user.LoggedIn" />
+        <div v-else class="flex flex-row flex-wrap gap-20">
+            <Categories/>
+            <GroupsBrowser/>
+        </div>
     </div>
 </template>
 
