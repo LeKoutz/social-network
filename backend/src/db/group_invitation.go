@@ -56,11 +56,20 @@ func (g *GroupInvitationRowType) InsertOrUpdate() error {
 	if len(tmp) != 0 {
 		return ferror.ReturnErr(ferror.ErrorGroupInvitationAlreadyExists)
 	}
+
+	value := func(i int64) any {
+		if i == 0 {
+			return nil
+		} else {
+			return i
+		}
+	}(g.InvitedBy)
+
 	_, err = db.Exec(`
 	INSERT INTO group_invitations
 	(group_id, invited_by, timestamp, to_user_id, status)
 	VALUES (?, ?, ?, ?, ?)
-	`, g.GroupId, g.InvitedBy, g.Timestamp, g.ToUserId, g.Status)
+	`, g.GroupId, value, g.Timestamp, g.ToUserId, g.Status)
 	if err != nil {
 		return ferror.ReturnErr(err)
 	}
