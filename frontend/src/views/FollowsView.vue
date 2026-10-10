@@ -40,7 +40,7 @@ onMounted(loadFollows);
 </script>
 
 <template>
-    <div class="follows-view">
+    <div class="flex flex-column gap-15 padding-sides-1vw overflow-y-auto follows-view">
         <h2>My follows</h2>
 
         <template v-if="!loading">
@@ -48,7 +48,7 @@ onMounted(loadFollows);
                 <h3>Follow requests</h3>
                 <template v-if="pendingIncoming.length > 0">
                     <div v-for="follow in pendingIncoming" :key="'pending-in-' + follow.Id" class="follow-row">
-                        <router-link :to="`/user/${follow.FromUserId}`">
+                        <router-link :to="`/profile/view/${follow.FromUserId}`">
                             <strong>{{ follow.Username }}</strong>
                         </router-link>
                         <button type="button" @click="acceptRequest(follow)">Accept</button>
@@ -62,7 +62,7 @@ onMounted(loadFollows);
                 <h3>Followers</h3>
                 <template v-if="followers.length > 0">
                     <div v-for="follow in followers" :key="'follower-' + follow.Id" class="follow-row">
-                        <router-link :to="`/user/${follow.FromUserId}`">
+                        <router-link :to="`/profile/view/${follow.FromUserId}`">
                             <strong>{{ follow.Username }}</strong>
                         </router-link>
                         <span>{{ DateToLocale(follow.Timestamp) }}</span>
@@ -75,7 +75,7 @@ onMounted(loadFollows);
                 <h3>Following</h3>
                 <template v-if="following.length > 0">
                     <div v-for="follow in following" :key="'following-' + follow.Id" class="follow-row">
-                        <router-link :to="`/user/${follow.ToUserId}`">
+                        <router-link :to="`/profile/view/${follow.ToUserId}`">
                             <strong>{{ follow.Username }}</strong>
                         </router-link>
                         <span>{{ DateToLocale(follow.Timestamp) }}</span>
@@ -89,7 +89,7 @@ onMounted(loadFollows);
                 <h3>Outgoing requests</h3>
                 <template v-if="pendingOutgoing.length > 0">
                     <div v-for="follow in pendingOutgoing" :key="'pending-out-' + follow.Id" class="follow-row">
-                        <router-link :to="`/user/${follow.ToUserId}`">
+                        <router-link :to="`/profile/view/${follow.ToUserId}`">
                             <strong>{{ follow.Username }}</strong>
                         </router-link>
                         <span class="status">Awaiting response</span>
