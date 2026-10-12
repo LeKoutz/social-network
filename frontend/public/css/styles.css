@@ -367,4 +367,9 @@ input[type=submit]:hover, button:hover {
 .font-size-small { font-size: small; }
 .font-size-large { font-size: large; }
 .font-size-larger { font-size: larger; }
+
 .height-100 { height: 100vh; }
+
+.width-fit-content { width: fit-content; }
+
+.text-color-muted { color: var(--text-muted); }
