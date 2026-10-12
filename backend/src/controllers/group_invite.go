@@ -30,11 +30,43 @@ func InviteUserToGroup(data state.StateController) error {
 	return data.EditGroupInvitation().InsertOrUpdate()
 }
 
+func AcceptGroupInvitation(data state.StateController) error {
+	data.EditGroupInvitation().Status = "accepted"
+	return ferror.ReturnErr(ferror.ErrorNotImplemented)
+}
+
+func DeclineGroupInvitation(data state.StateController) error {
+	return ferror.ReturnErr(ferror.ErrorNotImplemented)
+}
+
+func AcceptJoinRequest(data state.StateController) error {
+	return ferror.ReturnErr(ferror.ErrorNotImplemented)
+}
+
+func DeclineJoinRequest(data state.StateController) error {
+	return ferror.ReturnErr(ferror.ErrorNotImplemented)
+}
+
+func WithdrawJoinRequest(data state.StateController) error {
+	err := data.EditGroupInvitation().Withdraw()
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
+	return nil
+}
+
 func RequestJoinGroup(data state.StateController) error {
 	data.EditGroup().Id = data.EditGroupInvitation().GroupId
 	err := data.EditGroup().GetById()
 	if err != nil {
 		return ferror.ReturnErr(err)
+	}
+	data.EditGroup().Member, err = data.EditGroup().IsMember(data.GetUser().Id)
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
+	if data.EditGroup().OwnerUserId == data.GetUser().Id {
+		data.EditGroup().Owner = true
 	}
 	if data.EditGroup().Member || data.EditGroup().Owner {
 		return ferror.ReturnErr(ferror.ErrorGroupAlreadyMember)

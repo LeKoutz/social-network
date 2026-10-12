@@ -36,3 +36,23 @@ func HandleJoinsGroup(data state.StateHandler) {
 	}
 	data.WriteResponse()
 }
+
+func HandleAllInvitesGroup(data state.StateHandler) {
+	var err error
+	err = controllers.GetAllGroupsInvites(data.(state.StateController))
+	if err != nil {
+		data.SetErrorConsume(ferror.ReturnErr(err)).WriteResponse()
+		return
+	}
+	data.WriteResponse()
+}
+
+func HandleAllJoinsGroup(data state.StateHandler) {
+	var err error
+	err = controllers.GetAllGroupsJoinRequests(data.(state.StateController))
+	if err != nil {
+		data.SetErrorConsume(ferror.ReturnErr(err)).WriteResponse()
+		return
+	}
+	data.WriteResponse()
+}

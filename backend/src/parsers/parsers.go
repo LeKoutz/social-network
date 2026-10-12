@@ -319,6 +319,21 @@ func ParseCreateGroupRequest(data state.StateHandler) error {
 	return nil
 }
 
+func ParseGroupInvitationRequest(data state.StateHandler) error {
+	var err error
+	err = data.GetRequest().ParseMultipartForm(models.MaxImageSize)
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
+	id_str := data.GetRequest().FormValue("id")
+	data.EditGroupInvitation().Id, err = utils.StringToInt64(id_str)
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
+	return nil
+}
+
+
 func ParseInviteToGroupRequest(data state.StateHandler) error {
 	var err error
 	err = data.GetRequest().ParseMultipartForm(models.MaxImageSize)
@@ -384,7 +399,8 @@ func ParseGroupInvitations(data state.StateHandler) error {
 	}
 	str, ok = strings.CutPrefix(data.GetRequest().RequestURI, "/api/group/invites/")
 	if !ok || len(str) == 0 {
-		return ferror.ReturnErr(ferror.ErrorBadRequest)
+		data.EditGroup().Id = 0
+		return nil
 	}
 Convert:
 	i64, err = utils.StringToInt64(str)

@@ -24,6 +24,9 @@ func ShowGroup(data state.StateController) error {
 	if err != nil {
 		return ferror.ReturnErr(err)
 	}
+	if data.EditGroup().OwnerUserId == data.GetUser().Id {
+		data.EditGroup().Owner = true
+	}
 	data.EditGroup().Member = member
 	if !member {
 		return ferror.ReturnErr(ferror.ErrorPermissionDenied)

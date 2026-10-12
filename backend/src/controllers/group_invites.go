@@ -40,3 +40,11 @@ func ShowGroupJoins(data state.StateController) error {
 	}
 	return data.EditGroupInvitations().GetGroupInvitatesByUserId(data.GetGroup().Id, data.GetUser().Id)
 }
+
+func GetAllGroupsInvites(data state.StateController) error {
+	return data.EditGroupInvitations().GetAllGroupsInvitesByUserId(data.GetUser().Id)
+}
+
+func GetAllGroupsJoinRequests(data state.StateController) error {
+	return data.EditGroupInvitations().GetAllGroupsJoinRequestsByUserId(data.GetUser().Id)
+}

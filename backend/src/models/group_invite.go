@@ -12,3 +12,7 @@ type GroupInvitationType struct {
 func (gi *GroupInvitationType) SendToUserId(user_id int64) error {
 	return ferror.ReturnErr(ferror.ErrorNotImplemented)
 }
+
+func (gi *GroupInvitationType) Withdraw() error {
+	return gi.GroupInvitationRowType.Delete()
+}
