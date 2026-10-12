@@ -13,6 +13,8 @@ import GroupCreateView from '@/views/GroupCreateView.vue';
 import GroupsBrowserView from '@/views/GroupsBrowserView.vue';
 import GroupsJoinsView from '@/views/GroupsJoinsView.vue';
 import GroupsInvitesView from '@/views/GroupsInvitesView.vue';
+import GroupsJoinsAllView from '@/views/GroupsJoinsAllView.vue';
+import GroupsInvitesAllView from '@/views/GroupsInvitesAllView.vue';
 import GroupView from '@/views/GroupView.vue';
 import ChatView from '@/views/ChatView.vue';
 import FollowsView from '@/views/FollowsView.vue';
@@ -71,8 +73,18 @@ const router = createRouter({
             meta: { requiresAuth: true },
         },
         {
+            path: '/groups/invites',
+            component: GroupsInvitesAllView,
+            meta: { requiresAuth: true },
+        },
+        {
             path: '/groups/joins/:id',
             component: GroupsJoinsView,
+            meta: { requiresAuth: true },
+        },
+        {
+            path: '/groups/joins',
+            component: GroupsJoinsAllView,
             meta: { requiresAuth: true },
         },
         {

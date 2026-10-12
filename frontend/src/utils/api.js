@@ -6,7 +6,7 @@ export async function apiFetch(url) {
     if (data.Error?.Has) {
         const { setAlert } = useAlerts();
         setAlert(data);
-        return null;
+        // return null;
     }
     return data;
 }
@@ -20,7 +20,35 @@ export async function apiPost(url, body) {
     if (data.Error?.Has) {
         const { setAlert } = useAlerts();
         setAlert(data);
-        return null;
+        // return null;
+    }
+    return data;
+}
+
+export async function apiPatch(url, body) {
+    const response = await fetch(url, {
+        method: 'PATCH',
+        body,
+    });
+    const data = await response.json();
+    if (data.Error?.Has) {
+        const { setAlert } = useAlerts();
+        setAlert(data);
+        // return null;
+    }
+    return data;
+}
+
+export async function apiDelete(url, body) {
+    const response = await fetch(url, {
+        method: 'DELETE',
+        body,
+    });
+    const data = await response.json();
+    if (data.Error?.Has) {
+        const { setAlert } = useAlerts();
+        setAlert(data);
+        // return null;
     }
     return data;
 }
