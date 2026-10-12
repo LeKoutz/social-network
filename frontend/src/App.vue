@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import Topbar from './components/Topbar.vue';
 import Footer from './components/Footer.vue';
 import UsersPanel from './components/UsersPanel.vue';
-import { apiFetch } from './utils/api.js';
+import { apiGet } from './utils/api.js';
 import Alerts from './components/Alerts.vue';
 import { useAppData } from './composables/useAppData.js';
 import { useNotifications } from './composables/useNotifications.js';
@@ -18,7 +18,7 @@ const { setCategories } = useCategories();
 
 onMounted(async () => {
     try {
-        const data = await apiFetch('/api');
+        const data = await apiGet('/api');
         if (data) {
             setAppData(data);
             setCategories(data.Categories);

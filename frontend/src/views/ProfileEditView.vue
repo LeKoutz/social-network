@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { apiFetch } from '@/utils/api.js';
+import { apiGet } from '@/utils/api.js';
 import { firstOrNull } from '@/utils/utils.js';
 import ProfileEditForm from '@/components/ProfileEditForm.vue';
 
@@ -10,7 +10,7 @@ const error = ref('');
 
 onMounted(async () => {
     try {
-        const data = await apiFetch('/api/profile/edit');
+        const data = await apiGet('/api/profile/edit');
         profile.value = firstOrNull(data?.Profiles);
 
         if (!profile.value) {

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { apiFetch, apiPost } from '@/utils/api.js';
+import { apiGet, apiPost } from '@/utils/api.js';
 import { firstOrNull, DateToLocale } from '@/utils/utils.js';
 
 import { useUser } from '@/composables/useUser.js';
@@ -21,7 +21,7 @@ async function loadGroup(id) {
     loading.value = true;
     error.value = null;
     try {
-        const data = await apiFetch(`/api/group/view/${id}`);
+        const data = await apiGet(`/api/group/view/${id}`);
         if (data) {
             group.value = firstOrNull(data.Groups);
             posts.value = data.Posts;
@@ -31,15 +31,15 @@ async function loadGroup(id) {
             // }
         }
     } catch (e) {
-        console.log(e)
+        console.log(e);
     }
     loading.value = false;
 }
 
-async function join(user,group){
+async function join(user, group) {
     // const group = firstOrNull(group.value)
     const payload = new FormData();
-    payload.append('id', group.Id)
+    payload.append('id', group.Id);
     const data = await apiPost('/api/group/join', payload);
     console.log(data);
 }
@@ -58,37 +58,38 @@ watch(
     <div class="flex flex-column gap-20 overflow-y-auto padding-sides-1vw height-100">
         <template v-if="loading">Loading…</template>
         <template v-else-if="group">
-                <h2>{{ group.Title }}</h2>
-                <template v-if="group.Description.length === 0">
-                    <p class="text-color-muted">No description avaliable.</p>
-                </template>
-                <template v-else>
-                    <p class="group-description">{{ group.Description }}</p>
-                </template>
-                <p class="group-owner">
-                Owned by 
+            <h2>{{ group.Title }}</h2>
+            <template v-if="group.Description.length === 0">
+                <p class="text-color-muted">No description avaliable.</p>
+            </template>
+            <template v-else>
+                <p class="group-description">{{ group.Description }}</p>
+            </template>
+            <p class="group-owner">
+                Owned by
                 <router-link :to="`/profile/view/${group.OwnerUserId}`">
                     <strong>{{ group.OwnerUsername }}</strong>
                 </router-link>
-                on <em>({{ DateToLocale(group.Timestamp) }})</em>
-                </p>
-                <div class="flex flex-column gap-20" v-if="group.Member">
-                    <PostCreateForm :group="group" />
-                    <div class="flex flex-column gap-20" v-if="posts && posts.length">
-                        <PostShow v-for="post in posts" :key="post.Id" :post="post" />
-                    </div>
-                    <p v-else>No posts in this group yet. Be the first to post!</p>
+                on
+                <em>({{ DateToLocale(group.Timestamp) }})</em>
+            </p>
+            <div class="flex flex-column gap-20" v-if="group.Member">
+                <PostCreateForm :group="group" />
+                <div class="flex flex-column gap-20" v-if="posts && posts.length">
+                    <PostShow v-for="post in posts" :key="post.Id" :post="post" />
                 </div>
-                <template v-else class="group-locked">
-                    This group is private. Only its members can see the posts and join the
-                    conversation.
-                    <button
-                        class="flex flex-row align-items-center width-fit-content"
-                        @click="join(user,group)"
-                        >
-                        <GroupAddIcon/> Join group
-                    </button>
-                </template>
+                <p v-else>No posts in this group yet. Be the first to post!</p>
+            </div>
+            <template v-else class="group-locked">
+                This group is private. Only its members can see the posts and join the conversation.
+                <button
+                    class="flex flex-row align-items-center width-fit-content"
+                    @click="join(user, group)"
+                >
+                    <GroupAddIcon />
+                    Join group
+                </button>
+            </template>
         </template>
     </div>
 </template>

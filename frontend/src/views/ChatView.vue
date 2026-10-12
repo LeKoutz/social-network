@@ -3,7 +3,7 @@ import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import { useUser } from '@/composables/useUser.js';
 import { useChat } from '@/composables/useChat.js';
-import { apiFetch } from '@/utils/api.js';
+import { apiGet } from '@/utils/api.js';
 import { throttle, DateToLocale } from '@/utils/utils.js';
 
 const route = useRoute();
@@ -29,7 +29,7 @@ function chatUserId() {
 }
 
 async function loadHistory(offset) {
-    const data = await apiFetch(`/api/chat/${chatUserId()}?offset=${offset}`);
+    const data = await apiGet(`/api/chat/${chatUserId()}?offset=${offset}`);
     if (!data) return [];
     canChat.value = data.Users?.[0]?.CanChat ?? false;
     recipientUsername.value = data.Users?.[0]?.Username ?? '';

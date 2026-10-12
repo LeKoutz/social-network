@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { apiFetch } from '@/utils/api.js';
+import { apiGet } from '@/utils/api.js';
 import { firstOrNull } from '@/utils/utils.js';
 import CategoryShow from '@/components/CategoryShow.vue';
 import PostShow from '@/components/PostShow.vue';
@@ -13,19 +13,17 @@ const loading = ref(true);
 const posts = ref(true);
 const error = ref(null);
 
-async function loadCategory(id) {
+onMounted(async () => {
     loading.value = true;
     error.value = null;
-    const data = await apiFetch(`/api/category/view/${id}`);
+    const data = await apiGet(`/api/category/view/${route.params.id}`);
     if (data) {
         category.value = firstOrNull(data.Categories);
         if (!category.value) error.value = 'Category not found';
         posts.value = data.Posts ?? [];
     }
     loading.value = false;
-}
-
-onMounted(() => loadCategory(route.params.id));
+});
 
 watch(
     () => route.params.id,
@@ -36,7 +34,7 @@ watch(
 </script>
 
 <template>
-    <div class="flex flex-column gap-20">
+    <div class="flex flex-column gap-20 height-100 overflow-y-auto">
         <div class="category" :id="`${category.Id}`">
             <h2>{{ category.Name }}</h2>
             <p>{{ category.Description }}</p>

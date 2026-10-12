@@ -3,7 +3,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useUser } from '@/composables/useUser.js';
 import { useChat } from '@/composables/useChat.js';
-import { apiFetch } from '@/utils/api.js';
+import { apiGet } from '@/utils/api.js';
 import ChatMessageList from '@/components/ChatMessageList.vue';
 
 const route = useRoute();
@@ -30,7 +30,7 @@ function groupId() {
 }
 
 async function loadHistory(offset) {
-    const data = await apiFetch(`/api/group/chat/${groupId()}?offset=${offset}`);
+    const data = await apiGet(`/api/group/chat/${groupId()}?offset=${offset}`);
     if (!data) {
         canChat.value = false;
         return [];

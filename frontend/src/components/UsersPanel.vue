@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useUser } from '@/composables/useUser.js';
 import { useChat } from '@/composables/useChat.js';
-import { apiFetch } from '@/utils/api.js';
+import { apiGet } from '@/utils/api.js';
 
 const { user } = useUser();
 const { ensureWs, onChatEvent, hasUnread, totalUnread, myGroups } = useChat();
@@ -47,7 +47,7 @@ function lastMessageLabel(u) {
 }
 
 async function refresh() {
-    const data = await apiFetch('/api/users');
+    const data = await apiGet('/api/users');
     if (data) {
         users.value = data.Users ?? [];
     }

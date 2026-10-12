@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { apiFetch } from '@/utils/api.js';
+import { apiGet } from '@/utils/api.js';
 import router from '@/router/index.js';
 import { useChat } from '@/composables/useChat.js';
 
@@ -16,7 +16,7 @@ export function useUser() {
 
     async function logoutUser() {
         try {
-            const data = await apiFetch('/api/user/logout');
+            const data = await apiGet('/api/user/logout');
             if (data) {
                 user.value = { LoggedIn: false };
                 router.push('/');

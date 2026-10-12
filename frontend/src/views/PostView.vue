@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, watch, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
-import { apiFetch } from '@/utils/api.js';
+import { apiGet } from '@/utils/api.js';
 import { firstOrNull } from '@/utils/utils.js';
 import PostShow from '@/components/PostShow.vue';
 
@@ -14,7 +14,7 @@ async function loadPost(id) {
     loading.value = true;
     error.value = null;
     try {
-        const data = await apiFetch(`/api/post/view/${id}`);
+        const data = await apiGet(`/api/post/view/${id}`);
         console.log(id);
         post.value = firstOrNull(data?.Posts);
         if (!post.value) error.value = 'Post not found';

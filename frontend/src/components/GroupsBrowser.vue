@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useUser } from '@/composables/useUser.js';
-import { apiFetch, apiPost } from '@/utils/api.js';
+import { apiGet, apiPost } from '@/utils/api.js';
 import { DateToLocale, firstOrNull } from '@/utils/utils.js';
 
 const { user } = useUser();
@@ -9,7 +9,7 @@ const { user } = useUser();
 const groups = ref([]);
 
 onMounted(async () => {
-    const data = await apiFetch('/api/groups');
+    const data = await apiGet('/api/groups');
     if (data) {
         groups.value = data.Groups ?? [];
     }

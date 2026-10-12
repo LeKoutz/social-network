@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { apiFetch, apiPost } from '@/utils/api.js';
+import { apiGet, apiPost } from '@/utils/api.js';
 import { DateToLocale } from '@/utils/utils.js';
 
 const followers = ref([]);
@@ -10,7 +10,7 @@ const pendingOutgoing = ref([]);
 const loading = ref(true);
 
 async function loadFollows() {
-    const data = await apiFetch('/api/follows');
+    const data = await apiGet('/api/follows');
     if (data) {
         const follows = data.Follows ?? {};
         followers.value = follows.Followers ?? [];

@@ -2,7 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useUser } from '@/composables/useUser.js';
 import { useChat } from '@/composables/useChat.js';
-import { apiFetch } from '@/utils/api.js';
+import { apiGet } from '@/utils/api.js';
 import { DateToLocale, firstOrNull } from '@/utils/utils.js';
 
 const { user } = useUser();
@@ -12,7 +12,7 @@ const chats = ref([]);
 const loaded = ref(false);
 
 async function refresh() {
-    const data = await apiFetch('/api/chats');
+    const data = await apiGet('/api/chats');
     if (data) {
         chats.value = data.Users ?? [];
     }

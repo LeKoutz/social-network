@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { useUser } from '@/composables/useUser.js';
-import { apiFetch, apiPost } from '@/utils/api.js';
+import { apiGet, apiPost } from '@/utils/api.js';
 import { firstOrNull, DateToLocale } from '@/utils/utils.js';
 
 import CommentCreateForm from '@/components/CommentCreateForm.vue';
@@ -26,7 +26,7 @@ watch(
 
 async function refresh() {
     if (!post.value) return;
-    const data = await apiFetch(`/api/post/view/${post.value.Id}`);
+    const data = await apiGet(`/api/post/view/${post.value.Id}`);
     if (data) {
         post.value = firstOrNull(data.Posts);
     }
