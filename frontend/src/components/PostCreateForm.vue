@@ -3,21 +3,17 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { apiPost } from '@/utils/api.js';
 import PostVisibilityPanel from '@/components/PostVisibilityPanel.vue';
+import { useCategories } from '@/composables/useCategories.js';
 
 const props = defineProps({
-    post: {
+    group: {
         type: Object,
-        required: true,
-    },
-    categories: {
-        type: Array,
-        required: true,
+        default: null,
     },
 });
 
-const visibility = ref(
-    props.post.GroupId ? 'public' : (props.post.Visibility ?? 'public')
-);
+const { categories } = useCategories();
+const visibility = ref('public');
 
 const router = useRouter();
 
