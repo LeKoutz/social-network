@@ -20,7 +20,7 @@ async function submitForm(e) {
     });
     const data = await response.json();
     setAlert(data);
-    if (data && !data.Error.Has) {
+    if (data && !data.Error?.Has) {
         setUser(data.User);
         ensureWs(data.User.Id);
         router.push('/');

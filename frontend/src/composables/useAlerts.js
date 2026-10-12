@@ -4,9 +4,9 @@ const alert = ref(null);
 
 export function useAlerts() {
     function setAlert(data) {
-        if (data.Error.Has) {
+        if (data.Error?.Has) {
             alert.value = { type: 'Error', message: data.Error.Message };
-        } else if (data.Message.Has) {
+        } else if (data.Message?.Has) {
             alert.value = { type: data.Message.Type, message: data.Message.Content };
         }
     }
