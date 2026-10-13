@@ -254,9 +254,9 @@ input[type=submit]:hover, button:hover {
 .alert-space {
     position: fixed;
     top: 20px;
-    width: 100%;
     display: flex;
     justify-content: center;
+    align-self: center;
 }
 
 .alert {
