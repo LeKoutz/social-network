@@ -11,6 +11,8 @@ import PostEditView from '@/views/PostEditView.vue';
 import { useUser } from '@/composables/useUser.js';
 import GroupCreateView from '@/views/GroupCreateView.vue';
 import GroupsBrowserView from '@/views/GroupsBrowserView.vue';
+import GroupsJoinsView from '@/views/GroupsJoinsView.vue';
+import GroupsInvitesView from '@/views/GroupsInvitesView.vue';
 import GroupView from '@/views/GroupView.vue';
 import ChatView from '@/views/ChatView.vue';
 import FollowsView from '@/views/FollowsView.vue';
@@ -21,11 +23,23 @@ const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
         { path: '/', component: HomeView },
-        { path: '/category/view/:id', component: CategoryView, meta: { requiresAuth: true } },
+        {
+            path: '/category/view/:id',
+            component: CategoryView,
+            meta: { requiresAuth: true },
+        },
         { path: '/user/login', component: LoginView },
         { path: '/user/register', component: RegisterView },
-        { path: '/profile/view/:id', component: ProfileView, meta: { requiresAuth: true } },
-        { path: '/post/view/:id', component: PostView, meta: { requiresAuth: true } },
+        {
+            path: '/profile/view/:id',
+            component: ProfileView,
+            meta: { requiresAuth: true },
+        },
+        {
+            path: '/post/view/:id',
+            component: PostView,
+            meta: { requiresAuth: true },
+        },
         {
             path: '/post/create',
             component: PostCreateView,
@@ -49,6 +63,16 @@ const router = createRouter({
         {
             path: '/groups',
             component: GroupsBrowserView,
+            meta: { requiresAuth: true },
+        },
+        {
+            path: '/groups/invites/:id',
+            component: GroupsInvitesView,
+            meta: { requiresAuth: true },
+        },
+        {
+            path: '/groups/joins/:id',
+            component: GroupsJoinsView,
             meta: { requiresAuth: true },
         },
         {
