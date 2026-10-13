@@ -4,6 +4,7 @@ import CategoryView from '@/views/CategoryView.vue';
 import LoginView from '@/views/LoginView.vue';
 import RegisterView from '@/views/RegisterView.vue';
 import ProfileView from '@/views/ProfileView.vue';
+import ProfileEditView from '@/views/ProfileEditView.vue';
 import PostView from '@/views/PostView.vue';
 import PostCreateView from '@/views/PostCreateView.vue';
 import PostEditView from '@/views/PostEditView.vue';
@@ -33,6 +34,11 @@ const router = createRouter({
         {
             path: '/post/edit/:id',
             component: PostEditView,
+            meta: { requiresAuth: true },
+        },
+        {
+            path: '/profile/edit',
+            component: ProfileEditView,
             meta: { requiresAuth: true },
         },
         { path: '/group/create', component: GroupCreateView },

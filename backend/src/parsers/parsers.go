@@ -1,11 +1,13 @@
 package parsers
 
 import (
+	"errors"
 	"fmt"
 	"forum/src/ferror"
 	"forum/src/models"
 	"forum/src/state"
 	"forum/src/utils"
+	"net/http"
 	"strings"
 )
 
@@ -415,4 +417,36 @@ func ParseGroupChatRequest(data state.StateHandler) (groupId, offset int64, err 
 		return 0, 0, ferror.ReturnErr(err)
 	}
 	return groupId, offset, nil
+}
+
+func ParseProfileEditRequest(data state.StateHandler) error {
+	req := data.GetRequest()
+
+	if err := req.ParseMultipartForm(models.MaxImageSize); err != nil {
+		var sizeErr *http.MaxBytesError
+		if errors.As(err, &sizeErr) {
+			return ferror.ReturnErr(ferror.ErrorImageTooBig)
+		}
+		return ferror.ReturnErr(ferror.ErrorBadRequest)
+	}
+
+	profile := data.EditProfile()
+	profile.FirstName = strings.TrimSpace(req.PostFormValue("first_name"))
+	profile.LastName = strings.TrimSpace(req.PostFormValue("last_name"))
+	profile.Nickname = strings.TrimSpace(req.PostFormValue("nickname"))
+	profile.About = strings.TrimSpace(req.PostFormValue("about"))
+	profile.DateOfBirth = strings.TrimSpace(req.PostFormValue("date_of_birth"))
+	profile.PrivateProfile = req.PostFormValue("private_profile") == "on"
+	profile.RemoveAvatar = req.PostFormValue("remove_avatar") == "on"
+
+	avatar, _, err := req.FormFile("avatar")
+	if errors.Is(err, http.ErrMissingFile) {
+		return nil
+	}
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
+
+	profile.AvatarFile = avatar
+	return nil
 }

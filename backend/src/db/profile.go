@@ -70,3 +70,17 @@ func (u *UserProfileRowType) SelectUserProfileDetails() (UserProfileRowType, str
 	}
 	return profile, email, nil
 }
+
+func (u *UserProfileRowType) UpdateUserProfile() error {
+	_, err := db.Exec(`
+		UPDATE user_profiles
+		SET nickname = ?, first_name = ?, last_name = ?,
+			date_of_birth = ?, about = ?, avatar_url = ?, private_profile = ?
+		WHERE user_id = ?
+	`, u.Nickname, u.FirstName, u.LastName, u.DateOfBirth,
+		u.About, u.AvatarURL, u.PrivateProfile, u.UserId)
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
+	return nil
+}

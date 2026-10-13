@@ -60,6 +60,7 @@ var routes = Routes{
 
 	// Profiles
 	Route{Method: "GET", Path: "/api/profile/view/", Prefix: true, Function: handlers.HandleShowProfileView, NeedsLogin: true},
+	Route{Method: "*", Path: "/api/profile/edit", Function: handlers.HandleEditProfile, NeedsLogin: true},
 
 	// Follows
 	Route{Method: "GET", Path: "/api/follows", Function: handlers.HandleShowFollows, NeedsLogin: true},

@@ -37,7 +37,7 @@ func SaveImage(file multipart.File) (string, error) {
 		return "", ferror.ReturnErr(err)
 	}
 
-	fileBytes, err := io.ReadAll(file)
+	fileBytes, err := io.ReadAll(io.LimitReader(file, MaxImageSize+1))
 	if err != nil {
 		return "", ferror.ReturnErr(err)
 	}
@@ -47,7 +47,7 @@ func SaveImage(file multipart.File) (string, error) {
 		return "", ferror.ReturnErr(err)
 	}
 
-	if !isValidImageType(fileBytes[:512]) {
+	if !isValidImageType(fileBytes) {
 		err = ferror.ErrorInvalidImageType
 		return "", ferror.ReturnErr(err)
 	}

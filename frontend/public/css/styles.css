@@ -37,6 +37,7 @@ body {
 a {
     color: var(--accent);
 }
+
 a:hover {
     color: var(--accent-hover);
 }
@@ -73,9 +74,9 @@ legend {
     border-radius: 2px;
 }
 select {
-    background-color: var(--bg-input);
     color: var(--text-secondary);
     border: 1px solid var(--border);
+    background-color: var(--bg-input);
 }
 input, textarea {
     background-color: var(--bg-input);
@@ -107,39 +108,42 @@ input[type=submit]:hover, button:hover {
 .topbar .title a h1 { margin: 0; }
 
 .menu li {
-	position: relative;
-	display: inline-block;
-	padding: 8px 12px;
+    position: relative;
+    display: inline-block;
+    padding: 8px 12px;
 }
 
 .menu li > ul {
-	display: none;
-	position: absolute;
-	top: 100%;
-	left: 0;
-	margin: 0;
-	padding: 0;
-	list-style: none;
-	background: var(--bg-base);
-	border: 1px solid var(--accent-line);
-	min-width: 140px;
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: var(--bg-base);
+    border: 1px solid var(--accent-line);
+    min-width: 140px;
 }
 
 .menu li:hover > ul {
-	display: block;
+    display: block;
 }
 
 .menu li > ul li {
-	display: block;
-	padding: 6px 10px;
+    display: block;
+    padding: 6px 10px;
 }
 
 .menu li > ul li:hover {
-	background: var(--danger);
-	color: var(--bg-base);
+    background: var(--danger);
+    color: var(--bg-base);
 }
 
-.inline { display: flex; flex-direction: row; }
+.inline {
+    display: flex;
+    flex-direction: row;
+}
 
 .container {
     display: flex;
@@ -195,6 +199,7 @@ input[type=submit]:hover, button:hover {
     align-items: center;
     gap: 15px;
 }
+
 
 .oauth-buttons {
     display: flex;
@@ -281,9 +286,9 @@ input[type=submit]:hover, button:hover {
 .alert-space {
     position: fixed;
     top: 20px;
+    width: 100%;
     display: flex;
     justify-content: center;
-    align-self: center;
 }
 
 .alert {

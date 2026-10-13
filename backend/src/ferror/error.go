@@ -147,6 +147,7 @@ func (e *Error) Consume(err error) *Error {
 		errors.Is(err, ErrorInvalidGroupId),
 		errors.Is(err, ErrorInvalidInvitationId),
 		errors.Is(err, ErrorChatMessageEmpty),
+		errors.Is(err, ErrorInvalidImageType),
 		errors.Is(err, ErrorBadRequest):
 
 		e.StatusCode = http.StatusBadRequest
@@ -155,6 +156,9 @@ func (e *Error) Consume(err error) *Error {
 		errors.Is(err, ErrorRecipientNotFollowed):
 
 		e.StatusCode = http.StatusForbidden
+
+	case errors.Is(err, ErrorImageTooBig):
+		e.StatusCode = http.StatusRequestEntityTooLarge
 	case
 		errors.Is(err, ErrorNotImplemented),
 		errors.Is(err, ErrorInternalServerError):

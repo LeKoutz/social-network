@@ -4,6 +4,7 @@ import (
 	"forum/src/ferror"
 	"forum/src/models"
 	"forum/src/state"
+	"os"
 )
 
 func ShowProfile(data state.StateController) error {
@@ -70,6 +71,64 @@ func ShowProfile(data state.StateController) error {
 		*following = append(*following, user)
 	}
 	profile.Following = *following
+
+	return nil
+}
+
+func ShowEditProfile(data state.StateController) error {
+	if !data.GetUser().LoggedIn {
+		return ferror.ReturnErr(ferror.ErrorUnauthorizedAction)
+	}
+
+	profile := data.EditProfile()
+	profile.UserId = data.GetUser().Id
+	profile.Username = data.GetUser().Username
+
+	return profile.GetUserProfileDetails()
+}
+
+func UpdateProfile(data state.StateController) error {
+	profile := data.EditProfile()
+
+	if !data.GetUser().LoggedIn || profile.UserId != data.GetUser().Id {
+		return ferror.ReturnErr(ferror.ErrorUnauthorizedAction)
+	}
+
+	if err := profile.ValidateProfile(); err != nil {
+		return ferror.ReturnErr(err)
+	}
+
+	if profile.RemoveAvatar && profile.AvatarFile != nil {
+		return ferror.ReturnErr(ferror.ErrorBadRequest)
+	}
+
+	previousAvatar := profile.AvatarURL
+	var uploadedAvatar string
+
+	if profile.AvatarFile != nil {
+		var err error
+		uploadedAvatar, err = models.SaveImage(profile.AvatarFile)
+		if err != nil {
+			return ferror.ReturnErr(err)
+		}
+		profile.AvatarURL = uploadedAvatar
+	} else if profile.RemoveAvatar {
+		profile.AvatarURL = ""
+	}
+
+	if err := profile.UpdateUserProfile(); err != nil {
+		profile.AvatarURL = previousAvatar
+		if uploadedAvatar != "" {
+			_ = os.Remove(uploadedAvatar)
+		}
+		return ferror.ReturnErr(err)
+	}
+
+	data.SetMessage(models.Message{
+		Has:     true,
+		Type:    "Success",
+		Content: "Profile updated successfully",
+	})
 
 	return nil
 }
