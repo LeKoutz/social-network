@@ -14,7 +14,7 @@ const router = useRouter();
 async function remove() {
     const data = await apiPost(
         '/api/post/delete',
-        new URLSearchParams({ 'post-id': props.post.Id })
+        new URLSearchParams({ 'post-id': props.post.Id }),
     );
     if (data) router.push('/');
 }

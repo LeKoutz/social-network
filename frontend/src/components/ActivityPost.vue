@@ -15,12 +15,8 @@ defineProps({
             </router-link>
             <pre>{{ post.Body }}</pre>
             <div class="reactions">
-                <button disabled>
-                    {{ post.Likes }} {{ post.Liked ? '👍' : '👍🏻' }}
-                </button>
-                <button disabled>
-                    {{ post.Dislikes }} {{ post.Disliked ? '👎' : '👎🏻' }}
-                </button>
+                <button disabled>{{ post.Likes }} {{ post.Liked ? '👍' : '👍🏻' }}</button>
+                <button disabled>{{ post.Dislikes }} {{ post.Disliked ? '👎' : '👎🏻' }}</button>
             </div>
         </div>
     </div>

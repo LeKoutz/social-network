@@ -53,8 +53,12 @@ function previewPrefix(u) {
                         <router-link :to="`/chat/${u.Id}`">
                             <strong>{{ u.Username }}</strong>
                             <span v-if="hasUnread(u.Id)" class="new-message">●</span>
-                            <span class="timestamp">{{ DateToLocale(lastMessage(u)?.Timestamp) }}</span>
-                            <span class="preview">{{ previewPrefix(u) }}{{ lastMessage(u)?.Body }}</span>
+                            <span class="timestamp">
+                                {{ DateToLocale(lastMessage(u)?.Timestamp) }}
+                            </span>
+                            <span class="preview">
+                                {{ previewPrefix(u) }}{{ lastMessage(u)?.Body }}
+                            </span>
                         </router-link>
                     </li>
                 </ul>

@@ -8,7 +8,15 @@ import ChatMessageList from '@/components/ChatMessageList.vue';
 
 const route = useRoute();
 const { user } = useUser();
-const { ensureWs, onChatEvent, sendGroupMessage, notifyGroupMessageRead, markGroupAsRead, setActiveChat, myGroups } = useChat();
+const {
+    ensureWs,
+    onChatEvent,
+    sendGroupMessage,
+    notifyGroupMessageRead,
+    markGroupAsRead,
+    setActiveChat,
+    myGroups,
+} = useChat();
 
 const messages = ref([]);
 const body = ref('');
@@ -50,7 +58,7 @@ onMounted(() => {
             if (!isForCurrent) return;
             messages.value.push(msg);
             if (msg.SenderId !== user.value.Id) notifyGroupMessageRead(msg.Id, msg.GroupId);
-        })
+        }),
     );
 });
 
@@ -79,15 +87,19 @@ function send() {
 
 <template>
     <div class="container padding-sides-1vw group-chat">
-        <h2><router-link :to="`/group/view/${groupId()}`">{{ groupTitle }}</router-link></h2>
-        <ChatMessageList
-            :messages="messages"
-            :current-user-id="user.Id"
-            @load-older="loadOlder"
-        />
+        <h2>
+            <router-link :to="`/group/view/${groupId()}`">{{ groupTitle }}</router-link>
+        </h2>
+        <ChatMessageList :messages="messages" :current-user-id="user.Id" @load-older="loadOlder" />
         <form id="chat-message" @submit.prevent="send">
-            <input v-model="body" name="body" placeholder="Type a message..." required :hidden="!canChat"/>
-            <input type="submit" value="Send" :hidden="!canChat"/>
+            <input
+                v-model="body"
+                name="body"
+                placeholder="Type a message..."
+                required
+                :hidden="!canChat"
+            />
+            <input type="submit" value="Send" :hidden="!canChat" />
             <p :hidden="canChat !== false">You are not a member of this group</p>
         </form>
     </div>

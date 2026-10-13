@@ -28,7 +28,8 @@ export function useChat() {
     function ensureWs(userId) {
         if (!userId) return;
         lastUserId = userId;
-        if (ws && (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN)) return;
+        if (ws && (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN))
+            return;
         if (ws && ws.readyState === WebSocket.CLOSING) {
             ws.onclose = null;
             ws.close();
@@ -55,32 +56,32 @@ export function useChat() {
         socket.onmessage = (e) => {
             const envelope = JSON.parse(e.data);
             switch (envelope.type) {
-            case 'chat_message': {
-                const msg = envelope.payload;
-                const isForCurrent =
-                    activeChat.value !== null &&
-                    (msg.SenderId === activeChat.value || msg.RecipientId === activeChat.value);
-                if (!isForCurrent) {
-                    cacheUnreadMessage(msg);
-                    playNotificationTone();
+                case 'chat_message': {
+                    const msg = envelope.payload;
+                    const isForCurrent =
+                        activeChat.value !== null &&
+                        (msg.SenderId === activeChat.value || msg.RecipientId === activeChat.value);
+                    if (!isForCurrent) {
+                        cacheUnreadMessage(msg);
+                        playNotificationTone();
+                    }
+                    emit('chat_message', { msg, isForCurrent });
+                    break;
                 }
-                emit('chat_message', { msg, isForCurrent });
-                break;
-            }
-            case 'group_message': {
-                const msg = envelope.payload;
-                const isForCurrent = activeChat.value === `g:${msg.GroupId}`;
-                const isOwn = msg.SenderId === lastUserId;
-                if (!isForCurrent && !isOwn) {
-                    cacheUnreadMessage(msg);
-                    playNotificationTone();
+                case 'group_message': {
+                    const msg = envelope.payload;
+                    const isForCurrent = activeChat.value === `g:${msg.GroupId}`;
+                    const isOwn = msg.SenderId === lastUserId;
+                    if (!isForCurrent && !isOwn) {
+                        cacheUnreadMessage(msg);
+                        playNotificationTone();
+                    }
+                    emit('group_message', { msg, isForCurrent });
+                    break;
                 }
-                emit('group_message', { msg, isForCurrent });
-                break;
-            }
-            case 'user_status':
-                emit('user_status');
-                break;
+                case 'user_status':
+                    emit('user_status');
+                    break;
             }
         };
     }

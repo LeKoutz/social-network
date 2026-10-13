@@ -17,7 +17,9 @@ defineProps({
         <div class="chat-content">
             <div class="chat-header">
                 <span class="sender">
-                    <router-link :to="`/profile/view/${message.SenderId}`">{{ message.SenderUsername }}</router-link>
+                    <router-link :to="`/profile/view/${message.SenderId}`">
+                        {{ message.SenderUsername }}
+                    </router-link>
                 </span>
                 <span class="timestamp">{{ DateToLocale(message.Timestamp) }}</span>
             </div>

@@ -8,7 +8,14 @@ import { throttle, DateToLocale } from '@/utils/utils.js';
 
 const route = useRoute();
 const { user } = useUser();
-const { ensureWs, onChatEvent, sendChatMessage, notifyMessageRead, markMessageAsRead, setActiveChat } = useChat();
+const {
+    ensureWs,
+    onChatEvent,
+    sendChatMessage,
+    notifyMessageRead,
+    markMessageAsRead,
+    setActiveChat,
+} = useChat();
 
 const messages = ref([]);
 const recipientUsername = ref('');
@@ -55,7 +62,7 @@ onMounted(() => {
             messages.value.push(msg);
             nextTick(scrollToBottom);
             if (msg.RecipientId === user.value.Id) notifyMessageRead(msg.Id);
-        })
+        }),
     );
 });
 
@@ -96,18 +103,37 @@ function send(e) {
 
 <template>
     <div class="flex flex-column gap-20 padding-sides-1vw">
-        <h2>Chat with <span><router-link :to="`/profile/view/${chatUserId()}`">{{ recipientUsername }}</router-link></span></h2>
+        <h2>
+            Chat with
+            <span>
+                <router-link :to="`/profile/view/${chatUserId()}`">
+                    {{ recipientUsername }}
+                </router-link>
+            </span>
+        </h2>
         <div class="chat-messages" ref="container" @scroll="handleScroll">
             <div v-for="message in messages" :key="message.Id" class="chat-message">
                 <span class="timestamp">{{ DateToLocale(message.Timestamp) }}</span>
-                <span class="sender"><router-link :to="`/profile/view/${message.SenderId}`">{{ message.SenderUsername }}</router-link></span>
+                <span class="sender">
+                    <router-link :to="`/profile/view/${message.SenderId}`">
+                        {{ message.SenderUsername }}
+                    </router-link>
+                </span>
                 <span>{{ message.Body }}</span>
             </div>
         </div>
         <form id="chat-message" @submit.prevent="send">
-            <input v-model="body" name="body" placeholder="Type a message..." required :hidden="!canChat"/>
-            <input type="submit" value="Send" :hidden="!canChat"/>
-            <p :hidden="canChat !== false">You can't chat with this user. Try following them first</p>
+            <input
+                v-model="body"
+                name="body"
+                placeholder="Type a message..."
+                required
+                :hidden="!canChat"
+            />
+            <input type="submit" value="Send" :hidden="!canChat" />
+            <p :hidden="canChat !== false">
+                You can't chat with this user. Try following them first
+            </p>
         </form>
     </div>
 </template>

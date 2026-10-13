@@ -16,7 +16,7 @@ async function loadPost(id) {
     try {
         const data = await apiFetch(`/api/post/view/${id}`);
         console.log(id);
-        post.value = firstOrNull( data?.Posts );
+        post.value = firstOrNull(data?.Posts);
         if (!post.value) error.value = 'Post not found';
     } catch (e) {
         error.value = e?.message ?? 'Failed to load post';
@@ -29,16 +29,19 @@ async function loadPost(id) {
 async function scrollToHash() {
     if (!route.hash) return;
     await nextTick();
-    document.getElementById(route.hash.slice(1))?.scrollIntoView({ behavior: 'smooth'});
+    document.getElementById(route.hash.slice(1))?.scrollIntoView({ behavior: 'smooth' });
 }
 
-onMounted(()=>loadPost(route.params.id));
+onMounted(() => loadPost(route.params.id));
 
 watch(() => route.hash, scrollToHash);
 
-watch(() => route.params.id, (newId) => {
-    if (newId) loadPost(newId);
-});
+watch(
+    () => route.params.id,
+    (newId) => {
+        if (newId) loadPost(newId);
+    },
+);
 </script>
 
 <template>

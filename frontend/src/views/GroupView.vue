@@ -30,7 +30,7 @@ watch(
     () => route.params.id,
     (newId) => {
         if (newId) loadGroup(newId);
-    }
+    },
 );
 </script>
 
@@ -42,11 +42,12 @@ watch(
             <h2>{{ group.Title }}</h2>
             <p class="group-description">{{ group.Description }}</p>
             <p class="group-owner">
-                Owned by 
+                Owned by
                 <router-link :to="`/profile/view/${group.OwnerUserId}`">
                     <strong>{{ group.OwnerUsername }}</strong>
                 </router-link>
-                on <em>({{ DateToLocale(group.Timestamp) }})</em>
+                on
+                <em>({{ DateToLocale(group.Timestamp) }})</em>
             </p>
             <div class="flex flex-column gap-20" v-if="group.Member">
                 <PostCreateForm :group="group" />
@@ -56,8 +57,7 @@ watch(
                 <p v-else>No posts in this group yet. Be the first to post!</p>
             </div>
             <p v-else class="group-locked">
-                This group is private. Only its members can see the posts and join the
-                conversation.
+                This group is private. Only its members can see the posts and join the conversation.
             </p>
         </div>
     </div>

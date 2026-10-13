@@ -5,7 +5,9 @@ import { useChat } from '@/composables/useChat.js';
 
 const user = ref({ LoggedIn: false });
 let resolveUserLoaded;
-const userLoaded = new Promise((resolve) => { resolveUserLoaded = resolve });
+const userLoaded = new Promise((resolve) => {
+    resolveUserLoaded = resolve;
+});
 
 export function useUser() {
     function setUser(newUser) {

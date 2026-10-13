@@ -29,7 +29,7 @@ watch(
     () => route.params.id,
     (newId) => {
         if (newId) loadPost(newId);
-    }
+    },
 );
 </script>
 

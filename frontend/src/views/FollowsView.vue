@@ -47,7 +47,11 @@ onMounted(loadFollows);
             <section class="follow-section pending-incoming">
                 <h3>Follow requests</h3>
                 <template v-if="pendingIncoming.length > 0">
-                    <div v-for="follow in pendingIncoming" :key="'pending-in-' + follow.Id" class="follow-row">
+                    <div
+                        v-for="follow in pendingIncoming"
+                        :key="'pending-in-' + follow.Id"
+                        class="follow-row"
+                    >
                         <router-link :to="`/profile/view/${follow.FromUserId}`">
                             <strong>{{ follow.Username }}</strong>
                         </router-link>
@@ -61,7 +65,11 @@ onMounted(loadFollows);
             <section class="follow-section followers">
                 <h3>Followers</h3>
                 <template v-if="followers.length > 0">
-                    <div v-for="follow in followers" :key="'follower-' + follow.Id" class="follow-row">
+                    <div
+                        v-for="follow in followers"
+                        :key="'follower-' + follow.Id"
+                        class="follow-row"
+                    >
                         <router-link :to="`/profile/view/${follow.FromUserId}`">
                             <strong>{{ follow.Username }}</strong>
                         </router-link>
@@ -74,7 +82,11 @@ onMounted(loadFollows);
             <section class="follow-section following">
                 <h3>Following</h3>
                 <template v-if="following.length > 0">
-                    <div v-for="follow in following" :key="'following-' + follow.Id" class="follow-row">
+                    <div
+                        v-for="follow in following"
+                        :key="'following-' + follow.Id"
+                        class="follow-row"
+                    >
                         <router-link :to="`/profile/view/${follow.ToUserId}`">
                             <strong>{{ follow.Username }}</strong>
                         </router-link>
@@ -88,7 +100,11 @@ onMounted(loadFollows);
             <section class="follow-section pending-outgoing">
                 <h3>Outgoing requests</h3>
                 <template v-if="pendingOutgoing.length > 0">
-                    <div v-for="follow in pendingOutgoing" :key="'pending-out-' + follow.Id" class="follow-row">
+                    <div
+                        v-for="follow in pendingOutgoing"
+                        :key="'pending-out-' + follow.Id"
+                        class="follow-row"
+                    >
                         <router-link :to="`/profile/view/${follow.ToUserId}`">
                             <strong>{{ follow.Username }}</strong>
                         </router-link>

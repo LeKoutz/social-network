@@ -55,7 +55,13 @@ async function submit() {
             <fieldset>
                 <legend>New post</legend>
                 <template v-if="!group">
-                    <input type="text" v-model="title" name="title" placeholder="Your title here" required />
+                    <input
+                        type="text"
+                        v-model="title"
+                        name="title"
+                        placeholder="Your title here"
+                        required
+                    />
                     <template v-if="categories.length">
                         <div class="inline" v-for="category in categories" :key="category.Id">
                             <input
@@ -70,8 +76,20 @@ async function submit() {
                     </template>
                     <p v-else>No categories available</p>
                 </template>
-                <input v-else type="text" v-model="title" name="title" placeholder="Your title here" required />
-                <textarea v-model="body" name="body" placeholder="Your post here" required></textarea>
+                <input
+                    v-else
+                    type="text"
+                    v-model="title"
+                    name="title"
+                    placeholder="Your title here"
+                    required
+                />
+                <textarea
+                    v-model="body"
+                    name="body"
+                    placeholder="Your post here"
+                    required
+                ></textarea>
                 <input
                     type="file"
                     name="image"

@@ -14,9 +14,7 @@ const { user } = useUser();
 const activeTab = ref('activity');
 
 const isOwnProfile = computed(
-    () =>
-        user.value.LoggedIn &&
-        String(user.value.Id) === String(props.profile.UserId)
+    () => user.value.LoggedIn && String(user.value.Id) === String(props.profile.UserId),
 );
 </script>
 
@@ -29,9 +27,7 @@ const isOwnProfile = computed(
                 class="profile-avatar"
             />
             <h2>{{ profile.Username }}</h2>
-            <h4 v-if="profile.CanView && profile.Nickname">
-                ({{ profile.Nickname }})
-            </h4>
+            <h4 v-if="profile.CanView && profile.Nickname">({{ profile.Nickname }})</h4>
         </div>
 
         <div v-if="profile.CanView" class="profile-details">
@@ -39,13 +35,11 @@ const isOwnProfile = computed(
                 {{ profile.FirstName }} {{ profile.LastName }}
             </h3>
 
-            <router-link v-if="isOwnProfile" to="/profile/edit">
-                Edit profile
-            </router-link>
+            <router-link v-if="isOwnProfile" to="/profile/edit">Edit profile</router-link>
             <button v-else type="button">Follow</button>
 
             <p class="profile-counts">
-                <span>Followers | </span>
+                <span>Followers |</span>
                 <span>Following</span>
             </p>
 

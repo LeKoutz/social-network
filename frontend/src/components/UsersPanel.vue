@@ -16,8 +16,7 @@ const list = computed(() => {
         const aHasMessages = a.LastMessageTimestamp > 0;
         const bHasMessages = b.LastMessageTimestamp > 0;
         if (aHasMessages && bHasMessages) {
-            const timestampDifference =
-                b.LastMessageTimestamp - a.LastMessageTimestamp;
+            const timestampDifference = b.LastMessageTimestamp - a.LastMessageTimestamp;
             if (timestampDifference !== 0) {
                 return timestampDifference;
             }
@@ -73,7 +72,10 @@ onUnmounted(() => {
 <template>
     <div v-if="user.LoggedIn" class="users-panel">
         <div class="users-panel-header">
-            <h3>Users <span v-if="totalUnread()" class="new-message">●</span></h3>
+            <h3>
+                Users
+                <span v-if="totalUnread()" class="new-message">●</span>
+            </h3>
             <router-link to="/chats">See all chats</router-link>
             <button id="collapse-panel" @click="collapsed = !collapsed">−</button>
         </div>
@@ -84,11 +86,7 @@ onUnmounted(() => {
             <template v-else>
                 <h4>Online</h4>
                 <ul>
-                    <li
-                        v-for="u in list.online"
-                        :key="u.Id"
-                        :data-user-id="u.Id"
-                    >
+                    <li v-for="u in list.online" :key="u.Id" :data-user-id="u.Id">
                         <router-link :to="`/chat/${u.Id}`">{{ u.Username }}</router-link>
                         <span v-if="hasUnread(u.Id)" class="new-message">●</span>
                         <span v-if="u.LastMessageTimestamp" class="last-message-time">
@@ -98,12 +96,7 @@ onUnmounted(() => {
                 </ul>
                 <h4>Offline</h4>
                 <ul>
-                    <li
-                        v-for="u in list.offline"
-                        :key="u.Id"
-                        :data-user-id="u.Id"
-                        class="offline"
-                    >
+                    <li v-for="u in list.offline" :key="u.Id" :data-user-id="u.Id" class="offline">
                         <router-link :to="`/chat/${u.Id}`">{{ u.Username }}</router-link>
                         <span v-if="hasUnread(u.Id)" class="new-message">●</span>
                         <span v-if="u.LastMessageTimestamp" class="last-message-time">

@@ -20,7 +20,9 @@ const { unreadNotificationsCount } = useNotifications();
             <ul class="menu">
                 <template v-if="user.LoggedIn">
                     <li>
-                        <router-link :to="`/profile/view/${user.Id}`">Welcome back, {{ user.Username }}</router-link>
+                        <router-link :to="`/profile/view/${user.Id}`">
+                            Welcome back, {{ user.Username }}
+                        </router-link>
                     </li>
                     <li>
                         Menu
@@ -35,9 +37,7 @@ const { unreadNotificationsCount } = useNotifications();
                     </li>
                     <li>
                         <details>
-                            <summary>
-                                Notifications 🔔 {{ unreadNotificationsCount }}
-                            </summary>
+                            <summary>Notifications 🔔 {{ unreadNotificationsCount }}</summary>
                             <NotificationsPanel v-if="unreadNotificationsCount > 0" />
                         </details>
                     </li>

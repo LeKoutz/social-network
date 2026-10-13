@@ -49,21 +49,21 @@ async function validateAvatar(file) {
 }
 
 async function submitForm(e) {
-    const avatarFile = e.target.avatar.files[0]
-    const avatarError = await validateAvatar(avatarFile)
+    const avatarFile = e.target.avatar.files[0];
+    const avatarError = await validateAvatar(avatarFile);
     if (avatarError) {
-        setAlert({ Error: { Has: true, Message: avatarError } })
-        return
+        setAlert({ Error: { Has: true, Message: avatarError } });
+        return;
     }
 
     const response = await fetch('/api/user/register', {
         method: 'POST',
         body: new FormData(e.target),
-    })
-    const data = await response.json()
-    setAlert(data)
+    });
+    const data = await response.json();
+    setAlert(data);
     if (data && !data.Error?.Has) {
-        router.push('/user/login')
+        router.push('/user/login');
     }
 }
 </script>
@@ -79,12 +79,7 @@ async function submitForm(e) {
                     <input placeholder="Username" type="text" name="username" required />
                     <input placeholder="First Name" type="text" name="first_name" required />
                     <input placeholder="Last Name" type="text" name="last_name" required />
-                    <input
-                        placeholder="Date of Birth"
-                        type="date"
-                        name="date_of_birth"
-                        required
-                    />
+                    <input placeholder="Date of Birth" type="date" name="date_of_birth" required />
                     <input placeholder="Password" type="password" name="password1" required />
                     <input
                         placeholder="Confirm password"
@@ -96,7 +91,7 @@ async function submitForm(e) {
                         <legend>Optional</legend>
                         <input placeholder="Nickname" type="text" name="nickname" />
                         <textarea placeholder="About Me" name="about_me"></textarea>
-                        <input type="file" name="avatar" accept="image/jpeg,image/png,image/gif"/>
+                        <input type="file" name="avatar" accept="image/jpeg,image/png,image/gif" />
                         <input type="checkbox" name="private_profile" value="on" />
                     </fieldset>
                     <input type="submit" value="Register" name="submit" />

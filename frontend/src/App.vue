@@ -21,7 +21,7 @@ onMounted(async () => {
         const data = await apiFetch('/api');
         if (data) {
             setAppData(data);
-            setCategories(data.Categories)
+            setCategories(data.Categories);
             loaded.value = true;
             if (data.User.LoggedIn) {
                 setUser(data.User);

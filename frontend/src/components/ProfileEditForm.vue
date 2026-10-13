@@ -88,11 +88,7 @@ async function submit(event) {
 
             <label>
                 Date of birth
-                <input
-                    v-model="form.date_of_birth"
-                    type="date"
-                    name="date_of_birth"
-                />
+                <input v-model="form.date_of_birth" type="date" name="date_of_birth" />
             </label>
 
             <label>
@@ -128,12 +124,7 @@ async function submit(event) {
             </label>
 
             <label v-if="profile.AvatarURL">
-                <input
-                    v-model="removeAvatar"
-                    type="checkbox"
-                    name="remove_avatar"
-                    value="on"
-                />
+                <input v-model="removeAvatar" type="checkbox" name="remove_avatar" value="on" />
                 Remove current avatar
             </label>
 
@@ -141,10 +132,7 @@ async function submit(event) {
                 {{ submitting ? 'Saving…' : 'Save profile' }}
             </button>
 
-            <button
-                type="button"
-                @click="router.push(`/profile/view/${profile.UserId}`)"
-            >
+            <button type="button" @click="router.push(`/profile/view/${profile.UserId}`)">
                 Cancel
             </button>
         </fieldset>

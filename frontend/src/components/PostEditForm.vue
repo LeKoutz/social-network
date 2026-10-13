@@ -67,16 +67,16 @@ async function submit() {
                     required
                 />
                 <template v-if="!post.GroupId">
-                <div class="inline" v-for="category in categories" :key="category.Id">
-                    <input
-                        type="checkbox"
-                        :id="`category-${category.Id}`"
-                        :name="`category-${category.Id}`"
-                        :checked="selected.includes(category.Id)"
-                        @change="toggle(category.Id)"
-                    />
-                    <label :for="`category-${category.Id}`">{{ category.Name }}</label>
-                </div>
+                    <div class="inline" v-for="category in categories" :key="category.Id">
+                        <input
+                            type="checkbox"
+                            :id="`category-${category.Id}`"
+                            :name="`category-${category.Id}`"
+                            :checked="selected.includes(category.Id)"
+                            @change="toggle(category.Id)"
+                        />
+                        <label :for="`category-${category.Id}`">{{ category.Name }}</label>
+                    </div>
                 </template>
                 <img
                     v-if="post.ImagePath"
@@ -84,7 +84,12 @@ async function submit() {
                     alt="Post image"
                     style="max-width: 100%"
                 />
-                <textarea v-model="body" name="body" placeholder="Your post here" required></textarea>
+                <textarea
+                    v-model="body"
+                    name="body"
+                    placeholder="Your post here"
+                    required
+                ></textarea>
                 <input
                     type="file"
                     name="image"

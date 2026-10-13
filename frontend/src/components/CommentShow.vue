@@ -30,8 +30,7 @@ const editing = ref(false);
 const body = ref(props.comment.Body);
 const image = ref(null);
 
-const isOwner = () =>
-    user.value.LoggedIn && String(user.value.Id) === String(props.comment.UserId);
+const isOwner = () => user.value.LoggedIn && String(user.value.Id) === String(props.comment.UserId);
 
 const isTarget = computed(() => route.hash === `#comment-${props.comment.Id}`);
 
@@ -72,7 +71,7 @@ async function remove() {
         new URLSearchParams({
             'post-id': props.post.Id,
             'comment-id': props.comment.Id,
-        })
+        }),
     );
     if (data) emit('updated');
 }
@@ -84,7 +83,7 @@ async function react(action) {
             'post-id': props.post.Id,
             'comment-id': props.comment.Id,
             action,
-        })
+        }),
     );
     if (data) emit('updated');
 }
@@ -92,7 +91,12 @@ async function react(action) {
 
 <template>
     <div class="comment" :class="{ highlighted: isTarget }" :id="`comment-${comment.Id}`">
-        <span><router-link :to="`/profile/view/${comment.UserId}`">{{ comment.Username }}</router-link> ({{ DateToLocale(comment.Timestamp) }})</span>
+        <span>
+            <router-link :to="`/profile/view/${comment.UserId}`">
+                {{ comment.Username }}
+            </router-link>
+            ({{ DateToLocale(comment.Timestamp) }})
+        </span>
         <div class="manage-comment">
             <template v-if="isOwner()">
                 <CommentEditForm @edit="toggleEdit" />
@@ -111,7 +115,12 @@ async function react(action) {
             <button type="button" @click="editing = false">Cancel</button>
         </form>
         <pre v-else>{{ comment.Body }}</pre>
-        <img v-if="comment.ImagePath" :src="`/${comment.ImagePath}`" alt="Comment image" style="max-width: 100%;"/>
+        <img
+            v-if="comment.ImagePath"
+            :src="`/${comment.ImagePath}`"
+            alt="Comment image"
+            style="max-width: 100%"
+        />
         <CommentReactForm :comment="comment" @react="react" />
     </div>
 </template>
@@ -121,7 +130,11 @@ async function react(action) {
     animation: flash 1s ease-out;
 }
 @keyframes flash {
-    from { background: #7fa32e; }
-    to   { background: transparent; }
+    from {
+        background: #7fa32e;
+    }
+    to {
+        background: transparent;
+    }
 }
 </style>
