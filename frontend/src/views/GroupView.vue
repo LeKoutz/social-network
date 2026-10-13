@@ -9,13 +9,17 @@ import { useUser } from '@/composables/useUser.js';
 import PostCreateForm from '@/components/PostCreateForm.vue';
 import PostShow from '@/components/PostShow.vue';
 import GroupAddIcon from '@/components/GroupAddIcon.vue';
+import GroupHeader from '@/components/GroupHeader.vue';
+import PostsList from '@/components/PostsList.vue';
 
 const route = useRoute();
 const { user } = useUser();
 const group = ref(null);
-const posts = ref(null);
+const posts = ref(true);
 const loading = ref(true);
 const error = ref(null);
+
+const owner = ref(false);
 
 async function loadGroup(id) {
     loading.value = true;
@@ -26,6 +30,7 @@ async function loadGroup(id) {
             group.value = firstOrNull(data.Groups);
             posts.value = data.Posts;
             error.value = data.Error;
+
             // if (!group.value) {
             //     error.value = 'Group not found';
             // }
@@ -58,27 +63,10 @@ watch(
     <div class="flex flex-column gap-20 overflow-y-auto padding-sides-1vw height-100">
         <template v-if="loading">Loading…</template>
         <template v-else-if="group">
-            <h2>{{ group.Title }}</h2>
-            <template v-if="group.Description.length === 0">
-                <p class="text-color-muted">No description avaliable.</p>
-            </template>
-            <template v-else>
-                <p class="group-description">{{ group.Description }}</p>
-            </template>
-            <p class="group-owner">
-                Owned by
-                <router-link :to="`/profile/view/${group.OwnerUserId}`">
-                    <strong>{{ group.OwnerUsername }}</strong>
-                </router-link>
-                on
-                <em>({{ DateToLocale(group.Timestamp) }})</em>
-            </p>
-            <div class="flex flex-column gap-20" v-if="group.Member">
+            <GroupHeader :group="group" />
+            <div class="flex flex-column gap-20" v-if="group.Member || user.Id === group.OwnerId">
                 <PostCreateForm :group="group" />
-                <div class="flex flex-column gap-20" v-if="posts && posts.length">
-                    <PostShow v-for="post in posts" :key="post.Id" :post="post" />
-                </div>
-                <p v-else>No posts in this group yet. Be the first to post!</p>
+                <PostsList :posts="posts" />
             </div>
             <template v-else class="group-locked">
                 This group is private. Only its members can see the posts and join the conversation.

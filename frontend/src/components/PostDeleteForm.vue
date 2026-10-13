@@ -1,6 +1,6 @@
 <script setup>
 import { useRouter } from 'vue-router';
-import { apiPost } from '@/utils/api.js';
+import { usePost } from '@/composables/usePost.js';
 
 const props = defineProps({
     post: {
@@ -11,17 +11,14 @@ const props = defineProps({
 
 const router = useRouter();
 
-async function remove() {
-    const data = await apiPost(
-        '/api/post/delete',
-        new URLSearchParams({ 'post-id': props.post.Id }),
-    );
+const deletePost = async (id) => {
+    const data = await usePost().deletePost(id);
     if (data) router.push('/');
-}
+};
 </script>
 
 <template>
-    <button type="button" class="post-delete" @click="remove">Delete Post</button>
+    <button type="button" @click="deletePost(post.Id)">Delete Post</button>
 </template>
 
 <style scoped></style>
