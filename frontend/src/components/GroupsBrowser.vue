@@ -34,6 +34,20 @@ async function join(user) {
                 v-for="group in groups"
                 :key="group.Id"
             >
+                <div>
+                    <span v-if="group.Owner">
+                        🟣
+                        <button disabled>Owner</button>
+                    </span>
+                    <span v-else-if="group.Member">
+                        🟢
+                        <button @click="whatever">Member</button>
+                    </span>
+                    <span v-else>
+                        ⚫
+                        <button @click="join(user)">Join</button>
+                    </span>
+                </div>
                 <router-link class="font-size-larger" :to="`/group/view/${group.Id}`">
                     {{ group.Title }}
                 </router-link>
@@ -41,7 +55,7 @@ async function join(user) {
                     {{ group.Description }}
                 </p>
                 <p class="group-owner">
-                    Owned by
+                    Created by
                     <router-link :to="`/profile/view/${group.OwnerUserId}`">
                         <strong>{{ group.OwnerUsername }}</strong>
                     </router-link>
