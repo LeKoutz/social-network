@@ -51,8 +51,8 @@ var routes = Routes{
 	Route{Method: "POST", Path: "/api/post/delete", Function: handlers.HandlePostDelete, NeedsLogin: true},
 
 	// User
-	Route{Method: "*", Path: "/api/user/login", Function: handlers.HandleUserLogin},
-	Route{Method: "*", Path: "/api/user/register", Function: handlers.HandleUserRegister},
+	Route{Method: "POST", Path: "/api/user/login", Function: handlers.HandleUserLogin},
+	Route{Method: "POST", Path: "/api/user/register", Function: handlers.HandleUserRegister},
 	Route{Method: "GET", Path: "/api/user/logout", Function: handlers.HandleUserLogout, NeedsLogin: true},
 	Route{Method: "GET", Path: "/api/user/posts", Function: handlers.HandleShowUserPosts, NeedsLogin: true},
 	Route{Method: "GET", Path: "/api/user/likes", Function: handlers.HandleShowUserLikedPosts, NeedsLogin: true},

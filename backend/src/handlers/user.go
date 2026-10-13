@@ -5,32 +5,21 @@ import (
 	"forum/src/ferror"
 	"forum/src/parsers"
 	"forum/src/state"
-	"net/http"
 )
 
 func HandleUserLogin(data state.StateHandler) {
 	var err error
-	switch data.GetRequest().Method {
-	case http.MethodPost:
-		if err = parsers.ParseLoginForm(data); err != nil {
-			data.SetErrorConsume(ferror.ReturnErr(err)).WriteResponse()
-			return
-		}
-		err = controllers.AttemptLogin(data.(state.StateController))
-		if err != nil {
-			data.SetErrorConsume(ferror.ReturnErr(err)).WriteResponse()
-			return
-		}
-		data.WriteResponse()
-		return
-	case http.MethodGet:
-		data.WriteResponse()
-		return
-	default:
-		err = ferror.ErrorMethodNotAllowed
+	if err = parsers.ParseLoginForm(data); err != nil {
 		data.SetErrorConsume(ferror.ReturnErr(err)).WriteResponse()
 		return
 	}
+	err = controllers.AttemptLogin(data.(state.StateController))
+	if err != nil {
+		data.SetErrorConsume(ferror.ReturnErr(err)).WriteResponse()
+		return
+	}
+	data.WriteResponse()
+	return
 }
 
 func HandleUserLogout(data state.StateHandler) {
@@ -64,24 +53,17 @@ func HandleShowUserLikedPosts(data state.StateHandler) {
 }
 
 func HandleUserRegister(data state.StateHandler) {
-	switch data.GetRequest().Method {
-	case http.MethodPost:
-		err := parsers.ParseRegistrationForm(data)
-		if err != nil {
-			data.SetErrorConsume(ferror.ReturnErr(err)).WriteResponse()
-			return
-		}
-		err = controllers.AttemptRegister(data.(state.StateController))
-		if err != nil {
-			data.SetErrorConsume(ferror.ReturnErr(err)).WriteResponse()
-			return
-		}
-		data.WriteResponse()
-	default:
-		err := ferror.ErrorMethodNotAllowed
-
+	err := parsers.ParseRegistrationForm(data)
+	if err != nil {
 		data.SetErrorConsume(ferror.ReturnErr(err)).WriteResponse()
+		return
 	}
+	err = controllers.AttemptRegister(data.(state.StateController))
+	if err != nil {
+		data.SetErrorConsume(ferror.ReturnErr(err)).WriteResponse()
+		return
+	}
+	data.WriteResponse()
 }
 
 func HandleGetUsers(data state.StateHandler) {
