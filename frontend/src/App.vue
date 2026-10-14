@@ -38,7 +38,9 @@ onMounted(async () => {
     <template v-if="loaded">
         <Topbar />
         <Alerts />
-        <router-view />
+        <main class="main-content">
+            <router-view />
+        </main>
         <UsersPanel v-if="user.LoggedIn" />
         <Footer />
     </template>

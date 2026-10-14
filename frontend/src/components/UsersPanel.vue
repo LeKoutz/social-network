@@ -73,7 +73,7 @@ onUnmounted(() => {
     <div v-if="user.LoggedIn" class="users-panel">
         <div class="users-panel-header">
             <h3>
-                Users
+                Chat
                 <span v-if="totalUnread()" class="new-message">●</span>
             </h3>
             <router-link to="/chats">See all chats</router-link>
@@ -118,4 +118,36 @@ onUnmounted(() => {
     </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.users-panel {
+    width: 280px;
+    padding: 0 10px;
+    background: var(--bg-elevated);
+    border-left: 1px solid var(--accent-line);
+}
+.users-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.users-panel-inner > ul {
+    list-style: none;
+    padding: 0 0 0 10px;
+}
+.users-panel-inner li {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+.last-message-time {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    opacity: 0.75;
+    white-space: nowrap;
+}
+#collapse-panel {
+    width: 36px;
+    height: 36px;
+}
+</style>
