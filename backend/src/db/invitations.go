@@ -136,7 +136,7 @@ func (irt *InvitationsRowType) SelectInvitationsToUserId(user_id int64) error {
 	}
 	var err error
 	query := `
-	SELECT i.id, i.status, i.timestamp, i.from_user_id, u.username
+	SELECT i.id, i.status, i.timestamp, i.from_user_id, u.username, to_user_id
 	FROM invitations i
 	JOIN users u ON u.id = i.from_user_id
 	WHERE to_user_id = ?
@@ -148,7 +148,7 @@ func (irt *InvitationsRowType) SelectInvitationsToUserId(user_id int64) error {
 	defer rows.Close()
 	for rows.Next() {
 		var inv InvitationRowType
-		err = rows.Scan(&inv.Id, &inv.Status, &inv.Timestamp, &inv.FromUserId, &inv.Username)
+		err = rows.Scan(&inv.Id, &inv.Status, &inv.Timestamp, &inv.FromUserId, &inv.Username, &inv.ToUserId)
 		if err != nil {
 			return ferror.ReturnErr(err)
 		}
