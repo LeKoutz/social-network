@@ -319,6 +319,8 @@ input[type=submit]:hover, button:hover {
 
 .flex-column { flex-direction: column; }
 
+.justify-content-space-between { justify-content: space-between; }
+
 .overflow-y-auto { overflow-y: auto; }
 
 .border-1px-dashed-accent-line { border: 1px dashed var(--accent-line); }
@@ -344,4 +346,10 @@ input[type=submit]:hover, button:hover {
 
 .width-fit-content { width: fit-content; }
 
+.background-color-base { background-color: var(--bg-base); }
+.background-color-elevated { background-color: var(--bg-elevated); }
+.background-color-input { background-color: var(--bg-input); }
+
+.text-color-primary { color: var(--text-primary); }
+.text-color-secondary { color: var(--text-secondary); }
 .text-color-muted { color: var(--text-muted); }
