@@ -61,7 +61,7 @@ watch(
 </script>
 
 <template>
-    <div class="flex flex-column gap-20 overflow-y-auto padding-sides-1vw height-100">
+    <div class="flex flex-column gap-20 overflow-y-auto padding-sides-1vw">
         <template v-if="loading">Loading…</template>
         <template v-else-if="group">
             <GroupHeader :group="group" />

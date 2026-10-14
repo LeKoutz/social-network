@@ -38,10 +38,10 @@ onMounted(async () => {
     <template v-if="loaded">
         <Topbar />
         <Alerts />
-        <main class="main-content">
-            <router-view />
-        </main>
-        <UsersPanel v-if="user.LoggedIn" />
+        <div class="flex flex-row overflow-y-auto height-100">
+            <router-view class="flex-grow-1" />
+            <UsersPanel v-if="user.LoggedIn" />
+        </div>
         <Footer />
     </template>
 </template>

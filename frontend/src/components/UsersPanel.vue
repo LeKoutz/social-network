@@ -67,10 +67,11 @@ onUnmounted(() => {
     unsubscribes.forEach((unsubscribe) => unsubscribe());
     unsubscribes.length = 0;
 });
+
 </script>
 
 <template>
-    <div v-if="user.LoggedIn" class="users-panel">
+    <div v-if="user.LoggedIn" :class="`flex flex-column users-panel users-panel-${collapsed ? 'hidden' : 'shown'}`">
         <div class="users-panel-header">
             <h3>
                 Chat
@@ -79,7 +80,7 @@ onUnmounted(() => {
             <router-link to="/chats">See all chats</router-link>
             <button id="collapse-panel" @click="collapsed = !collapsed">−</button>
         </div>
-        <div class="users-panel-inner" :hidden="collapsed">
+        <div class="users-panel-inner overflow-y-auto" :hidden="collapsed">
             <p v-if="loaded && users.length === 0 && myGroups.length === 0">
                 It's empty here. Follow someone to start chatting
             </p>
@@ -119,11 +120,22 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.users-panel-shown {
+    position: relative;
+}
+.users-panel-hidden {
+    position: fixed;
+    border-top: 1px solid var(--accent-line) !important;
+    bottom: 0px;
+    right: 0px;
+}
 .users-panel {
-    width: 280px;
+    min-width: 280px;
     padding: 0 10px;
     background: var(--bg-elevated);
+    border-top: none;
     border-left: 1px solid var(--accent-line);
+
 }
 .users-panel-header {
     display: flex;

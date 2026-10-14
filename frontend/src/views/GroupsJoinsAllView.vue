@@ -28,7 +28,7 @@ async function withdraw(id) {
 </script>
 
 <template>
-    <div class="flex flex-column gap-5 padding-sides-1vw height-100 overflow-y-auto">
+    <div class="flex flex-column gap-5 padding-sides-1vw overflow-y-auto">
         <template v-if="user.LoggedIn">
             <h2>Join requests</h2>
             <div class="flex flex-row gap-5" v-for="jr in joins" :key="jr.Id">

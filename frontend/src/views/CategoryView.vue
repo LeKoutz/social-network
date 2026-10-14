@@ -34,7 +34,7 @@ watch(
 </script>
 
 <template>
-    <div class="flex flex-column gap-20 height-100 overflow-y-auto">
+    <div class="flex flex-column gap-20 overflow-y-auto">
         <div class="category" :id="`${category.Id}`">
             <h2>{{ category.Name }}</h2>
             <p>{{ category.Description }}</p>

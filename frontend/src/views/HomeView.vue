@@ -7,7 +7,7 @@ const { user } = useUser();
 </script>
 
 <template>
-    <div class="flex flex-column gap-20 padding-sides-1vw overflow-y-auto height-100">
+    <div class="flex flex-column gap-20 padding-sides-1vw overflow-y-auto">
         <h2>Welcome {{ user.LoggedIn ? user.Username : '' }}!</h2>
         <p>
             Below, you will see the post categories available as well as a brief description when

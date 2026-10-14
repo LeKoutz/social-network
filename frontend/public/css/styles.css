@@ -23,21 +23,17 @@ body {
 }
 
 #app {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-rows: auto minmax(0, 1fr) auto;
-    grid-template-areas:
-        "topbar topbar"
-        "main   panel"
-        "footer footer";
+    display: flex;
+    flex-direction: column;
     height: 100vh;
     background-color: var(--bg-base);
     color: var(--text-primary);
 }
-.topbar       { grid-area: topbar; }
-.main-content { grid-area: main;  overflow-y: auto; }
-.users-panel  { grid-area: panel; overflow-y: auto; }
-.footer       { grid-area: footer; }
+
+.flex-grow-1 {flex-grow: 1;}
+.flex-shrink-1 {flex-shrink: 1;}
+
+.justify-content-end { justify-content: end; }
 
 a {
     color: var(--accent);

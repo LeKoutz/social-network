@@ -27,7 +27,7 @@ async function acceptInvite(invite) {
 </script>
 
 <template>
-    <div class="flex flex-column gap-5 padding-sides-1vw height-100 overflow-y-auto">
+    <div class="flex flex-column gap-5 padding-sides-1vw overflow-y-auto">
         <h2>Groups Invites</h2>
         <template v-if="user.LoggedIn">
             <div
