@@ -65,7 +65,11 @@ watch(
         <template v-if="loading">Loading…</template>
         <template v-else-if="group">
             <GroupHeader :group="group" />
-            <GroupInvite :group="group" :user="user" v-if="group.Member || user.Id === group.OwnerId" />
+            <GroupInvite
+                :group="group"
+                :user="user"
+                v-if="group.Member || user.Id === group.OwnerId"
+            />
             <div class="flex flex-column gap-20" v-if="group.Member || user.Id === group.OwnerId">
                 <PostCreateForm :group="group" />
                 <PostsList :posts="posts" />

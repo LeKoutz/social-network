@@ -67,11 +67,13 @@ onUnmounted(() => {
     unsubscribes.forEach((unsubscribe) => unsubscribe());
     unsubscribes.length = 0;
 });
-
 </script>
 
 <template>
-    <div v-if="user.LoggedIn" :class="`flex flex-column users-panel users-panel-${collapsed ? 'hidden' : 'shown'}`">
+    <div
+        v-if="user.LoggedIn"
+        :class="`flex flex-column users-panel users-panel-${collapsed ? 'hidden' : 'shown'}`"
+    >
         <div class="users-panel-header">
             <h3>
                 Chat
