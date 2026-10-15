@@ -68,10 +68,6 @@ func (f *FollowRequestType) Deny(userId int64) error {
 	return f.respondToRequest(userId, FollowStatusDenied)
 }
 
-func (f *FollowRequestType) Unfollow() error {
-	return f.InvitationRowType.Unfollow()
-}
-
 func (f *FollowRequestType) respondToRequest(userId int64, status string) error {
 	var err error
 	err = f.InvitationRowType.SelectInvitationById()

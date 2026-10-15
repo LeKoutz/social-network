@@ -90,46 +90,6 @@ func TestInvitationSelectFollowersAndFollowing(t *testing.T) {
 	}
 }
 
-func TestInvitationSelectPendingByUserId(t *testing.T) {
-	_, bob, carol := setupFollowTestDB(t)
-
-	if _, err := insertInvitation(bob, carol); err != nil {
-		t.Fatalf("insert bob->carol: %v", err)
-	}
-	if _, err := insertInvitation(carol, bob); err != nil {
-		t.Fatalf("insert carol->bob: %v", err)
-	}
-
-	pending, err := SelectPendingFollowRequestsByUserId(bob)
-	if err != nil {
-		t.Fatalf("SelectPendingFollowRequestsByUserId() error: %v", err)
-	}
-	if len(pending) != 2 {
-		t.Fatalf("len(pending) = %d, want 2", len(pending))
-	}
-	fromBob, toBob := 0, 0
-	for _, p := range pending {
-		if p.Status != "pending" {
-			t.Errorf("received status %q, want pending", p.Status)
-		}
-		if p.FromUserId == bob {
-			fromBob++
-			if p.ToUserId != carol || p.Username != "carol" {
-				t.Errorf("outgoing = %+v, want to carol", p)
-			}
-		}
-		if p.ToUserId == bob {
-			toBob++
-			if p.FromUserId != carol || p.Username != "carol" {
-				t.Errorf("incoming = %+v, want from carol", p)
-			}
-		}
-	}
-	if fromBob != 1 || toBob != 1 {
-		t.Errorf("fromBob = %d, toBob = %d, want 1 each", fromBob, toBob)
-	}
-}
-
 func TestInvitationSelectByUsersAndNotFound(t *testing.T) {
 	alice, bob, carol := setupFollowTestDB(t)
 

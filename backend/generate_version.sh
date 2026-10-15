@@ -1,10 +1,9 @@
 #!/bin/sh
 
-cat > ./src/utils/version.go << EOF
+cat > backend/src/utils/version.go << EOF
 package utils
 
 func GetVersion() string {
-    return "$(git describe --tags HEAD)"
+        return "$(git describe --tags HEAD)"
 }
-
 EOF

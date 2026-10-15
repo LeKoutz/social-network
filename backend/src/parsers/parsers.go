@@ -333,7 +333,6 @@ func ParseGroupInvitationRequest(data state.StateHandler) error {
 	return nil
 }
 
-
 func ParseInviteToGroupRequest(data state.StateHandler) error {
 	var err error
 	err = data.GetRequest().ParseMultipartForm(models.MaxImageSize)

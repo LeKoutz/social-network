@@ -76,7 +76,7 @@ var (
 	ErrorGroupAlreadyMember           = errors.New("You are already a member of this group.")
 	ErrorGroupNoInvites               = errors.New("No invites.")
 	ErrorGroupNoJoinRequests          = errors.New("No join requests.")
-	ErrorChatMessageEmpty		      = errors.New("Message cannot be empty.")
+	ErrorChatMessageEmpty             = errors.New("Message cannot be empty.")
 )
 
 type Error struct {

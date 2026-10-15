@@ -10,7 +10,7 @@ type GroupType struct {
 
 	Member       bool
 	ChatMessages GroupMessagesType
-	Owner  bool
+	Owner        bool
 }
 
 func (g *GroupType) ValidateGroup() error {
