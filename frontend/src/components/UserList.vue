@@ -6,10 +6,8 @@ const props = defineProps({
 });
 
 const group = ref(props.group);
-
 </script>
 
-<template>
-</template>
+<template></template>
 
 <style scoped></style>

@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useUser } from '@/composables/useUser.js';
 import { apiGet, apiPost } from '@/utils/api.js';
 import { DateToLocale, firstOrNull } from '@/utils/utils.js';
+import StatusIcon from '@/components/StatusIcon.vue';
 
 const { user } = useUser();
 
@@ -26,7 +27,7 @@ async function join(user) {
 </script>
 
 <template>
-    <div class="flex flex-column gap-5 padding-sides-1vw height-100 overflow-y-auto">
+    <div class="flex flex-column gap-5 overflow-y-auto">
         <h2>Groups</h2>
         <template v-if="user.LoggedIn">
             <div
@@ -35,16 +36,16 @@ async function join(user) {
                 :key="group.Id"
             >
                 <div>
-                    <span v-if="group.Owner">
-                        🟣
+                    <span v-if="group.Owner" class="flex flex-row align-items-center">
+                        <StatusIcon status="owner" />
                         <button disabled>Owner</button>
                     </span>
-                    <span v-else-if="group.Member">
-                        🟢
+                    <span v-else-if="group.Member" class="flex flex-row align-items-center">
+                        <StatusIcon status="accepted" />
                         <button @click="whatever">Member</button>
                     </span>
-                    <span v-else>
-                        ⚫
+                    <span v-else class="flex flex-row align-items-center">
+                        <StatusIcon status="left" />
                         <button @click="join(user)">Join</button>
                     </span>
                 </div>
