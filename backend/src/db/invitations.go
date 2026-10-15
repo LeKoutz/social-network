@@ -145,7 +145,7 @@ func (inv *InvitationsRowType) SelectAcceptedInvitationsFromUserId(userId int64)
 	FROM invitations i
 	JOIN users u ON u.id = CASE WHEN i.from_user_id = ? THEN i.to_user_id ELSE i.from_user_id END
 	WHERE i.status = 'accepted' AND i.from_user_id = ?
-	`, userId, userId, userId)
+	`, userId, userId)
 	if err != nil {
 		return ferror.ReturnErr(err)
 	}

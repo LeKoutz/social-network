@@ -251,6 +251,10 @@ func ParseChatId(data state.StateHandler) (id, offset int64, err error) {
 
 func ParseUserFollowRequest(data state.StateHandler) error {
 	var err error
+	err = data.GetRequest().ParseMultipartForm(models.MaxImageSize)
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
 	userIdStr := data.GetRequest().FormValue("user-id")
 	if len(userIdStr) == 0 {
 		err = ferror.ErrorBadRequest
