@@ -1,12 +1,13 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { apiGet, apiPost } from '@/utils/api.js';
+import { useUser } from '@/composables/useUser.js';
 import { DateToLocale } from '@/utils/utils.js';
+import StatusIcon from '@/components/StatusIcon.vue';
 
+const { user } = useUser();
 const followers = ref([]);
 const following = ref([]);
-const pendingIncoming = ref([]);
-const pendingOutgoing = ref([]);
 const loading = ref(true);
 
 async function loadFollows() {
@@ -15,10 +16,15 @@ async function loadFollows() {
         const follows = data.Follows ?? {};
         followers.value = follows.Followers ?? [];
         following.value = follows.Following ?? [];
-        pendingIncoming.value = follows.PendingIncoming ?? [];
-        pendingOutgoing.value = follows.PendingOutgoing ?? [];
     }
     loading.value = false;
+}
+
+async function followRequest(follow) {
+    const payload = new FormData();
+    payload.append('user-id', follow);
+    await apiPost('/api/follow', payload);
+    await loadFollows();
 }
 
 async function acceptRequest(follow) {
@@ -42,79 +48,60 @@ onMounted(loadFollows);
 <template>
     <div class="flex flex-column gap-15 padding-sides-1vw overflow-y-auto follows-view">
         <h2>My follows</h2>
-
-        <template v-if="!loading">
-            <section class="follow-section pending-incoming">
-                <h3>Follow requests</h3>
-                <template v-if="pendingIncoming.length > 0">
-                    <div
-                        v-for="follow in pendingIncoming"
-                        :key="'pending-in-' + follow.Id"
-                        class="follow-row"
-                    >
-                        <router-link :to="`/profile/view/${follow.FromUserId}`">
-                            <strong>{{ follow.Username }}</strong>
-                        </router-link>
-                        <button type="button" @click="acceptRequest(follow)">Accept</button>
-                        <button type="button" @click="declineRequest(follow)">Decline</button>
+        <template v-if="loading">Loading...</template>
+        <template v-else>
+            <h3>Followers</h3>
+            <p v-if="followers.length === 0">No followers or incoming requests.</p>
+            <template v-else>
+                <div
+                    v-for="follow in followers"
+                    :key="follow.Id"
+                    class="flex flex-row flex-wrap gap-8"
+                >
+                    <StatusIcon :status="follow.Status" />
+                    <span>{{ follow.Status }}</span>
+                    <router-link :to="`/profile/view/${follow.FromUserId}`">
+                        <strong>{{ follow.Username }}</strong>
+                    </router-link>
+                    <span>{{ DateToLocale(follow.Timestamp) }}</span>
+                    <div>
+                        <template v-if="follow.Status === 'pending'">
+                            <button type="button" @click="acceptRequest(follow)">Accept</button>
+                            <button type="button" @click="declineRequest(follow)">Decline</button>
+                        </template>
+                        <template v-else-if="follow.Status === 'accepted'">
+                            <button type="button" @click="followRequest(follow.FromUserId)">
+                                Follow back
+                            </button>
+                        </template>
                     </div>
-                </template>
-                <p v-else class="empty">No pending follow requests.</p>
-            </section>
-
-            <section class="follow-section followers">
-                <h3>Followers</h3>
-                <template v-if="followers.length > 0">
-                    <div
-                        v-for="follow in followers"
-                        :key="'follower-' + follow.Id"
-                        class="follow-row"
-                    >
-                        <router-link :to="`/profile/view/${follow.FromUserId}`">
-                            <strong>{{ follow.Username }}</strong>
-                        </router-link>
-                        <span>{{ DateToLocale(follow.Timestamp) }}</span>
+                </div>
+            </template>
+            <h3>Following</h3>
+            <p v-if="following.length === 0">No follows or outgoing requests.</p>
+            <template v-else>
+                <div v-for="follow in following" :key="follow.Id" class="flex flex-row gap-8">
+                    <StatusIcon :status="follow.Status" />
+                    <span>{{ follow.Status }}</span>
+                    <router-link :to="`/profile/view/${follow.ToUserId}`">
+                        <strong>{{ follow.Username }}</strong>
+                    </router-link>
+                    <span>{{ DateToLocale(follow.Timestamp) }}</span>
+                    <div>
+                        <template v-if="follow.Status === 'accepted'">
+                            <button type="button" @click="unfollow(follow)">Unfollow</button>
+                        </template>
+                        <template
+                            v-else-if="follow.Status === 'unfollowed' || follow.Status === 'denied'"
+                        >
+                            <button type="button" @click="followRequest(follow.ToUserId)">
+                                Re-follow
+                            </button>
+                        </template>
                     </div>
-                </template>
-                <p v-else class="empty">No followers yet.</p>
-            </section>
-
-            <section class="follow-section following">
-                <h3>Following</h3>
-                <template v-if="following.length > 0">
-                    <div
-                        v-for="follow in following"
-                        :key="'following-' + follow.Id"
-                        class="follow-row"
-                    >
-                        <router-link :to="`/profile/view/${follow.ToUserId}`">
-                            <strong>{{ follow.Username }}</strong>
-                        </router-link>
-                        <span>{{ DateToLocale(follow.Timestamp) }}</span>
-                        <button type="button" @click="unfollow(follow)">Unfollow</button>
-                    </div>
-                </template>
-                <p v-else class="empty">You are not following anyone yet.</p>
-            </section>
-
-            <section class="follow-section pending-outgoing">
-                <h3>Outgoing requests</h3>
-                <template v-if="pendingOutgoing.length > 0">
-                    <div
-                        v-for="follow in pendingOutgoing"
-                        :key="'pending-out-' + follow.Id"
-                        class="follow-row"
-                    >
-                        <router-link :to="`/profile/view/${follow.ToUserId}`">
-                            <strong>{{ follow.Username }}</strong>
-                        </router-link>
-                        <span class="status">Awaiting response</span>
-                    </div>
-                </template>
-                <p v-else class="empty">No pending outgoing requests.</p>
-            </section>
+                </div>
+            </template>
         </template>
-        <p v-else>Loading...</p>
     </div>
 </template>
 
