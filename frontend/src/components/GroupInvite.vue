@@ -1,6 +1,6 @@
 <script setup>
-import { ref } from 'vue';
-import UserList from '@/components/UserList.vue';
+import { ref, onMounted, watch } from 'vue';
+import FollowersList from '@/components/FollowersList.vue';
 import { useProfile } from '@/composables/useProfile.js';
 
 const props = defineProps({
@@ -8,9 +8,8 @@ const props = defineProps({
     user: { type: Object, default: null },
 });
 
-const group = ref(props.group);
-const user = ref(props.user);
-const profile = useProfile();
+const { profile, loadProfile } = useProfile();
+const followers = ref(null);
 
 const closeDialog = (e) => {
     e.target.parentNode.parentNode.open = false;
@@ -18,7 +17,24 @@ const closeDialog = (e) => {
 
 const openDialog = (e) => {
     e.target.nextSibling.open = true;
+    if (props.user && props.user.Id) {
+        loadProfile(props.user.Id);
+    }
 };
+
+watch(profile, (newProfile) => {
+    if (newProfile && newProfile.Followers) {
+        followers.value = newProfile.Followers;
+    } else {
+        followers.value = null;
+    }
+});
+
+onMounted(async () => {
+    if (props.user && props.user.Id) {
+        await loadProfile(props.user.Id);
+    }
+});
 </script>
 
 <template>
@@ -31,10 +47,10 @@ const openDialog = (e) => {
 
         <p>
             Send invites to your followers so they can join the
-            <em>{{ group.Title }}</em>
+            <strong>{{ group.Title }}</strong>
             group.
         </p>
-        <UserList :group="group" />
+        <FollowersList :followers="followers" :group="group" />
     </dialog>
 </template>
 

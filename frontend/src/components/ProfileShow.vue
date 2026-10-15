@@ -62,7 +62,6 @@ async function followRequest(id) {
                 <span v-if="profile.About">{{ profile.About }}</span>
             </p>
         </div>
-
     </header>
 
     <div v-if="profile.CanView" class="profile-body">
