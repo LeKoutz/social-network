@@ -135,7 +135,6 @@ onUnmounted(() => {
     background: var(--bg-elevated);
     border-top: none;
     border-left: 1px solid var(--accent-line);
-
 }
 .users-panel-header {
     display: flex;

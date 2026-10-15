@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useUser } from '@/composables/useUser.js';
 import { apiGet, apiPost } from '@/utils/api.js';
 import { DateToLocale, firstOrNull } from '@/utils/utils.js';
-import JoinStatusIcon from '@/components/JoinStatusIcon.vue';
+import StatusIcon from '@/components/StatusIcon.vue';
 
 const { user } = useUser();
 
@@ -36,7 +36,7 @@ async function acceptInvite(invite) {
                 :key="invite.Id"
                 :id="invite.Id"
             >
-                <span><JoinStatusIcon :status="`${invite.Status}`" /></span>
+                <span><StatusIcon :status="`${invite.Status}`" /></span>
                 <span>
                     <router-link :to="`/profile/view/${invite.InvitedBy}`">
                         {{ invite.Username }}

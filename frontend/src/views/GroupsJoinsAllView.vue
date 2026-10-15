@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router';
 import { useUser } from '@/composables/useUser.js';
 import { apiGet, apiPost, apiDelete } from '@/utils/api.js';
 import { DateToLocale, firstOrNull } from '@/utils/utils.js';
-import JoinStatusIcon from '@/components/JoinStatusIcon.vue';
+import StatusIcon from '@/components/StatusIcon.vue';
 
 const route = useRoute();
 const { user } = useUser();
@@ -33,7 +33,7 @@ async function withdraw(id) {
             <h2>Join requests</h2>
             <div class="flex flex-row gap-5" v-for="jr in joins" :key="jr.Id">
                 <template v-if="jr.InvitedBy === 0">
-                    <span><JoinStatusIcon :status="`${jr.Status}`" /></span>
+                    <span><StatusIcon :status="`${jr.Status}`" /></span>
                     <span>Requested to join</span>
                     <span>
                         <router-link :to="`/group/view/${jr.GroupId}`">

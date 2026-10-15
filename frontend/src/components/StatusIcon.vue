@@ -17,11 +17,14 @@ console.log(status);
             <template v-else-if="status === 'denied'">
                 <circle cx="12" cy="12" r="8" fill="#EF4444" />
             </template>
-            <template v-else-if="status === 'left'">
+            <template v-else-if="status === 'left' || status === 'unfollowed'">
                 <circle cx="12" cy="12" r="8" fill="#6B7280" />
             </template>
             <template v-else-if="status === 'removed'">
                 <circle cx="12" cy="12" r="8" fill="#7C3AED" />
+            </template>
+            <template v-else-if="status === 'owner'">
+                <circle cx="12" cy="12" r="8" fill="#5d10b9" />
             </template>
         </svg>
     </div>

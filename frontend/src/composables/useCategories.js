@@ -1,4 +1,3 @@
-// TODO: Remove as not required for social-network
 import { ref } from 'vue';
 
 const categories = ref([]);
