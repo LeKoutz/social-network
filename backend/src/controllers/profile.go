@@ -63,7 +63,7 @@ func ShowProfile(data state.StateController) error {
 	}
 	for _, req := range tmp.InvitationsRowType {
 		var user models.UserProfileType
-		user.UserId = req.FromUserId
+		user.UserId = req.ToUserId
 		err = user.GetUserProfileIdentity()
 		if err != nil {
 			return ferror.ReturnErr(err)
