@@ -4,24 +4,16 @@ import { useRoute } from 'vue-router';
 import { apiGet } from '@/utils/api.js';
 import { firstOrNull } from '@/utils/utils.js';
 import ProfileShow from '@/components/ProfileShow.vue';
+import { useProfile } from '@/composables/useProfile.js';
 
 const route = useRoute();
-const profile = ref(null);
-const loading = ref(true);
-const error = ref(null);
 
-async function loadProfile(id) {
-    loading.value = true;
-    error.value = null;
-    const data = await apiGet(`/api/profile/view/${id}`);
-    if (data) {
-        profile.value = firstOrNull(data.Profiles);
-        if (!profile.value) error.value = 'Profile not found';
-    }
-    loading.value = false;
-}
+const { profile, loading, error, loadProfile } = useProfile();
 
-onMounted(() => loadProfile(route.params.id));
+onMounted(() => {
+    loadProfile(route.params.id);
+});
+
 watch(
     () => route.params.id,
     (newId) => {

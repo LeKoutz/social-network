@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue';
 import { useUser } from '@/composables/useUser.js';
 import ActivityList from '@/components/ActivityList.vue';
+import { apiPost } from '@/utils/api.js';
 
 const props = defineProps({
     profile: {
@@ -16,6 +17,12 @@ const activeTab = ref('activity');
 const isOwnProfile = computed(
     () => user.value.LoggedIn && String(user.value.Id) === String(props.profile.UserId),
 );
+
+async function followRequest(id) {
+    const payload = new FormData();
+    payload.append('user-id', id);
+    await apiPost('/api/follow', payload);
+}
 </script>
 
 <template>
@@ -30,17 +37,21 @@ const isOwnProfile = computed(
             <h4 v-if="profile.CanView && profile.Nickname">({{ profile.Nickname }})</h4>
         </div>
 
-        <div v-if="profile.CanView" class="profile-details">
+        <div v-if="!profile.CanView" class="profile-locked">
+            User profile is private, request follow to be able to see more info
+            <button @click="followRequest(profile.UserId)">Follow</button>
+        </div>
+        <div v-else class="profile-details">
             <h3 v-if="profile.FirstName || profile.LastName" class="profile-fullname">
                 {{ profile.FirstName }} {{ profile.LastName }}
             </h3>
 
             <router-link v-if="isOwnProfile" to="/profile/edit">Edit profile</router-link>
-            <button v-else type="button">Follow</button>
+            <button v-else @click="followRequest(profile.UserId)">Follow</button>
 
             <p class="profile-counts">
-                <span>Followers |</span>
-                <span>Following</span>
+                <span>Followers {{ profile.Followers.length }} |</span>
+                <span>Following {{ profile.Following.length }}</span>
             </p>
 
             <p class="profile-info">
@@ -52,9 +63,6 @@ const isOwnProfile = computed(
             </p>
         </div>
 
-        <p v-else class="profile-locked">
-            User profile is private, request follow to be able to see more info
-        </p>
     </header>
 
     <div v-if="profile.CanView" class="profile-body">
@@ -87,9 +95,23 @@ const isOwnProfile = computed(
         </section>
         <section v-else-if="activeTab === 'followers'">
             <h2>Followers</h2>
+            <ul v-for="follower in profile.Followers">
+                <li>
+                    <router-link :to="`/profile/view/${follower.UserId}`" :key="follower.UserId">
+                        {{ follower.Username }}
+                    </router-link>
+                </li>
+            </ul>
         </section>
         <section v-else-if="activeTab === 'following'">
             <h2>Following</h2>
+            <ul v-for="followee in profile.Following">
+                <li>
+                    <router-link :to="`/profile/view/${followee.UserId}`" :key="followee.UserId">
+                        {{ followee.Username }}
+                    </router-link>
+                </li>
+            </ul>
         </section>
     </div>
 </template>
@@ -116,5 +138,9 @@ const isOwnProfile = computed(
 .profile-tabs {
     display: flex;
     justify-content: center;
+}
+.profile-avatar {
+    max-height: 128px;
+    max-width: 128px;
 }
 </style>
