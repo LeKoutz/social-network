@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { apiGet } from '@/utils/api.js';
+import { apiGet, apiPost } from '@/utils/api.js';
 import router from '@/router/index.js';
 import { useChat } from '@/composables/useChat.js';
 
@@ -10,6 +10,9 @@ const userLoaded = new Promise((resolve) => {
 });
 
 export function useUser() {
+    const loading = ref(false);
+    const alert = ref({ Error: { Has: false, Message: '' } });
+
     function setUser(newUser) {
         user.value = newUser;
     }
@@ -29,5 +32,30 @@ export function useUser() {
         }
     }
 
-    return { user, setUser, logoutUser, userLoaded, resolveUserLoaded };
+    async function registerUser(payload) {
+        loading.value = true;
+        alert.value = { Error: { Has: false, Message: '' } };
+
+        try {
+            const data = await apiPost('/api/user/register', payload);
+            alert.value = data;
+            return data;
+        } catch (error) {
+            alert.value = { Error: { Has: true, Message: 'Network error. Please try again.' } };
+            return null;
+        } finally {
+            loading.value = false;
+        }
+    }
+
+    return {
+        loading,
+        alert,
+        user,
+        setUser,
+        logoutUser,
+        userLoaded,
+        resolveUserLoaded,
+        registerUser,
+    };
 }

@@ -4,7 +4,7 @@ import { useUser } from '@/composables/useUser.js';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-const { user } = useUser();
+const { user, registerUser } = useUser();
 const { setAlert } = useAlerts();
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024;
@@ -56,12 +56,8 @@ async function submitForm(e) {
         return;
     }
 
-    const response = await fetch('/api/user/register', {
-        method: 'POST',
-        body: new FormData(e.target),
-    });
-    const data = await response.json();
-    setAlert(data);
+    const payload = new FormData(e.target);
+    const data = await registerUser(payload);
     if (data && !data.Error?.Has) {
         router.push('/user/login');
     }
