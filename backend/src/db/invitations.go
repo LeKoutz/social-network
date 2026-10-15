@@ -7,6 +7,33 @@ import (
 
 type InvitationsRowType []InvitationRowType
 
+func (irt *InvitationsRowType) SelectAllReferencingUserId(user_id int64) error {
+	if irt == nil {
+		irt = &InvitationsRowType{}
+	}
+	var err error
+	query := `
+	SELECT i.id, i.status, i.timestamp, i.from_user_id, i.to_user_id, u.username
+	FROM invitations i
+	JOIN users u ON u.id = CASE WHEN i.from_user_id = ? THEN i.to_user_id ELSE i.from_user_id END
+	WHERE from_user_id = ? OR to_user_id = ?
+	`
+	rows, err := db.Query(query, user_id, user_id, user_id)
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var inv InvitationRowType
+		err = rows.Scan(&inv.Id, &inv.Status, &inv.Timestamp, &inv.FromUserId, &inv.ToUserId, &inv.Username)
+		if err != nil {
+			return ferror.ReturnErr(err)
+		}
+		*irt = append(*irt, inv)
+	}
+	return nil
+}
+
 func (irt *InvitationsRowType) SelectInvitationsFromUserId(user_id int64) error {
 	if irt == nil {
 		irt = &InvitationsRowType{}

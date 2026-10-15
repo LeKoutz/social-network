@@ -10,8 +10,6 @@ type InvitationsType struct {
 
 	IncomingInvites []InvitationType `json:"Followers,omitzero"`
 	OutgoingInvites []InvitationType `json:"Following,omitzero"`
-	PendingIncoming []InvitationType `json:"PendingIncoming,omitzero"`
-	PendingOutgoing []InvitationType `json:"PendingOutgoing,omitzero"`
 }
 
 func (f *InvitationsType) GetForUser(userId int64) error {
