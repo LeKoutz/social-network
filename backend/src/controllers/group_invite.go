@@ -31,8 +31,7 @@ func InviteUserToGroup(data state.StateController) error {
 }
 
 func AcceptGroupInvitation(data state.StateController) error {
-	data.EditGroupInvitation().Status = "accepted"
-	return ferror.ReturnErr(ferror.ErrorNotImplemented)
+	return data.EditGroupInvitation().UpdateToAccepted()
 }
 
 func DeclineGroupInvitation(data state.StateController) error {
