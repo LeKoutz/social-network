@@ -35,7 +35,7 @@ func AcceptGroupInvitation(data state.StateController) error {
 }
 
 func DeclineGroupInvitation(data state.StateController) error {
-	return ferror.ReturnErr(ferror.ErrorNotImplemented)
+	return data.EditGroupInvitation().UpdateToDenied()
 }
 
 func AcceptJoinRequest(data state.StateController) error {

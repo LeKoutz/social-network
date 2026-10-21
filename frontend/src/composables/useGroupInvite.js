@@ -54,11 +54,36 @@ export function useGroupInvite() {
         }
     }
 
+    async function declineInvite(inviteId) {
+        loading.value = true;
+        error.value = null;
+        success.value = false;
+
+        try {
+            const payload = new FormData();
+            payload.append('id', inviteId);
+
+            const data = await apiPatch('/api/group/invite/decline', payload);
+            if (data.Error?.Has) throw new Error(data.Error.Message);
+
+            success.value = true;
+            return true;
+        } catch (err) {
+            console.error('Failed to decline invite:', err);
+            error.value = err.message || 'An error occurred while declining the invite.';
+            return false;
+        } finally {
+            loading.value = false;
+        }
+    }
+
+
     return {
         loading,
         error,
         success,
         sendInvite,
         acceptInvite,
+        declineInvite,
     };
 }

@@ -17,10 +17,14 @@ onMounted(async () => {
     }
 });
 
-const { loading, error, success, acceptInvite } = useGroupInvite();
+const { loading, error, success, acceptInvite, declineInvite } = useGroupInvite();
 
 async function handleAcceptGroupInviteButton(inviteId) {
     await acceptInvite(inviteId);
+}
+
+async function handleDeclineGroupInviteButton(inviteId) {
+    await declineInvite(inviteId);
 }
 </script>
 
@@ -49,7 +53,7 @@ async function handleAcceptGroupInviteButton(inviteId) {
                 <span>on {{ DateToLocale(invite.Timestamp) }}</span>
                 <template v-if="invite.Status === 'pending'">
                     <button @click="handleAcceptGroupInviteButton(invite.Id)">✅ Accept</button>
-                    <button>❌ Deny</button>
+                    <button @click="handleDeclineGroupInviteButton(invite.Id)">❌ Deny</button>
                 </template>
             </div>
         </template>

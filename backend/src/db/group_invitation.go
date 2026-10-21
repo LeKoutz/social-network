@@ -66,6 +66,18 @@ func (g *GroupInvitationRowType) UpdateToAccepted() error {
 	return nil
 }
 
+func (g *GroupInvitationRowType) UpdateToDenied() error {
+	_, err := db.Exec(`
+	UPDATE group_invitations
+	SET status = 'denied'
+	WHERE id = ?
+	`, g.Id)
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
+	return nil
+}
+
 func (g *GroupInvitationRowType) UpdateToRemoved() error {
 	_, err := db.Exec(`
 	UPDATE group_invitations
