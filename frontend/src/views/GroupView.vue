@@ -45,7 +45,7 @@ async function loadGroup(id) {
 async function join(user, group) {
     // const group = firstOrNull(group.value)
     const payload = new FormData();
-    payload.append('id', group.Id);
+    payload.append('group-id', group.Id);
     const data = await apiPost('/api/group/join', payload);
     console.log(data);
 }
