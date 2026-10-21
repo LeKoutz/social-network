@@ -43,6 +43,7 @@ func AcceptJoinRequest(data state.StateController) error {
 	if err != nil {
 		return ferror.ReturnErr(err)
 	}
+	data.EditGroup().Id = data.EditGroupInvitation().GroupId
 	err = data.EditGroup().SelectGroupById()
 	if err != nil {
 		return ferror.ReturnErr(err)
