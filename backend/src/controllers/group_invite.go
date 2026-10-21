@@ -40,7 +40,18 @@ func DeclineGroupInvitation(data state.StateController) error {
 }
 
 func AcceptJoinRequest(data state.StateController) error {
-	return ferror.ReturnErr(ferror.ErrorNotImplemented)
+	err := data.EditGroupInvitation().SelectGroupInvitationById()
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
+	err = data.EditGroup().SelectGroupById()
+	if err != nil {
+		return ferror.ReturnErr(err)
+	}
+	if data.EditGroup().OwnerUserId == data.GetUser().Id {
+		return data.EditGroupInvitation().JoinRequestAccept()
+	}
+	return ferror.ReturnErr(ferror.ErrorPermissionDenied)
 }
 
 func DeclineJoinRequest(data state.StateController) error {

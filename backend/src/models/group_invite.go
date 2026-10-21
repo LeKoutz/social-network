@@ -16,3 +16,7 @@ func (gi *GroupInvitationType) SendToUserId(user_id int64) error {
 func (gi *GroupInvitationType) Withdraw() error {
 	return gi.GroupInvitationRowType.Delete()
 }
+
+func (gi *GroupInvitationType) JoinRequestAccept() error {
+	return gi.GroupInvitationRowType.UpdateToAccepted()
+}
