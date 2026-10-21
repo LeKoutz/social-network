@@ -4,6 +4,7 @@ import { useUser } from '@/composables/useUser.js';
 import { apiGet, apiPost } from '@/utils/api.js';
 import { DateToLocale, firstOrNull } from '@/utils/utils.js';
 import StatusIcon from '@/components/StatusIcon.vue';
+import { useGroupInvite } from '@/composables/useGroupInvite.js';
 
 const { user } = useUser();
 
@@ -16,13 +17,10 @@ onMounted(async () => {
     }
 });
 
-async function acceptInvite(invite) {
-    console.log(invite);
-    const payload = new FormData();
-    //payload.append('group-id', group.Id)
-    payload.append('to-user-id', user.Id);
-    // const data = await apiPost('/api/group/join', payload);
-    // console.log(data);
+const { loading, error, success, acceptInvite } = useGroupInvite();
+
+async function handleAcceptGroupInviteButton(inviteId) {
+    await acceptInvite(inviteId);
 }
 </script>
 
@@ -50,7 +48,7 @@ async function acceptInvite(invite) {
                 </span>
                 <span>on {{ DateToLocale(invite.Timestamp) }}</span>
                 <template v-if="invite.Status === 'pending'">
-                    <button @click="acceptInvite(invite.Id)">✅ Accept</button>
+                    <button @click="handleAcceptGroupInviteButton(invite.Id)">✅ Accept</button>
                     <button>❌ Deny</button>
                 </template>
             </div>

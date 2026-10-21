@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { apiPost } from '@/utils/api.js';
+import { apiPost, apiPatch } from '@/utils/api.js';
 
 export function useGroupInvite() {
     const loading = ref(false);
@@ -31,10 +31,34 @@ export function useGroupInvite() {
         }
     }
 
+    async function acceptInvite(inviteId) {
+        loading.value = true;
+        error.value = null;
+        success.value = false;
+
+        try {
+            const payload = new FormData();
+            payload.append('id', inviteId);
+
+            const data = await apiPatch('/api/group/invite/accept', payload);
+            if (data.Error?.Has) throw new Error(data.Error.Message);
+
+            success.value = true;
+            return true;
+        } catch (err) {
+            console.error('Failed to accept invite:', err);
+            error.value = err.message || 'An error occurred while accepting the invite.';
+            return false;
+        } finally {
+            loading.value = false;
+        }
+    }
+
     return {
         loading,
         error,
         success,
         sendInvite,
+        acceptInvite,
     };
 }
