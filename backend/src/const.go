@@ -1,5 +1,5 @@
 package forum
 
 const (
-	WebsiteName = "Forum"
+	WebsiteName = "Social Network"
 )

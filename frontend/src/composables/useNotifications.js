@@ -4,9 +4,9 @@ const notifications = ref([]);
 
 export function useNotifications() {
     // TODO: Replace backends UnreadNotificationsCount?
-    const unreadNotificationsCount = computed(() => {
-        notifications.value.filter((n) => !n.Read.length);
-    });
+    const unreadNotificationsCount = computed(
+        () => notifications.value.filter((n) => !n.Read).length,
+    );
 
     function setNotifications(newNotifications) {
         notifications.value = newNotifications ?? [];

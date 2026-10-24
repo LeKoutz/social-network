@@ -2,6 +2,7 @@ package state
 
 import (
 	"encoding/json"
+	forum "forum/src"
 	"forum/src/ferror"
 	"forum/src/models"
 	"forum/src/utils"
@@ -168,7 +169,7 @@ func (r *State) WriteResponse() {
 }
 
 func (r *State) Init() *State {
-	r.WebsiteName = "Forum"
+	r.WebsiteName = forum.WebsiteName
 	r.InitUser()
 	r.Version = utils.GetVersion()
 	return r

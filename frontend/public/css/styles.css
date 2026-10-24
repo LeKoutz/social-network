@@ -87,53 +87,6 @@ input[type=submit]:hover, button:hover {
     border-color: var(--accent);
 }
 
-.topbar {
-    padding: 0 1vw;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--accent-line);
-}
-.topbar .title a { text-decoration: none; }
-.topbar .title a h1 { margin: 0; }
-
-.menu li {
-    position: relative;
-    display: inline-block;
-    padding: 8px 12px;
-}
-
-.menu li > ul {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    background: var(--bg-base);
-    border: 1px solid var(--accent-line);
-    min-width: 140px;
-}
-
-.menu li:hover > ul {
-    display: block;
-    z-index: 1;
-}
-
-.menu li > ul li {
-    display: block;
-    padding: 6px 10px;
-}
-
-.menu li > ul li:hover {
-	display: block;
-	background: var(--danger);
-	color: var(--bg-base);
-}
-
 .inline {
     display: flex;
     flex-direction: row;
@@ -196,8 +149,6 @@ input[type=submit]:hover, button:hover {
     align-items: center;
     gap: 2px;
 }
-
-.menu details > summary { list-style: none; }
 
 .notifications ul {
     position: absolute;
