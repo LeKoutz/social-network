@@ -10,7 +10,6 @@ export function useGroupInvite() {
         loading.value = true;
         error.value = null;
         success.value = false;
-        console.log(groupId, userId);
 
         try {
             const payload = new FormData();

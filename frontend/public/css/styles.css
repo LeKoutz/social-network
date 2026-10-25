@@ -1,16 +1,16 @@
 :root {
-    --bg-base:        #1f2220;
-    --bg-elevated:    #262a26;
-    --bg-input:       #1a1d1a;
-    --text-primary:   #d4e0c8;
-    --text-secondary: #9aa392;
-    --text-muted:     #6b7264;
-    --accent:         #b6e34a;
-    --accent-hover:   #c9f062;
-    --accent-dim:     #7fa32e;
-    --accent-line:    #5c7a2a;
-    --danger:         #e06c5a;
-    --border:         #4a4f45;
+    --bg-base:        #1f2220; /* rgba(31, 34, 32, 1)    rgba-31-34-32-1    */
+    --bg-elevated:    #262a26; /* rgba(38, 42, 38, 1)    rgba-38-42-38-1    */
+    --bg-input:       #1a1d1a; /* rgba(26, 29, 26, 1)    rgba-26-29-26-1    */
+    --text-primary:   #d4e0c8; /* rgba(212, 224, 200, 1) rgba-212-224-200-1 */
+    --text-secondary: #9aa392; /* rgba(154, 163, 146, 1) rgba-154-163-146-1 */
+    --text-muted:     #6b7264; /* rgba(107, 114, 100, 1) rgba-107-114-100-1 */
+    --accent:         #b6e34a; /* rgba(182, 227, 74, 1)  rgba-182-227-74-1  */
+    --accent-hover:   #c9f062; /* rgba(201, 240, 98, 1)  rgba-201-240-98-1  */
+    --accent-dim:     #7fa32e; /* rgba(127, 163, 46, 1)  rgba-127-163-46-1  */
+    --accent-line:    #5c7a2a; /* rgba(92, 122, 42, 1)   rgba-92-122-42-1   */
+    --danger:         #e06c5a; /* rgba(224, 108, 90, 1)  rgba-224-108-90-1  */
+    --border:         #4a4f45; /* rgba(74, 79, 69, 1)    rgba-74-79-69-1    */
 }
 
 * {

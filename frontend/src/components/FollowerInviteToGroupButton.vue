@@ -16,7 +16,6 @@ const props = defineProps({
 
 async function handleInviteClick(userId) {
     if (!props.group?.Id || !userId) return;
-    console.log(props.group.Id, userId);
     await sendInvite(props.group.Id, userId);
 }
 </script>
