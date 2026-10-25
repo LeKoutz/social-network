@@ -21,9 +21,7 @@ const router = useRouter();
 const title = ref(props.post.Title);
 const body = ref(props.post.Body);
 const image = ref(null);
-const selected = ref(
-    (props.post.Categories ?? []).map((category) => category.Id)
-);
+const selected = ref((props.post.Categories ?? []).map((category) => category.Id));
 const submitting = ref(false);
 
 function toggle(categoryId) {
@@ -69,7 +67,11 @@ async function submit() {
                     v-model="visibility"
                     :disabled="submitting"
                 />
-                <p v-else>Visibility is set to <strong>Public</strong> for group posts.</p>
+                <p v-else>
+                    Visibility is set to
+                    <strong>Public</strong>
+                    for group posts.
+                </p>
                 <input
                     type="text"
                     v-model="title"

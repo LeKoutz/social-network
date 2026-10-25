@@ -61,11 +61,7 @@ async function submit() {
         <form class="post-create" @submit.prevent="submit">
             <fieldset>
                 <legend>New post</legend>
-                <PostVisibilityPanel
-                    v-if="!group"
-                    v-model="visibility"
-                    :disabled="submitting"
-                />
+                <PostVisibilityPanel v-if="!group" v-model="visibility" :disabled="submitting" />
                 <p v-else>Only group members can see this post.</p>
                 <template v-if="!group">
                     <input

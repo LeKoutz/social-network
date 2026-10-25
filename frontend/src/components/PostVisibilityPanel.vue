@@ -2,14 +2,14 @@
 const visibility = defineModel({
     type: String,
     default: 'public',
-})
+});
 
 defineProps({
     disabled: {
         type: Boolean,
         default: false,
     },
-})
+});
 
 const options = [
     {
@@ -29,8 +29,8 @@ const options = [
         label: `Selected Followers`,
         description: `Only selected followers can see this post.`,
         disabled: false,
-    }
-]
+    },
+];
 </script>
 
 <template>
