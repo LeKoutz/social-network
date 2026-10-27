@@ -2,13 +2,14 @@
 import { ref, onMounted } from 'vue';
 import Topbar from './components/Topbar.vue';
 import Footer from './components/Footer.vue';
-import UsersPanel from './components/UsersPanel.vue';
 import { apiGet } from './utils/api.js';
 import Alerts from './components/Alerts.vue';
 import { useAppData } from './composables/useAppData.js';
 import { useNotifications } from './composables/useNotifications.js';
 import { useUser } from './composables/useUser.js';
 import { useCategories } from './composables/useCategories.js';
+import LeftSidebar from './components/LeftSidebar.vue';
+import ChatPanel from './components/ChatPanel.vue';
 
 const loaded = ref(false);
 const { setAppData } = useAppData();
@@ -38,9 +39,10 @@ onMounted(async () => {
     <template v-if="loaded">
         <Topbar />
         <Alerts />
-        <div class="flex flex-row overflow-y-auto height-100 width-100">
+        <div class="flex flex-row overflow-y-auto height-100">
+            <LeftSidebar v-if="user.LoggedIn" />
             <router-view class="flex-grow-1" />
-            <UsersPanel v-if="user.LoggedIn" />
+            <ChatPanel v-if="user.LoggedIn" />
         </div>
         <Footer />
     </template>

@@ -7,16 +7,18 @@ import UserAvatar from './UserAvatar.vue';
 import BurgerIcon from './Icons/BurgerIcon.vue';
 import BellIcon from './Icons/BellIcon.vue';
 import ChevronDownIcon from './Icons/ChevronDownIcon.vue';
+import { useLeftSidebar } from '../composables/useLeftSidebar.js';
 
 const { websiteName } = useAppData();
 const { user, logoutUser } = useUser();
 const { unreadNotificationsCount } = useNotifications();
+const { toggleLeftSidebar } = useLeftSidebar();
 </script>
 
 <template>
     <div class="topbar">
         <div class="title">
-            <button class="menu-button"><BurgerIcon /></button>
+            <button class="menu-button" @click="toggleLeftSidebar"><BurgerIcon /></button>
             <router-link to="/">
                 <h1>{{ websiteName }}</h1>
             </router-link>
