@@ -1,10 +1,11 @@
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
+import { useAppData } from '@/composables/useAppData.js';
 
-const mobileView = window.matchMedia('(max-width: 768px)');
-const sidebarOpen = ref(!mobileView.matches);
+const { isMobileView } = useAppData();
+const sidebarOpen = ref(!isMobileView.value);
 
-mobileView.addEventListener('change', (e) => {
-    sidebarOpen.value = !e.matches;
+watch(isMobileView, (mobile) => {
+    sidebarOpen.value = !mobile;
 });
 
 export function useLeftSidebar() {

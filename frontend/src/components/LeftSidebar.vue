@@ -6,17 +6,22 @@ import { useChat } from '@/composables/useChat.js';
 import DoubleChevronsLeftIcon from './Icons/DoubleChevronsLeftIcon.vue';
 import DoubleChevronsRightIcon from './Icons/DoubleChevronsRightIcon.vue';
 import { useLeftSidebar } from '@/composables/useLeftSidebar.js';
+import { useAppData } from '@/composables/useAppData.js';
 
 const route = useRoute();
 const { user } = useUser();
 const { ensureWs, myGroups } = useChat();
-const { sidebarOpen, toggleLeftSidebar, closeLeftSidebar } = useLeftSidebar();
+const { sidebarOpen, toggleLeftSidebar } = useLeftSidebar();
+const { isMobileView } = useAppData();
 
 onMounted(() => {
     ensureWs(user.value.Id);
 });
 
-watch(() => route.fullPath, () => sidebarOpen.value = !isMobileView.value);
+watch(
+    () => route.fullPath,
+    () => (sidebarOpen.value = !isMobileView.value),
+);
 </script>
 
 <template>
