@@ -126,13 +126,6 @@ input[type=submit]:hover, button:hover {
     border-bottom: 1px solid var(--accent-line);
 }
 
-.footer {
-    padding: 0 1vw;
-    border-top: 1px solid var(--accent-line);
-    max-height: 55px;
-    height: 55px;
-}
-
 .box {
     max-width: 400px;
     align-self: center;
