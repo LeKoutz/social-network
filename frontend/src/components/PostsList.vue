@@ -9,8 +9,6 @@ const user = useUser();
 const props = defineProps({
     posts: { type: Array, default: null },
 });
-
-const posts = ref(props.posts);
 </script>
 
 <template>
