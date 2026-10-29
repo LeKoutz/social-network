@@ -5,6 +5,7 @@ import CloseIcon from '@/components/Icons/CloseIcon.vue';
 import PlusIcon from '@/components/Icons/PlusIcon.vue';
 import Spacer from '@/components/Spacer.vue';
 import { useProfile } from '@/composables/useProfile.js';
+import GenericButton from '@/components/GenericButton.vue';
 
 const props = defineProps({
     group: { type: Object, default: null },
@@ -43,7 +44,12 @@ onMounted(async () => {
 </script>
 
 <template>
-    <button @click="openDialog">Invite followers</button>
+    <GenericButton @click="openDialog">
+        <template v-slot:icon>
+            <PlusIcon />
+        </template>
+        Invite followers
+    </GenericButton>
     <div
         v-if="isModalOpen"
         id="invite-to-group-modal"
@@ -56,40 +62,26 @@ onMounted(async () => {
                 class="width-100 height-auto display-flex align-items-center align-content-stretch justify-content-start padding-block-end-4px flex-direction-row flex-wrap-nowrap"
             >
                 <span
-                    class="color-rgba-212-224-200-1 text-transform-none line-break-auto overflow-wrap-initial white-space-pre font-size-16px text-rendering-geometricPrecision caret-color-rgba-212-224-200-1 text-decoration-none letter-spacing-0px font-family-Inter font-style-normal font-weight-700"
+                    class="text-color-primary font-size-16px text-decoration-none font-family-Inter font-style-normal font-weight-700"
                 >
                     Invite followers
                 </span>
                 <Spacer />
                 <div
-                    class="position-relative width-auto height-auto background-1a1d1aFF border-radius-2px display-flex align-items-center align-content-stretch justify-content-start padding-5px flex-direction-row flex-wrap-nowrap"
+                    class="background-color-bg-input border-radius-2px flex align-items-center align-content-stretch justify-content-start padding-5px flex-direction-row flex-wrap-nowrap"
                     @click="closeDialog"
                 >
                     <CloseIcon />
                 </div>
             </div>
-            <!-- text: Your followers who are not in -->
-            <div class="width-100 flex-shrink-0 margin-block-end-6px">
-                <div>
-                    <div class="display-flex white-space-break-spaces align-items-flex-start">
-                        <div
-                            class="display-inline-flex flex-direction-column justify-content-inherit min-width-100 margin-right-1px vertical-align-top"
-                        >
-                            <p
-                                class="font-size-0 line-height-1-5 margin-0 text-align-left"
-                                dir="ltr"
-                            >
-                                <span
-                                    class="color-rgba-107-114-100-1 text-transform-none line-break-auto overflow-wrap-initial white-space-break-spaces font-size-12px text-rendering-geometricPrecision caret-color-rgba-107-114-100-1 text-decoration-none letter-spacing-0px font-family-Inter font-style-normal font-weight-400"
-                                >
-                                    Your followers who are not in {{ group.Title }} yet.
-                                </span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
+            <span
+                class="text-color-muted font-size-12px text-decoration-none font-family-Inter font-style-normal font-weight-400"
+            >
+                Your followers who are not in {{ group.Title }} yet.
+            </span>
+            <div>
+                <FollowersList :followers="followers" :group="group" />
             </div>
-            <FollowersList :followers="followers" :group="group" />
         </div>
     </div>
 </template>
