@@ -178,7 +178,7 @@ func (gi *GroupInvitationsRowType) SelectAllGroupsJoinRequestsByUserId(user_id i
 	FROM group_invitations g
 	JOIN users u ON g.to_user_id = u.id
 	JOIN groups gr ON g.group_id = gr.id
-	WHERE to_user_id = ?
+	WHERE to_user_id = ? AND invited_by IS NULL
 	`, user_id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
