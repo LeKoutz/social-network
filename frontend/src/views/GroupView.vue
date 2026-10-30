@@ -11,7 +11,7 @@ import PostShow from '@/components/PostShow.vue';
 import GroupAddIcon from '@/components/GroupAddIcon.vue';
 import GroupHeader from '@/components/GroupHeader.vue';
 import PostsList from '@/components/PostsList.vue';
-import GroupInvite from '@/components/GroupInvite.vue';
+import GroupInviteModal from '../components/GroupInviteModal.vue';
 
 const route = useRoute();
 const { user } = useUser();
@@ -65,7 +65,7 @@ watch(
         <template v-if="loading">Loading…</template>
         <template v-else-if="group">
             <GroupHeader :group="group" />
-            <GroupInvite
+            <GroupInviteModal
                 :group="group"
                 :user="user"
                 v-if="group.Member || user.Id === group.OwnerId"
