@@ -11,7 +11,7 @@ defineProps({
 
 <template>
     <button
-        class="flex flex-row align-items-center gap-6 border-radius-2px font-weight-500 font-size-13px padding-block-start-6px padding-block-end-6px padding-inline-start-10px padding-inline-end-10px"
+        class="flex flex-row align-items-center gap-6 white-space-nowrap border-radius-2px font-weight-500 font-size-13px padding-block-start-6px padding-block-end-6px padding-inline-start-10px padding-inline-end-10px"
         :class="variant"
     >
         <slot name="leading"></slot>
