@@ -6,6 +6,7 @@ import { useChat } from '@/composables/useChat.js';
 import DoubleChevronsRightIcon from './Icons/DoubleChevronsRightIcon.vue';
 import { useLeftSidebar } from '@/composables/useLeftSidebar.js';
 import { useAppData } from '@/composables/useAppData.js';
+import GenericButton from './GenericButton.vue';
 
 const route = useRoute();
 const { user } = useUser();
@@ -27,9 +28,11 @@ watch(
     <div :class="['sidebar-menu', { collapsed: !sidebarOpen }]">
         <div class="header">
             <span v-if="sidebarOpen" class="section-title">Menu</span>
-            <button class="toggle" @click="toggleLeftSidebar">
-                <DoubleChevronsRightIcon :class="{ 'transform-rotate-180deg': sidebarOpen }" />
-            </button>
+            <GenericButton @click="toggleLeftSidebar">
+                <template #leading>
+                    <DoubleChevronsRightIcon :class="{ 'transform-rotate-180deg': sidebarOpen }"/>
+                </template>
+            </GenericButton>
         </div>
         <template v-if="sidebarOpen">
             <router-link to="/" class="link">Home</router-link>

@@ -8,6 +8,7 @@ import { apiGet } from '@/utils/api.js';
 import ChevronDownIcon from './Icons/ChevronDownIcon.vue';
 import DoubleChevronsRightIcon from './Icons/DoubleChevronsRightIcon.vue';
 import ChatBubbleIcon from './Icons/ChatBubbleIcon.vue';
+import GenericButton from './GenericButton.vue';
 
 const route = useRoute();
 const { user } = useUser();
@@ -96,23 +97,27 @@ watch(
 
 <template>
     <div :class="['chat-panel', { collapsed }]">
-        <button v-if="isMobileView" class="chat-bar" @click="collapsed = !collapsed">
+        <div v-if="isMobileView" class="chat-bar" @click="collapsed = !collapsed">
             <span class="bar-title">Chat</span>
             <span v-if="totalUnread()" class="dot dot-title"></span>
             <span class="online-count">{{ list.online.length }} online</span>
-            <span :class="['bar-chevron', { 'transform-rotate-180deg': collapsed}]">
-                <ChevronDownIcon />
-            </span>
-        </button>
+            <GenericButton>
+                <template #leading>
+                    <ChevronDownIcon :class="{'transform-rotate-180deg': collapsed}"></ChevronDownIcon>
+                </template>
+            </GenericButton>
+        </div>
         <div v-else class="header">
             <template v-if="!collapsed">
                 <h3 class="title">Chat</h3>
                 <span v-if="totalUnread()" class="dot dot-title"></span>
                 <router-link to="/chats" class="see-all">See all chats</router-link>
             </template>
-            <button class="toggle" @click="collapsed = !collapsed">
-                <DoubleChevronsRightIcon :class="{ 'transform-rotate-180deg': collapsed }" />
-            </button>
+            <GenericButton @click="collapsed = !collapsed">
+                <template #leading>
+                    <DoubleChevronsRightIcon :class="{ 'transform-rotate-180deg': collapsed}" />
+                </template>
+            </GenericButton>
             <div v-if="collapsed" class="chat-icon">
                 <ChatBubbleIcon />
                 <span v-if="totalUnread()" class="dot dot-corner"></span>
@@ -333,10 +338,6 @@ ul {
         align-items: center;
         gap: 8px;
         height: 52px;
-        padding: 0;
-        border: none;
-        background: none;
-        font: inherit;
         cursor: pointer;
     }
 
@@ -350,15 +351,6 @@ ul {
         margin-left: auto;
         font-size: 13px;
         color: var(--text-muted);
-    }
-
-    .bar-chevron {
-        display: flex;
-        padding: 4px 6px;
-        border: 1px solid var(--border);
-        border-radius: 2px;
-        background-color: var(--bg-input);
-        color: var(--accent);
     }
 }
 </style>
