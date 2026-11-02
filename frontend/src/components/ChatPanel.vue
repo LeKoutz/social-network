@@ -6,7 +6,6 @@ import { useUser } from '@/composables/useUser.js';
 import { useChat } from '@/composables/useChat.js';
 import { apiGet } from '@/utils/api.js';
 import ChevronDownIcon from './Icons/ChevronDownIcon.vue';
-import DoubleChevronsLeftIcon from './Icons/DoubleChevronsLeftIcon.vue';
 import DoubleChevronsRightIcon from './Icons/DoubleChevronsRightIcon.vue';
 import ChatBubbleIcon from './Icons/ChatBubbleIcon.vue';
 
@@ -96,22 +95,23 @@ watch(
 </script>
 
 <template>
-    <button v-if="collapsed && isMobileView" class="chat-bar" @click="collapsed = false">
-        <span class="bar-title">Chat</span>
-        <span v-if="totalUnread()" class="dot dot-title"></span>
-        <span class="online-count">{{ list.online.length }} online</span>
-        <span class="bar-chevron"><ChevronDownIcon /></span>
-    </button>
-    <div v-else :class="['chat-panel', { collapsed }]">
-        <div class="header">
+    <div :class="['chat-panel', { collapsed }]">
+        <button v-if="isMobileView" class="chat-bar" @click="collapsed = !collapsed">
+            <span class="bar-title">Chat</span>
+            <span v-if="totalUnread()" class="dot dot-title"></span>
+            <span class="online-count">{{ list.online.length }} online</span>
+            <span :class="['bar-chevron', { 'transform-rotate-180deg': collapsed}]">
+                <ChevronDownIcon />
+            </span>
+        </button>
+        <div v-else class="header">
             <template v-if="!collapsed">
                 <h3 class="title">Chat</h3>
                 <span v-if="totalUnread()" class="dot dot-title"></span>
                 <router-link to="/chats" class="see-all">See all chats</router-link>
             </template>
             <button class="toggle" @click="collapsed = !collapsed">
-                <DoubleChevronsRightIcon v-if="!collapsed" />
-                <DoubleChevronsLeftIcon v-else />
+                <DoubleChevronsRightIcon :class="{ 'transform-rotate-180deg': collapsed }" />
             </button>
             <div v-if="collapsed" class="chat-icon">
                 <ChatBubbleIcon />
@@ -308,7 +308,8 @@ ul {
 }
 
 @media (max-width: 768px) {
-    .chat-panel {
+    .chat-panel,
+    .chat-panel.collapsed {
         position: fixed;
         bottom: 0;
         left: 0;
@@ -316,24 +317,25 @@ ul {
         z-index: 10;
         width: auto;
         max-height: 60vh;
+        padding: 0 16px 16px;
+        align-items: stretch;
         border-left: none;
         border-top: 1px solid var(--accent-line);
     }
 
+    .chat-panel.collapsed {
+        padding-bottom: 0;
+    }
+
     .chat-bar {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        z-index: 10;
         display: flex;
+        flex-shrink: 0;
         align-items: center;
         gap: 8px;
         height: 52px;
-        padding: 0 16px;
+        padding: 0;
         border: none;
-        border-top: 1px solid var(--accent-line);
-        background-color: var(--bg-base);
+        background: none;
         font: inherit;
         cursor: pointer;
     }
@@ -357,7 +359,6 @@ ul {
         border-radius: 2px;
         background-color: var(--bg-input);
         color: var(--accent);
-        transform: rotate(180deg);
     }
 }
 </style>

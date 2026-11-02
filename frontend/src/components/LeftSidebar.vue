@@ -3,7 +3,6 @@ import { onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useUser } from '@/composables/useUser.js';
 import { useChat } from '@/composables/useChat.js';
-import DoubleChevronsLeftIcon from './Icons/DoubleChevronsLeftIcon.vue';
 import DoubleChevronsRightIcon from './Icons/DoubleChevronsRightIcon.vue';
 import { useLeftSidebar } from '@/composables/useLeftSidebar.js';
 import { useAppData } from '@/composables/useAppData.js';
@@ -29,8 +28,7 @@ watch(
         <div class="header">
             <span v-if="sidebarOpen" class="section-title">Menu</span>
             <button class="toggle" @click="toggleLeftSidebar">
-                <DoubleChevronsLeftIcon v-if="sidebarOpen" />
-                <DoubleChevronsRightIcon v-else />
+                <DoubleChevronsRightIcon :class="{ 'transform-rotate-180deg': sidebarOpen }" />
             </button>
         </div>
         <template v-if="sidebarOpen">
