@@ -9,6 +9,8 @@ import ChevronDownIcon from './Icons/ChevronDownIcon.vue';
 import DoubleChevronsRightIcon from './Icons/DoubleChevronsRightIcon.vue';
 import ChatBubbleIcon from './Icons/ChatBubbleIcon.vue';
 import GenericButton from './GenericButton.vue';
+import GroupIcon from './Icons/GroupIcon.vue';
+import UserAvatar from './UserAvatar.vue';
 
 const route = useRoute();
 const { user } = useUser();
@@ -103,7 +105,9 @@ watch(
             <span class="online-count">{{ list.online.length }} online</span>
             <GenericButton>
                 <template #leading>
-                    <ChevronDownIcon :class="{'transform-rotate-180deg': collapsed}"></ChevronDownIcon>
+                    <ChevronDownIcon
+                        :class="{ 'transform-rotate-180deg': collapsed }"
+                    ></ChevronDownIcon>
                 </template>
             </GenericButton>
         </div>
@@ -115,7 +119,7 @@ watch(
             </template>
             <GenericButton @click="collapsed = !collapsed">
                 <template #leading>
-                    <DoubleChevronsRightIcon :class="{ 'transform-rotate-180deg': collapsed}" />
+                    <DoubleChevronsRightIcon :class="{ 'transform-rotate-180deg': collapsed }" />
                 </template>
             </GenericButton>
             <div v-if="collapsed" class="chat-icon">
@@ -132,7 +136,7 @@ watch(
                     :key="u.Id"
                     :class="['row', { unread: hasUnread(u.Id) }]"
                 >
-                    <span class="status"></span>
+                    <UserAvatar :url="u.AvatarURL" :name="u.Username" size="small"></UserAvatar>
                     <router-link :to="`/chat/${u.Id}`">{{ u.Username }}</router-link>
                     <span v-if="hasUnread(u.Id)" class="dot"></span>
                     <span v-if="u.LastMessageTimestamp" class="time">
@@ -148,7 +152,12 @@ watch(
                     :key="u.Id"
                     :class="['row', 'offline', { unread: hasUnread(u.Id) }]"
                 >
-                    <span class="status"></span>
+                    <UserAvatar
+                        variant="muted"
+                        :url="u.AvatarURL"
+                        :name="u.Username"
+                        size="small"
+                    ></UserAvatar>
                     <router-link :to="`/chat/${u.Id}`">{{ u.Username }}</router-link>
                     <span v-if="hasUnread(u.Id)" class="dot"></span>
                     <span v-if="u.LastMessageTimestamp" class="time">
@@ -165,7 +174,7 @@ watch(
                         :key="g.Id"
                         :class="['row', { unread: hasUnread(`g:${g.Id}`) }]"
                     >
-                        <span class="hash">#</span>
+                        <UserAvatar><GroupIcon /></UserAvatar>
                         <router-link :to="`/group/${g.Id}/chat`">{{ g.Title }}</router-link>
                         <span v-if="hasUnread(`g:${g.Id}`)" class="dot"></span>
                     </li>
@@ -256,24 +265,6 @@ ul {
 
 .row.unread a {
     font-weight: 600;
-}
-
-.status {
-    flex-shrink: 0;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: var(--accent);
-}
-
-.offline .status {
-    background-color: var(--text-muted);
-}
-
-.hash {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-muted);
 }
 
 .dot {
