@@ -3,7 +3,7 @@ defineProps({
     variant: {
         type: String,
         default: 'default',
-        validator: (v) => ['default', 'dange', 'filled', 'muted'].includes(v),
+        validator: (v) => ['default', 'accent', 'danger', 'filled', 'unfilled', 'muted'].includes(v),
     },
 });
 </script>
@@ -14,13 +14,17 @@ defineProps({
         :class="variant"
     >
         <slot name="leading"></slot>
-        <span><slot></slot></span>
+        <span v-if="$slots.default"><slot></slot></span>
         <slot name="trailing"></slot>
     </button>
 </template>
 
 <style scoped>
 .default {
+    background-color: var(--bg-input);
+    color: var(--accent);
+}
+.accent {
     background-color: var(--bg-input);
     border-color: var(--accent);
     color: var(--accent);
@@ -31,6 +35,10 @@ defineProps({
 }
 .filled {
     background-color: var(--bg-elevated);
+    border-color: var(--border);
+    color: var(--text-primary);
+}
+.unfilled {
     border-color: var(--border);
     color: var(--text-primary);
 }
