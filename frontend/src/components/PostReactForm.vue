@@ -1,5 +1,8 @@
 <script setup>
 import { useUser } from '@/composables/useUser.js';
+import GenericButton from '@/components/GenericButton.vue';
+import ThumbsUpIcon from '@/components/Icons/ThumbsUpIcon.vue';
+import ThumbsDownIcon from '@/components/Icons/ThumbsDownIcon.vue';
 
 defineProps({
     post: {
@@ -19,23 +22,29 @@ function react(action) {
 </script>
 
 <template>
-    <div class="reactions">
-        <button
+    <div class="flex align-items-center gap-6">
+        <GenericButton
             type="button"
-            class="post-reaction"
+            :variant="post.Liked ? 'default' : 'unfilled'"
+            :aria-pressed="Boolean(post.Liked)"
+            :aria-label="`Like (${post.Likes ?? 0})`"
             :disabled="!user.LoggedIn"
             @click="react('like')"
         >
-            {{ post.Likes }} {{ post.Liked ? '👍' : '👍🏻' }}
-        </button>
-        <button
+            <template #leading><ThumbsUpIcon /></template>
+            {{ post.Likes ?? 0 }}
+        </GenericButton>
+        <GenericButton
             type="button"
-            class="post-reaction"
+            :variant="post.Disliked ? 'danger' : 'unfilled'"
+            :aria-pressed="Boolean(post.Disliked)"
+            :aria-label="`Dislike (${post.Dislikes ?? 0})`"
             :disabled="!user.LoggedIn"
             @click="react('dislike')"
         >
-            {{ post.Dislikes }} {{ post.Disliked ? '👎' : '👎🏻' }}
-        </button>
+            <template #leading><ThumbsDownIcon /></template>
+            {{ post.Dislikes ?? 0 }}
+        </GenericButton>
     </div>
 </template>
 
