@@ -1,8 +1,11 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, useTemplateRef } from 'vue';
 import { useRouter } from 'vue-router';
 import { apiPost } from '@/utils/api.js';
 import PostVisibilityPanel from '@/components/PostVisibilityPanel.vue';
+import ImagePreview from './ImagePreview.vue';
+import GenericButton from './GenericButton.vue';
+import ImageIcon from './Icons/ImageIcon.vue';
 
 const props = defineProps({
     post: {
@@ -15,104 +18,123 @@ const props = defineProps({
     },
 });
 
-const visibility = ref(props.post.Visibility ?? 'public');
 const router = useRouter();
 
-const title = ref(props.post.Title);
-const body = ref(props.post.Body);
-const image = ref(null);
-const selected = ref((props.post.Categories ?? []).map((category) => category.Id));
-const submitting = ref(false);
+const initialCategoryIds = (props.post.Categories ?? []).map((category) => category.Id);
 
-function toggle(categoryId) {
-    const index = selected.value.indexOf(categoryId);
-    if (index === -1) {
-        selected.value.push(categoryId);
-    } else {
-        selected.value.splice(index, 1);
-    }
-}
+const visibility = ref(props.post.Visibility ?? 'public');
+const allowed = ref([]);
+const image = ref(null);
+const fileInput = useTemplateRef('file-input');
+const submitting = ref(false);
 
 function onImage(e) {
     image.value = e.target.files[0] ?? null;
+    e.target.value = '';
 }
 
-async function submit() {
+async function submitForm(e) {
     submitting.value = true;
-    const data = new FormData();
-    data.append('post-id', props.post.Id);
-    data.append('save-post', '1');
-    data.append('title', title.value);
-    data.append('body', body.value);
-    for (const id of selected.value) {
-        data.append(`category-${id}`, 'on');
-    }
+    const data = new FormData(e.target);
     if (image.value) data.append('image', image.value);
-    data.append('visibility', props.post.GroupId ? 'public' : visibility.value);
-    const res = await apiPost(`/api/post/edit/${props.post.Id}`, data);
-    submitting.value = false;
-    if (res) {
-        router.push(`/post/view/${props.post.Id}`);
+
+    try {
+        const res = await apiPost(`/api/post/edit/${props.post.Id}`, data);
+        if (res && !res.Error?.Has) {
+            router.push(`/post/view/${props.post.Id}`);
+        }
+    } finally {
+        submitting.value = false;
     }
 }
 </script>
 
 <template>
-    <div class="flex flex-column gap-20">
-        <form class="post-edit" @submit.prevent="submit">
-            <fieldset>
-                <legend>Edit Post</legend>
-                <PostVisibilityPanel
-                    v-if="!props.post.GroupId"
-                    v-model="visibility"
-                    :disabled="submitting"
-                />
-                <p v-else>
-                    Visibility is set to
-                    <strong>Public</strong>
-                    for group posts.
-                </p>
-                <input
-                    type="text"
-                    v-model="title"
-                    name="title"
-                    placeholder="Your title here"
-                    required
-                />
-                <template v-if="!post.GroupId">
-                    <div class="inline" v-for="category in categories" :key="category.Id">
-                        <input
-                            type="checkbox"
-                            :id="`category-${category.Id}`"
-                            :name="`category-${category.Id}`"
-                            :checked="selected.includes(category.Id)"
-                            @change="toggle(category.Id)"
-                        />
-                        <label :for="`category-${category.Id}`">{{ category.Name }}</label>
-                    </div>
-                </template>
-                <img
-                    v-if="post.ImagePath"
-                    :src="`/${post.ImagePath}`"
-                    alt="Post image"
-                    style="max-width: 100%"
-                />
-                <textarea
-                    v-model="body"
-                    name="body"
-                    placeholder="Your post here"
-                    required
-                ></textarea>
-                <input
-                    type="file"
-                    name="image"
-                    accept="image/jpeg,image/png,image/gif"
-                    @change="onImage"
-                />
-                <input type="submit" :disabled="submitting" value="Save post" />
-            </fieldset>
-        </form>
-    </div>
+    <form @submit.prevent="submitForm">
+        <fieldset>
+            <p>Edit post</p>
+            <input type="text" name="title" :value="post.Title" placeholder="Your title here" required />
+            <textarea name="body" :value="post.Body" placeholder="Your post here" required></textarea>
+
+            <ImagePreview v-if="image" v-model="image" />
+            <img v-else-if="post.ImagePath" :src="`/${post.ImagePath}`" alt="" class="current-image" />
+
+            <div v-if="!post.GroupId" class="category-selector flex flex-wrap gap-10">
+                <div
+                    v-for="category in categories"
+                    :key="category.Id"
+                    class="flex align-items-center gap-5 text-color-secondary"
+                >
+                    <input
+                        type="checkbox"
+                        :id="`category-${category.Id}`"
+                        :name="`category-${category.Id}`"
+                        :checked="initialCategoryIds.includes(category.Id)"
+                    />
+                    <label :for="`category-${category.Id}`">{{ category.Name }}</label>
+                </div>
+            </div>
+            <small v-else>Visibility is set to <strong>Public</strong> for group posts.</small>
+
+            <input type="hidden" name="post-id" :value="post.Id" />
+            <input type="hidden" name="save-post" value="1" />
+            <input type="hidden" name="visibility" :value="post.GroupId ? 'public' : visibility" />
+            <template v-if="!post.GroupId && visibility === 'limited'">
+                <input v-for="id in allowed" :key="id" type="hidden" name="allowed-user" :value="id" />
+            </template>
+
+            <div class="flex flex-wrap justify-content-space-between gap-6">
+                <span class="flex flex-wrap align-items-center gap-6">
+                    <PostVisibilityPanel
+                        v-if="!post.GroupId"
+                        v-model="visibility"
+                        v-model:allowed="allowed"
+                        :disabled="submitting"
+                    />
+                    <GenericButton type="button" variant="unfilled" @click="fileInput.click()">
+                        <template #leading><ImageIcon /></template>
+                        {{ post.ImagePath ? 'Replace image' : 'Image/GIF' }}
+                    </GenericButton>
+                    <input
+                        ref="file-input"
+                        type="file"
+                        accept="image/jpeg,image/png,image/gif"
+                        hidden
+                        @change="onImage"
+                    />
+                </span>
+                <div class="flex align-items-center gap-6">
+                    <GenericButton type="button" variant="unfilled" @click="router.push(`/post/view/${post.Id}`)">
+                        Cancel
+                    </GenericButton>
+                    <GenericButton type="submit" :disabled="submitting">Save post</GenericButton>
+                </div>
+            </div>
+        </fieldset>
+    </form>
 </template>
 
-<style scoped></style>
+<style scoped>
+.current-image {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 2px;
+    width: fit-content;
+}
+
+.category-selector input[type="checkbox"] {
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    background-color: var(--bg-input);
+}
+
+.category-selector input:checked {
+    background-color: var(--accent);
+}
+
+.category-selector input:checked + label {
+    color: var(--text-primary);
+}
+</style>
