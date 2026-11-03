@@ -8,8 +8,11 @@ import BurgerIcon from './Icons/BurgerIcon.vue';
 import BellIcon from './Icons/BellIcon.vue';
 import ChevronDownIcon from './Icons/ChevronDownIcon.vue';
 import { useLeftSidebar } from '../composables/useLeftSidebar.js';
+import GenericDropdown from './GenericDropdown.vue';
+import DropdownItem from './DropdownItem.vue';
+import GenericButton from './GenericButton.vue';
 
-const { websiteName } = useAppData();
+const { websiteName, isMobileView } = useAppData();
 const { user, logoutUser } = useUser();
 const { unreadNotificationsCount } = useNotifications();
 const { toggleLeftSidebar } = useLeftSidebar();
@@ -18,7 +21,9 @@ const { toggleLeftSidebar } = useLeftSidebar();
 <template>
     <div class="topbar">
         <div class="title">
-            <button class="menu-button" @click="toggleLeftSidebar"><BurgerIcon /></button>
+            <GenericButton v-if="isMobileView" variant="no-border" @click="toggleLeftSidebar">
+                <template #leading><BurgerIcon /></template>
+            </GenericButton>
             <router-link to="/">
                 <h1>{{ websiteName }}</h1>
             </router-link>
@@ -26,35 +31,54 @@ const { toggleLeftSidebar } = useLeftSidebar();
         <ul class="menu">
             <template v-if="user.LoggedIn">
                 <li>
-                    <details>
-                        <summary>
-                            <BellIcon />
-                            <span class="label">Notifications</span>
-                            <span v-if="unreadNotificationsCount > 0" class="count">
-                                {{ unreadNotificationsCount }}
-                            </span>
-                        </summary>
-                        <NotificationsPanel />
-                    </details>
+                    <GenericDropdown open-on="click" align="right" variant="elevated">
+                        <template #trigger>
+                            <GenericButton variant="no-border">
+                                <template #leading v-if="isMobileView"><BellIcon /></template>
+                                <template #default v-if="!isMobileView">Notifications</template>
+                                <template #trailing v-if="unreadNotificationsCount > 0">
+                                    <span class="count">{{ unreadNotificationsCount }}</span>
+                                </template>
+                            </GenericButton>
+                        </template>
+                        <template #default>
+                            <NotificationsPanel />
+                        </template>
+                    </GenericDropdown>
                 </li>
                 <li>
-                    <div class="user-menu">
-                        <UserAvatar :url="user.AvatarURL" :name="user.Username" size="small" />
-                        <span class="username">{{ user.Username }}</span>
-                        <ChevronDownIcon class="chevron"/>
-                    </div>
-                    <ul class="user-dropdown">
-                        <li>
-                            <router-link :to="`/profile/view/${user.Id}`">My profile</router-link>
-                        </li>
-                        <li><router-link to="/post/create">Create post</router-link></li>
-                        <li><router-link to="/group/create">Create group</router-link></li>
-                        <li><router-link to="/groups">Browse groups</router-link></li>
-                        <li><router-link to="/user/posts">My posts</router-link></li>
-                        <li><router-link to="/user/likes">My likes</router-link></li>
-                        <li><router-link to="/follows">My follows</router-link></li>
-                        <li class="logout"><button @click="logoutUser">Log out</button></li>
-                    </ul>
+                    <GenericDropdown open-on="hover" align="right" variant="elevated">
+                        <template #trigger="{ open }">
+                            <GenericButton variant="no-border">
+                                <template #leading>
+                                    <UserAvatar
+                                        :url="user.AvatarURL"
+                                        :name="user.Username"
+                                        size="small"
+                                    />
+                                </template>
+                                <template v-if="!isMobileView" #default>
+                                    {{ user.Username }}
+                                </template>
+                                <template v-if="!isMobileView" #trailing>
+                                    <ChevronDownIcon :class="{ 'transform-rotate-180deg': open }" />
+                                </template>
+                            </GenericButton>
+                        </template>
+                        <template #default>
+                            <DropdownItem :to="`/profile/view/${user.Id}`">My profile</DropdownItem>
+                            <DropdownItem to="/post/create">Create post</DropdownItem>
+                            <DropdownItem to="/group/create">Create group</DropdownItem>
+                            <DropdownItem to="/groups">Browse groups</DropdownItem>
+                            <DropdownItem to="/user/posts">My posts</DropdownItem>
+                            <DropdownItem to="/user/likes">My likes</DropdownItem>
+                            <DropdownItem to="/follows">My follows</DropdownItem>
+                            <hr class="divider" />
+                            <DropdownItem variant="danger" @click="logoutUser()">
+                                Log out
+                            </DropdownItem>
+                        </template>
+                    </GenericDropdown>
                 </li>
             </template>
             <template v-else>
@@ -94,11 +118,6 @@ const { toggleLeftSidebar } = useLeftSidebar();
     color: var(--accent);
 }
 
-.menu-button,
-.bell {
-    display: none;
-}
-
 .menu {
     display: flex;
     align-items: center;
@@ -106,24 +125,6 @@ const { toggleLeftSidebar } = useLeftSidebar();
     margin: 0;
     padding: 0;
     list-style: none;
-}
-
-.menu > li {
-    position: relative;
-}
-
-.menu > li:hover > .user-dropdown {
-    display: flex;
-}
-
-summary {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    list-style: none;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
 }
 
 .count {
@@ -134,67 +135,10 @@ summary {
     font-weight: 700;
 }
 
-.user-menu {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 3px 7px 3px 3px;
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.chevron {
-    color: var(--text-secondary);
-}
-
-.user-dropdown {
-    display: none;
-    flex-direction: column;
-    position: absolute;
-    top: 100%;
-    right: 0;
-    z-index: 1;
-    box-sizing: border-box;
-    width: 200px;
-    margin: 0;
-    padding: 5px;
-    list-style: none;
-    background-color: var(--bg-elevated);
-    border: 1px solid var(--accent-line);
-    border-radius: 2px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-}
-
-.user-dropdown a,
-.user-dropdown button {
-    display: block;
-    width: 100%;
-    box-sizing: border-box;
-    padding: 8px 10px;
+.divider {
+    margin: 4px 0;
     border: none;
-    border-radius: 2px;
-    background: none;
-    font: inherit;
-    font-size: 14px;
-    text-align: left;
-    text-decoration: none;
-    color: var(--text-primary);
-}
-
-.user-dropdown a:hover,
-.user-dropdown button:hover {
-    background-color: var(--bg-input);
-    color: var(--accent);
-}
-
-.user-dropdown .logout {
     border-top: 1px solid var(--border);
-}
-
-.user-dropdown .logout button {
-    color: var(--danger);
 }
 
 @media (max-width: 768px) {
@@ -211,36 +155,9 @@ summary {
         gap: 12px;
     }
 
-    .menu-button {
-        display: flex;
-        padding: 6px;
-        border: 1px solid var(--border);
-        border-radius: 2px;
-        background: none;
-        color: var(--text-primary);
-    }
-
-    .bell {
-        display: block;
-    }
-
-    .label,
-    .username,
-    .chevron {
-        display: none;
-    }
-
-    summary {
-        gap: 4px;
-    }
-
     .count {
         padding: 1px 5px;
         font-size: 11px;
-    }
-
-    .user-menu {
-        padding: 3px;
     }
 }
 </style>

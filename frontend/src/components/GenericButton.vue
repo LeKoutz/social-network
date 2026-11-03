@@ -3,7 +3,8 @@ defineProps({
     variant: {
         type: String,
         default: 'default',
-        validator: (v) => ['default', 'accent', 'danger', 'filled', 'unfilled', 'muted'].includes(v),
+        validator: (v) =>
+            ['default', 'accent', 'danger', 'filled', 'unfilled', 'muted', 'no-border'].includes(v),
     },
 });
 </script>
@@ -40,10 +41,15 @@ defineProps({
 }
 .unfilled {
     border-color: var(--border);
-    color: var(--text-primary);
+    color: var(--text-secondary);
 }
 .muted {
     border-color: var(--border);
     color: var(--text-muted);
+}
+.no-border {
+    background: transparent;
+    border-color: transparent;
+    color: var(--text-primary);
 }
 </style>
