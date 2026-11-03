@@ -39,9 +39,9 @@ onMounted(async () => {
     <template v-if="loaded">
         <Topbar />
         <Alerts />
-        <div class="flex flex-row overflow-y-auto height-100">
+        <div class="flex flex-row flex-1 overflow-hidden">
             <LeftSidebar v-if="user.LoggedIn" />
-            <router-view class="flex-grow-1" />
+            <router-view class="flex-grow-1 overflow-y-auto" />
             <ChatPanel v-if="user.LoggedIn" />
         </div>
         <Footer />
