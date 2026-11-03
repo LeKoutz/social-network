@@ -96,16 +96,6 @@ watch(
     padding: 0;
 }
 
-.toggle {
-    display: flex;
-    padding: 4px;
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    background-color: var(--bg-input);
-    color: var(--accent);
-    cursor: pointer;
-}
-
 .section-title {
     font-size: 12px;
     font-weight: 600;
